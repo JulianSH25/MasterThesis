@@ -31,9 +31,10 @@ def get_edges_in_cut(cut, edges):
 
 def save_benchmark_csv(sol_sdp, sol_grb):
     now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    date = datetime.now().strftime("%Y-%m-%d")
     #filename = f'Benchmarks/benchmark_{sol_sdp["n_vertices"]}_{sol_sdp["n_edges"]}_{now}.csv'
-    filename = f'benchmarks.csv'
-    merged = {**sol_sdp, **sol_grb}  # dict2 overwrites dict1 if keys overlap
+    filename = f'benchmarks_{date}.csv'
+    merged = {**sol_sdp, **sol_grb, "current time": now}  # dict2 overwrites dict1 if keys overlap
 
     # If the CSV does not exist yet, write headers
     try:

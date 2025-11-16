@@ -24,7 +24,7 @@ def QMC_SDP_solver(edges, weights, n_vertices):
 
     # Step 4: Create and solve the problem
     problem = cp.Problem(cp.Maximize(objective), constraints)
-    problem.solve()
+    problem.solve(solver=cp.MOSEK)
 
     # Step 5: Return the optimal M found by the solver
     return M.value
