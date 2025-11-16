@@ -1,5 +1,5 @@
 import os
-os.environ['GRB_LICENSE_FILE'] = 'Users/julian_dev/Documents/gurobi.lic'#'/Users/julian/PycharmProjects/PythonProject/MasterThesis/gurobi.lic'
+os.environ['GRB_LICENSE_FILE'] = '~/Projects/University/MasterThesis/gurobi.lic'#'/Users/julian/PycharmProjects/PythonProject/MasterThesis/gurobi.lic'
 import gurobipy as gp
 from gurobipy import Model, GRB, quicksum
 
