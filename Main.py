@@ -77,7 +77,7 @@ def benchmark_instance(n_nodes, iid = None, sparse = False):
     return solution_sdp, solution_gurobi
 
 def automated_benchmark(iid, sparse = False):
-    num = int(random.uniform(30, 80))
+    num = int(random.uniform(30, 100))
 
     sol_sdp, sol_grb = benchmark_instance(num, iid, sparse)
 
