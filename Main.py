@@ -6,12 +6,12 @@ import time
 import random
 import uuid
 
-def benchmark_instance(n_nodes, iid = None):
+def benchmark_instance(n_nodes, iid = None, sparse = False):
 
     weights_prob = random.random()
     weights_static = False if random.random() < 0.5 else True
 
-    edges, weights, n_vertices = random_instance_generator(n_nodes, weights_static)
+    edges, weights, n_vertices = random_instance_generator(n_nodes, weights_static, sparse)
 
     while len(edges) == 0:
         edges, weights, n_vertices = random_instance_generator(n_nodes, weights_static)
@@ -76,21 +76,21 @@ def benchmark_instance(n_nodes, iid = None):
 
     return solution_sdp, solution_gurobi
 
-def automated_benchmark(iid):
-    num = int(random.uniform(5, 50))
+def automated_benchmark(iid, sparse = False):
+    num = int(random.uniform(30, 80))
 
-    sol_sdp, sol_grb = benchmark_instance(num, iid)
+    sol_sdp, sol_grb = benchmark_instance(num, iid, sparse)
 
     save_benchmark_csv(sol_sdp, sol_grb)
 
 if __name__ == '__main__':
     start = time.perf_counter()
-    max_seconds = 24 * 3600
+    max_seconds = 10 * 3600
     elapsed = time.perf_counter() - start
 
     while elapsed <= max_seconds:
         instance_id = str(uuid.uuid4())
-        automated_benchmark(instance_id)
+        automated_benchmark(instance_id, True)
         elapsed = time.perf_counter() - start
 
     print(f'elapsed time = {elapsed}; Terminating Benchmarking!')

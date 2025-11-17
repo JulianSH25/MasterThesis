@@ -5,13 +5,15 @@ import json
 
 
 
-def random_instance_generator(nodes: int, weights_static: bool):
+def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
     edges = []
     weights = []
-    avg_n_edges = random.random() # random threshold for edge generation (directly correlating to the average number of edges generated among the existing vertices)
+    avg_n_edges = random.random() if not sparse else random.uniform(0.9, 0.99) # random threshold for edge generation (directly correlating to the average number of edges generated among the existing vertices)
     for i in range(nodes):
         for j in range(nodes):
             if i != j and random.random() > avg_n_edges:
+                if (i, j) in edges or (j, i) in edges:
+                    continue
                 edges.append((i, j))
                 weights.append(random.uniform(1e-10, 1.0) if not weights_static else 1)
 
