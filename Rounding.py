@@ -24,20 +24,21 @@ def cholesky_psd(A, eps=1e-12):
 
 def round_sdp_with_cholesky(M, num_rounds=1):
     """
-    Round an SDP solution using Cholesky decomposition.
-    (No actual rounding for QMC sind already in n dimensions)
+    Round an SDP solution using Goemans-Williamson random hyperplane rounding.
+    
+    Given M (moment matrix) where M[i,j] represents the inner product between
+    vectors v_i and v_j, we:
+    1. Decompose M = L L^T via Cholesky
+    2. Extract vectors v_i as rows of L
+    3. Use random hyperplane rounding
     """
     n = M.shape[0]
 
     # Get Cholesky decomposition: M = L L^T
     L = cholesky_psd(M)
 
-    # The vectors are the rows of L^T (or columns of L)
-    # Each row i of L^T is the vector for vertex i
-    V = L.T
-
-    # Verify our decomposition (optional check)
-    # print(f"Reconstruction error: {np.max(np.abs(V.T @ V - M)):.6f}")
+    # The vectors are the ROWS of L (each row i is the vector v_i)
+    V = L  # shape: (n_vertices, embedding_dimension)
 
     cuts = []
     for _ in range(num_rounds):

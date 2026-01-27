@@ -1,5 +1,5 @@
 import os
-os.environ['GRB_LICENSE_FILE'] = '/Users/julian_dev/Projects/University/MasterThesis/gurobi.lic'#'/Users/julian/PycharmProjects/PythonProject/MasterThesis/gurobi.lic'
+#os.environ['GRB_LICENSE_FILE'] = '/Users/julian_dev/Projects/University/MasterThesis/gurobi.lic'#'/Users/julian/PycharmProjects/PythonProject/MasterThesis/gurobi.lic'
 #os.environ['GRB_LICENSE_FILE'] = '/Users/julian/PycharmProjects/PythonProject/MasterThesis/gurobi.lic'
 import gurobipy as gp
 from gurobipy import Model, GRB, quicksum
@@ -45,4 +45,4 @@ def gurobi_maxcut(n, edges, weights, time_limit=None, mip_gap=None, verbose=True
     y_sol = [int(y[i].X) for i in range(n)]
     z_sol = [int(z[k].X) for k in range(len(edges))]
 
-    return obj, y_sol, z_sol
+    return obj, y_sol, z_sol, model.Status

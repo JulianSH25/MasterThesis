@@ -1,3 +1,4 @@
+from MasterThesis.Utilities import line_instance_generator
 from Utilities import random_instance_generator, get_edges_in_cut, save_benchmark_csv
 from SDP_solver import QMC_SDP_solver
 from Rounding import round_sdp_with_cholesky
@@ -11,7 +12,7 @@ def benchmark_instance(n_nodes, iid = None, sparse = False):
     weights_prob = random.random()
     weights_static = False if random.random() < 0.5 else True
 
-    edges, weights, n_vertices = random_instance_generator(n_nodes, weights_static, sparse)
+    edges, weights, n_vertices = line_instance_generator(n_nodes, weights_static) #random_instance_generator(n_nodes, weights_static, sparse)
 
     while len(edges) == 0:
         edges, weights, n_vertices = random_instance_generator(n_nodes, weights_static)
@@ -52,7 +53,10 @@ def benchmark_instance(n_nodes, iid = None, sparse = False):
 
     #Gurobi exact:
     start = time.perf_counter()
-    obj, y_sol, z_sol = gurobi_maxcut(n_vertices, edges, weights)
+    obj, y_sol, z_sol, optimal = gurobi_maxcut(n_vertices, edges, weights)
+    if not optimal:
+        print("No optimal solution found")
+        return None, None
     end = time.perf_counter()
     grb_time = end - start
 
@@ -77,15 +81,18 @@ def benchmark_instance(n_nodes, iid = None, sparse = False):
     return solution_sdp, solution_gurobi
 
 def automated_benchmark(iid, sparse = False):
-    num = int(random.uniform(30, 100))
+    num = int(random.uniform(30, 60))
 
     sol_sdp, sol_grb = benchmark_instance(num, iid, sparse)
+    print("Solution Gurobi:")
+    print(sol_grb)
 
-    save_benchmark_csv(sol_sdp, sol_grb)
+    if sol_grb is not None:
+        save_benchmark_csv(sol_sdp, sol_grb)
 
 if __name__ == '__main__':
     start = time.perf_counter()
-    max_seconds = 10 * 3600
+    max_seconds = 1 * 60
     elapsed = time.perf_counter() - start
 
     while elapsed <= max_seconds:

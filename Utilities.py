@@ -19,6 +19,17 @@ def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
 
     return edges, weights, nodes
 
+def line_instance_generator(nodes: int, weights_static: bool):
+    """ Creates a line graph, given a number of desired nodes; An edge is always created so long as the number of nodes is not exceeded. """
+    edges = []
+    weights = []
+    for i in range(nodes):
+        if i + 1 < nodes:
+            edges.append((i, i + 1))
+            weights.append(random.uniform(1e-10, 1.0) if not weights_static else 1)
+
+    return edges, weights, nodes
+
 def get_edges_in_cut(cut, edges):
     edge_count = 0
     edges_in_cut = []
@@ -35,7 +46,7 @@ def save_benchmark_csv(sol_sdp, sol_grb):
     now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     date = datetime.now().strftime("%Y-%m-%d")
     #filename = f'Benchmarks/benchmark_{sol_sdp["n_vertices"]}_{sol_sdp["n_edges"]}_{now}.csv'
-    filename = f'benchmarks_{date}.csv'
+    filename = f'benchmarks_{date}_test1.csv'
     merged = {**sol_sdp, **sol_grb, "current time": now}  # dict2 overwrites dict1 if keys overlap
 
     # If the CSV does not exist yet, write headers
