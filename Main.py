@@ -1,106 +1,36 @@
-from MasterThesis.Utilities import line_instance_generator
-from Utilities import random_instance_generator, get_edges_in_cut, save_benchmark_csv
-from SDP_solver import QMC_SDP_solver
-from Rounding import round_sdp_with_cholesky
-from Gurobi_exact_solver import gurobi_maxcut
-import time
-import random
-import uuid
+from MasterThesis.SDP_solver import ABCParams, SDP_Solver_
+from MasterThesis.Rounding import round_sdp_with_cholesky
+from Utilities import random_instance_generator, line_instance_generator, get_edges_in_cut, save_benchmark_csv
+from testing import visualize_cut
 
-def benchmark_instance(n_nodes, iid = None, sparse = False):
 
-    weights_prob = random.random()
-    weights_static = False if random.random() < 0.5 else True
+def main_benchmark(n_vertices, params: ABCParams, sparse: bool):
+    solver_sdp = SDP_Solver_()
 
-    edges, weights, n_vertices = line_instance_generator(n_nodes, weights_static) #random_instance_generator(n_nodes, weights_static, sparse)
+    edges, weights, nodes = line_instance_generator(nodes=n_vertices, weights_static=True)#, sparse=sparse)
 
-    while len(edges) == 0:
-        edges, weights, n_vertices = random_instance_generator(n_nodes, weights_static)
+    M_optimal = solver_sdp.QMC_SDP_solver_antiFerro(edges, weights, n_vertices, params=params)
 
-    print(f'number of vertices = {n_vertices}, number of edges = {len(edges)}')
+    cut = round_sdp_with_cholesky(M_optimal, parameters=params)
+    print("Rounded cut:")
+    print(cut)
 
-    start = time.perf_counter()
-    M_optimal = QMC_SDP_solver(edges, weights, n_vertices)
-    end = time.perf_counter()
-    sdp_time = end - start
-
-    print(f"Optimal moment matrix: with dimension: {M_optimal.shape}")
+    print("Optimal moment matrix:")
     print(M_optimal)
 
-    start = time.perf_counter()
-    rounded_solution = round_sdp_with_cholesky(M_optimal)
-    end = time.perf_counter()
-    rounding_time = end - start
+    print("Rounding...")
+    cuts = [round_sdp_with_cholesky(M_optimal, parameters=params) for _ in range(10)]
+    print(cuts)
 
-    print(rounded_solution)
-    edge_count, edges_in_cut = get_edges_in_cut(rounded_solution, edges)
+    edge_count, edges_in_cut = get_edges_in_cut(cut, edges)
+    print(f"{edge_count} in cut out of a total of {len(edges)} edges")
 
-    print(edge_count)
-
-    solution_sdp = {
-        "instance_id": iid if iid is not None else None,
-        "n_vertices": n_vertices,   # vertices in instance
-        "n_edges": len(edges),  # number of edges in instance
-        "edges": edges,     # edges in instance
-        "weights_static": weights_static,
-        "weights": weights,     # edge weights of instance
-        "SDP_matrix": M_optimal.tolist(),  # M optimal matrix of relaxation
-        "sdp_rounded_solution": rounded_solution,   # the solution
-        "sdp_edges_in_cut": edges_in_cut,  # edges in solution
-        "sdp_cut_value": edge_count,     #objective value of solution
-        "sdp_timings": {"sdp": sdp_time, "rounding": rounding_time, "total": sdp_time+rounding_time}
-    }
-
-    #Gurobi exact:
-    start = time.perf_counter()
-    obj, y_sol, z_sol, optimal = gurobi_maxcut(n_vertices, edges, weights)
-    if not optimal:
-        print("No optimal solution found")
-        return None, None
-    end = time.perf_counter()
-    grb_time = end - start
-
-    grb_edge_count, grb_edges_in_cut = get_edges_in_cut(y_sol, edges)
-    print(f'objective is {obj}; Check: edges in cut = {grb_edge_count} vs {edge_count} in the SDP solution')
-    print(f'y_sol is {y_sol}')
-    print(f'z_sol is {z_sol}')
+    visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
 
 
-    solution_gurobi = {
-        "n_vertices": n_vertices,  # vertices in instance
-        "n_edges": len(edges),  # number of edges in instance
-        "edges": edges,  # edges in instance
-        "weights": weights,  # edge weights of instance
-        "grb_optimal_solution": y_sol,  # the solution
-        "grb_edges_in_cut": grb_edges_in_cut,  # edges in solution
-        "grb_cut_value": obj,  # objective value of solution
-        "grb_timings": grb_time,
-        "approx_quality_%": obj/edge_count if edge_count > 0 else 0
-    }
+if __name__ == "__main__":
+    n_vertices = 20
+    params: ABCParams = {"a": 1, "b": 1, "c": 1}
+    sparse = False
 
-    return solution_sdp, solution_gurobi
-
-def automated_benchmark(iid, sparse = False):
-    num = int(random.uniform(30, 60))
-
-    sol_sdp, sol_grb = benchmark_instance(num, iid, sparse)
-    print("Solution Gurobi:")
-    print(sol_grb)
-
-    if sol_grb is not None:
-        save_benchmark_csv(sol_sdp, sol_grb)
-
-if __name__ == '__main__':
-    start = time.perf_counter()
-    max_seconds = 1 * 60
-    elapsed = time.perf_counter() - start
-
-    while elapsed <= max_seconds:
-        instance_id = str(uuid.uuid4())
-        automated_benchmark(instance_id, True)
-        elapsed = time.perf_counter() - start
-
-    print(f'elapsed time = {elapsed}; Terminating Benchmarking!')
-
-
-
+    main_benchmark(n_vertices, params, sparse)

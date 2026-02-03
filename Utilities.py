@@ -4,22 +4,63 @@ import csv
 import json
 
 
+def idx(i: int, k: int) -> int:
+    """Method to compute the correct index for a given vertex i and Pauli k to ensure consistency/avoid indexing errors"""
+    # k: 0->X, 1->Y, 2->Z
+    return 3 * i + k
 
 def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
-    edges = []
-    weights = []
-    avg_n_edges = random.random() if not sparse else random.uniform(0.8, 0.99) # random threshold for edge generation (directly correlating to the average number of edges generated among the existing vertices)
+    """Create a random *connected* undirected graph.
+
+    Guarantees:
+      - No isolated nodes (every node has degree >= 1)
+      - The graph has exactly one connected component (no disjoint subgraphs)
+
+    The generator first creates a random spanning tree to ensure connectivity,
+    then adds additional random edges according to the same sparsity logic as before.
+    """
+    if nodes <= 0:
+        return [], [], nodes
+    if nodes == 1:
+        return [], [], nodes
+
+    edges: list[tuple[int, int]] = []
+    weights: list[float] = []
+    edge_set: set[tuple[int, int]] = set()  # store as (min(u,v), max(u,v))
+
+    # Keep the original "threshold" semantics:
+    # add a candidate edge with probability ~ (1 - threshold)
+    threshold = random.random() if not sparse else random.uniform(0.8, 0.99)
+
+    def add_edge(u: int, v: int):
+        a, b = (u, v) if u < v else (v, u)
+        if a == b:
+            return
+        if (a, b) in edge_set:
+            return
+        edge_set.add((a, b))
+        edges.append((a, b))
+        weights.append(random.uniform(1e-10, 1.0) if not weights_static else 1)
+
+    # 1) Ensure connectivity via a random spanning tree
+    perm = list(range(nodes))
+    random.shuffle(perm)
+    for idx in range(1, nodes):
+        u = perm[idx]
+        v = random.choice(perm[:idx])  # connect to any previous node
+        add_edge(u, v)
+
+    # 2) Add extra random edges
     for i in range(nodes):
-        for j in range(nodes):
-            if i != j and random.random() > avg_n_edges:
-                if (i, j) in edges or (j, i) in edges:
-                    continue
-                edges.append((i, j))
-                weights.append(random.uniform(1e-10, 1.0) if not weights_static else 1)
+        for j in range(i + 1, nodes):
+            if (i, j) in edge_set:
+                continue
+            if random.random() > threshold:
+                add_edge(i, j)
 
     return edges, weights, nodes
 
-def line_instance_generator(nodes: int, weights_static: bool):
+def line_instance_generator(nodes: int, weights_static: bool, _ = None):
     """ Creates a line graph, given a number of desired nodes; An edge is always created so long as the number of nodes is not exceeded. """
     edges = []
     weights = []
