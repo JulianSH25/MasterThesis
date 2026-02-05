@@ -1,13 +1,13 @@
-from MasterThesis.SDP_solver import ABCParams, SDP_Solver_
-from MasterThesis.Rounding import round_sdp_with_cholesky
+from SDP_solver import ABCParams, SDP_Solver_
+from Rounding import round_sdp_with_cholesky
 from Utilities import random_instance_generator, line_instance_generator, get_edges_in_cut, save_benchmark_csv
-from testing import visualize_cut
+#from testing import visualize_cut
 
 
-def main_benchmark(n_vertices, params: ABCParams, sparse: bool):
+def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool):
     solver_sdp = SDP_Solver_()
 
-    edges, weights, nodes = line_instance_generator(nodes=n_vertices, weights_static=True)#, sparse=sparse)
+    edges, weights = instance
 
     M_optimal = solver_sdp.QMC_SDP_solver_antiFerro(edges, weights, n_vertices, params=params)
 
@@ -25,7 +25,9 @@ def main_benchmark(n_vertices, params: ABCParams, sparse: bool):
     edge_count, edges_in_cut = get_edges_in_cut(cut, edges)
     print(f"{edge_count} in cut out of a total of {len(edges)} edges")
 
-    visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
+    #visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
+
+    return edge_count, edges_in_cut, cut, M_optimal
 
 
 if __name__ == "__main__":

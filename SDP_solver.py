@@ -4,7 +4,7 @@ from typing import Literal, TypedDict
 from Rounding import round_sdp_with_cholesky
 from numpy.matlib import empty
 from itertools import permutations
-from testing import visualize_cut
+#from testing import visualize_cut
 
 from Utilities import idx
 
@@ -137,4 +137,4 @@ if __name__ == '__main__':
     cuts = [round_sdp_with_cholesky(M_optimal, parameters=params) for _ in range(10)]
     print(cuts)
 
-    visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
+    #visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
