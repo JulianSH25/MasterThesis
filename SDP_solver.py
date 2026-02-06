@@ -39,7 +39,7 @@ class SDP_Solver_():
                 term += M[idx(i, 1), idx(j, 1)]
             if c == 1:
                 term += M[idx(i, 2), idx(j, 2)]
-            objective += w * (1 - term) / 2
+            objective += w * (1 - term) / 2 # TODO WHY /2?
         # Step 3: Defining constraints
         #
         # 3.3 M PSD:
@@ -47,17 +47,24 @@ class SDP_Solver_():
             M >> 0,
         ]
         # 3.2 Anti commutation:
-        constraints += [
-            # With symmetric M, antisymmetry implies these entries must be 0.
-            M[idx(i, k), idx(i, l)] == 0
-            for i in range(n_vertices)
-            for k in active_k
-            for l in active_k
-            if k != l
-        ]
+        # added check to avoid adding anti-commutation constraints when only one Pauli operator is active, since in that case the anti-commutation constraints are not relevant and only add overhead as well as possibly unwanted side effects.
+        if not (a == 0 and b == 0 and c == 1):
+            constraints += [
+                # With symmetric M, antisymmetry implies these entries must be 0.
+                M[idx(i, k), idx(i, l)] == 0
+                for i in range(n_vertices)
+                for k in active_k
+                for l in active_k
+                if k != l
+            ]
+        else:
+            print(f"Skipping anti-commutation constraints since only Z is active, which is sufficient for Max-Cut. (parameters={parameters} / a={a}, b={b}, c={c})")
 
         # 3.1 Diagonal entries normalised to 1/enforcing identity for products of equal pauli operators, i.e. p^+ p = I
         constraints += [M[idx(i, k), idx(i, k)] == 1 for i in range(n_vertices) for k in active_k]
+
+        print(constraints)
+        print(objective)
 
         problem = cp.Problem(cp.Maximize(objective), constraints)
 

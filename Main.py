@@ -32,7 +32,14 @@ def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool):
 
 if __name__ == "__main__":
     n_vertices = 20
-    params: ABCParams = {"a": 1, "b": 1, "c": 1}
+    params: ABCParams = {"a": 0, "b": 0, "c": 1}
     sparse = False
 
-    main_benchmark(n_vertices, params, sparse)
+    edges = [
+        (6, 11), (6, 12), (2, 6), (5, 11), (0, 2), (0, 8),
+        (3, 11), (6, 10), (6, 7), (7, 13), (3, 4), (3, 9),
+        (1, 9), (1, 12), (2, 3), (2, 4), (2, 5), (12, 13),
+    ]
+    weights = [1.0] * len(edges)
+
+    edge_count, _, _, _ = main_benchmark(n_vertices, params, (edges, weights), sparse)

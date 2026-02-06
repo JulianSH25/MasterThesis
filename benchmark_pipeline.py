@@ -20,7 +20,7 @@ from gurobipy import GurobiError
 
 
 MAX_RUNTIME_SECONDS = 2 * 60 * 60  # 2 hours
-MAX_VERTICES = 100
+MAX_VERTICES = 20
 MIN_RANDOM_VERTICES = 10
 
 # --- User configuration section -------------------------------------------------
@@ -36,10 +36,10 @@ def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bo
     if any(v not in (0, 1) for v in params.values()) or sum(params.values()) == 0:
         raise ValueError("--params must be three bits (0/1) and at least one must be 1")
 
-    edges, weights, _ = line_instance_generator(
+    edges, weights, _ = random_instance_generator(
         nodes=n_vertices,
         weights_static=True,
-        #sparse=sparse,
+        sparse=sparse,
     )
 
     edge_count, edges_in_cut, cut, M_optimal = main_benchmark(
@@ -68,6 +68,7 @@ def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bo
         print(f"SDP rounded cut has {edge_count} edges in cut out of {len(edges)} total edges")
         sol_sdp = {
             "solver": "SDP+GW",
+            "edges": json.dumps(edges),
             "params": json.dumps(params),
             "SDPGW_numberOf_vertices": n_vertices,
             "SDPGW_numberOf_edges": len(edges),
@@ -87,7 +88,7 @@ def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bo
             "Approximation_quality_percent": json.dumps(approx_ratio * 100) if approx_ratio is not None else None,
         }
 
-        save_benchmark_csv(sol_sdp, sol_grb, "line_maxcut")
+        save_benchmark_csv(sol_sdp, sol_grb, "test_maxcut_2")
         return True
     else:
         print(f"Gurobi did not find optimal solution for size {n_vertices} vertices with {len(edges)} edges. Status code: {status}")
