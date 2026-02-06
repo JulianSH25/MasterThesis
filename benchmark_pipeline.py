@@ -12,10 +12,10 @@ import json
 import time
 import random
 
-from Main import main_benchmark
-from Gurobi_exact_solver import gurobi_maxcut
-from SDP_solver import ABCParams
-from Utilities import line_instance_generator, random_instance_generator, save_benchmark_csv
+from MasterThesis.SPD.Main import main_benchmark
+from MasterThesis.SPD.Gurobi_exact_solver import gurobi_maxcut
+from MasterThesis.SPD.SDP_solver import ABCParams
+from MasterThesis.SPD.Utilities import line_instance_generator, save_benchmark_csv
 from gurobipy import GurobiError
 
 
