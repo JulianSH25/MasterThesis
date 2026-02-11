@@ -31,15 +31,17 @@ class SDP_Solver_():
         assert len(active_k) > 0
 
 
+        # build the objective function:
         for (i, j), w in zip(edges, weights):
-            term = 0
+            term = 1
             if a == 1:
-                term += M[idx(i, 0), idx(j, 0)]
+                term -= M[idx(i, 0), idx(j, 0)]
             if b == 1:
-                term += M[idx(i, 1), idx(j, 1)]
+                term -= M[idx(i, 1), idx(j, 1)]
             if c == 1:
-                term += M[idx(i, 2), idx(j, 2)]
-            objective += w * (1 - term) / 2 # TODO WHY /2?
+                term -= M[idx(i, 2), idx(j, 2)]
+            objective += w * term
+            #objective += w * (1 - term) #/2 #  WHY /2? -> # REVIEW: removed /2
         # Step 3: Defining constraints
         #
         # 3.3 M PSD:
@@ -48,20 +50,27 @@ class SDP_Solver_():
         ]
         # 3.2 Anti commutation:
         # added check to avoid adding anti-commutation constraints when only one Pauli operator is active, since in that case the anti-commutation constraints are not relevant and only add overhead as well as possibly unwanted side effects.
-        if not (a == 0 and b == 0 and c == 1):
-            constraints += [
-                # With symmetric M, antisymmetry implies these entries must be 0.
-                M[idx(i, k), idx(i, l)] == 0
-                for i in range(n_vertices)
-                for k in active_k
-                for l in active_k
-                if k != l
-            ]
-        else:
-            print(f"Skipping anti-commutation constraints since only Z is active, which is sufficient for Max-Cut. (parameters={parameters} / a={a}, b={b}, c={c})")
+        #if not (a == 0 and b == 0 and c == 1):
+        """constraints += [
+            # With symmetric M, antisymmetry implies these entries must be 0.
+            M[idx(i, k), idx(i, l)] == - M[idx(i, l), idx(i, k)]
+            for i in range(n_vertices)
+            for k in range(3)
+            for l in range(3)
+            if k != l
+        ]"""
+        for i in range(n_vertices):
+            for k in range(3):
+                for l in range(3):
+                    if k != l:
+                        ik = idx(i, k)
+                        il = idx(i, l)
+                        constraints.append(M[ik, il] == -M[il, ik])
+            #else:
+         #   print(f"Skipping anti-commutation constraints since only Z is active, which is sufficient for Max-Cut. (parameters={parameters} / a={a}, b={b}, c={c})")
 
         # 3.1 Diagonal entries normalised to 1/enforcing identity for products of equal pauli operators, i.e. p^+ p = I
-        constraints += [M[idx(i, k), idx(i, k)] == 1 for i in range(n_vertices) for k in active_k]
+        constraints += [M[idx(i,k), idx(i,k)] == 1 for i in range(n_vertices) for k in range(3)]
 
         print(constraints)
         print(objective)
@@ -69,36 +78,6 @@ class SDP_Solver_():
         problem = cp.Problem(cp.Maximize(objective), constraints)
 
         return problem, M, constraints
-
-    """def QMC_SDP_solver(edges, weights, n_vertices):
-    
-        #problem, M, _ = SDP_setup(edges, weights, n_vertices, parameters=(1, 0, 0))
-        # Step 1: Declaring M as a variable
-        M = cp.Variable((n_vertices, n_vertices), symmetric=True)
-    
-        # Step 2: Set up of the objective function
-        objective = 0
-        for (i, j), w in zip(edges, weights):
-            objective += w * (1 - M[i, j]) / 2
-    
-        # Step 3: Defining constraints
-        # 3.3 M PSD:
-        constraints = [
-            M >> 0,
-        ]
-    
-        # 3.1 Diagonal entries normalised to 1/enforcing identity for products of equal pauli operators, i.e. p^+ p = I
-        for i in range(n_vertices):
-            constraints.append(M[i, i] == 1)
-    
-        # Can neglect second constraint (3.2 here) since for the max cut setting it is never the case that we have one pauli operator on the one qubit but a different one on the other; We always only ever apply Pauli-z in QMC
-    
-        # Step 4: Create and solve the problem
-        problem = cp.Problem(cp.Maximize(objective), constraints)
-        problem.solve(solver=cp.MOSEK)
-    
-        # Step 5: Return the optimal M found by the solver
-        return M.value"""
 
     def QMC_SDP_solver_antiFerro(self, edges, weights, n_vertices, params: ABCParams):
 
@@ -111,11 +90,13 @@ class SDP_Solver_():
 
         # Prefer MOSEK, but fall back to SCS if MOSEK is not available/licensed.
         try:
-            problem.solve(solver=cp.MOSEK)
+            problem.solve(solver=cp.MOSEK)#, eps=1e-200, verbose=False)
+            #problem.solve(solver=cp.SCS, eps=1e-12, verbose=True)
         except Exception:
+            print("Warning: MOSEK solver not available; using SCS instead.")
             problem.solve(solver=cp.SCS)
 
-        if problem.status not in (cp.OPTIMAL, cp.OPTIMAL_INACCURATE, "optimal", "optimal_inaccurate"):
+        if problem.status not in (cp.OPTIMAL, "optimal"): #(cp.OPTIMAL, cp.OPTIMAL_INACCURATE, "optimal", "optimal_inaccurate"):
             raise RuntimeError(
                 f"SDP did not solve to optimality (status={problem.status}). "
                 "If this is unexpected, try checking solver output or relaxing constraints."
@@ -125,23 +106,20 @@ class SDP_Solver_():
 
 if __name__ == '__main__':
     solver_sdp = SDP_Solver_()
-    edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (0,5), (0,4), (2,4)]  # A triangle graph
+    edges = [(0, 1)]#, (1, 2), (2, 3), (3, 4), (4, 5), (0,5), (0,4), (2,4)]  # A triangle graph
     weights = [1 for _ in edges]
-    n_vertices = 6
+    n_vertices = 2
 
     params: ABCParams = {"a": 1, "b": 1, "c": 1}
 
     M_optimal = solver_sdp.QMC_SDP_solver_antiFerro(edges, weights, n_vertices, params=params)
 
-    cut = round_sdp_with_cholesky(M_optimal, parameters=params)
-    print("Rounded cut:")
-    print(cut)
-
     print("Optimal moment matrix:")
     print(M_optimal)
 
     print("Rounding...")
-    cuts = [round_sdp_with_cholesky(M_optimal, parameters=params) for _ in range(10)]
-    print(cuts)
+    cut = round_sdp_with_cholesky(M_optimal, parameters=params)
+    print("Rounded cut:")
+    print(cut)
 
     #visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")

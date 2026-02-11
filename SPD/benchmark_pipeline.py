@@ -12,16 +12,19 @@ import json
 import time
 import random
 
-from MasterThesis.SPD.Main import main_benchmark
-from MasterThesis.SPD.Gurobi_exact_solver import gurobi_maxcut
-from MasterThesis.SPD.SDP_solver import ABCParams
-from MasterThesis.SPD.Utilities import line_instance_generator, save_benchmark_csv
+from Main import main_benchmark
+from Gurobi_exact_solver import gurobi_maxcut
+from SDP_solver import ABCParams
+from Utilities import line_instance_generator, save_benchmark_csv, random_instance_generator
 from gurobipy import GurobiError
+from datetime import datetime
+import uuid
 
 
-MAX_RUNTIME_SECONDS = 2 * 60 * 60  # 2 hours
+MAX_RUNTIME_SECONDS = 240  # 2 hours
 MAX_VERTICES = 20
-MIN_RANDOM_VERTICES = 10
+MIN_RANDOM_VERTICES = 3
+rounds = 1
 
 # --- User configuration section -------------------------------------------------
 # Adjust these values to explore different regimes without touching code below.
@@ -30,6 +33,9 @@ PARAMS: ABCParams = {"a": 0, "b": 0, "c": 1}
 SPARSE = False
 # -------------------------------------------------------------------------------
 
+now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+hash2 = f"{random.randrange(100):02d}"
+name = f"roundings_{now}_{hash2}"
 
 def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bool:
 
@@ -42,11 +48,15 @@ def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bo
         sparse=sparse,
     )
 
-    edge_count, edges_in_cut, cut, M_optimal = main_benchmark(
+    uuid__ = uuid.uuid4().hex
+
+    edge_count, edges_in_cut, cut, M_optimal, cut_variations = main_benchmark(
         n_vertices=n_vertices,
         params=params,
         instance=(edges, weights),
         sparse=sparse,
+        benchm_filename=name,
+        uuid__= uuid__,
     )
     print("Finished SDP + Rounding benchmark. Benchmarking Gurobi now...")
     try:
@@ -70,6 +80,7 @@ def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bo
             "solver": "SDP+GW",
             "edges": json.dumps(edges),
             "params": json.dumps(params),
+            "SDPGW_optimal_moment_matrix": json.dumps(M_optimal.tolist()),
             "SDPGW_numberOf_vertices": n_vertices,
             "SDPGW_numberOf_edges": len(edges),
             "SDPGW_params": json.dumps(params),
@@ -86,9 +97,13 @@ def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bo
             "GRB_status": status,
             "GRB_assignment": json.dumps(list(map(int, y_sol))),
             "Approximation_quality_percent": json.dumps(approx_ratio * 100) if approx_ratio is not None else None,
+            "uuid": uuid__,
+            "cut_variations": sorted(cut_variations),
+            "quality_ratios": sorted({i / obj for i in cut_variations}),
+            "minimum_ratio": min({i / obj for i in cut_variations})
         }
 
-        save_benchmark_csv(sol_sdp, sol_grb, "test_maxcut_2")
+        save_benchmark_csv(sol_sdp, sol_grb, f"test_maxcut_1Rounds_{now}")
         return True
     else:
         print(f"Gurobi did not find optimal solution for size {n_vertices} vertices with {len(edges)} edges. Status code: {status}")

@@ -8,6 +8,7 @@ def idx(i: int, k: int) -> int:
     """Method to compute the correct index for a given vertex i and Pauli k to ensure consistency/avoid indexing errors"""
     # k: 0->X, 1->Y, 2->Z
     return 3 * i + k
+    #return i * k
 
 def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
     """Create a random *connected* undirected graph.

@@ -1,5 +1,9 @@
 import numpy as np
-from Utilities import idx
+from Utilities import idx, save_benchmark_csv
+
+debugging = False
+benchmark_roundings = False
+
 
 def parameter_check(parameters: dict, required_keys=None) -> dict:
 
@@ -46,7 +50,9 @@ def cholesky_psd(M, eps=1e-12):
     M_psd = V @ np.diag(w_clipped) @ V.conj().T
 
     # 3. Cholesky on repaired matrix
-    return np.linalg.cholesky(M_psd)
+    M_cholesky = np.linalg.cholesky(M_psd)
+    print(f"Cholesky decomposition of M: {M_cholesky}")
+    return M_cholesky
 
 def concat_pauli_blocks(v1, v2, v3, parameters: dict):
     """Step 3.1: Concatenate the vectors retrieved from the factorisation of M
@@ -54,7 +60,7 @@ def concat_pauli_blocks(v1, v2, v3, parameters: dict):
     u_i = (a v_i1) * (b v_i2) * (c v_i3) with the operator * defined as in the paper
     (concatenation except in the 0-vector case; hence no padding)"""
 
-    parameters = parameter_check(parameters)
+    #parameters = parameter_check(parameters) # TODO: NOTE: This was removed for debugging purposes only
 
     blocks = []
     if parameters["a"] == 1: blocks.append(v1)
@@ -70,6 +76,7 @@ def normalise_vector(u: np.ndarray):
     return x
 
 def round_normalised_vector(x: np.ndarray, R: np.ndarray):
+    """STEP 3.3: Rounding step"""
     assert x.ndim == 1 and x.size > 0  # make sure x is a vector and not 'empty'
 
     y__ = R @ x
@@ -78,7 +85,7 @@ def round_normalised_vector(x: np.ndarray, R: np.ndarray):
     return y
 
 
-def init_random_matrix_for_x(x: np.ndarray, r: int, rng=None):
+def init_random_matrix_for_x(x: np.ndarray, r: int, seed, rng=None):
     """STEP 3.3a: Generate a random matrix for rounding"""
 
     """Sanity checks:"""
@@ -91,12 +98,13 @@ def init_random_matrix_for_x(x: np.ndarray, r: int, rng=None):
             f"x dimension {x.size} not divisible by r={r}"
         )
 
-    rng = rng or np.random.default_rng()
+    rng = np.random.default_rng(seed=seed)
+    print(f"Using seed {seed} to generate random matrix for x.")
     R = rng.normal(loc=0.0, scale=1.0, size=(r, x.size)) # Std. deviation 1 and mean 0, as defined in the paper by Parekh and Gharibian
     return R
 
 
-def round_sdp_with_cholesky(M, num_rounds=1, parameters: dict | None = None):
+def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = False):
     """
     Round an SDP solution using Goemans-Williamson random hyperplane rounding.
 
@@ -106,44 +114,51 @@ def round_sdp_with_cholesky(M, num_rounds=1, parameters: dict | None = None):
     2. Extract vectors v_i as rows of L
     3. Use random hyperplane rounding
     """
+    if seed: print(f"Setting seed to {seed}")
+    debugging = debugging
+
+    M = (M + M.T) / 2 # symmetrising matrix
     n = M.shape[0]
 
-    # Get Cholesky decomposition: M = L L^T
-    L = cholesky_psd(M)
+    # STEP 2: Get Cholesky decomposition: M = L L^T
+    V = cholesky_psd(M)
 
-    # The vectors are the ROWS of L (each row i is the vector v_i)
-    V = L  # shape: (n_vertices, embedding_dimension)
+    R: np.ndarray = None
+    g: np.ndarray = None
 
     # If a full 3n x 3n moment matrix is provided and parameters are given,
     # build one vector per vertex by concatenating the Pauli-block vectors v_{iX}, v_{iY}, v_{iZ}.
-    if parameters is not None:
-        parameters = parameter_check(parameters)
-        if n % 3 != 0:
-            raise ValueError(f"Expected M to have dimension 3n x 3n when parameters are provided, got {n}x{n}.")
-        n_vertices = n // 3
+    parameters = parameter_check(parameters)
+    r = parameters["a"] + parameters["b"] + parameters["c"]
+    assert r == 1 or r == 2 or r == 3
+    if n % 3 != 0:
+        raise ValueError(f"Expected M to have dimension 3n x 3n when parameters are provided, got {n}x{n}.")
+    n_vertices = n // 3
+    print(f"n_vertices: {n_vertices} for n = {n}")
 
-        per_vertex_vectors = []
-        for i in range(n_vertices):
-            v1 = V[idx(i, 0), :]  # X block
-            v2 = V[idx(i, 1), :]  # Y block
-            v3 = V[idx(i, 2), :]  # Z block
-            u = concat_pauli_blocks(v1, v2, v3, parameters)
-            x = normalise_vector(u)
-            per_vertex_vectors.append(x)
+    cuts = []
+    y_scalar: bool = False
+    for i in range(n_vertices):
+        v1 = V[idx(i, 0), :]  # X block
+        v2 = V[idx(i, 1), :]  # Y block
+        v3 = V[idx(i, 2), :]  # Z block
 
-        V_round = np.vstack(per_vertex_vectors)  # shape: (n_vertices, dim)
-    else:
-        V_round = V
+        u = concat_pauli_blocks(v1, v2, v3, parameters)
 
-    # Hyperplane rounding: we still need this step to convert the embedding vectors into a {0,1} cut.
-    def one_round() -> np.ndarray:
-        random_normal = np.random.randn(V_round.shape[1])
-        random_normal /= np.linalg.norm(random_normal)
-        projections = V_round @ random_normal
-        return (projections >= 0).astype(int)  # {0,1} assignment
+        x = normalise_vector(u)
 
-    if num_rounds == 1:
-        return one_round()
+        if R is None:
+            R = init_random_matrix_for_x(x=x, r=r, seed=seed)
+            if debugging: print(f"Initializing random matrix for x: {R}")
+        y = round_normalised_vector(x, R)
+        if debugging: print(f"y: {y} with shape {y.shape}")
 
-    cuts = [one_round() for _ in range(num_rounds)]
+        if len(y) == 1:
+            y_scalar = True
+            cuts.append(y[0])
+        else:
+            cuts.append(y)
+
+    print(f"y_scalar: {y_scalar}")
+
     return cuts
