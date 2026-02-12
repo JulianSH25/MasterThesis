@@ -104,6 +104,36 @@ def init_random_matrix_for_x(x: np.ndarray, r: int, seed, rng=None):
     return R
 
 
+def build_single_qubit_state(y, parameters):
+    I = np.array([[1, 0], [0, 1]], dtype=complex)
+    X = np.array([[0, 1], [1, 0]], dtype=complex) # Pauli X
+    Y = np.array([[0, -1j], [1j, 0]], dtype=complex) # Pauli Y
+    Z = np.array([[1, 0], [0, -1]], dtype=complex) # Pauli Z
+
+    r_i = np.zeros(3, dtype=float)
+
+    index = 0
+
+    if parameters["a"] == 1:
+        r_i[0] = y[index]
+        index += 1
+    if parameters["b"] == 1:
+        r_i[1] = y[index]
+        index += 1
+    if parameters["c"] == 1: r_i[2] = y[index]
+
+    state = (I + r_i[0] * X + r_i[1] * Y + r_i[2] * Z)/2
+
+    return r_i, state
+
+def map_product_state_to_cut(product_state):
+    assert product_state.ndim == 2
+    x = np.real(np.diag(product_state))
+
+    return 1 if x[0] > x[1] else -1
+
+
+
 def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = False):
     """
     Round an SDP solution using Goemans-Williamson random hyperplane rounding.
@@ -138,6 +168,7 @@ def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = 
 
     cuts = []
     y_scalar: bool = False
+    product_state = None
     for i in range(n_vertices):
         v1 = V[idx(i, 0), :]  # X block
         v2 = V[idx(i, 1), :]  # Y block
@@ -153,12 +184,21 @@ def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = 
         y = round_normalised_vector(x, R)
         if debugging: print(f"y: {y} with shape {y.shape}")
 
+        r_i, state = build_single_qubit_state(y, parameters)
+        product_state = state if product_state is None else np.kron(product_state, state)
+
         if len(y) == 1:
             y_scalar = True
             cuts.append(y[0])
         else:
-            cuts.append(y)
+            cuts.append(map_product_state_to_cut(state))
+
+        print(f"r_{i}: {r_i}")
+        print(f"Product state qubit {i}: {state}")
+
+        print(f"Diagonal entries of product state {i}: {np.real(np.diag(state))}")
 
     print(f"y_scalar: {y_scalar}")
+    print(f"Overall Product State: {product_state}")
 
     return cuts

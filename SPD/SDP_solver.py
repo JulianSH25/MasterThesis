@@ -106,9 +106,9 @@ class SDP_Solver_():
 
 if __name__ == '__main__':
     solver_sdp = SDP_Solver_()
-    edges = [(0, 1)]#, (1, 2), (2, 3), (3, 4), (4, 5), (0,5), (0,4), (2,4)]  # A triangle graph
+    edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (0,5), (0,4), (2,4)]  # A triangle graph
     weights = [1 for _ in edges]
-    n_vertices = 2
+    n_vertices = 6
 
     params: ABCParams = {"a": 1, "b": 1, "c": 1}
 

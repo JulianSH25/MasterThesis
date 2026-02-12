@@ -21,21 +21,23 @@ from datetime import datetime
 import uuid
 
 
-MAX_RUNTIME_SECONDS = 240  # 2 hours
-MAX_VERTICES = 20
-MIN_RANDOM_VERTICES = 3
+MAX_RUNTIME_SECONDS = 600*6  # 2 hours
+MAX_VERTICES = 15
+MIN_RANDOM_VERTICES = 8
 rounds = 1
 
 # --- User configuration section -------------------------------------------------
 # Adjust these values to explore different regimes without touching code below.
-START_N_VERTICES = 10
+START_N_VERTICES = 3
 PARAMS: ABCParams = {"a": 0, "b": 0, "c": 1}
-SPARSE = False
+SPARSE = True
 # -------------------------------------------------------------------------------
 
 now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 hash2 = f"{random.randrange(100):02d}"
 name = f"roundings_{now}_{hash2}"
+
+all_approx_ratios = []
 
 def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bool:
 
@@ -90,6 +92,8 @@ def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bo
         }
 
         approx_ratio = (edge_count / obj) if obj not in (0, None) else None
+
+        all_approx_ratios.append(approx_ratio)
 
         sol_grb = {
             "GRB_solver_exact": "Gurobi",
@@ -193,3 +197,5 @@ if __name__ == "__main__":
         print(f"Largest successful vertex count observed: {best_n}")
     else:
         print("No successful runs within the time budget.")
+
+    print(f"Average approximation ratio: {sum(all_approx_ratios) / len(all_approx_ratios)}")

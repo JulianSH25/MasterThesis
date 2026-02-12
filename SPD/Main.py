@@ -5,8 +5,8 @@ from Utilities import random_instance_generator, line_instance_generator, get_ed
 import datetime, random, secrets, uuid
 from datetime import datetime
 
-benchmark_roundings = False
-fixed_seed = True
+benchmark_roundings = True
+fixed_seed = False
 
 def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm_filename = None, uuid__ = None):
     solver_sdp = SDP_Solver_()
@@ -74,7 +74,7 @@ def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm
         print(cuts)
         edge_count, edges_in_cut = get_edges_in_cut(cuts, edges)
         print(f"{edge_count} in cut out of a total of {len(edges)} edges")
-        return edge_count, edges_in_cut, cuts, M_optimal
+        return edge_count, edges_in_cut, cuts, M_optimal, {}
 
     #visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
 
