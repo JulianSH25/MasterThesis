@@ -28,8 +28,8 @@ rounds = 1
 
 # --- User configuration section -------------------------------------------------
 # Adjust these values to explore different regimes without touching code below.
-START_N_VERTICES = 3
-PARAMS: ABCParams = {"a": 0, "b": 0, "c": 1}
+START_N_VERTICES = 8
+PARAMS: ABCParams = {"a": 1, "b": 1, "c": 1}
 SPARSE = True
 # -------------------------------------------------------------------------------
 
