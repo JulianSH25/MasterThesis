@@ -132,8 +132,6 @@ def map_product_state_to_cut(product_state):
 
     return 1 if x[0] > x[1] else -1
 
-
-
 def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = False):
     """
     Round an SDP solution using Goemans-Williamson random hyperplane rounding.
@@ -169,6 +167,7 @@ def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = 
     cuts = []
     y_scalar: bool = False
     product_state = None
+    states: list = [None] * n_vertices
     for i in range(n_vertices):
         v1 = V[idx(i, 0), :]  # X block
         v2 = V[idx(i, 1), :]  # Y block
@@ -185,6 +184,7 @@ def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = 
         if debugging: print(f"y: {y} with shape {y.shape}")
 
         r_i, state = build_single_qubit_state(y, parameters)
+        states[i] = state
         product_state = state if product_state is None else np.kron(product_state, state)
 
         if len(y) == 1:
@@ -201,4 +201,4 @@ def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = 
     print(f"y_scalar: {y_scalar}")
     print(f"Overall Product State: {product_state}")
 
-    return cuts
+    return cuts, states

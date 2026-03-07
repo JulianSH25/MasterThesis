@@ -1,6 +1,8 @@
 import cvxpy as cp
 import numpy as np
 from typing import Literal, TypedDict
+
+#from MasterThesis.SPD.Rounding import compute_energy
 from Rounding import round_sdp_with_cholesky
 from numpy.matlib import empty
 from itertools import permutations
@@ -104,11 +106,61 @@ class SDP_Solver_():
 
         return M.value
 
+    """def compute_energy(product_states, edges, weights=None):
+        # H_map = np.zeros((len(edges), len(edges)), dtype=complex)
+        weights = weights if weights is not None else np.ones(len(edges))
+
+        I = np.eye(2, dtype=complex)
+        Z = np.array([[1, 0], [0, -1]], dtype=complex)
+
+        energy = 0.0
+        for (i, j), w in zip(edges, weights):
+            H = 0.5 * w(np.kron(I, I) - np.kron(Z, Z))
+            p = np.kron(product_states[i], product_states[j])
+            energy += np.trace(H @ p)
+
+        return energy
+"""
+    def compute_energy(self, product_states, edges, weights=None, params=None):
+        """
+        Energy of a PRODUCT state from local 1-qubit density matrices for the AFM/QMC case.
+
+        product_states: list of 2x2 density matrices rho_i
+        params: (a,b,c) with entries in {0,1}
+        """
+        weights = weights if weights is not None else np.ones(len(edges))
+        #assert params is not None
+        #a, b, c = params.get("a"), params.get("b"), params.get("c")
+        a, b, c = 1, 1, 1
+
+        I = np.eye(2, dtype=complex)
+        X = np.array([[0, 1], [1, 0]], dtype=complex)
+        Y = np.array([[0, -1j], [1j, 0]], dtype=complex)
+        Z = np.array([[1, 0], [0, -1]], dtype=complex)
+
+        energy = 0.0
+        for (i, j), w in zip(edges, weights):
+            # Matches your SDP objective term: w * (1 - a<XX> - b<YY> - c<ZZ>)
+            H_ij = 1/(1+ a+b+c) * w * (
+                    np.kron(I, I)
+                    - a * np.kron(X, X)
+                    - b * np.kron(Y, Y)
+                    - c * np.kron(Z, Z)
+            )
+            #for s in {product_states[i], product_states[j]}: assert np.isclose(np.trace(s), 1.0, atol=1e-8)
+            p = np.kron(product_states[i], product_states[j])
+            assert np.isclose(np.trace(p), 1.0, atol=1e-8)
+            print(f"Hamiltonian equals product state? {H_ij == p}")
+            print(f"Hamiltonian: {H_ij}, product state: {p}")
+            energy += np.trace(H_ij @ p).real
+
+        return float(energy)
+
 if __name__ == '__main__':
     solver_sdp = SDP_Solver_()
-    edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (0,5), (0,4), (2,4)]  # A triangle graph
+    edges = [(0, 1), (1, 2), (2, 3)]  # A triangle graph
     weights = [1 for _ in edges]
-    n_vertices = 6
+    n_vertices = 4
 
     params: ABCParams = {"a": 1, "b": 1, "c": 1}
 
@@ -118,8 +170,11 @@ if __name__ == '__main__':
     print(M_optimal)
 
     print("Rounding...")
-    cut = round_sdp_with_cholesky(M_optimal, parameters=params)
+    cut, states = round_sdp_with_cholesky(M_optimal, parameters=params)
     print("Rounded cut:")
     print(cut)
+    energy = solver_sdp.compute_energy(states, edges=edges, weights=weights, params=params)
+    print(f"Energy of rounded cut: {energy}")
+    print("Test")
 
     #visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")

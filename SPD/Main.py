@@ -81,7 +81,7 @@ def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm
 
 if __name__ == "__main__":
     n_vertices = 14
-    params: ABCParams = {"a": 0, "b": 0, "c": 1}
+    params: ABCParams = {"a": 1, "b": 1, "c": 1}
     sparse = False
 
     #edges, weights, nodes = random_instance_generator(n_vertices, weights_static=True, sparse=sparse)

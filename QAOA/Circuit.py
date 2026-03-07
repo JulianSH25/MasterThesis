@@ -1,123 +1,219 @@
 from qiskit import QuantumCircuit, transpile
 from qiskit.circuit import ParameterVector
 from qiskit_aer import Aer
+from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace
 
+from StatePrep import prepare_line_singlet_circuit
+from utils import set_random_params
 import numpy as np
 
-def bind_circuit_parameters(
-    qc: QuantumCircuit,
-    gammas,
-    betas,
-    gamma_values,
-    beta_values,
-):
-    """
-    This method binds numeric values to a parameterized QAOA circuit.
+use_measurements = False
 
-    :param qc: Qiskit QuantumCircuit object
-    :param gammas: ParameterVector (or list of Parameter) for the cost-layer angles γ[0..p-1] (original placeholders/previous assignments)
-    :param betas: ParameterVector (or list of Parameter) for the mixer-layer angles β[0..p-1] (original placeholders/previous assignments)
-    :param gamma_values: list of float parameter values for the edge interaction gates
-    :param beta_values: list of float parameter values for the individual node X rotation gates
-    :return: Qiskit QuantumCircuit object (i.e. parameterized version of the passed QAOA circuit (:param qc), to be used in place of the passed circuit)
-    """
-    if len(gamma_values) != len(gammas) or len(beta_values) != len(betas):
-        raise ValueError(
-            f"Length mismatch: len(gamma_values)={len(gamma_values)} vs {len(gammas)}, "
-            f"len(beta_values)={len(beta_values)} vs {len(betas)}"
-        )
+class QAOACircuit(QuantumCircuit):
+    def __init__(self, n, p, edges, weights):
+        self.n = n # number of nodes
+        self.p = p # Circuit depth; number of layers
+        self.edges = edges
+        self.weights = weights
+        self.gammas: np.ndarray[float] = None
+        self.betas: np.ndarray[float] = None
+        self.qc: QuantumCircuit = None
+        self.backend = Aer.get_backend('qasm_simulator')
 
-    bind_map = {gammas[i]: float(gamma_values[i]) for i in range(len(gammas))}
-    bind_map.update({betas[i]: float(beta_values[i]) for i in range(len(betas))})
+    def bind_circuit_parameters(
+        self,
+        gamma_values,
+        beta_values,
+    ) -> None:
+        """
+        This method binds numeric values to a parameterized QAOA circuit.
 
-    return qc.assign_parameters(bind_map, inplace=False)
+        # made class variable: :param qc: Qiskit QuantumCircuit object
+        # made class variable: :param gammas: ParameterVector (or list of Parameter) for the cost-layer angles γ[0..p-1] (original placeholders/previous assignments)
+        # made class variable: :param betas: ParameterVector (or list of Parameter) for the mixer-layer angles β[0..p-1] (original placeholders/previous assignments)
+        :param gamma_values: list of float parameter values for the edge interaction gates
+        :param beta_values: list of float parameter values for the individual node X rotation gates
+        :return: Qiskit QuantumCircuit object (i.e. parameterized version of the passed QAOA circuit (:param qc), to be used in place of the passed circuit)
+        """
+        if len(gamma_values) != len(self.gammas) or len(beta_values) != len(self.betas):
+            raise ValueError(
+                f"Length mismatch: len(gamma_values)={len(gamma_values)} vs {len(self.gammas)}, "
+                f"len(beta_values)={len(beta_values)} vs {len(self.betas)}"
+            )
 
-def qaoa_maxcut_circuit(n, edges, num_layers, weights=None, add_measurements=True):
-    """
-    :param n: the size of the circuit
-    :param edges: the list of edges
-    :param num_layers: the number of iterations p (i.e. rounds of alternating application of Cost and Mixer Unitaries); directly relates to gate complexity, being (n + #edges)*num_layers
-    :param weights: list of weights for each edge. If not provided we assume unweighted, i.e. equal weights of 1.0 for all edges
-    :param add_measurements: Per default measurements are added to the circuit at the end of the circuit. This can be overridden by providing a boolean "False" for this parameter
-    :return: returns the quantum circuit and the used paramter vectors TODO consider adding parameters as another argument
-    """
-    """
-    Sources:
-    Farhi et al. QAOA for MaxCut
-    Qiskit Documentation (https://quantum.cloud.ibm.com/docs/de/api/qiskit/qiskit.circuit.library.RXGate)
-    """
-    assert n == len({i for k in edges for i in k})
-    if weights is None:
-        weights = [1.0] * len(edges)
-    assert len(weights) == len(edges)
+        bind_map = {self.gammas[i]: float(gamma_values[i]) for i in range(len(self.gammas))}
+        bind_map.update({self.betas[i]: float(beta_values[i]) for i in range(len(self.betas))})
 
-    # Placeholder parameter vectors (angles)
-    gammas = ParameterVector("γ", num_layers)
-    betas  = ParameterVector("β", num_layers)
+        self.qc = self.qc.assign_parameters(bind_map, inplace=False)
 
-    qc = QuantumCircuit(n, n if add_measurements else 0)
+    @staticmethod
+    def qaoa_compute_energy(product_states, edges, weights=None, params = (1, 1, 1)):
+        # H_map = np.zeros((len(edges), len(edges)), dtype=complex)
+        weights = weights if weights is not None else np.ones(len(edges))
 
-    # Initialise in equal superposition
-    # TODO add warm start
-    qc.h(range(n))
+        a, b, c = params
 
-    for layer in range(num_layers):
-        gamma = gammas[layer]#
-        beta  = betas[layer]
+        I = np.eye(2, dtype=complex)
+        Z = np.array([[1, 0], [0, -1]], dtype=complex)
+        X = np.array([[0, 1], [1, 0]], dtype=complex)
+        Y = np.array([[0, -1j], [1j, 0]], dtype=complex)
 
-        # add Cost Hamiltonian for all edges, taking into account their respective weights
-        for (j, k), w in zip(edges, weights):
-            qc.rzz(-gamma * w, j, k) # z_j z_k, i.e. z interaction term between qubtis j and k
+        energy = 0.0
+        for (i, j), w in zip(edges, weights):
+            H = (1/(1 + a+b+c) * w *
+                 (np.kron(I, I) - a * np.kron(X, X) - b * np.kron(Y, Y) - c * np.kron(Z, Z)))
+            #p = np.kron(product_states[i], product_states[j])
+            p = product_states[(i, j)]
+            energy += np.trace(H @ p)
 
-        # add Mixer Hamiltionian for all nodes
-        qc.rx(2 * beta, range(n))
+        return energy
 
-    if add_measurements:
-        qc.measure(range(n), range(n))
 
-    return qc, gammas, betas
+    def qaoa_maxcut_circuit(self, add_measurements=True, linegraph=False):
+        """
+        # made class variable: :param n: the size of the circuit
+        # made class variable: :param edges: the list of edges
+        # made class variable: :param num_layers: the number of iterations p (i.e. rounds of alternating application of Cost and Mixer Unitaries); directly relates to gate complexity, being (n + #edges)*num_layers
+        # made class variable: :param weights: list of weights for each edge. If not provided we assume unweighted, i.e. equal weights of 1.0 for all edges
+        :param add_measurements: Per default measurements are added to the circuit at the end of the circuit. This can be overridden by providing a boolean "False" for this parameter
+        :return: returns the quantum circuit and the used paramter vectors TODO consider adding parameters as another argument
+        """
+        """
+        Sources:
+        Farhi et al. QAOA for MaxCut
+        Qiskit Documentation (https://quantum.cloud.ibm.com/docs/de/api/qiskit/qiskit.circuit.library.RXGate)
+        """
+        assert self.edges is not None and self.n is not None and self.p is not None
+        assert self.n == len({i for k in self.edges for i in k})
+        if self.weights is None:
+            self.weights = [1.0] * len(self.edges)
+        assert len(self.weights) == len(self.edges)
 
-def set_random_params(p: int, seed: int | None = None):
-    """Rather pointless method to generate random parameters for the QAOA circuit. Mainly used for initial testing"""
-    rng = np.random.default_rng(seed)
-    gamma_values = rng.uniform(0.0, 2*np.pi, size=p)
-    beta_values = rng.uniform(0.0, np.pi, size=p)
+        # Placeholder parameter vectors (angles)
+        self.gammas = ParameterVector("γ", self.p)
+        self.betas  = ParameterVector("β", self.p)
 
-    return gamma_values, beta_values
+        self.qc = QuantumCircuit(self.n, self.n if add_measurements else 0)
 
-def run_circuit(
-        qc: QuantumCircuit,
-        backend: str = "qasm_simulator",
-        shots: int = 1024,
-        seed: int | None = None
-):
-    """Runs the circuit on the specified backend and returns the results. A quantum circuit needs to be passed. All other parameters are optional."""
-    backend = Aer.get_backend(backend)
-    tqc = transpile(qc, backend=backend, optimization_level=1)
+        # Initialise in equal superposition
+        # TODO add warm start
+        #qc.h(range(n))
+        prepare_line_singlet_circuit(self.qc, self.n) if linegraph else self.qc.h(range(self.n))
 
-    run_args = {"shots": shots}
-    if seed is not None:
-        run_args["seed_simulator"] = int(seed)
+        for layer in range(self.p):
+            gamma = self.gammas[layer]#
+            beta  = self.betas[layer]
 
-    result = backend.run(tqc, **run_args).result()
-    return result.get_counts()
+            # add Cost Hamiltonian for all edges, taking into account their respective weights
+            for (j, k), w in zip(self.edges, self.weights):
+                self.qc.rzz(-gamma * w, j, k) # z_j z_k, i.e. z interaction term between qubtis j and k
+
+            # add Mixer Hamiltionian for all nodes
+            self.qc.rx(2 * beta, range(self.n))
+
+        if add_measurements:
+            self.qc.measure(range(self.n), range(self.n))
+
+        return self.qc, self.gammas, self.betas # TODO Consider removing since all returned params are now class variables
+
+    def run_circuit(
+            self,
+            backend: str = "qasm_simulator", # TODO remove; backend is now a global variable of the class which may only be changed via global assignment/at class initialisation
+            shots: int = 1024,
+            seed: int | None = None,
+            return_statevector: bool = False
+    ):
+        """Runs the circuit on the specified backend and returns the results. A quantum circuit needs to be passed. All other parameters are optional."""
+        assert self.qc is not None
+        assert self.gammas is not None and self.betas is not None
+        if return_statevector:
+            qc_bound = self.qc.remove_final_measurements(inplace=False)
+            return Statevector.from_instruction(qc_bound)
+
+        tqc = transpile(self.qc, backend=self.backend, optimization_level=1)
+
+        run_args = {"shots": shots}
+        if seed is not None:
+            run_args["seed_simulator"] = int(seed)
+
+        result = self.backend.run(tqc, **run_args).result()
+
+        product_states: dict[tuple[int, int], np.ndarray] = {}
+        total_energy = 0
+        for (i, j), w in zip(edges, weights):
+            p = QAOA.two_qubit_marginal(result, n, 0, 1)
+            product_states[(i, j)] = p
+        total_energy = QAOA.qaoa_compute_energy(product_states, edges, weights).real
+
+        return result.get_counts(), total_energy
+
+    @staticmethod
+    def two_qubit_marginal(psi, n, i, j):
+        rho = DensityMatrix(psi)
+        trace_out = [q for q in range(n) if q not in (i, j)]
+        return partial_trace(rho, trace_out).data   # returns 4x4 np.array
 
 
 # Example usage:
 if __name__ == "__main__":
-    edges = [(0,1), (1,2), (2,3), (3,4), (4,5), (5,0)]  # ring
+    """QAOA circuit test execution (not SDP)"""
+    use_measurements = False
+    edges = [(0,1), (1,2)] #, (2, 3), (3, 4), (4, 5), (5, 6)]  # ring
+    weights = [1.0] * len(edges)
     set_of_nodes = {i for k in edges for i in k}
     n = len(set_of_nodes)
     print(set_of_nodes, n)
-    p = 2
+    p = 20
 
-    qc, gammas, betas = qaoa_maxcut_circuit(n, edges, p)
-    print(qc.draw("text"))
+    QAOA = QAOACircuit(n, p, edges, weights)
 
-    gamma_values, beta_values = set_random_params(p)
-    print(gamma_values, beta_values)
-    qc_bounded = bind_circuit_parameters(qc, gammas, betas, gamma_values, beta_values)
-    results = run_circuit(qc_bounded, backend="qasm_simulator", shots=1024)
+    counts_higher_energy, counts_lower_energy = 0, 0
+    def benchmark():
+        gamma_values, beta_values = set_random_params(p)
+        print(gamma_values, beta_values)
 
-    sorted_results = sorted(results.items(), key=lambda kv: kv[1], reverse=True)
-    print(sorted_results[:10])
+
+        def test(qc, gammas, betas):
+            QAOA.bind_circuit_parameters(gamma_values=gamma_values, beta_values=beta_values)
+            assert QAOA.qc.num_parameters == 0
+            results, _ = QAOA.run_circuit(backend="qasm_simulator", shots=1024, return_statevector=not use_measurements)
+
+            if not use_measurements:
+                product_states: dict[tuple[int, int], np.ndarray] = {}
+                total_energy = 0
+                for (i, j), w in zip(edges, weights):
+                    p = QAOA.two_qubit_marginal(results, n, 0, 1)
+                    product_states[(i, j)] = p
+                total_energy = QAOA.qaoa_compute_energy(product_states, edges, weights).real
+                print(f"Energy: {total_energy}")
+                return total_energy
+            else:
+                sorted_results = sorted(results.items(), key=lambda kv: kv[1], reverse=True)
+                print(sorted_results[:10])
+                return None
+
+
+        qc_, gammas_, betas_ = QAOA.qaoa_maxcut_circuit(linegraph=True)
+        print(qc_.draw("text"))
+        """Test on equal superposition:"""
+        energy_injected = test(qc_, gammas_, betas_)
+
+        qc_, gammas_, betas_ = QAOA.qaoa_maxcut_circuit(linegraph=False)
+        print(qc_.draw("text"))
+        """Test on random initial state:"""
+        energy_equal_superpos = test(qc_, gammas_, betas_)
+
+        print(f"Energy injected: {energy_injected}")
+        print(f"Energy equal superposition: {energy_equal_superpos}")
+        print(f"Singlet injection yields higher energy: {energy_injected > energy_equal_superpos}")
+        return energy_injected > energy_equal_superpos
+
+    for _ in range(1):
+        higher_energy = benchmark()
+        if higher_energy:
+            counts_higher_energy += 1
+        else:
+            counts_lower_energy += 1
+
+    print(f"Counts higher energy: {counts_higher_energy} vs. {counts_lower_energy} lower energy")
+    print(f"Ratio: {counts_higher_energy / (counts_higher_energy + counts_lower_energy)}")
