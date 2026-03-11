@@ -18,6 +18,7 @@ class QAOACircuit(QuantumCircuit):
         self.gammas: np.ndarray[float] = None
         self.betas: np.ndarray[float] = None
         self.qc: QuantumCircuit = None
+        self.qc_no_params: QuantumCircuit = None # Auxiliary variable that is used to update the quantum circuit parameters
         self.backend = Aer.get_backend('qasm_simulator')
 
     def bind_circuit_parameters(
@@ -44,7 +45,8 @@ class QAOACircuit(QuantumCircuit):
         bind_map = {self.gammas[i]: float(gamma_values[i]) for i in range(len(self.gammas))}
         bind_map.update({self.betas[i]: float(beta_values[i]) for i in range(len(self.betas))})
 
-        self.qc = self.qc.assign_parameters(bind_map, inplace=False)
+        #self.qc_no_params = self.qc.copy()
+        self.qc = self.qc_no_params.assign_parameters(bind_map, inplace=False)
 
     @staticmethod
     def qaoa_compute_energy(product_states, edges, weights=None, params = (1, 1, 1)):
@@ -63,13 +65,12 @@ class QAOACircuit(QuantumCircuit):
             H = (1/(1 + a+b+c) * w *
                  (np.kron(I, I) - a * np.kron(X, X) - b * np.kron(Y, Y) - c * np.kron(Z, Z)))
             #p = np.kron(product_states[i], product_states[j])
-            p = product_states[(i, j)]
-            energy += np.trace(H @ p)
+            l = product_states[(i, j)]
+            energy += np.trace(H @ l)
 
         return energy
 
-
-    def qaoa_maxcut_circuit(self, add_measurements=True, linegraph=False):
+    def build_qaoa_maxcut_circuit(self, add_measurements=True, self_init_linegraph=False):
         """
         # made class variable: :param n: the size of the circuit
         # made class variable: :param edges: the list of edges
@@ -98,7 +99,7 @@ class QAOACircuit(QuantumCircuit):
         # Initialise in equal superposition
         # TODO add warm start
         #qc.h(range(n))
-        prepare_line_singlet_circuit(self.qc, self.n) if linegraph else self.qc.h(range(self.n))
+        prepare_line_singlet_circuit(self.qc, self.n) if self_init_linegraph else self.qc.h(range(self.n))
 
         for layer in range(self.p):
             gamma = self.gammas[layer]#
@@ -114,15 +115,17 @@ class QAOACircuit(QuantumCircuit):
         if add_measurements:
             self.qc.measure(range(self.n), range(self.n))
 
+        self.qc_no_params = self.qc.copy()
+
         return self.qc, self.gammas, self.betas # TODO Consider removing since all returned params are now class variables
 
     def run_circuit(
             self,
-            backend: str = "qasm_simulator", # TODO remove; backend is now a global variable of the class which may only be changed via global assignment/at class initialisation
             shots: int = 1024,
             seed: int | None = None,
             return_statevector: bool = False
     ):
+        # TODO rewrite for clean code; seperate classical result return from quantum result return (currently via param :return_statevector)
         """Runs the circuit on the specified backend and returns the results. A quantum circuit needs to be passed. All other parameters are optional."""
         assert self.qc is not None
         assert self.gammas is not None and self.betas is not None
@@ -140,9 +143,9 @@ class QAOACircuit(QuantumCircuit):
 
         product_states: dict[tuple[int, int], np.ndarray] = {}
         total_energy = 0
-        for (i, j), w in zip(edges, weights):
-            p = QAOA.two_qubit_marginal(result, n, 0, 1)
-            product_states[(i, j)] = p
+        for (i, j), w in zip(self.edges, self.weights):
+            res = self.two_qubit_marginal(psi=result, n=self.n, i=0, j=1)
+            product_states[(i, j)] = res
         total_energy = QAOA.qaoa_compute_energy(product_states, edges, weights).real
 
         return result.get_counts(), total_energy
@@ -176,7 +179,7 @@ if __name__ == "__main__":
         def test(qc, gammas, betas):
             QAOA.bind_circuit_parameters(gamma_values=gamma_values, beta_values=beta_values)
             assert QAOA.qc.num_parameters == 0
-            results, _ = QAOA.run_circuit(backend="qasm_simulator", shots=1024, return_statevector=not use_measurements)
+            results, _ = QAOA.run_circuit(shots=1024, return_statevector=not use_measurements)
 
             if not use_measurements:
                 product_states: dict[tuple[int, int], np.ndarray] = {}
@@ -193,12 +196,12 @@ if __name__ == "__main__":
                 return None
 
 
-        qc_, gammas_, betas_ = QAOA.qaoa_maxcut_circuit(linegraph=True)
+        qc_, gammas_, betas_ = QAOA.build_qaoa_maxcut_circuit(self_init_linegraph=True)
         print(qc_.draw("text"))
         """Test on equal superposition:"""
         energy_injected = test(qc_, gammas_, betas_)
 
-        qc_, gammas_, betas_ = QAOA.qaoa_maxcut_circuit(linegraph=False)
+        qc_, gammas_, betas_ = QAOA.build_qaoa_maxcut_circuit(self_init_linegraph=False)
         print(qc_.draw("text"))
         """Test on random initial state:"""
         energy_equal_superpos = test(qc_, gammas_, betas_)
