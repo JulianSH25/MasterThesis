@@ -1,0 +1,326 @@
+---------------------------------
+Received m: 2
+Generated line graph with 2 edges, 3 nodes, and 5 layers.
+Edges: [(0, 1), (1, 2)], weights: [1.0, 1.0], set of nodes: {0, 1, 2}, n: 3, p: 5
+Starting optimization with sigma=1.005471211681843, l=0.6714661217464565, f_m=0.000287684940818142
+New best energy found: 0.028995492590156727
+Finished iteration 1 out of 200. Current energy: 0.028995492590156727
+New best energy found: 0.06913473647812513
+Finished iteration 2 out of 200. Current energy: 0.06913473647812513
+New best energy found: 0.2526800064130852
+Finished iteration 3 out of 200. Current energy: 0.2526800064130852
+Finished iteration 4 out of 200. Current energy: 0.2526800064130852
+Finished iteration 5 out of 200. Current energy: 0.2526800064130852
+Finished iteration 6 out of 200. Current energy: 0.2526800064130852
+Finished iteration 7 out of 200. Current energy: 0.2526800064130852
+Finished iteration 8 out of 200. Current energy: 0.2526800064130852
+Finished iteration 9 out of 200. Current energy: 0.2526800064130852
+Finished iteration 10 out of 200. Current energy: 0.2526800064130852
+Finished iteration 11 out of 200. Current energy: 0.2526800064130852
+Finished iteration 12 out of 200. Current energy: 0.2526800064130852
+Finished iteration 13 out of 200. Current energy: 0.2526800064130852
+New best energy found: 0.37465956030340103
+Finished iteration 14 out of 200. Current energy: 0.37465956030340103
+Finished iteration 15 out of 200. Current energy: 0.37465956030340103
+Finished iteration 16 out of 200. Current energy: 0.37465956030340103
+Finished iteration 17 out of 200. Current energy: 0.37465956030340103
+New best energy found: 0.8555821437953415
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k2__noise_level is close to the specified lower bound 1e-10. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 18 out of 200. Current energy: 0.8555821437953415
+Finished iteration 19 out of 200. Current energy: 0.8555821437953415
+Finished iteration 20 out of 200. Current energy: 0.8555821437953415
+Finished iteration 21 out of 200. Current energy: 0.8555821437953415
+Finished iteration 22 out of 200. Current energy: 0.8555821437953415
+Finished iteration 23 out of 200. Current energy: 0.8555821437953415
+Finished iteration 24 out of 200. Current energy: 0.8555821437953415
+Finished iteration 25 out of 200. Current energy: 0.8555821437953415
+Finished iteration 26 out of 200. Current energy: 0.8555821437953415
+Finished iteration 27 out of 200. Current energy: 0.8555821437953415
+Finished iteration 28 out of 200. Current energy: 0.8555821437953415
+Finished iteration 29 out of 200. Current energy: 0.8555821437953415
+Finished iteration 30 out of 200. Current energy: 0.8555821437953415
+Finished iteration 31 out of 200. Current energy: 0.8555821437953415
+Finished iteration 32 out of 200. Current energy: 0.8555821437953415
+Finished iteration 33 out of 200. Current energy: 0.8555821437953415
+Finished iteration 34 out of 200. Current energy: 0.8555821437953415
+Finished iteration 35 out of 200. Current energy: 0.8555821437953415
+Finished iteration 36 out of 200. Current energy: 0.8555821437953415
+Finished iteration 37 out of 200. Current energy: 0.8555821437953415
+Finished iteration 38 out of 200. Current energy: 0.8555821437953415
+Finished iteration 39 out of 200. Current energy: 0.8555821437953415
+Finished iteration 40 out of 200. Current energy: 0.8555821437953415
+Finished iteration 41 out of 200. Current energy: 0.8555821437953415
+Finished iteration 42 out of 200. Current energy: 0.8555821437953415
+Finished iteration 43 out of 200. Current energy: 0.8555821437953415
+Finished iteration 44 out of 200. Current energy: 0.8555821437953415
+Finished iteration 45 out of 200. Current energy: 0.8555821437953415
+Finished iteration 46 out of 200. Current energy: 0.8555821437953415
+Finished iteration 47 out of 200. Current energy: 0.8555821437953415
+Finished iteration 48 out of 200. Current energy: 0.8555821437953415
+Finished iteration 49 out of 200. Current energy: 0.8555821437953415
+Finished iteration 50 out of 200. Current energy: 0.8555821437953415
+Finished iteration 51 out of 200. Current energy: 0.8555821437953415
+Finished iteration 52 out of 200. Current energy: 0.8555821437953415
+Finished iteration 53 out of 200. Current energy: 0.8555821437953415
+Finished iteration 54 out of 200. Current energy: 0.8555821437953415
+Finished iteration 55 out of 200. Current energy: 0.8555821437953415
+Finished iteration 56 out of 200. Current energy: 0.8555821437953415
+Finished iteration 57 out of 200. Current energy: 0.8555821437953415
+Finished iteration 58 out of 200. Current energy: 0.8555821437953415
+Finished iteration 59 out of 200. Current energy: 0.8555821437953415
+Finished iteration 60 out of 200. Current energy: 0.8555821437953415
+Finished iteration 61 out of 200. Current energy: 0.8555821437953415
+Finished iteration 62 out of 200. Current energy: 0.8555821437953415
+Finished iteration 63 out of 200. Current energy: 0.8555821437953415
+Finished iteration 64 out of 200. Current energy: 0.8555821437953415
+Finished iteration 65 out of 200. Current energy: 0.8555821437953415
+Finished iteration 66 out of 200. Current energy: 0.8555821437953415
+Finished iteration 67 out of 200. Current energy: 0.8555821437953415
+Finished iteration 68 out of 200. Current energy: 0.8555821437953415
+Finished iteration 69 out of 200. Current energy: 0.8555821437953415
+Finished iteration 70 out of 200. Current energy: 0.8555821437953415
+Finished iteration 71 out of 200. Current energy: 0.8555821437953415
+Finished iteration 72 out of 200. Current energy: 0.8555821437953415
+Finished iteration 73 out of 200. Current energy: 0.8555821437953415
+Finished iteration 74 out of 200. Current energy: 0.8555821437953415
+Finished iteration 75 out of 200. Current energy: 0.8555821437953415
+Finished iteration 76 out of 200. Current energy: 0.8555821437953415
+Finished iteration 77 out of 200. Current energy: 0.8555821437953415
+Finished iteration 78 out of 200. Current energy: 0.8555821437953415
+Finished iteration 79 out of 200. Current energy: 0.8555821437953415
+Finished iteration 80 out of 200. Current energy: 0.8555821437953415
+Finished iteration 81 out of 200. Current energy: 0.8555821437953415
+Finished iteration 82 out of 200. Current energy: 0.8555821437953415
+Finished iteration 83 out of 200. Current energy: 0.8555821437953415
+Finished iteration 84 out of 200. Current energy: 0.8555821437953415
+Finished iteration 85 out of 200. Current energy: 0.8555821437953415
+Finished iteration 86 out of 200. Current energy: 0.8555821437953415
+Finished iteration 87 out of 200. Current energy: 0.8555821437953415
+Finished iteration 88 out of 200. Current energy: 0.8555821437953415
+Finished iteration 89 out of 200. Current energy: 0.8555821437953415
+Finished iteration 90 out of 200. Current energy: 0.8555821437953415
+Finished iteration 91 out of 200. Current energy: 0.8555821437953415
+Finished iteration 92 out of 200. Current energy: 0.8555821437953415
+Finished iteration 93 out of 200. Current energy: 0.8555821437953415
+Finished iteration 94 out of 200. Current energy: 0.8555821437953415
+Finished iteration 95 out of 200. Current energy: 0.8555821437953415
+Finished iteration 96 out of 200. Current energy: 0.8555821437953415
+Finished iteration 97 out of 200. Current energy: 0.8555821437953415
+Finished iteration 98 out of 200. Current energy: 0.8555821437953415
+Finished iteration 99 out of 200. Current energy: 0.8555821437953415
+Finished iteration 100 out of 200. Current energy: 0.8555821437953415
+Finished iteration 101 out of 200. Current energy: 0.8555821437953415
+Finished iteration 102 out of 200. Current energy: 0.8555821437953415
+Finished iteration 103 out of 200. Current energy: 0.8555821437953415
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k2__noise_level is close to the specified lower bound 1e-10. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 104 out of 200. Current energy: 0.8555821437953415
+Finished iteration 105 out of 200. Current energy: 0.8555821437953415
+Finished iteration 106 out of 200. Current energy: 0.8555821437953415
+Finished iteration 107 out of 200. Current energy: 0.8555821437953415
+Finished iteration 108 out of 200. Current energy: 0.8555821437953415
+Finished iteration 109 out of 200. Current energy: 0.8555821437953415
+Finished iteration 110 out of 200. Current energy: 0.8555821437953415
+Finished iteration 111 out of 200. Current energy: 0.8555821437953415
+Finished iteration 112 out of 200. Current energy: 0.8555821437953415
+Finished iteration 113 out of 200. Current energy: 0.8555821437953415
+Finished iteration 114 out of 200. Current energy: 0.8555821437953415
+Finished iteration 115 out of 200. Current energy: 0.8555821437953415
+Finished iteration 116 out of 200. Current energy: 0.8555821437953415
+Finished iteration 117 out of 200. Current energy: 0.8555821437953415
+Finished iteration 118 out of 200. Current energy: 0.8555821437953415
+Finished iteration 119 out of 200. Current energy: 0.8555821437953415
+Finished iteration 120 out of 200. Current energy: 0.8555821437953415
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k2__noise_level is close to the specified lower bound 1e-10. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 121 out of 200. Current energy: 0.8555821437953415
+Finished iteration 122 out of 200. Current energy: 0.8555821437953415
+Finished iteration 123 out of 200. Current energy: 0.8555821437953415
+Finished iteration 124 out of 200. Current energy: 0.8555821437953415
+Finished iteration 125 out of 200. Current energy: 0.8555821437953415
+Finished iteration 126 out of 200. Current energy: 0.8555821437953415
+Finished iteration 127 out of 200. Current energy: 0.8555821437953415
+Finished iteration 128 out of 200. Current energy: 0.8555821437953415
+Finished iteration 129 out of 200. Current energy: 0.8555821437953415
+Finished iteration 130 out of 200. Current energy: 0.8555821437953415
+Finished iteration 131 out of 200. Current energy: 0.8555821437953415
+Finished iteration 132 out of 200. Current energy: 0.8555821437953415
+Finished iteration 133 out of 200. Current energy: 0.8555821437953415
+Finished iteration 134 out of 200. Current energy: 0.8555821437953415
+Finished iteration 135 out of 200. Current energy: 0.8555821437953415
+Finished iteration 136 out of 200. Current energy: 0.8555821437953415
+Finished iteration 137 out of 200. Current energy: 0.8555821437953415
+Finished iteration 138 out of 200. Current energy: 0.8555821437953415
+Finished iteration 139 out of 200. Current energy: 0.8555821437953415
+Finished iteration 140 out of 200. Current energy: 0.8555821437953415
+Finished iteration 141 out of 200. Current energy: 0.8555821437953415
+Finished iteration 142 out of 200. Current energy: 0.8555821437953415
+Finished iteration 143 out of 200. Current energy: 0.8555821437953415
+Finished iteration 144 out of 200. Current energy: 0.8555821437953415
+Finished iteration 145 out of 200. Current energy: 0.8555821437953415
+Finished iteration 146 out of 200. Current energy: 0.8555821437953415
+Finished iteration 147 out of 200. Current energy: 0.8555821437953415
+Finished iteration 148 out of 200. Current energy: 0.8555821437953415
+Finished iteration 149 out of 200. Current energy: 0.8555821437953415
+Finished iteration 150 out of 200. Current energy: 0.8555821437953415
+Finished iteration 151 out of 200. Current energy: 0.8555821437953415
+Finished iteration 152 out of 200. Current energy: 0.8555821437953415
+Finished iteration 153 out of 200. Current energy: 0.8555821437953415
+Finished iteration 154 out of 200. Current energy: 0.8555821437953415
+Finished iteration 155 out of 200. Current energy: 0.8555821437953415
+Finished iteration 156 out of 200. Current energy: 0.8555821437953415
+Finished iteration 157 out of 200. Current energy: 0.8555821437953415
+Finished iteration 158 out of 200. Current energy: 0.8555821437953415
+Finished iteration 159 out of 200. Current energy: 0.8555821437953415
+Finished iteration 160 out of 200. Current energy: 0.8555821437953415
+Finished iteration 161 out of 200. Current energy: 0.8555821437953415
+Finished iteration 162 out of 200. Current energy: 0.8555821437953415
+Finished iteration 163 out of 200. Current energy: 0.8555821437953415
+Finished iteration 164 out of 200. Current energy: 0.8555821437953415
+Finished iteration 165 out of 200. Current energy: 0.8555821437953415
+Finished iteration 166 out of 200. Current energy: 0.8555821437953415
+Finished iteration 167 out of 200. Current energy: 0.8555821437953415
+Finished iteration 168 out of 200. Current energy: 0.8555821437953415
+Finished iteration 169 out of 200. Current energy: 0.8555821437953415
+Finished iteration 170 out of 200. Current energy: 0.8555821437953415
+Finished iteration 171 out of 200. Current energy: 0.8555821437953415
+Finished iteration 172 out of 200. Current energy: 0.8555821437953415
+Finished iteration 173 out of 200. Current energy: 0.8555821437953415
+Finished iteration 174 out of 200. Current energy: 0.8555821437953415
+Finished iteration 175 out of 200. Current energy: 0.8555821437953415
+Finished iteration 176 out of 200. Current energy: 0.8555821437953415
+Finished iteration 177 out of 200. Current energy: 0.8555821437953415
+Finished iteration 178 out of 200. Current energy: 0.8555821437953415
+Finished iteration 179 out of 200. Current energy: 0.8555821437953415
+Finished iteration 180 out of 200. Current energy: 0.8555821437953415
+Finished iteration 181 out of 200. Current energy: 0.8555821437953415
+Finished iteration 182 out of 200. Current energy: 0.8555821437953415
+Finished iteration 183 out of 200. Current energy: 0.8555821437953415
+Finished iteration 184 out of 200. Current energy: 0.8555821437953415
+Finished iteration 185 out of 200. Current energy: 0.8555821437953415
+Finished iteration 186 out of 200. Current energy: 0.8555821437953415
+Finished iteration 187 out of 200. Current energy: 0.8555821437953415
+Finished iteration 188 out of 200. Current energy: 0.8555821437953415
+Finished iteration 189 out of 200. Current energy: 0.8555821437953415
+Finished iteration 190 out of 200. Current energy: 0.8555821437953415
+Finished iteration 191 out of 200. Current energy: 0.8555821437953415
+Finished iteration 192 out of 200. Current energy: 0.8555821437953415
+Finished iteration 193 out of 200. Current energy: 0.8555821437953415
+Finished iteration 194 out of 200. Current energy: 0.8555821437953415
+Finished iteration 195 out of 200. Current energy: 0.8555821437953415
+Finished iteration 196 out of 200. Current energy: 0.8555821437953415
+Finished iteration 197 out of 200. Current energy: 0.8555821437953415
+Finished iteration 198 out of 200. Current energy: 0.8555821437953415
+Finished iteration 199 out of 200. Current energy: 0.8555821437953415
+Finished iteration 200 out of 200. Current energy: 0.8555821437953415
+Finished iteration 201 out of 200. Current energy: 0.8555821437953415
+Minimum energy found for m=2: 0.8555821437953415
+---------------------------------
+Received m: 3
+Generated line graph with 3 edges, 4 nodes, and 5 layers.
+Edges: [(0, 1), (1, 2), (2, 3)], weights: [1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3}, n: 4, p: 5
+Starting optimization with sigma=1.0059606719138081, l=0.6098182801128815, f_m=0.010505336839755963
+New best energy found: 0.6127269118452432
+Finished iteration 1 out of 200. Current energy: 0.6127269118452432
+New best energy found: 0.25264760240597306
+Finished iteration 2 out of 200. Current energy: 0.25264760240597306
+New best energy found: 0.639593325070108
+Finished iteration 3 out of 200. Current energy: 0.639593325070108
+Finished iteration 4 out of 200. Current energy: 0.639593325070108
+Finished iteration 5 out of 200. Current energy: 0.639593325070108
+Finished iteration 6 out of 200. Current energy: 0.639593325070108
+Finished iteration 7 out of 200. Current energy: 0.639593325070108
+Finished iteration 8 out of 200. Current energy: 0.639593325070108
+Finished iteration 9 out of 200. Current energy: 0.639593325070108
+New best energy found: 0.6789408863107624
+Finished iteration 10 out of 200. Current energy: 0.6789408863107624
+Finished iteration 11 out of 200. Current energy: 0.6789408863107624
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k2__noise_level is close to the specified lower bound 1e-10. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 12 out of 200. Current energy: 0.6789408863107624
+Finished iteration 13 out of 200. Current energy: 0.6789408863107624
+Finished iteration 14 out of 200. Current energy: 0.6789408863107624
+Finished iteration 15 out of 200. Current energy: 0.6789408863107624
+Finished iteration 16 out of 200. Current energy: 0.6789408863107624
+New best energy found: 0.9584917500885353
+Finished iteration 17 out of 200. Current energy: 0.9584917500885353
+Finished iteration 18 out of 200. Current energy: 0.9584917500885353
+Finished iteration 19 out of 200. Current energy: 0.9584917500885353
+Finished iteration 20 out of 200. Current energy: 0.9584917500885353
+Finished iteration 21 out of 200. Current energy: 0.9584917500885353
+Finished iteration 22 out of 200. Current energy: 0.9584917500885353
+Finished iteration 23 out of 200. Current energy: 0.9584917500885353
+Finished iteration 24 out of 200. Current energy: 0.9584917500885353
+Finished iteration 25 out of 200. Current energy: 0.9584917500885353
+Finished iteration 26 out of 200. Current energy: 0.9584917500885353
+Finished iteration 27 out of 200. Current energy: 0.9584917500885353
+Finished iteration 28 out of 200. Current energy: 0.9584917500885353
+Finished iteration 29 out of 200. Current energy: 0.9584917500885353
+Finished iteration 30 out of 200. Current energy: 0.9584917500885353
+Finished iteration 31 out of 200. Current energy: 0.9584917500885353
+Finished iteration 32 out of 200. Current energy: 0.9584917500885353
+Finished iteration 33 out of 200. Current energy: 0.9584917500885353
+Finished iteration 34 out of 200. Current energy: 0.9584917500885353
+Finished iteration 35 out of 200. Current energy: 0.9584917500885353
+Finished iteration 36 out of 200. Current energy: 0.9584917500885353
+Finished iteration 37 out of 200. Current energy: 0.9584917500885353
+Finished iteration 38 out of 200. Current energy: 0.9584917500885353
+Finished iteration 39 out of 200. Current energy: 0.9584917500885353
+Finished iteration 40 out of 200. Current energy: 0.9584917500885353
+Finished iteration 41 out of 200. Current energy: 0.9584917500885353
+Finished iteration 42 out of 200. Current energy: 0.9584917500885353
+Finished iteration 43 out of 200. Current energy: 0.9584917500885353
+Finished iteration 44 out of 200. Current energy: 0.9584917500885353
+Finished iteration 45 out of 200. Current energy: 0.9584917500885353
+Finished iteration 46 out of 200. Current energy: 0.9584917500885353
+Finished iteration 47 out of 200. Current energy: 0.9584917500885353
+Finished iteration 48 out of 200. Current energy: 0.9584917500885353
+Finished iteration 49 out of 200. Current energy: 0.9584917500885353
+Finished iteration 50 out of 200. Current energy: 0.9584917500885353
+Finished iteration 51 out of 200. Current energy: 0.9584917500885353
+Finished iteration 52 out of 200. Current energy: 0.9584917500885353
+Finished iteration 53 out of 200. Current energy: 0.9584917500885353
+Finished iteration 54 out of 200. Current energy: 0.9584917500885353
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k2__noise_level is close to the specified lower bound 1e-10. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 55 out of 200. Current energy: 0.9584917500885353
+Finished iteration 56 out of 200. Current energy: 0.9584917500885353
+Finished iteration 57 out of 200. Current energy: 0.9584917500885353
+Finished iteration 58 out of 200. Current energy: 0.9584917500885353
+Finished iteration 59 out of 200. Current energy: 0.9584917500885353
+Finished iteration 60 out of 200. Current energy: 0.9584917500885353
+Finished iteration 61 out of 200. Current energy: 0.9584917500885353
+Finished iteration 62 out of 200. Current energy: 0.9584917500885353
+Finished iteration 63 out of 200. Current energy: 0.9584917500885353
+Finished iteration 64 out of 200. Current energy: 0.9584917500885353
+Finished iteration 65 out of 200. Current energy: 0.9584917500885353
+Finished iteration 66 out of 200. Current energy: 0.9584917500885353
+Finished iteration 67 out of 200. Current energy: 0.9584917500885353
+Finished iteration 68 out of 200. Current energy: 0.9584917500885353
+Finished iteration 69 out of 200. Current energy: 0.9584917500885353
+Finished iteration 70 out of 200. Current energy: 0.9584917500885353
+Finished iteration 71 out of 200. Current energy: 0.9584917500885353
+Finished iteration 72 out of 200. Current energy: 0.9584917500885353
+Finished iteration 73 out of 200. Current energy: 0.9584917500885353
+Finished iteration 74 out of 200. Current energy: 0.9584917500885353
+Finished iteration 75 out of 200. Current energy: 0.9584917500885353
+Finished iteration 76 out of 200. Current energy: 0.9584917500885353
+Finished iteration 77 out of 200. Current energy: 0.9584917500885353
+Finished iteration 78 out of 200. Current energy: 0.9584917500885353
+Finished iteration 79 out of 200. Current energy: 0.9584917500885353
+Finished iteration 80 out of 200. Current energy: 0.9584917500885353
+Finished iteration 81 out of 200. Current energy: 0.9584917500885353
+Finished iteration 82 out of 200. Current energy: 0.9584917500885353
+Finished iteration 83 out of 200. Current energy: 0.9584917500885353
+Finished iteration 84 out of 200. Current energy: 0.9584917500885353
+New best energy found: 1.0259061020508184
+Finished iteration 85 out of 200. Current energy: 1.0259061020508184
+Finished iteration 86 out of 200. Current energy: 1.0259061020508184
+Finished iteration 87 out of 200. Current energy: 1.0259061020508184
+Finished iteration 88 out of 200. Current energy: 1.0259061020508184
+Finished iteration 89 out of 200. Current energy: 1.0259061020508184
+Finished iteration 90 out of 200. Current energy: 1.0259061020508184
+Finished iteration 91 out of 200. Current energy: 1.0259061020508184
+Finished iteration 92 out of 200. Current energy: 1.0259061020508184
+Finished iteration 93 out of 200. Current energy: 1.0259061020508184
