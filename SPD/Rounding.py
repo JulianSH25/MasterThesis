@@ -1,5 +1,5 @@
 import numpy as np
-from Utilities import idx, save_benchmark_csv
+from .Utilities import idx, save_benchmark_csv
 
 debugging = False
 benchmark_roundings = False

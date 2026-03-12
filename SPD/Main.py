@@ -1,6 +1,6 @@
-from SDP_solver import ABCParams, SDP_Solver_
-from Rounding import round_sdp_with_cholesky
-from Utilities import random_instance_generator, line_instance_generator, get_edges_in_cut, save_benchmark_csv
+from .SDP_solver import ABCParams, SDP_Solver_
+from .Rounding import round_sdp_with_cholesky
+from .Utilities import random_instance_generator, line_instance_generator, get_edges_in_cut, save_benchmark_csv
 #from testing import visualize_cut
 import datetime, random, secrets, uuid
 from datetime import datetime
@@ -78,10 +78,24 @@ def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm
 
     #visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
 
+def main(instance, n_vertices, params: dict):
+    # Same functionality as main_benchmark, but without benchmarking. TODO streamline both functions.
+    solver_sdp = SDP_Solver_()
+
+    edges, weights = instance
+
+    M_optimal = solver_sdp.QMC_SDP_solver_antiFerro(edges, weights, n_vertices, params=params)
+
+    print("Rounding...")
+    cuts, states = round_sdp_with_cholesky(M_optimal, parameters=params)
+    print(cuts)
+    edge_count, edges_in_cut = get_edges_in_cut(cuts, edges)
+    print(f"{edge_count} in cut out of a total of {len(edges)} edges")
+    return edge_count, edges_in_cut, cuts, M_optimal, states
 
 if __name__ == "__main__":
     n_vertices = 14
-    params: ABCParams = {"a": 1, "b": 1, "c": 1}
+    params = {"a": 1, "b": 1, "c": 1}
     sparse = False
 
     #edges, weights, nodes = random_instance_generator(n_vertices, weights_static=True, sparse=sparse)
@@ -95,7 +109,9 @@ if __name__ == "__main__":
     objectives = set()
 
     for _ in range(1):
-        edge_count, _, _, _ = main_benchmark(n_vertices, params, (edges, weights), sparse)
+        edge_count, edges_in_cut, cuts, M_optimal, states = main(instance=(edges, weights), n_vertices=n_vertices, params=params)
+        #edge_count, _, _, _ = main_benchmark(n_vertices, params, (edges, weights), sparse)
         objectives.add(edge_count)
+        print(f"State: {states}")
 
     print(f"Objectives found: {objectives}")

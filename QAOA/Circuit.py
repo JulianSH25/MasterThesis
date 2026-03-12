@@ -20,6 +20,8 @@ class QAOACircuit(QuantumCircuit):
         self.qc: QuantumCircuit = None
         self.qc_no_params: QuantumCircuit = None # Auxiliary variable that is used to update the quantum circuit parameters
         self.backend = Aer.get_backend('qasm_simulator')
+        self.initial_state = None
+        self.self_init_linegraph = False
 
     def bind_circuit_parameters(
         self,
@@ -70,7 +72,7 @@ class QAOACircuit(QuantumCircuit):
 
         return energy
 
-    def build_qaoa_maxcut_circuit(self, add_measurements=True, self_init_linegraph=False):
+    def build_qaoa_maxcut_circuit(self, add_measurements=True):
         """
         # made class variable: :param n: the size of the circuit
         # made class variable: :param edges: the list of edges
@@ -99,7 +101,21 @@ class QAOACircuit(QuantumCircuit):
         # Initialise in equal superposition
         # TODO add warm start
         #qc.h(range(n))
-        prepare_line_singlet_circuit(self.qc, self.n) if self_init_linegraph else self.qc.h(range(self.n))
+        if self.initial_state is not None:
+            _initial_state = np.asarray(self.initial_state, dtype=complex)
+            assert _initial_state.shape == (2**self.n,)
+            assert _initial_state.ndim == 1
+            norm = np.linalg.norm(_initial_state)
+            assert norm > 0
+            _initial_state /= norm
+            self.qc.initialize(_initial_state, range(self.n))
+            print("Initial state injected as warm start")
+        elif self.self_init_linegraph:
+            prepare_line_singlet_circuit(self.qc, self.n)
+            print("Line graph state preparation: Singlet injection")
+        else:
+            self.qc.h(range(self.n)) # Default: equal superposition
+            print("Default QAOA state preparation: Equal superposition")
 
         for layer in range(self.p):
             gamma = self.gammas[layer]#
@@ -195,13 +211,14 @@ if __name__ == "__main__":
                 print(sorted_results[:10])
                 return None
 
-
-        qc_, gammas_, betas_ = QAOA.build_qaoa_maxcut_circuit(self_init_linegraph=True)
+        QAOA.self_init_linegraph = True
+        qc_, gammas_, betas_ = QAOA.build_qaoa_maxcut_circuit()
         print(qc_.draw("text"))
         """Test on equal superposition:"""
         energy_injected = test(qc_, gammas_, betas_)
 
-        qc_, gammas_, betas_ = QAOA.build_qaoa_maxcut_circuit(self_init_linegraph=False)
+        QAOA.self_init_linegraph = False
+        qc_, gammas_, betas_ = QAOA.build_qaoa_maxcut_circuit()
         print(qc_.draw("text"))
         """Test on random initial state:"""
         energy_equal_superpos = test(qc_, gammas_, betas_)

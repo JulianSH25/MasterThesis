@@ -3,12 +3,12 @@ import numpy as np
 from typing import Literal, TypedDict
 
 #from MasterThesis.SPD.Rounding import compute_energy
-from Rounding import round_sdp_with_cholesky
+from .Rounding import round_sdp_with_cholesky
 from numpy.matlib import empty
 from itertools import permutations
 #from testing import visualize_cut
 
-from Utilities import idx
+from .Utilities import idx
 
 Bit = Literal[0, 1]
 
