@@ -1,0 +1,632 @@
+---------------------------------
+Received m: 10
+Generated line graph with 10 edges, 11 nodes, and 20 layers.
+Edges: [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9), (9, 10)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, n: 11, p: 20
+Starting optimization with sigma=1.0000687038479077, l=1.0054603682053584, f_m=0.8866077811112177
+New best energy found: 2.8708984637813075
+Finished iteration 1 out of 200. Current energy: 2.8708984637813075
+New best energy found: 2.7828220004547446
+Finished iteration 2 out of 200. Current energy: 2.7828220004547446
+New best energy found: 3.3857308222944615
+Finished iteration 3 out of 200. Current energy: 3.3857308222944615
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 4 out of 200. Current energy: 3.3857308222944615
+Finished iteration 5 out of 200. Current energy: 3.3857308222944615
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 6 out of 200. Current energy: 3.3857308222944615
+Finished iteration 7 out of 200. Current energy: 3.3857308222944615
+Finished iteration 8 out of 200. Current energy: 3.3857308222944615
+Finished iteration 9 out of 200. Current energy: 3.3857308222944615
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 10 out of 200. Current energy: 3.3857308222944615
+New best energy found: 3.388832299978828
+Finished iteration 11 out of 200. Current energy: 3.388832299978828
+Finished iteration 12 out of 200. Current energy: 3.388832299978828
+Finished iteration 13 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 14 out of 200. Current energy: 3.388832299978828
+Finished iteration 15 out of 200. Current energy: 3.388832299978828
+Finished iteration 16 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 17 out of 200. Current energy: 3.388832299978828
+Finished iteration 18 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 19 out of 200. Current energy: 3.388832299978828
+Finished iteration 20 out of 200. Current energy: 3.388832299978828
+Finished iteration 21 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 22 out of 200. Current energy: 3.388832299978828
+Finished iteration 23 out of 200. Current energy: 3.388832299978828
+Finished iteration 24 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 25 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 26 out of 200. Current energy: 3.388832299978828
+Finished iteration 27 out of 200. Current energy: 3.388832299978828
+Finished iteration 28 out of 200. Current energy: 3.388832299978828
+Finished iteration 29 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 30 out of 200. Current energy: 3.388832299978828
+Finished iteration 31 out of 200. Current energy: 3.388832299978828
+Finished iteration 32 out of 200. Current energy: 3.388832299978828
+Finished iteration 33 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 34 out of 200. Current energy: 3.388832299978828
+Finished iteration 35 out of 200. Current energy: 3.388832299978828
+Finished iteration 36 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 37 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 38 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 39 out of 200. Current energy: 3.388832299978828
+Finished iteration 40 out of 200. Current energy: 3.388832299978828
+Finished iteration 41 out of 200. Current energy: 3.388832299978828
+Finished iteration 42 out of 200. Current energy: 3.388832299978828
+Finished iteration 43 out of 200. Current energy: 3.388832299978828
+Finished iteration 44 out of 200. Current energy: 3.388832299978828
+Finished iteration 45 out of 200. Current energy: 3.388832299978828
+Finished iteration 46 out of 200. Current energy: 3.388832299978828
+Finished iteration 47 out of 200. Current energy: 3.388832299978828
+Finished iteration 48 out of 200. Current energy: 3.388832299978828
+Finished iteration 49 out of 200. Current energy: 3.388832299978828
+Finished iteration 50 out of 200. Current energy: 3.388832299978828
+Finished iteration 51 out of 200. Current energy: 3.388832299978828
+Finished iteration 52 out of 200. Current energy: 3.388832299978828
+Finished iteration 53 out of 200. Current energy: 3.388832299978828
+Finished iteration 54 out of 200. Current energy: 3.388832299978828
+Finished iteration 55 out of 200. Current energy: 3.388832299978828
+Finished iteration 56 out of 200. Current energy: 3.388832299978828
+Finished iteration 57 out of 200. Current energy: 3.388832299978828
+Finished iteration 58 out of 200. Current energy: 3.388832299978828
+Finished iteration 59 out of 200. Current energy: 3.388832299978828
+Finished iteration 60 out of 200. Current energy: 3.388832299978828
+Finished iteration 61 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 62 out of 200. Current energy: 3.388832299978828
+Finished iteration 63 out of 200. Current energy: 3.388832299978828
+Finished iteration 64 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 65 out of 200. Current energy: 3.388832299978828
+Finished iteration 66 out of 200. Current energy: 3.388832299978828
+Finished iteration 67 out of 200. Current energy: 3.388832299978828
+Finished iteration 68 out of 200. Current energy: 3.388832299978828
+Finished iteration 69 out of 200. Current energy: 3.388832299978828
+Finished iteration 70 out of 200. Current energy: 3.388832299978828
+Finished iteration 71 out of 200. Current energy: 3.388832299978828
+Finished iteration 72 out of 200. Current energy: 3.388832299978828
+Finished iteration 73 out of 200. Current energy: 3.388832299978828
+Finished iteration 74 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 75 out of 200. Current energy: 3.388832299978828
+Finished iteration 76 out of 200. Current energy: 3.388832299978828
+Finished iteration 77 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 78 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 79 out of 200. Current energy: 3.388832299978828
+Finished iteration 80 out of 200. Current energy: 3.388832299978828
+Finished iteration 81 out of 200. Current energy: 3.388832299978828
+Finished iteration 82 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 83 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 84 out of 200. Current energy: 3.388832299978828
+Finished iteration 85 out of 200. Current energy: 3.388832299978828
+Finished iteration 86 out of 200. Current energy: 3.388832299978828
+Finished iteration 87 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 88 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 89 out of 200. Current energy: 3.388832299978828
+Finished iteration 90 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 91 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 92 out of 200. Current energy: 3.388832299978828
+Finished iteration 93 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 94 out of 200. Current energy: 3.388832299978828
+Finished iteration 95 out of 200. Current energy: 3.388832299978828
+Finished iteration 96 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 97 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 98 out of 200. Current energy: 3.388832299978828
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 99 out of 200. Current energy: 3.388832299978828
+New best energy found: 3.6132531681279723
+Finished iteration 100 out of 200. Current energy: 3.6132531681279723
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 101 out of 200. Current energy: 3.6132531681279723
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 102 out of 200. Current energy: 3.6132531681279723
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k2__noise_level is close to the specified lower bound 1e-10. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 103 out of 200. Current energy: 3.6132531681279723
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 104 out of 200. Current energy: 3.6132531681279723
+Finished iteration 105 out of 200. Current energy: 3.6132531681279723
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 106 out of 200. Current energy: 3.6132531681279723
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 107 out of 200. Current energy: 3.6132531681279723
+Finished iteration 108 out of 200. Current energy: 3.6132531681279723
+New best energy found: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 109 out of 200. Current energy: 3.73143710211081
+Finished iteration 110 out of 200. Current energy: 3.73143710211081
+Finished iteration 111 out of 200. Current energy: 3.73143710211081
+Finished iteration 112 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 113 out of 200. Current energy: 3.73143710211081
+Finished iteration 114 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 115 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 116 out of 200. Current energy: 3.73143710211081
+Finished iteration 117 out of 200. Current energy: 3.73143710211081
+Finished iteration 118 out of 200. Current energy: 3.73143710211081
+Finished iteration 119 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 120 out of 200. Current energy: 3.73143710211081
+Finished iteration 121 out of 200. Current energy: 3.73143710211081
+Finished iteration 122 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 123 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 124 out of 200. Current energy: 3.73143710211081
+Finished iteration 125 out of 200. Current energy: 3.73143710211081
+Finished iteration 126 out of 200. Current energy: 3.73143710211081
+Finished iteration 127 out of 200. Current energy: 3.73143710211081
+Finished iteration 128 out of 200. Current energy: 3.73143710211081
+Finished iteration 129 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 130 out of 200. Current energy: 3.73143710211081
+Finished iteration 131 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 132 out of 200. Current energy: 3.73143710211081
+Finished iteration 133 out of 200. Current energy: 3.73143710211081
+Finished iteration 134 out of 200. Current energy: 3.73143710211081
+Finished iteration 135 out of 200. Current energy: 3.73143710211081
+Finished iteration 136 out of 200. Current energy: 3.73143710211081
+Finished iteration 137 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 138 out of 200. Current energy: 3.73143710211081
+Finished iteration 139 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 140 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 141 out of 200. Current energy: 3.73143710211081
+Finished iteration 142 out of 200. Current energy: 3.73143710211081
+Finished iteration 143 out of 200. Current energy: 3.73143710211081
+Finished iteration 144 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 145 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 146 out of 200. Current energy: 3.73143710211081
+Finished iteration 147 out of 200. Current energy: 3.73143710211081
+Finished iteration 148 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 149 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 150 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 151 out of 200. Current energy: 3.73143710211081
+Finished iteration 152 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 153 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 154 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 155 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 156 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 157 out of 200. Current energy: 3.73143710211081
+Finished iteration 158 out of 200. Current energy: 3.73143710211081
+Finished iteration 159 out of 200. Current energy: 3.73143710211081
+Finished iteration 160 out of 200. Current energy: 3.73143710211081
+Finished iteration 161 out of 200. Current energy: 3.73143710211081
+Finished iteration 162 out of 200. Current energy: 3.73143710211081
+Finished iteration 163 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 164 out of 200. Current energy: 3.73143710211081
+Finished iteration 165 out of 200. Current energy: 3.73143710211081
+Finished iteration 166 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 167 out of 200. Current energy: 3.73143710211081
+Finished iteration 168 out of 200. Current energy: 3.73143710211081
+Finished iteration 169 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 170 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 171 out of 200. Current energy: 3.73143710211081
+Finished iteration 172 out of 200. Current energy: 3.73143710211081
+Finished iteration 173 out of 200. Current energy: 3.73143710211081
+Finished iteration 174 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 175 out of 200. Current energy: 3.73143710211081
+Finished iteration 176 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 177 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 178 out of 200. Current energy: 3.73143710211081
+Finished iteration 179 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 180 out of 200. Current energy: 3.73143710211081
+Finished iteration 181 out of 200. Current energy: 3.73143710211081
+Finished iteration 182 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 183 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 184 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 185 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 186 out of 200. Current energy: 3.73143710211081
+Finished iteration 187 out of 200. Current energy: 3.73143710211081
+Finished iteration 188 out of 200. Current energy: 3.73143710211081
+Finished iteration 189 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 190 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 191 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 192 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 193 out of 200. Current energy: 3.73143710211081
+Finished iteration 194 out of 200. Current energy: 3.73143710211081
+Finished iteration 195 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 196 out of 200. Current energy: 3.73143710211081
+Finished iteration 197 out of 200. Current energy: 3.73143710211081
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 198 out of 200. Current energy: 3.73143710211081
+Finished iteration 199 out of 200. Current energy: 3.73143710211081
+Finished iteration 200 out of 200. Current energy: 3.73143710211081
+Finished iteration 201 out of 200. Current energy: 3.73143710211081
+Minimum energy found for m=10: 3.73143710211081
+---------------------------------
+Received m: 11
+Generated line graph with 11 edges, 12 nodes, and 20 layers.
+Edges: [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9), (9, 10), (10, 11)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, n: 12, p: 20
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Starting optimization with sigma=0.6041801345145357, l=0.0010000000000000002, f_m=0.7888710267349884
+New best energy found: 2.47700173979304
+Finished iteration 1 out of 200. Current energy: 2.47700173979304
+New best energy found: 3.271801263374018
+Finished iteration 2 out of 200. Current energy: 3.271801263374018
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 3 out of 200. Current energy: 3.271801263374018
+Finished iteration 4 out of 200. Current energy: 3.271801263374018
+Finished iteration 5 out of 200. Current energy: 3.271801263374018
+New best energy found: 3.3861816440166774
+Finished iteration 6 out of 200. Current energy: 3.3861816440166774
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 7 out of 200. Current energy: 3.3861816440166774
+Finished iteration 8 out of 200. Current energy: 3.3861816440166774
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 9 out of 200. Current energy: 3.3861816440166774
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 10 out of 200. Current energy: 3.3861816440166774
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 11 out of 200. Current energy: 3.3861816440166774
+Finished iteration 12 out of 200. Current energy: 3.3861816440166774
+New best energy found: 3.6650706981004473
+Finished iteration 13 out of 200. Current energy: 3.6650706981004473
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 14 out of 200. Current energy: 3.6650706981004473
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 15 out of 200. Current energy: 3.6650706981004473
+Finished iteration 16 out of 200. Current energy: 3.6650706981004473
+Finished iteration 17 out of 200. Current energy: 3.6650706981004473
+Finished iteration 18 out of 200. Current energy: 3.6650706981004473
+Finished iteration 19 out of 200. Current energy: 3.6650706981004473
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 20 out of 200. Current energy: 3.6650706981004473
+Finished iteration 21 out of 200. Current energy: 3.6650706981004473
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 22 out of 200. Current energy: 3.6650706981004473
+Finished iteration 23 out of 200. Current energy: 3.6650706981004473
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 24 out of 200. Current energy: 3.6650706981004473
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 25 out of 200. Current energy: 3.6650706981004473
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 26 out of 200. Current energy: 3.6650706981004473
+Finished iteration 27 out of 200. Current energy: 3.6650706981004473
+Finished iteration 28 out of 200. Current energy: 3.6650706981004473
+Finished iteration 29 out of 200. Current energy: 3.6650706981004473
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 30 out of 200. Current energy: 3.6650706981004473
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 31 out of 200. Current energy: 3.6650706981004473
+Finished iteration 32 out of 200. Current energy: 3.6650706981004473
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 33 out of 200. Current energy: 3.6650706981004473
+Finished iteration 34 out of 200. Current energy: 3.6650706981004473
+New best energy found: 3.931166694644627
+Finished iteration 35 out of 200. Current energy: 3.931166694644627
+Finished iteration 36 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 37 out of 200. Current energy: 3.931166694644627
+Finished iteration 38 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 39 out of 200. Current energy: 3.931166694644627
+Finished iteration 40 out of 200. Current energy: 3.931166694644627
+Finished iteration 41 out of 200. Current energy: 3.931166694644627
+Finished iteration 42 out of 200. Current energy: 3.931166694644627
+Finished iteration 43 out of 200. Current energy: 3.931166694644627
+Finished iteration 44 out of 200. Current energy: 3.931166694644627
+Finished iteration 45 out of 200. Current energy: 3.931166694644627
+Finished iteration 46 out of 200. Current energy: 3.931166694644627
+Finished iteration 47 out of 200. Current energy: 3.931166694644627
+Finished iteration 48 out of 200. Current energy: 3.931166694644627
+Finished iteration 49 out of 200. Current energy: 3.931166694644627
+Finished iteration 50 out of 200. Current energy: 3.931166694644627
+Finished iteration 51 out of 200. Current energy: 3.931166694644627
+Finished iteration 52 out of 200. Current energy: 3.931166694644627
+Finished iteration 53 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 54 out of 200. Current energy: 3.931166694644627
+Finished iteration 55 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 56 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 57 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 58 out of 200. Current energy: 3.931166694644627
+Finished iteration 59 out of 200. Current energy: 3.931166694644627
+Finished iteration 60 out of 200. Current energy: 3.931166694644627
+Finished iteration 61 out of 200. Current energy: 3.931166694644627
+Finished iteration 62 out of 200. Current energy: 3.931166694644627
+Finished iteration 63 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 64 out of 200. Current energy: 3.931166694644627
+Finished iteration 65 out of 200. Current energy: 3.931166694644627
+Finished iteration 66 out of 200. Current energy: 3.931166694644627
+Finished iteration 67 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 68 out of 200. Current energy: 3.931166694644627
+Finished iteration 69 out of 200. Current energy: 3.931166694644627
+Finished iteration 70 out of 200. Current energy: 3.931166694644627
+Finished iteration 71 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 72 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 73 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k1__constant_value is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 74 out of 200. Current energy: 3.931166694644627
+Finished iteration 75 out of 200. Current energy: 3.931166694644627
+Finished iteration 76 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 77 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 78 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 79 out of 200. Current energy: 3.931166694644627
+Finished iteration 80 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 81 out of 200. Current energy: 3.931166694644627
+Finished iteration 82 out of 200. Current energy: 3.931166694644627
+Finished iteration 83 out of 200. Current energy: 3.931166694644627
+Finished iteration 84 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 85 out of 200. Current energy: 3.931166694644627
+Finished iteration 86 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 87 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 88 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 89 out of 200. Current energy: 3.931166694644627
+Finished iteration 90 out of 200. Current energy: 3.931166694644627
+Finished iteration 91 out of 200. Current energy: 3.931166694644627
+Finished iteration 92 out of 200. Current energy: 3.931166694644627
+Finished iteration 93 out of 200. Current energy: 3.931166694644627
+Finished iteration 94 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 95 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 96 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 97 out of 200. Current energy: 3.931166694644627
+Finished iteration 98 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 99 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 100 out of 200. Current energy: 3.931166694644627
+Finished iteration 101 out of 200. Current energy: 3.931166694644627
+Finished iteration 102 out of 200. Current energy: 3.931166694644627
+Finished iteration 103 out of 200. Current energy: 3.931166694644627
+Finished iteration 104 out of 200. Current energy: 3.931166694644627
+Finished iteration 105 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 106 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 107 out of 200. Current energy: 3.931166694644627
+Finished iteration 108 out of 200. Current energy: 3.931166694644627
+Finished iteration 109 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 110 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 111 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 112 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 113 out of 200. Current energy: 3.931166694644627
+Finished iteration 114 out of 200. Current energy: 3.931166694644627
+Finished iteration 115 out of 200. Current energy: 3.931166694644627
+Finished iteration 116 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 117 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 118 out of 200. Current energy: 3.931166694644627
+Finished iteration 119 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 120 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 121 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/_gpr.py:670: ConvergenceWarning: lbfgs failed to converge after 2 iteration(s) (status=2):
+ABNORMAL: 
+
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+  _check_optimize_result("lbfgs", opt_res)
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 122 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 123 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 124 out of 200. Current energy: 3.931166694644627
+Finished iteration 125 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 126 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 127 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 128 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 129 out of 200. Current energy: 3.931166694644627
+Finished iteration 130 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 131 out of 200. Current energy: 3.931166694644627
+Finished iteration 132 out of 200. Current energy: 3.931166694644627
+Finished iteration 133 out of 200. Current energy: 3.931166694644627
+/Library/Projects/conda_environments/MasterThesis/lib/python3.11/site-packages/sklearn/gaussian_process/kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k1__k2__length_scale is close to the specified lower bound 0.001. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+Finished iteration 134 out of 200. Current energy: 3.931166694644627
+Finished iteration 135 out of 200. Current energy: 3.931166694644627
