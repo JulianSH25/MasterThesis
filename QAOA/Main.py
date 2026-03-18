@@ -1,7 +1,13 @@
 from Circuit import QAOACircuit
 from ParamOptimisation import bayesian_optimisation, optimise_cobyla
 import sys
+from pathlib import Path
 from utils import build_qaoa_warm_start_state
+
+if __package__ in (None, ""):
+    project_root = Path(__file__).resolve().parents[1]
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
 
 from SPD.Main import main as SDP_main
 
@@ -53,7 +59,7 @@ if __name__ == "__main__":
     #for m in range(5, 15):
     results = []
     #results.append(main(m=3, p=20, N_bayes=10, init_initial_state=True))
-    results.append(main(m=3, p=20, N_bayes=20, self_init_linegraph=True))
+    results.append(main(m=int(sys.argv[1]), p=20, N_bayes=200, self_init_linegraph=True))
     #results.append(main(m=3, p=20, N_bayes=10))
 
     print(f"results: {results}")
