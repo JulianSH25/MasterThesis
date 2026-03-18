@@ -59,7 +59,7 @@ if __name__ == "__main__":
     #for m in range(5, 15):
     results = []
     #results.append(main(m=3, p=20, N_bayes=10, init_initial_state=True))
-    results.append(main(m=int(sys.argv[1]), p=20, N_bayes=200, self_init_linegraph=True))
+    results.append(main(m=int(sys.argv[1]), p=20, N_bayes=200, init_initial_state=True))
     #results.append(main(m=3, p=20, N_bayes=10))
 
     print(f"results: {results}")

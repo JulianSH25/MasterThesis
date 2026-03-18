@@ -117,7 +117,7 @@ def bayesian_optimisation(QAOA: QAOACircuit, N_bayes: float, no_layers: int, poi
         candidate_points = sample_initial_qaoa_params(len(points), no_layers)
         maximising_point = compute_acquisition_function(prior=prior, f_min=f_m, candidate_points=candidate_points)
         eval = eval_QAOA_circuit(maximising_point, QAOA=QAOA)
-        if eval > f_m or f_m is None or n == 1: #NOTE somehow the paper says to minimise, but we will now be maximising!
+        if eval > f_m: #NOTE somehow the paper says to minimise, but we will now be maximising!
             f_m = eval
             print(f"New best energy found: {f_m}")
         #training_set[maximising_point] = eval
