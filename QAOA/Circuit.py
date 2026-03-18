@@ -123,7 +123,12 @@ class QAOACircuit(QuantumCircuit):
 
             # add Cost Hamiltonian for all edges, taking into account their respective weights
             for (j, k), w in zip(self.edges, self.weights):
-                self.qc.rzz(-gamma * w, j, k) # z_j z_k, i.e. z interaction term between qubtis j and k
+                a, b, c = 1, 1, 1 # TODO receive from actual parameter dictionary, not static
+                w = w/ (1 + a + b + c)
+                self.qc.rzz(-2 * gamma * w , j, k) # z_j z_k, i.e. z interaction term between qubtis j and k
+                self.qc.rxx(-2 * gamma * w, j, k) #TODO add parameter settings that decide whether the hamiltonian is quantum or classical
+                self.qc.ryy(-2 * gamma * w, j, k) #TODO same as above
+                # The factor 2 accomodates for qiskits default weighting of /2 for .rzz, .rxx, .ryy
 
             # add Mixer Hamiltionian for all nodes
             self.qc.rx(2 * beta, range(self.n))

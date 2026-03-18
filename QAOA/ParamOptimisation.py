@@ -73,6 +73,20 @@ def compute_acquisition_function(prior, f_min, candidate_points=None):
     best_index = int(np.argmax(EI))
     return candidate_points[best_index]
 
+def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 100):
+    assert isinstance(QAOA, QAOACircuit)
+
+    gamma, beta = set_random_params(no_layers)
+    x0 = np.concatenate([gamma, beta])
+
+    def objective(theta: np.ndarray) -> float:
+        gamma_vals = theta[:no_layers]
+        beta_vals = theta[no_layers:]
+        return -eval_QAOA_circuit((gamma_vals, beta_vals), QAOA)
+
+    return minimize(objective, x0=x0, method="COBYLA", options={"maxiter": max_iter})
+    #return minimize(objective, x0=x0, method="L-BFGS-B", options={"maxiter": max_iter})
+
 def bayesian_optimisation(QAOA: QAOACircuit, N_bayes: float, no_layers: int, points: list[tuple] = None):
     # points: list of parameters Θ = (𝛄, β) needed for the QAOA
     """This function optimises the QAOA parameters Θ = (𝛄, β) using Bayesian optimization."""
