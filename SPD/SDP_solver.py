@@ -19,6 +19,20 @@ class ABCParams(TypedDict):
 
 class SDP_Solver_():
     def SDP_setup(self, edges, weights, n_vertices, parameters: tuple):
+        """
+        This method sets up an SDP for Max-Cut with Pauli-block structure.
+
+        Pipeline:
+        1. Declare moment matrix M as a 3n x 3n symmetric variable.
+        2. Build objective function: maximise sum of weighted edge terms.
+        3. Define constraints: M PSD, diagonal entries normalised, anti-commutation.
+
+        :param edges: edge list as tuples (i, j)
+        :param weights: edge weights
+        :param n_vertices: number of vertices
+        :param parameters: tuple (a, b, c) with binary flags for Pauli operators
+        :return: tuple (problem, M, constraints)
+        """
         # Step 1: Declaring M as a variable
         M = cp.Variable((n_vertices * 3, n_vertices * 3), symmetric=True)
 
@@ -82,7 +96,18 @@ class SDP_Solver_():
         return problem, M, constraints
 
     def QMC_SDP_solver_antiFerro(self, edges, weights, n_vertices, params: ABCParams):
+        """
+        This method solves the SDP and returns the optimal moment matrix.
 
+        Uses the MOSEK solver when available, falling back to SCS otherwise.
+        Raises an exception if the SDP does not achieve optimal status.
+
+        :param edges: edge list as tuples (i, j)
+        :param weights: edge weights
+        :param n_vertices: number of vertices
+        :param params: SDP Hamiltonian parameters as {"a": Bit, "b": Bit, "c": Bit}
+        :return: optimal moment matrix M as a numpy array
+        """
         a, b, c = params.get("a"), params.get("b"), params.get("c")
         if any(x not in (0, 1) for x in (a, b, c)):
             raise ValueError(f"Expected params a,b,c in {{0,1}}, got {params}")
@@ -123,10 +148,16 @@ class SDP_Solver_():
 """
     def compute_energy(self, product_states, edges, weights=None, params=None):
         """
-        Energy of a PRODUCT state from local 1-qubit density matrices for the AFM/QMC case.
+        This method computes the Hamiltonian energy from local single-qubit states.
 
-        product_states: list of 2x2 density matrices rho_i
-        params: (a,b,c) with entries in {0,1}
+        Given a list of single-qubit density matrices (one per vertex), computes the
+        bilinear energy trace for all edges under the weighted Hamiltonian.
+
+        :param product_states: list of 2x2 density matrices rho_i, one per vertex
+        :param edges: edge list as tuples (i, j)
+        :param weights: optional edge weights; defaults to 1 per edge
+        :param params: binary parameter tuple (a, b, c) controlling Pauli operators
+        :return: real energy value of the product state
         """
         weights = weights if weights is not None else np.ones(len(edges))
         #assert params is not None

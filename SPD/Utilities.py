@@ -5,20 +5,31 @@ import json
 
 
 def idx(i: int, k: int) -> int:
-    """Method to compute the correct index for a given vertex i and Pauli k to ensure consistency/avoid indexing errors"""
+    """
+    This function maps a vertex index and Pauli operator to a linear index.
+
+    Used to ensure consistent indexing in the 3n x 3n moment matrix.
+    Mapping: k=0->X, k=1->Y, k=2->Z.
+
+    :param i: vertex index
+    :param k: Pauli operator index (0, 1, or 2)
+    :return: linear index 3*i + k for position in flattened structure
+    """
     # k: 0->X, 1->Y, 2->Z
     return 3 * i + k
     #return i * k
 
 def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
-    """Create a random *connected* undirected graph.
+    """
+    This function generates a random connected undirected graph instance.
 
-    Guarantees:
-      - No isolated nodes (every node has degree >= 1)
-      - The graph has exactly one connected component (no disjoint subgraphs)
+    Guarantees connectivity via a random spanning tree, then adds additional
+    edges stochastically based on sparsity. Sparse graphs use denser edge thresholds.
 
-    The generator first creates a random spanning tree to ensure connectivity,
-    then adds additional random edges according to the same sparsity logic as before.
+    :param nodes: number of vertices
+    :param weights_static: if True, all edges have weight 1.0; otherwise random [1e-10, 1.0]
+    :param sparse: if True, use high edge threshold (0.8-0.99); otherwise random threshold
+    :return: tuple (edges, weights, nodes) describing the graph
     """
     if nodes <= 0:
         return [], [], nodes
@@ -62,7 +73,16 @@ def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
     return edges, weights, nodes
 
 def line_instance_generator(nodes: int, weights_static: bool, _ = None):
-    """ Creates a line graph, given a number of desired nodes; An edge is always created so long as the number of nodes is not exceeded. """
+    """
+    This function generates a path graph (line graph) instance.
+
+    Creates edges (i, i+1) for each consecutive pair of nodes.
+
+    :param nodes: number of vertices
+    :param weights_static: if True, all edges have weight 1.0; otherwise random [1e-10, 1.0]
+    :param _: placeholder argument (unused)
+    :return: tuple (edges, weights, nodes) describing the line graph
+    """
     edges = []
     weights = []
     for i in range(nodes):
@@ -73,6 +93,16 @@ def line_instance_generator(nodes: int, weights_static: bool, _ = None):
     return edges, weights, nodes
 
 def get_edges_in_cut(cut, edges):
+    """
+    This function identifies edges whose endpoints are in different cut parts.
+
+    Given a vertex cut assignment and an edge list, counts edges that cross
+    the cut (one endpoint in each part).
+
+    :param cut: vertex assignment mapping, indexed by vertex number
+    :param edges: list of edges as tuples (i, j)
+    :return: tuple (edge_count, edges_in_cut) with the count and list of crossing edges
+    """
     edge_count = 0
     edges_in_cut = []
     print(f'Check the cut: {cut}')
@@ -85,6 +115,17 @@ def get_edges_in_cut(cut, edges):
     return edge_count, edges_in_cut
 
 def save_benchmark_csv(sol_sdp, sol_grb, name_addition = ""):
+    """
+    This function saves benchmark results to a CSV file.
+
+    Creates a new file with headers if it does not exist, otherwise appends
+    a row. Filenames are timestamped by date.
+
+    :param sol_sdp: dictionary of SDP solution fields
+    :param sol_grb: dictionary of Gurobi solution fields
+    :param name_addition: optional suffix for the filename
+    :return: None
+    """
     now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     date = datetime.now().strftime("%Y-%m-%d")
     #filename = f'Benchmarks/benchmark_{sol_sdp["n_vertices"]}_{sol_sdp["n_edges"]}_{now}.csv'

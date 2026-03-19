@@ -22,6 +22,11 @@ from Circuit import QAOACircuit
         qc_bound"""
 class Gaussian_Process:
     def build_gp_prior(self):
+        """
+        This method builds the Gaussian-process prior used for Bayesian optimisation.
+
+        :return: configured GaussianProcessRegressor with Constant*Matern+White kernel
+        """
         kernel = ConstantKernel(
             1.0,
             (1e-3, 1e3))
@@ -46,6 +51,13 @@ def eval_QAOA_circuit(point: tuple[np.ndarray[float], np.ndarray[float]], QAOA: 
 
 def compute_bayesian_params(dataset: tuple, prior):
     # Step 4
+    """
+    This method fits the prior on observed data and extracts kernel hyperparameters.
+
+    :param dataset: tuple (points, y) with sampled points and observed energies
+    :param prior: Gaussian process regressor to fit on the dataset
+    :return: tuple (sigma, l) with amplitude and length-scale hyperparameters (in the current implementation, also returning nothing would be fine)
+    """
     points, y = dataset
     X = np.array([np.concatenate([np.asarray(point[0]), np.asarray(point[1])]) for point in points], dtype=float)
     prior.fit(X, np.array(y, dtype=float))
@@ -55,6 +67,14 @@ def compute_bayesian_params(dataset: tuple, prior):
     return sigma, l
 
 def expected_improvement(prior, X_candidates: np.ndarray, f_min: float):
+    """
+    This method computes expected-improvement values for candidate points.
+
+    :param prior: fitted Gaussian process regressor
+    :param X_candidates: candidate points in flattened parameter space
+    :param f_min: current best objective value (i.e. energy)
+    :return: expected-improvement score for each candidate point
+    """
     mean, std = prior.predict(X_candidates, return_std=True)
     covariance = np.maximum(std**2, 1e-12) # NOTE It seems that the more standard way outside of the scope of this paper is to use std and not std ** 2
 
@@ -66,6 +86,14 @@ def expected_improvement(prior, X_candidates: np.ndarray, f_min: float):
 
 def compute_acquisition_function(prior, f_min, candidate_points=None):
     # Step 6.2/6.3
+    """
+    This method selects the candidate with the maximum expected improvement.
+
+    :param prior: fitted Gaussian process regressor
+    :param f_min: current best objective value
+    :param candidate_points: list of candidate QAOA parameter tuples (gamma, beta)
+    :return: candidate point that maximises the acquisition function
+    """
     assert candidate_points is not None
     X = np.array([np.concatenate([np.asarray(point[0]), np.asarray(point[1])]) for point in candidate_points], dtype=float)
 
@@ -74,6 +102,12 @@ def compute_acquisition_function(prior, f_min, candidate_points=None):
     return candidate_points[best_index]
 
 def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 100):
+    """
+    NOTE: ALTERNATIVE OPTIMISATION FUNCTION; this one is standalone, in the sense that all the other methods in this file are only for the Bayesian optimisation, but this one is a separate method that can be used to optimise QAOA parameters using COBYLA instead of Bayesian optimisation. 
+    :param no_layers: number of QAOA layers
+    :param max_iter: maximum number of COBYLA iterations
+    :return: scipy optimisation result object
+    """
     assert isinstance(QAOA, QAOACircuit)
 
     gamma, beta = set_random_params(no_layers)
@@ -89,7 +123,16 @@ def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 100):
 
 def bayesian_optimisation(QAOA: QAOACircuit, N_bayes: float, no_layers: int, points: list[tuple] = None):
     # points: list of parameters Θ = (𝛄, β) needed for the QAOA
-    """This function optimises the QAOA parameters Θ = (𝛄, β) using Bayesian optimization."""
+    """
+    NOTE: MAIN OPTIMISATION FUNCTION; this one is the entry point for the Bayesian optimisation per the paper [provide citation]
+    This function optimises the QAOA parameters Θ = (𝛄, β) using Bayesian optimization.
+
+    :param QAOA: configured QAOA circuit instance
+    :param N_bayes: number of Bayesian optimisation iterations
+    :param no_layers: number of QAOA layers p
+    :param points: optional initial list of QAOA parameter tuples (gamma, beta); if not provided, random initial points will be sampled
+    :return: best energy value found during optimisation
+    """
     if not isinstance(QAOA, QAOACircuit):
         raise TypeError("QAOA must be a class instance of QAOACircuit")
 

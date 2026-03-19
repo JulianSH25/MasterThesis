@@ -9,6 +9,17 @@ benchmark_roundings = True
 fixed_seed = False
 
 def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm_filename = None, uuid__ = None):
+    """
+    This function solves and rounds one SDP instance, optionally persisting benchmark rows.
+
+    :param n_vertices: number of vertices in the graph instance
+    :param params: SDP Hamiltonian coefficients as a, b, c bits
+    :param instance: tuple (edges, weights) describing the graph
+    :param sparse: whether the benchmark configuration uses sparse graph generation
+    :param benchm_filename: optional benchmark filename prefix override
+    :param uuid__: optional run identifier for benchmark row tracking
+    :return: tuple (edge_count, edges_in_cut, cuts, M_optimal, cut_variations)
+    """
     solver_sdp = SDP_Solver_()
 
     edges, weights = instance
@@ -79,6 +90,14 @@ def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm
     #visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
 
 def main(instance, n_vertices, params: dict):
+    """
+    This function runs the SDP solve and rounding flow without benchmark persistence.
+
+    :param instance: tuple (edges, weights) describing the graph
+    :param n_vertices: number of vertices in the graph instance
+    :param params: SDP Hamiltonian coefficients as a, b, c bits
+    :return: tuple (edge_count, edges_in_cut, cuts, M_optimal, states)
+    """
     # Same functionality as main_benchmark, but without benchmarking. TODO streamline both functions.
     solver_sdp = SDP_Solver_()
 

@@ -6,8 +6,17 @@ benchmark_roundings = False
 
 
 def parameter_check(parameters: dict, required_keys=None) -> dict:
+    """
+    This function validates and normalises Hamiltonian parameter flags.
 
-    # Accept either {a,b,c} (preferred) or {a,b,y} (legacy). Normalize to {a,b,c}.
+    It accepts either the preferred key set {a, b, c} or the legacy
+    set {a, b, y}, and always returns the normalised {a, b, c} format.
+
+    :param parameters: parameter dictionary with binary values
+    :param required_keys: expected key set, defaults to {"a", "b", "c"}
+    :return: validated and normalised parameter dictionary
+    """
+
     keys = set(parameters.keys())
     if keys == {"a", "b", "y"}:
         parameters = {"a": parameters["a"], "b": parameters["b"], "c": parameters["y"]}
@@ -30,16 +39,16 @@ def parameter_check(parameters: dict, required_keys=None) -> dict:
     return parameters
 
 def cholesky_psd(M, eps=1e-12):
-    """Step 2: Factorisation of M"""
-
     """
-    Robust Cholesky for Hermitian PSD matrices that may have small
-    negative eigenvalues from numerical noise.
+    Step 2: factorise the moment matrix with a robust PSD repair.
 
-    Steps:
-      1) Symmetrize A
-      2) Project to PSD by clipping eigenvalues
-      3) Standard Cholesky
+    For Hermitian PSD matrices with small negative eigenvalues caused by
+    numerical noise, this routine symmetrises M, clips eigenvalues, rebuilds
+    a repaired PSD matrix, and then applies standard Cholesky.
+
+    :param M: matrix to factorise
+    :param eps: minimum eigenvalue after clipping
+    :return: Cholesky factor of the repaired matrix
     """
     # 1. Force exact Hermitian
     M_ = (M + M.conj().T) / 2
@@ -55,10 +64,18 @@ def cholesky_psd(M, eps=1e-12):
     return M_cholesky
 
 def concat_pauli_blocks(v1, v2, v3, parameters: dict):
-    """Step 3.1: Concatenate the vectors retrieved from the factorisation of M
+    """
+    Step 3.1: concatenate Pauli-block vectors selected by parameters.
 
-    u_i = (a v_i1) * (b v_i2) * (c v_i3) with the operator * defined as in the paper
-    (concatenation except in the 0-vector case; hence no padding)"""
+    The per-vertex vector u_i is built from active blocks among v1, v2, v3,
+    controlled by binary switches a, b, c.
+
+    :param v1: X-block vector for one vertex
+    :param v2: Y-block vector for one vertex
+    :param v3: Z-block vector for one vertex
+    :param parameters: binary selector dictionary with keys a, b, c
+    :return: concatenated vector without zero padding
+    """
 
     #parameters = parameter_check(parameters) # TODO: NOTE: This was removed for debugging purposes only
 
@@ -70,13 +87,24 @@ def concat_pauli_blocks(v1, v2, v3, parameters: dict):
     return np.concatenate(blocks)
 
 def normalise_vector(u: np.ndarray):
-    """e.g. Step 3.2: concatenated vector u is normalised to unit length"""
+    """
+    Step 3.2: normalise a concatenated vector to unit length.
+
+    :param u: input vector
+    :return: normalised vector x
+    """
     x = u / np.linalg.norm(u)
 
     return x
 
 def round_normalised_vector(x: np.ndarray, R: np.ndarray):
-    """STEP 3.3: Rounding step"""
+    """
+    Step 3.3: apply random projection and re-normalise the result.
+
+    :param x: normalised input vector
+    :param R: random projection matrix
+    :return: rounded and normalised vector y
+    """
     assert x.ndim == 1 and x.size > 0  # make sure x is a vector and not 'empty'
 
     y__ = R @ x
@@ -86,9 +114,18 @@ def round_normalised_vector(x: np.ndarray, R: np.ndarray):
 
 
 def init_random_matrix_for_x(x: np.ndarray, r: int, seed, rng=None):
-    """STEP 3.3a: Generate a random matrix for rounding"""
+    """
+    Step 3.3a: generate a Gaussian random matrix for rounding.
 
-    """Sanity checks:"""
+    The method validates r and x dimensions before sampling entries from
+    a normal distribution with mean 0 and standard deviation 1.
+
+    :param x: input vector used to determine matrix width
+    :param r: active Pauli dimension, must be 1, 2, or 3
+    :param seed: optional random seed for reproducibility
+    :param rng: optional RNG object (currently unused)
+    :return: random matrix R with shape (r, x.size)
+    """
     if r not in (1, 2, 3):
         raise ValueError("r must be 1, 2, or 3")
     if x.ndim != 1:
@@ -105,6 +142,16 @@ def init_random_matrix_for_x(x: np.ndarray, r: int, seed, rng=None):
 
 
 def build_single_qubit_state(y, parameters):
+    """
+    This function constructs one single-qubit state from rounded coordinates.
+
+    The rounded vector y is mapped to Bloch components according to active
+    parameters a, b, c, and then converted into a density matrix.
+
+    :param y: rounded vector for one vertex
+    :param parameters: binary selector dictionary with keys a, b, c
+    :return: tuple (r_i, state) with Bloch vector and 2x2 density matrix
+    """
     I = np.array([[1, 0], [0, 1]], dtype=complex)
     X = np.array([[0, 1], [1, 0]], dtype=complex) # Pauli X
     Y = np.array([[0, -1j], [1j, 0]], dtype=complex) # Pauli Y
@@ -127,6 +174,14 @@ def build_single_qubit_state(y, parameters):
     return r_i, state
 
 def map_product_state_to_cut(product_state):
+    """
+    This function maps a single-qubit state to a binary cut label.
+
+    The assignment compares diagonal probabilities in the computational basis.
+
+    :param product_state: 2x2 density matrix
+    :return: +1 if p(0) > p(1), otherwise -1
+    """
     assert product_state.ndim == 2
     x = np.real(np.diag(product_state))
 
@@ -134,13 +189,19 @@ def map_product_state_to_cut(product_state):
 
 def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = False):
     """
-    Round an SDP solution using Goemans-Williamson random hyperplane rounding.
+    This function rounds an SDP moment matrix using Cholesky-based projection.
 
-    Given M (moment matrix) where M[i,j] represents the inner product between
-    vectors v_i and v_j, we:
-    1. Decompose M = L L^T via Choleskyt
-    2. Extract vectors v_i as rows of L
-    3. Use random hyperplane rounding
+    Pipeline:
+    1. Symmetrise M and compute a robust Cholesky factorisation.
+    2. Build one per-vertex vector by concatenating active Pauli blocks.
+    3. Apply random projection rounding and reconstruct local states.
+    4. Map local states to cut assignments.
+
+    :param M: SDP moment matrix, expected in 3n x 3n Pauli-block form
+    :param parameters: binary selector dictionary with keys a, b, c
+    :param seed: optional random seed for reproducible rounding
+    :param debugging: enables additional debug logging
+    :return: tuple (cuts, states) with cut labels and single-qubit states
     """
     if seed: print(f"Setting seed to {seed}")
     debugging = debugging

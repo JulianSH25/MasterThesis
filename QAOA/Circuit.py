@@ -11,6 +11,14 @@ use_measurements = False
 
 class QAOACircuit(QuantumCircuit):
     def __init__(self, n, p, edges, weights):
+        """
+        Initialises QAOA circuit metadata and backend configuration.
+
+        :param n: number of nodes (qubits)
+        :param p: circuit depth (number of alternating layers)
+        :param edges: list of graph edges as qubit index pairs
+        :param weights: edge weights aligned with edges
+        """
         self.n = n # number of nodes
         self.p = p # Circuit depth; number of layers
         self.edges = edges
@@ -52,6 +60,15 @@ class QAOACircuit(QuantumCircuit):
 
     @staticmethod
     def qaoa_compute_energy(product_states, edges, weights=None, params = (1, 1, 1)):
+        """
+        This method computes the Hamiltonian expectation from two-qubit edge marginals.
+
+        :param product_states: mapping of edge tuples (i, j) to 4x4 reduced density matrices
+        :param edges: edge list used to evaluate the Hamiltonian
+        :param weights: optional edge weights; if None, weights default to 1 per edge
+        :param params: tuple (a, b, c) with coefficients for XX, YY, and ZZ terms
+        :return: complex energy expectation value for the full edge Hamiltonian
+        """
         # H_map = np.zeros((len(edges), len(edges)), dtype=complex)
         weights = weights if weights is not None else np.ones(len(edges))
 
@@ -173,6 +190,15 @@ class QAOACircuit(QuantumCircuit):
 
     @staticmethod
     def two_qubit_marginal(psi, n, i, j):
+        """
+        This method returns the reduced density matrix of qubits i and j.
+
+        :param psi: state representation accepted by DensityMatrix
+        :param n: total number of qubits
+        :param i: first qubit index
+        :param j: second qubit index
+        :return: 4x4 numpy array of the two-qubit reduced density matrix
+        """
         rho = DensityMatrix(psi)
         trace_out = [q for q in range(n) if q not in (i, j)]
         return partial_trace(rho, trace_out).data   # returns 4x4 np.array

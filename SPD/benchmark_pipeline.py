@@ -40,6 +40,14 @@ name = f"roundings_{now}_{hash2}"
 all_approx_ratios = []
 
 def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bool:
+    """
+    This function runs one SDP+rounding benchmark instance and validates it against Gurobi.
+
+    :param n_vertices: number of vertices for the generated random graph instance
+    :param params: SDP objective coefficients as a, b, c bits
+    :param sparse: whether to generate a sparse random graph instance
+    :return: True if Gurobi reaches optimal status and results are saved, otherwise False
+    """
 
     if any(v not in (0, 1) for v in params.values()) or sum(params.values()) == 0:
         raise ValueError("--params must be three bits (0/1) and at least one must be 1")
@@ -115,6 +123,14 @@ def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bo
 
 
 def adaptive_vertex_search(start_n: int, params: ABCParams, sparse: bool) -> tuple[list[tuple[int, bool]], int | None]:
+    """
+    This function adaptively searches for feasible benchmark sizes under a time budget.
+
+    :param start_n: initial number of vertices to test
+    :param params: SDP objective coefficients as a, b, c bits
+    :param sparse: whether to generate sparse random graph instances
+    :return: tuple containing iteration history and the largest successful vertex count
+    """
     if MIN_RANDOM_VERTICES > MAX_VERTICES:
         raise ValueError("MIN_RANDOM_VERTICES cannot exceed MAX_VERTICES")
 

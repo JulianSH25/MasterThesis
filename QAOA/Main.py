@@ -21,6 +21,13 @@ from SPD.Main import main as SDP_main
 optimiser_bayesian = True
 
 def get_warm_start_state(instance, n_vertices):
+    """
+    This method computes a QAOA warm-start state from an SDP solution, to be optionally provided to QAOA.
+
+    :param instance: tuple containing graph edges and edge weights, i.e. instance = (edges, weights)
+    :param n_vertices: number of graph vertices in the instance
+    :return: warm-start statevector prepared from the SDP states
+    """
 
     params = {"a": 1, "b": 1, "c": 1}
     edge_count, edges_in_cut, cuts, M_optimal, states = SDP_main(instance=instance, n_vertices=n_vertices, params=params)
@@ -30,8 +37,18 @@ def get_warm_start_state(instance, n_vertices):
     return warmstart
 
 def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_linegraph = False):
+    """
+    This method builds and optimises a QAOA instance on a line graph.
+
+    :param m: number of edges for the generated line graph
+    :param p: number of QAOA layers
+    :param N_bayes: number of optimisation iterations
+    :param init_initial_state: whether to inject an SDP-derived warm-start state
+    :param self_init_linegraph: whether to use line-graph singlet state preparation
+    :return: None
+    """
     assert m is not None
-    edges = [(i, i + 1) for i in range(m)]
+    edges = [(i, i + 1) for i in range(m)] # Optionally replace by desired edge list, if a linegraph is not desired
     weights = [1.0] * len(edges)
     set_of_nodes = {i for k in edges for i in k}
     n = len(set_of_nodes)

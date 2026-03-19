@@ -2,7 +2,13 @@ import numpy as np
 import random
 
 def set_random_params(p: int, seed: int | None = None):
-    """Rather pointless method to generate random parameters for the QAOA circuit. Mainly used for initial testing"""
+    """
+    This function samples random QAOA angle parameters for a given circuit depth p.
+
+    :param p: number of QAOA layers
+    :param seed: optional random seed for reproducible sampling
+    :return: tuple (gamma_values, beta_values) as numpy arrays
+    """
     rng = np.random.default_rng(seed)
     gamma_values = rng.uniform(0.0, 2*np.pi, size=p)
     beta_values = rng.uniform(0.0, np.pi, size=p)
@@ -10,6 +16,13 @@ def set_random_params(p: int, seed: int | None = None):
     return gamma_values, beta_values
 
 def sample_initial_qaoa_params(n: int, p: int) -> list[tuple[list[float], list[float]]]:
+    """
+    This function samples initial QAOA parameter tuples for Bayesian optimisation. I realise it is basically a duplicate of the above function I already used before in a different place.
+
+    :param n: number of parameter points to sample
+    :param p: number of QAOA layers per parameter vector
+    :return: list of tuples (gamma_values, beta_values)
+    """
     return [
         (
             [random.uniform(0, 3.141592653589793) for _ in range(p)],
@@ -19,6 +32,12 @@ def sample_initial_qaoa_params(n: int, p: int) -> list[tuple[list[float], list[f
     ]
 
 def build_qaoa_warm_start_state(states: list[np.ndarray]):
+    """
+    This function builds a global warm-start statevector from local density matrices.
+
+    :param states: list of local density matrices as returned from the SDP solver, one for each edge in the graph; each state is a 4x4 numpy array representing the two-qubit density matrix for the corresponding edge
+    :return: normalised global warm-start statevector
+    """
     statevec = np.array([1.0 + 0.0j])
 
     for state in states:

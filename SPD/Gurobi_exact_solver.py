@@ -6,12 +6,15 @@ from gurobipy import Model, GRB, quicksum
 
 def gurobi_maxcut(n, edges, weights, time_limit=None, mip_gap=None, verbose=True):
     """
-    Solve Max-Cut with separate edges + weights arrays.
+    This function solves a weighted Max-Cut instance with Gurobi.
 
-    Args:
-        n (int)
-        edges: list of (i, j)
-        weights: list of floats, same length as `edges`
+    :param n: number of vertices
+    :param edges: list of edges as tuples (i, j)
+    :param weights: list of edge weights aligned with edges
+    :param time_limit: optional solver time limit in seconds
+    :param mip_gap: optional MIP optimality gap target
+    :param verbose: whether Gurobi solver output is printed
+    :return: tuple (objective, y_solution, z_solution, status)
     """
 
     model = Model("maxcut")
