@@ -73,6 +73,9 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
     print(f"Edges: {edges}, weights: {weights}, set of nodes: {set_of_nodes}, n: {n} nodes, p: {p} layers, N_bayes: {N_bayes} iterations")
     QAOA = QAOACircuit(n=n, p=p, edges=edges, weights=weights)
 
+    benchmark_params: dict = get_benchmark_params()
+    QAOA.params = benchmark_params["parameter_vector"]
+
     QAOA.initial_state = initial_state
     print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.")
     QAOA.self_init_linegraph = self_init_linegraph
