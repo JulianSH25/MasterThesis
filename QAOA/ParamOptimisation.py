@@ -220,10 +220,11 @@ def grid_search(QAOA: QAOACircuit, no_layers: int, precision: float):
         eval = eval_QAOA_circuit(point, QAOA=QAOA)
         if eval > f_m:  # NOTE somehow the paper says to minimise, but we will now be maximising!
             f_m = eval
-            print(f"New best energy found: {f_m}")
+            print(f"New best energy found: {f_m} in iteration {n} out of {len(parameters_grid)}")
         # training_set[maximising_point] = eval
         y.append(eval)
-        print(f"Finished iteration {n} out of {len(parameters_grid)}. Current energy: {f_m}")
+        if n % 1000 == 0 or n == len(parameters_grid):
+            print(f"Status Report: Finished iteration {n} out of {len(parameters_grid)}. Current energy: {f_m}")
         n += 1
 
     return f_m

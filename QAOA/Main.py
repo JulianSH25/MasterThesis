@@ -22,6 +22,8 @@ optimiser_bayesian = False
 optimiser_cobyla = False
 gridsearch = True
 
+precision = None
+
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
 
@@ -85,7 +87,7 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
     elif optimiser_cobyla:
         minimum_energy = optimise_cobyla(QAOA=QAOA, no_layers=p, max_iter=N_bayes)
     elif gridsearch:
-        minimum_energy = grid_search(QAOA, p, 0.1)
+        minimum_energy = grid_search(QAOA, p, precision=precision)
 
     print(minimum_energy)
     if optimiser_cobyla:
@@ -97,8 +99,13 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
 
 if __name__ == "__main__":
     #for m in range(5, 15):
+    parameter_settings = get_benchmark_params()
+    print(f"Benchmark parameters: {parameter_settings}")
     results = []
-    results.append(main(m=2, p=2, N_bayes=10, self_init_linegraph=True))
+    precision = 0.1
+    for m in range(1, 10):
+        print(f"Running QAOA for m={m} edges...; Precision: {precision}")
+        results.append(main(m=m, p=2, N_bayes=10, self_init_linegraph=True))
     #results.append(main(m=int(sys.argv[1]), p=20, N_bayes=200, init_initial_state=True))
     #results.append(main(m=3, p=20, N_bayes=10))
 

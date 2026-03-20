@@ -30,7 +30,7 @@ class QAOACircuit(QuantumCircuit):
         self.backend = Aer.get_backend('qasm_simulator')
         self.initial_state = None
         self.self_init_linegraph = False
-        self.params = (1, 1, 1)
+        self.params = None
 
     def bind_circuit_parameters(
         self,
@@ -105,7 +105,7 @@ class QAOACircuit(QuantumCircuit):
         Farhi et al. QAOA for MaxCut
         Qiskit Documentation (https://quantum.cloud.ibm.com/docs/de/api/qiskit/qiskit.circuit.library.RXGate)
         """
-        assert self.edges is not None and self.n is not None and self.p is not None
+        assert self.edges is not None and self.n is not None and self.p is not None and self.params is not None
         assert self.n == len({i for k in self.edges for i in k})
         if self.weights is None:
             self.weights = [1.0] * len(self.edges)
