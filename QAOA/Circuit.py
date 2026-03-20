@@ -30,6 +30,7 @@ class QAOACircuit(QuantumCircuit):
         self.backend = Aer.get_backend('qasm_simulator')
         self.initial_state = None
         self.self_init_linegraph = False
+        self.params = (1, 1, 1)
 
     def bind_circuit_parameters(
         self,
@@ -59,7 +60,7 @@ class QAOACircuit(QuantumCircuit):
         self.qc = self.qc_no_params.assign_parameters(bind_map, inplace=False)
 
     @staticmethod
-    def qaoa_compute_energy(product_states, edges, weights=None, params = (1, 1, 1)):
+    def qaoa_compute_energy(product_states, edges, weights=None, params = None):
         """
         This method computes the Hamiltonian expectation from two-qubit edge marginals.
 
@@ -70,6 +71,7 @@ class QAOACircuit(QuantumCircuit):
         :return: complex energy expectation value for the full edge Hamiltonian
         """
         # H_map = np.zeros((len(edges), len(edges)), dtype=complex)
+        assert params is not None
         weights = weights if weights is not None else np.ones(len(edges))
 
         a, b, c = params
@@ -116,7 +118,6 @@ class QAOACircuit(QuantumCircuit):
         self.qc = QuantumCircuit(self.n, self.n if add_measurements else 0)
 
         # Initialise in equal superposition
-        # TODO add warm start
         #qc.h(range(n))
         if self.initial_state is not None:
             _initial_state = np.asarray(self.initial_state, dtype=complex)
@@ -139,12 +140,12 @@ class QAOACircuit(QuantumCircuit):
             beta  = self.betas[layer]
 
             # add Cost Hamiltonian for all edges, taking into account their respective weights
+            a, b, c = self.params
             for (j, k), w in zip(self.edges, self.weights):
-                a, b, c = 1, 1, 1 # TODO receive from actual parameter dictionary, not static
                 w = w/ (1 + a + b + c)
-                self.qc.rzz(-2 * gamma * w , j, k) # z_j z_k, i.e. z interaction term between qubtis j and k
-                self.qc.rxx(-2 * gamma * w, j, k) #TODO add parameter settings that decide whether the hamiltonian is quantum or classical
-                self.qc.ryy(-2 * gamma * w, j, k) #TODO same as above
+                self.qc.rxx(-2 * gamma * w * a, j, k)
+                self.qc.ryy(-2 * gamma * w * b, j, k)
+                self.qc.rzz(-2 * gamma * w * c, j, k)  # z_j z_k, i.e. z interaction term between qubtis j and k
                 # The factor 2 accomodates for qiskits default weighting of /2 for .rzz, .rxx, .ryy
 
             # add Mixer Hamiltionian for all nodes
@@ -184,7 +185,7 @@ class QAOACircuit(QuantumCircuit):
         for (i, j), w in zip(self.edges, self.weights):
             res = self.two_qubit_marginal(psi=result, n=self.n, i=0, j=1)
             product_states[(i, j)] = res
-        total_energy = QAOA.qaoa_compute_energy(product_states, edges, weights).real
+        total_energy = QAOACircuit.qaoa_compute_energy(product_states, self.edges, self.weights, params=self.params).real
 
         return result.get_counts(), total_energy
 
@@ -234,7 +235,7 @@ if __name__ == "__main__":
                 for (i, j), w in zip(edges, weights):
                     p = QAOA.two_qubit_marginal(results, n, 0, 1)
                     product_states[(i, j)] = p
-                total_energy = QAOA.qaoa_compute_energy(product_states, edges, weights).real
+                total_energy = QAOA.qaoa_compute_energy(product_states, edges, weights, params=self.params).real
                 print(f"Energy: {total_energy}")
                 return total_energy
             else:

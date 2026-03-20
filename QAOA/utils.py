@@ -1,3 +1,5 @@
+import json
+from pathlib import Path
 import numpy as np
 import random
 
@@ -50,4 +52,14 @@ def build_qaoa_warm_start_state(states: list[np.ndarray]):
         statevec = np.kron(statevec, x)
 
     return statevec / np.linalg.norm(statevec)
+
+def get_benchmark_params() -> dict:
+    """
+    This function loads benchmark parameters from JSON.
+
+    :return: benchmark parameter dictionary exactly as stored in JSON
+    """
+    config_path = Path(__file__).resolve().parent / "benchmark_config.json"
+    with config_path.open("r", encoding="utf-8") as config_file:
+        return json.load(config_file)
 

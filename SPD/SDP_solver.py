@@ -108,7 +108,12 @@ class SDP_Solver_():
         :param params: SDP Hamiltonian parameters as {"a": Bit, "b": Bit, "c": Bit}
         :return: optimal moment matrix M as a numpy array
         """
-        a, b, c = params.get("a"), params.get("b"), params.get("c")
+        try:
+            a, b, c = params.get("a"), params.get("b"), params.get("c")
+        except AttributeError:
+            assert len(params) == 3
+            params = {"a": params[0], "b": params[1], "c": params[2]}
+            a, b, c = params.get("a"), params.get("b"), params.get("c")
         if any(x not in (0, 1) for x in (a, b, c)):
             raise ValueError(f"Expected params a,b,c in {{0,1}}, got {params}")
 

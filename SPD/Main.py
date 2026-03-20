@@ -91,6 +91,7 @@ def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm
 
 def main(instance, n_vertices, params: dict):
     """
+    NOTE: Use this method to run a single SDP solve without benchmarking.
     This function runs the SDP solve and rounding flow without benchmark persistence.
 
     :param instance: tuple (edges, weights) describing the graph
@@ -113,6 +114,7 @@ def main(instance, n_vertices, params: dict):
     return edge_count, edges_in_cut, cuts, M_optimal, states
 
 if __name__ == "__main__":
+    # NOTE: Run this to run the main function that executes one SDP solve and rounding without benchmarking. To run the benchmark pipeline, run the `run_single_benchmark` function in `benchmark_pipeline.py` instead. (i.e. change function call below)
     n_vertices = 14
     params = {"a": 1, "b": 1, "c": 1}
     sparse = False
@@ -120,6 +122,7 @@ if __name__ == "__main__":
     #edges, weights, nodes = random_instance_generator(n_vertices, weights_static=True, sparse=sparse)
     #edges = [(0, 2), (0, 3), (1, 3), (0, 1), (2, 3)]
     #edges = [(1, 3), (1, 2), (0, 2), (0, 1), (0, 3), (2, 3)]
+    # NOTE: Define your instance here
     edges = [(6, 11), (6, 12), (2, 6), (5, 11), (0, 2), (0, 8), (3, 11), (6, 10), (6, 7), (7, 13), (3, 4), (3, 9), (1, 9), (1, 12), (2, 3), (2, 4), (2, 5), (12, 13),]
     weights = [1.0] * len(edges)
 
@@ -128,7 +131,7 @@ if __name__ == "__main__":
     objectives = set()
 
     for _ in range(1):
-        edge_count, edges_in_cut, cuts, M_optimal, states = main(instance=(edges, weights), n_vertices=n_vertices, params=params)
+        edge_count, edges_in_cut, cuts, M_optimal, states = main(instance=(edges, weights), n_vertices=n_vertices, params=params) # NOTE: change this function call to `main_benchmark` to run the benchmark pipeline instead of the single-run flow
         #edge_count, _, _, _ = main_benchmark(n_vertices, params, (edges, weights), sparse)
         objectives.add(edge_count)
         print(f"State: {states}")
