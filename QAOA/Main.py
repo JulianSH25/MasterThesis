@@ -1,7 +1,6 @@
 import time
 import csv
 import os
-import fcntl
 import uuid
 
 from Circuit import QAOACircuit
@@ -119,7 +118,7 @@ if __name__ == "__main__":
     p = int(sys.argv[2])
     
     # Keep one shared CSV file and append safely across parallel runs.
-    csv_filename = "qaoa_results.csv"
+    csv_filename = "qaoa_results_new.csv"
     
     # Generate unique hash ID for this benchmark run
     run_id = str(uuid.uuid4())[:8]
@@ -148,16 +147,14 @@ if __name__ == "__main__":
             'duration_seconds': elapsed_time
         }
 
-        # Lock around writes so parallel nohup runs cannot corrupt the CSV.
+        # Simple append to CSV file
+        write_header = not os.path.exists(csv_filename) or os.path.getsize(csv_filename) == 0
+        
         with open(csv_filename, 'a', newline='') as csvfile:
-            fcntl.flock(csvfile.fileno(), fcntl.LOCK_EX)
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            if csvfile.tell() == 0:
+            if write_header:
                 writer.writeheader()
             writer.writerow(row)
-            csvfile.flush()
-            os.fsync(csvfile.fileno())
-            fcntl.flock(csvfile.fileno(), fcntl.LOCK_UN)
 
     print(f"results: {results}")
     print(f"durations: {duration}")
