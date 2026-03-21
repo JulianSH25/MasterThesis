@@ -4,6 +4,7 @@ import random, itertools
 from qiskit import QuantumCircuit
 from scipy.optimize import minimize
 from scipy.stats import norm
+import time
 
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import ConstantKernel, Matern, WhiteKernel
@@ -224,7 +225,7 @@ def grid_search(QAOA: QAOACircuit, no_layers: int, precision: float):
         # training_set[maximising_point] = eval
         y.append(eval)
         if n % 1000 == 0 or n == len(parameters_grid):
-            print(f"Status Report: Finished iteration {n} out of {len(parameters_grid)}. Current energy: {f_m}")
+            print(f"Status Report: Finished iteration {n} out of {len(parameters_grid)}. Current energy: {f_m}. Timestamp: {time.strftime('%H:%M:%S', time.gmtime(time.time()))}")
         n += 1
 
     return f_m

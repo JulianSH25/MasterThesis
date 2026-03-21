@@ -1,3 +1,9 @@
+import time
+import csv
+import os
+import fcntl
+import uuid
+
 from Circuit import QAOACircuit
 from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search
 import sys
@@ -103,14 +109,56 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
 if __name__ == "__main__":
     #for m in range(5, 15):
     parameter_settings = get_benchmark_params()
-    print(f"Benchmark parameters: {parameter_settings}")
-    results = []
-    precision = 0.1
-    for m in range(1, 10):
+    singlet_injection = parameter_settings["singlet_injection"]
+    warm_start = parameter_settings["warm_start"]
+    assert not (singlet_injection and warm_start), "Singlet injection and warm start cannot be used simultaneously, as they both modify the initial state preparation. Please choose one of the two options for a valid benchmark configuration."
+    print(f"Benchmark parameters: {parameter_settings}, Running QAOA with equal superposition")
+    results = {}
+    duration = {}
+    precision = float(sys.argv[1])
+    p = int(sys.argv[2])
+    
+    # Keep one shared CSV file and append safely across parallel runs.
+    csv_filename = "qaoa_results.csv"
+    
+    # Generate unique hash ID for this benchmark run
+    run_id = str(uuid.uuid4())[:8]
+    print(f"Benchmark run ID: {run_id}")
+
+    fieldnames = ['run_id', 'm', 'p', 'precision', 'singlet_injection', 'warm_start',
+                  'parameter_vector', 'result', 'duration_seconds']
+
+    for m in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
+        start_time = time.time()
         print(f"Running QAOA for m={m} edges...; Precision: {precision}")
-        results.append(main(m=m, p=2, N_bayes=10, self_init_linegraph=True))
-    #results.append(main(m=int(sys.argv[1]), p=20, N_bayes=200, init_initial_state=True))
-    #results.append(main(m=3, p=20, N_bayes=10))
+        results[m] = main(m=m, p=p, N_bayes=10, self_init_linegraph=singlet_injection, init_initial_state=warm_start)
+        elapsed_time = time.time() - start_time
+        print(f"Finished QAOA for m={m} edges. Time taken: {elapsed_time:.2f} seconds. Hours: {elapsed_time / 3600:.2f} hours.")
+        duration[m] = elapsed_time
+
+        row = {
+            'run_id': run_id,
+            'm': m,
+            'p': p,
+            'precision': precision,
+            'singlet_injection': singlet_injection,
+            'warm_start': warm_start,
+            'parameter_vector': str(parameter_settings["parameter_vector"]),
+            'result': results[m],
+            'duration_seconds': elapsed_time
+        }
+
+        # Lock around writes so parallel nohup runs cannot corrupt the CSV.
+        with open(csv_filename, 'a', newline='') as csvfile:
+            fcntl.flock(csvfile.fileno(), fcntl.LOCK_EX)
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            if csvfile.tell() == 0:
+                writer.writeheader()
+            writer.writerow(row)
+            csvfile.flush()
+            os.fsync(csvfile.fileno())
+            fcntl.flock(csvfile.fileno(), fcntl.LOCK_UN)
 
     print(f"results: {results}")
-    #main(m=sys.argv[1], p=int(sys.argv[2]), N_bayes=int(sys.argv[3]))
+    print(f"durations: {duration}")
+    print(f"Results saved to: {csv_filename}")

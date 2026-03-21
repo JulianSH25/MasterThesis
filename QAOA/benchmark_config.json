@@ -1,3 +1,5 @@
 {
-  "parameter_vector": [0, 0, 1]
+  "parameter_vector": [0, 0, 1],
+  "singlet_injection": false,
+  "warm_start": false
 }
