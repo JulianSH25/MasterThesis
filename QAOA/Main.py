@@ -3,6 +3,14 @@ import csv
 import os
 import uuid
 
+import platform
+import socket
+import resource
+import subprocess
+from datetime import datetime
+
+import pandas as pan
+
 from Circuit import QAOACircuit
 from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search
 import sys
@@ -24,13 +32,55 @@ from SPD.Main import main as SDP_main
 #p = 20
 
 optimiser_bayesian = False
-optimiser_cobyla = False
-gridsearch = True
+optimiser_cobyla = True
+gridsearch = False
 
 precision = None
 
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
+
+def get_processor_name():
+    try:
+        chip_name = subprocess.check_output(
+            ["system_profiler", "SPHardwareDataType"], text=True
+        )
+        for line in chip_name.splitlines():
+            if "Chip:" in line or "Processor Name:" in line:
+                return line.split(":", 1)[1].strip()
+    except Exception:
+        pass
+    return platform.processor() or platform.machine()
+
+
+def get_total_ram_gb():
+    try:
+        total_bytes = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"], text=True).strip())
+        return round(total_bytes / (1024 ** 3), 2)
+    except Exception:
+        return None
+
+
+def get_physical_cores():
+    try:
+        return int(subprocess.check_output(["sysctl", "-n", "hw.physicalcpu"], text=True).strip())
+    except Exception:
+        return os.cpu_count()
+
+
+def get_logical_cores():
+    try:
+        return int(subprocess.check_output(["sysctl", "-n", "hw.logicalcpu"], text=True).strip())
+    except Exception:
+        return os.cpu_count()
+
+
+def get_peak_ram_mb():
+    try:
+        peak_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        return round(peak_kb / 1024, 2)
+    except Exception:
+        return None
 
 def get_warm_start_state(instance, n_vertices):
     """
@@ -93,20 +143,22 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
     if optimiser_bayesian:
         minimum_energy = BO.bayesian_optimisation(QAOA=QAOA, N_bayes=N_bayes, no_layers=p)
     elif optimiser_cobyla:
-        minimum_energy = optimise_cobyla(QAOA=QAOA, no_layers=p, max_iter=N_bayes)
+        returned_energy = optimise_cobyla(QAOA=QAOA, no_layers=p, max_iter=N_bayes)
+        minimum_energy = -returned_energy.fun
     elif gridsearch:
         minimum_energy = grid_search(QAOA, p, precision=precision)
 
     print(minimum_energy)
-    if optimiser_cobyla:
-        print(minimum_energy.fun)
-        return minimum_energy.fun
 
     return minimum_energy
 
+def return_optimal_line(m):
+    df = pan.read_csv("optimal_results_qaoa.csv")
+    val = df.loc[df["m"] == m, "result"].item()
+    return val
+
 
 if __name__ == "__main__":
-    #for m in range(5, 15):
     parameter_settings = get_benchmark_params()
     singlet_injection = parameter_settings["singlet_injection"]
     warm_start = parameter_settings["warm_start"]
@@ -118,21 +170,37 @@ if __name__ == "__main__":
     p = int(sys.argv[2])
     
     # Keep one shared CSV file and append safely across parallel runs.
-    csv_filename = "qaoa_results_new.csv"
+    csv_filename = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else "qaoa_results_COBYLA.csv"
     
     # Generate unique hash ID for this benchmark run
     run_id = str(uuid.uuid4())[:8]
+    processor_name = get_processor_name()
+    hostname = socket.gethostname()
+    total_ram_gb = get_total_ram_gb()
+    physical_cores = get_physical_cores()
+    logical_cores = get_logical_cores()
+    python_version = platform.python_version()
     print(f"Benchmark run ID: {run_id}")
+    print(f"Processor: {processor_name}")
+    print(f"Hostname: {hostname}")
+    print(f"Total RAM (GB): {total_ram_gb}")
+    print(f"Physical cores: {physical_cores}")
+    print(f"Logical cores: {logical_cores}")
+    print(f"Python version: {python_version}")
 
     fieldnames = ['run_id', 'm', 'p', 'precision', 'singlet_injection', 'warm_start',
-                  'parameter_vector', 'result', 'duration_seconds']
+                  'parameter_vector', 'result', 'duration_seconds', 'finished_at', 'approx_ratio',
+                  'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
+                  'python_version', 'peak_ram_mb']
 
     for m in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
         start_time = time.time()
-        print(f"Running QAOA for m={m} edges...; Precision: {precision}")
-        results[m] = main(m=m, p=p, N_bayes=10, self_init_linegraph=singlet_injection, init_initial_state=warm_start)
+        print(f"Running QAOA for m={m} edges...; Max iterations: {int(precision)}")
+        results[m] = main(m=m, p=p, N_bayes=int(precision), self_init_linegraph=singlet_injection, init_initial_state=warm_start)
         elapsed_time = time.time() - start_time
-        print(f"Finished QAOA for m={m} edges. Time taken: {elapsed_time:.2f} seconds. Hours: {elapsed_time / 3600:.2f} hours.")
+        finished_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        peak_ram_mb = get_peak_ram_mb()
+        print(f"Finished QAOA for m={m} edges at {finished_at} on {processor_name}. Time taken: {elapsed_time:.2f} seconds. Hours: {elapsed_time / 3600:.2f} hours. Peak RAM: {peak_ram_mb} MB.")
         duration[m] = elapsed_time
 
         row = {
@@ -144,7 +212,16 @@ if __name__ == "__main__":
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
             'result': results[m],
-            'duration_seconds': elapsed_time
+            'duration_seconds': elapsed_time,
+            'finished_at': finished_at,
+            'approx_ratio': results[m] / return_optimal_line(m),
+            'processor': processor_name,
+            'hostname': hostname,
+            'total_ram_gb': total_ram_gb,
+            'physical_cores': physical_cores,
+            'logical_cores': logical_cores,
+            'python_version': python_version,
+            'peak_ram_mb': peak_ram_mb
         }
 
         # Simple append to CSV file

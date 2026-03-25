@@ -159,7 +159,7 @@ class BayesianOptimiser:
 
         return f_m
 
-def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 100):
+def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 1000):
     """
     NOTE: ALTERNATIVE OPTIMISATION FUNCTION; this one is standalone, in the sense that all the other methods in this file are only for the Bayesian optimisation, but this one is a separate method that can be used to optimise QAOA parameters using COBYLA instead of Bayesian optimisation.
     :param no_layers: number of QAOA layers
@@ -231,5 +231,6 @@ def grid_search(QAOA: QAOACircuit, no_layers: int, precision: float):
     return f_m
 
 if __name__ == "__main__":
-    params = grid_search_parameters(0.01, 1)
+    params = grid_search_parameters(0.5, 1, shuffle=False)
     print(len(params))
+    print(params)
