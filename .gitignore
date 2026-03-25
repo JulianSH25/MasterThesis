@@ -3,6 +3,14 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+QAOA/logs/*
+QAOA/Results/*
+QAOA/benchmark_config.json
+
+*.DS_Store
+*.iml
+*.xml
+
 *.iml
 *.xml
 # C extensions
