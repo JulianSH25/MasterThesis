@@ -2,7 +2,7 @@ import time
 import csv
 import os
 import uuid
-
+import fcntl
 import platform
 import socket
 import resource
@@ -225,13 +225,24 @@ if __name__ == "__main__":
         }
 
         # Simple append to CSV file
-        write_header = not os.path.exists(csv_filename) or os.path.getsize(csv_filename) == 0
+       # write_header = not os.path.exists(csv_filename) or os.path.getsize(csv_filename) == 0
         
-        with open(csv_filename, 'a', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            if write_header:
-                writer.writeheader()
-            writer.writerow(row)
+        # Append to CSV under an exclusive file lock so parallel processes
+        # cannot both decide to write the header at the same time.
+        with open(csv_filename, 'a+', newline='') as csvfile:
+            fcntl.flock(csvfile.fileno(), fcntl.LOCK_EX)
+            try:
+                csvfile.seek(0, os.SEEK_END)
+                write_header = csvfile.tell() == 0
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                if write_header:
+                    writer.writeheader()
+                writer.writerow(row)
+                csvfile.flush()
+                os.fsync(csvfile.fileno())
+            finally:
+                fcntl.flock(csvfile.fileno(), fcntl.LOCK_UN)
+
 
     print(f"results: {results}")
     print(f"durations: {duration}")
