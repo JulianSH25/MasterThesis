@@ -6,5 +6,7 @@
   "m_end": 5,
   "singlet_injection": true,
   "start_index_singlet": 0,
-  "warm_start": false
+  "warm_start": false,
+  "time_limit": 10800,
+  "failed_instance_termination_thrsh": 10
 }

@@ -14,6 +14,8 @@ iterations_list=($(jq -r '.iterations_list[]' "$config_file"))
 depth_list=($(jq -r '.depth_list[]' "$config_file"))
 m_start=$(jq -r '.m_start' "$config_file")
 m_end=$(jq -r '.m_end' "$config_file")
+time_limit_seconds=$(jq -r '.time_limit' "$config_file") # 3 hours
+timeout_streak_limit=$(jq -r '.failed_instance_termination_thrsh' "$config_file")
 
 if ! command -v jq >/dev/null 2>&1; then
     echo "Error: jq is required but was not found in PATH."
@@ -41,8 +43,6 @@ mkdir -p "$status_subdir"
 echo "Benchmark configuration from ${config_file}:"
 echo "${benchmark_config_dump}"
 
-time_limit_seconds=10800 # 3 hours
-timeout_streak_limit=10
 stop_launching=0
 
 # Detect chip / SoC name once.
