@@ -41,8 +41,8 @@ mkdir -p "$status_subdir"
 echo "Benchmark configuration from ${config_file}:"
 echo "${benchmark_config_dump}"
 
-time_limit_seconds=3600
-timeout_streak_limit=5
+time_limit_seconds=10800 # 3 hours
+timeout_streak_limit=10
 stop_launching=0
 
 # Detect chip / SoC name once.
