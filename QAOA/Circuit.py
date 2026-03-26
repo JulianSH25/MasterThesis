@@ -154,6 +154,8 @@ class QAOACircuit(QuantumCircuit):
 
             # add Mixer Hamiltionian for all nodes
             self.qc.rx(2 * beta, range(self.n))
+            self.qc.rz(2 * beta, range(self.n)) # NOTE experimental
+            self.qc.ry(2 * beta, range(self.n)) # NOTE experimental
 
         if add_measurements:
             self.qc.measure(range(self.n), range(self.n))
