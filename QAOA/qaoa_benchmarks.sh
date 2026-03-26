@@ -8,7 +8,7 @@ mkdir -p logs/COBYLA
 # -----------------------------
 # Parameter settings
 # -----------------------------
-iterations_list=(50000 10000 100000 500000 1000000)
+iterations_list=(10000 50000 100000 500000 1000000)
 depth_list=(1 2 3 4 5 10 15 20)
 m_start=1
 m_end=13
@@ -58,6 +58,7 @@ use_ram_limit=1
 
 # Once free RAM falls to or below this threshold, only one parallel job is allowed.
 # Minimum free RAM to keep available before launching another job.
+min_free_ram_mb=1024
 min_free_ram_mb=1024
 
 # Max number of concurrent jobs.
