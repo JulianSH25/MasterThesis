@@ -4,7 +4,7 @@ from qiskit_aer import Aer
 from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace
 
 from StatePrep import prepare_line_singlet_circuit
-from utils import set_random_params
+from utils import set_random_params, get_benchmark_params
 import numpy as np
 
 use_measurements = False
@@ -31,6 +31,8 @@ class QAOACircuit(QuantumCircuit):
         self.initial_state = None
         self.self_init_linegraph = False
         self.params = None
+        benchm_params = get_benchmark_params()
+        self.start_index = benchm_params['start_index_singlet']
 
     def bind_circuit_parameters(
         self,
@@ -129,8 +131,10 @@ class QAOACircuit(QuantumCircuit):
             self.qc.initialize(_initial_state, range(self.n))
             print("Initial state injected as warm start")
         elif self.self_init_linegraph:
-            prepare_line_singlet_circuit(self.qc, self.n)
+            assert self.start_index is not None and isinstance(self.start_index, int) and self.start_index in {0, 1}
             print("Line graph state preparation: Singlet injection")
+            print(f"Singlets induced on ODD parity edges") if self.start_index == 0 else print("Singlets induced on EVEN parity edges")
+            prepare_line_singlet_circuit(self.qc, self.n, start_index=self.start_index)
         else:
             self.qc.h(range(self.n)) # Default: equal superposition
             print("Default QAOA state preparation: Equal superposition")
