@@ -59,6 +59,7 @@ use_ram_limit=1
 # Once free RAM falls to or below this threshold, only one parallel job is allowed.
 # Minimum free RAM to keep available before launching another job.
 min_free_ram_mb=1024
+min_free_ram_mb=1024
 
 # Max number of concurrent jobs.
 # Default to the number of physical CPU cores, with a fallback to 4.
@@ -109,7 +110,7 @@ jobs_file="$(mktemp)"
 for iterations in "${iterations_list[@]}"; do
     for p in "${depth_list[@]}"; do
         for (( m=m_start; m<=m_end; m++ )); do
-            score=$(( m * p * iterations ))
+            score=$(( m * p * p * iterations ))
             echo "${score} ${iterations} ${p} ${m}" >> "$jobs_file"
         done
     done
