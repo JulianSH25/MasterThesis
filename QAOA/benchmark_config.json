@@ -1,6 +1,10 @@
 {
   "parameter_vector": [1, 1, 1],
-  "singlet_injection": false,
+  "iterations_list": [10000, 50000, 100000],
+  "depth_list": [1, 2, 3, 4, 5],
+  "m_start": 1,
+  "m_end": 5,
+  "singlet_injection": true,
   "start_index_singlet": 0,
   "warm_start": false
 }

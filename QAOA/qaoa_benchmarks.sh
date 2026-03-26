@@ -8,10 +8,19 @@ mkdir -p logs/COBYLA
 # -----------------------------
 # Parameter settings
 # -----------------------------
-iterations_list=(10000 50000 100000 500000 1000000)
-depth_list=(1 2 3 4 5 10 15 20)
-m_start=1
-m_end=13
+config_file="benchmark_config.json"
+
+iterations_list=($(jq -r '.iterations_list[]' "$config_file"))
+depth_list=($(jq -r '.depth_list[]' "$config_file"))
+m_start=$(jq -r '.m_start' "$config_file")
+m_end=$(jq -r '.m_end' "$config_file")
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo "Error: jq is required but was not found in PATH."
+    exit 1
+fi
+
+benchmark_config_dump=$(jq -r 'to_entries[] | "  \(.key): \(.value|tojson)"' "$config_file")
 
 # Benchmark config
 
@@ -28,6 +37,9 @@ log_subdir="logs/COBYLA/${run_timestamp}"
 mkdir -p "$log_subdir"
 status_subdir="${log_subdir}/status"
 mkdir -p "$status_subdir"
+
+echo "Benchmark configuration from ${config_file}:"
+echo "${benchmark_config_dump}"
 
 time_limit_seconds=3600
 timeout_streak_limit=5
@@ -280,4 +292,5 @@ done < "$jobs_file"
 rm -f "$jobs_file"
 
 echo "All jobs submitted."
+echo "Benchmark configuration from ${config_file}:"$'\n'"${benchmark_config_dump}"
 echo "Detected chip: ${chip_name:-unknown}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; timeout_streak_limit: ${timeout_streak_limit}; python_bin: ${python_bin}"
