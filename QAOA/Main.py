@@ -15,7 +15,8 @@ from Circuit import QAOACircuit
 from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search
 import sys
 from pathlib import Path
-from utils import build_qaoa_warm_start_state, get_benchmark_params
+from utils import get_benchmark_params
+from WarmStart import get_warm_start_state
 
 if __package__ in (None, ""):
     project_root = Path(__file__).resolve().parents[1]
@@ -81,28 +82,6 @@ def get_peak_ram_mb():
         return round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 ** 2), 2)
     except Exception:
         return None
-
-def get_warm_start_state(instance, n_vertices):
-    """
-    This method computes a QAOA warm-start state from an SDP solution, to be optionally provided to QAOA.
-
-    :param instance: tuple containing graph edges and edge weights, i.e. instance = (edges, weights)
-    :param n_vertices: number of graph vertices in the instance
-    :return: warm-start statevector prepared from the SDP states
-    """
-
-    #params = {"a": 1, "b": 1, "c": 1}
-    benchmark_params: dict = get_benchmark_params()
-    parameters = benchmark_params["parameter_vector"]
-
-    print(parameters)
-
-    parameters = {"a": parameters[0], "b": parameters[1], "c": parameters[2]}
-    edge_count, edges_in_cut, cuts, M_optimal, states = SDP_main(instance=instance, n_vertices=n_vertices, params=parameters)
-
-    warmstart = build_qaoa_warm_start_state(states=states)
-    print(f"Warm start state: {warmstart}")
-    return warmstart
 
 def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_linegraph = False):
     """

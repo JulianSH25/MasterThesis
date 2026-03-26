@@ -70,8 +70,7 @@ use_ram_limit=1
 
 # Once free RAM falls to or below this threshold, only one parallel job is allowed.
 # Minimum free RAM to keep available before launching another job.
-min_free_ram_mb=1024
-min_free_ram_mb=1024
+min_free_ram_mb=256
 
 # Max number of concurrent jobs.
 # Default to the number of physical CPU cores, with a fallback to 4.
@@ -80,8 +79,12 @@ max_parallel=$(sysctl -n hw.physicalcpu 2>/dev/null || echo 4)
 # Gradually ramp up concurrency instead of immediately jumping to max_parallel.
 # This reduces the chance of suddenly launching many large-RAM jobs at once.
 current_parallel_cap=1
+# Require several consecutive "healthy RAM" samples before increasing the cap again.
+ram_recovery_samples_required=15
+ram_recovery_sample_interval_seconds=1
+healthy_ram_streak=0
 
-# -----------------------------
+
 available_ram_mb() {
     local page_size free_pages speculative_pages inactive_pages bytes
     page_size=$(sysctl -n hw.pagesize 2>/dev/null || echo 4096)
@@ -191,9 +194,16 @@ maybe_increase_parallel_cap() {
     free_mb=$(available_ram_mb)
     if (( use_ram_limit )) && (( free_mb <= min_free_ram_mb )); then
         current_parallel_cap=1
+        healthy_ram_streak=0
         return
     fi
 
+    healthy_ram_streak=$(( healthy_ram_streak + 1 ))
+    if (( healthy_ram_streak < ram_recovery_samples_required )); then
+        return
+    fi
+
+    healthy_ram_streak=0
     if (( current_parallel_cap < max_parallel )); then
         current_parallel_cap=$(( current_parallel_cap * 2 ))
         if (( current_parallel_cap > max_parallel )); then
@@ -208,6 +218,7 @@ maybe_reduce_parallel_cap() {
     free_mb=$(available_ram_mb)
     if (( use_ram_limit )) && (( free_mb <= min_free_ram_mb )); then
         current_parallel_cap=1
+        healthy_ram_streak=0
     fi
 }
 
@@ -221,6 +232,7 @@ while read -r score iterations p m; do
     fi
     while true; do
         maybe_reduce_parallel_cap
+        maybe_increase_parallel_cap
         ram_limited_parallel=$(allowed_parallel_jobs)
         ram_limited_parallel=${ram_limited_parallel:-0}
 
@@ -235,18 +247,18 @@ while read -r score iterations p m; do
             break 2
         fi
 
-        echo "Queue check: current_jobs=${current_jobs}, allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, tracked_pids=${#running_pids[@]}, free_ram_mb=$(available_ram_mb)"
+        echo "Queue check: current_jobs=${current_jobs}, allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_pids=${#running_pids[@]}, free_ram_mb=$(available_ram_mb)"
 
         if (( current_jobs < ram_limited_parallel )); then
             break
         fi
 
-        sleep 2
+        sleep ${ram_recovery_sample_interval_seconds}
     done
 
     log_file="${log_subdir}/${run_timestamp}_m${m}_p${p}_it${iterations}.log"
 
-    echo "Starting job: m=${m}, p=${p}, iterations=${iterations}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, tracked_jobs=$(count_running_jobs)"
+    echo "Starting job: m=${m}, p=${p}, iterations=${iterations}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_jobs=$(count_running_jobs)"
 
     status_file="${status_subdir}/${run_timestamp}_m${m}_p${p}_it${iterations}.status"
     cmd="${python_bin} ${main_file} ${iterations} ${p} ${m} ${m} logs/COBYLA/qaoa_results_COBYLA_${run_timestamp}.csv"
@@ -281,8 +293,7 @@ while read -r score iterations p m; do
     launched_pid=$!
     if [[ -n "${launched_pid:-}" ]] && kill -0 "$launched_pid" 2>/dev/null; then
         running_pids+=("$launched_pid")
-        maybe_increase_parallel_cap
-        echo "Launched PID: ${launched_pid}; updated current_parallel_cap=${current_parallel_cap}"
+        echo "Launched PID: ${launched_pid}; current_parallel_cap=${current_parallel_cap}"
     else
         echo "Warning: failed to register launched job for m=${m}, p=${p}, iterations=${iterations}. Continuing with remaining jobs."
         maybe_reduce_parallel_cap
@@ -293,4 +304,4 @@ rm -f "$jobs_file"
 
 echo "All jobs submitted."
 echo "Benchmark configuration from ${config_file}:"$'\n'"${benchmark_config_dump}"
-echo "Detected chip: ${chip_name:-unknown}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; timeout_streak_limit: ${timeout_streak_limit}; python_bin: ${python_bin}"
+echo "Detected chip: ${chip_name:-unknown}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; ram_recovery_samples_required: ${ram_recovery_samples_required}; ram_recovery_sample_interval_seconds: ${ram_recovery_sample_interval_seconds}; timeout_streak_limit: ${timeout_streak_limit}; python_bin: ${python_bin}"
