@@ -78,7 +78,7 @@ def get_logical_cores():
 def get_peak_ram_mb():
     try:
         peak_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        return round(peak_kb / 1024, 2)
+        return round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 ** 2), 2)
     except Exception:
         return None
 
