@@ -29,6 +29,7 @@ class QAOACircuit(QuantumCircuit):
         self.qc_no_params: QuantumCircuit = None # Auxiliary variable that is used to update the quantum circuit parameters
         self.backend = Aer.get_backend('qasm_simulator')
         self.initial_state = None
+        self.warm_start_correlations = None
         self.self_init_linegraph = False
         self.params = None
         benchm_params = get_benchmark_params()
@@ -93,6 +94,14 @@ class QAOACircuit(QuantumCircuit):
 
         return energy
 
+    def apply_warm_start_correlations(self):
+        for (i, j) in self.edges:
+            c_ij = self.warm_start_correlations[(i, j)]
+
+            self.qc.rxx(-2*c_ij, i, j)
+            self.qc.ryy(-2*c_ij, i, j)
+            self.qc.rzz(-2*c_ij, i, j)
+
     def build_qaoa_maxcut_circuit(self, add_measurements=True):
         """
         # made class variable: :param n: the size of the circuit
@@ -130,6 +139,11 @@ class QAOACircuit(QuantumCircuit):
             _initial_state /= norm
             self.qc.initialize(_initial_state, range(self.n))
             print("Initial state injected as warm start")
+
+            # TODO: add warm start correlations here
+            if self.warm_start_correlations is not None:
+                self.apply_warm_start_correlations()
+                print("Warm start correlations applied in the form of weak entanglement")
         elif self.self_init_linegraph:
             assert self.start_index is not None and isinstance(self.start_index, int) and self.start_index in {0, 1}
             print("Line graph state preparation: Singlet injection")

@@ -159,7 +159,7 @@ class BayesianOptimiser:
 
         return f_m
 
-def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 1000):
+def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 1000, correlations: int = None):
     """
     NOTE: ALTERNATIVE OPTIMISATION FUNCTION; this one is standalone, in the sense that all the other methods in this file are only for the Bayesian optimisation, but this one is a separate method that can be used to optimise QAOA parameters using COBYLA instead of Bayesian optimisation.
     :param no_layers: number of QAOA layers
@@ -167,8 +167,9 @@ def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 1000):
     :return: scipy optimisation result object
     """
     assert isinstance(QAOA, QAOACircuit)
+    init_close_to_zero = get_benchmark_params()["init_QAOAparams_close_to_zero"]
 
-    gamma, beta = set_random_params(no_layers)
+    gamma, beta = set_random_params(no_layers, init_close_to_zero=init_close_to_zero)
     x0 = np.concatenate([gamma, beta])
 
     def objective(theta: np.ndarray) -> float:
