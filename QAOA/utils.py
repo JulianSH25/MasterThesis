@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 import numpy as np
 import random
-from QAOA.utils import get_benchmark_params
 
 def set_random_params(p: int, seed: int | None = None, init_close_to_zero: bool = False):
     """

@@ -98,9 +98,14 @@ class QAOACircuit(QuantumCircuit):
         for (i, j) in self.edges:
             c_ij = self.warm_start_correlations[(i, j)]
 
-            self.qc.rxx(-2*c_ij, i, j)
-            self.qc.ryy(-2*c_ij, i, j)
-            self.qc.rzz(-2*c_ij, i, j)
+            c_ij = float(np.clip(c_ij, -3.0, 3.0))
+            x = np.pi * (c_ij - 3.0) / 6.0
+
+            print(f"Applying warm start correlation {c_ij} on edge ({i}, {j}) with rotation angle {x:.4f} radians")
+
+            self.qc.rxx(-2*x, i, j)
+            self.qc.ryy(-2*x, i, j)
+            self.qc.rzz(-2*x, i, j)
 
     def build_qaoa_maxcut_circuit(self, add_measurements=True):
         """
