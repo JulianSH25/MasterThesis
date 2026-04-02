@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import numpy as np
 import random
+from collections import Counter
 
 def set_random_params(p: int, seed: int | None = None, init_close_to_zero: bool = False):
     """
@@ -62,4 +63,24 @@ def get_benchmark_params() -> dict:
     config_path = Path(__file__).resolve().parent / "benchmark_config.json"
     with config_path.open("r", encoding="utf-8") as config_file:
         return json.load(config_file)
+
+def classify_graph(edges):
+    verts = {u for e in edges for u in e}
+    n = len(verts)
+    m = len(edges)
+
+    deg = Counter()
+    for u, v in edges:
+        deg[u] += 1
+        deg[v] += 1
+
+    d = list(deg.values())
+
+    if m == n * (n - 1) // 2:
+        return "complete"
+    if n >= 3 and all(x == 2 for x in d):
+        return "cycle"
+    if d.count(1) == 2 and d.count(2) == n - 2:
+        return "path"
+    return None
 

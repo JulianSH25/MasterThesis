@@ -16,8 +16,10 @@ from Circuit import QAOACircuit
 from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search
 import sys
 from pathlib import Path
-from utils import get_benchmark_params
+from utils import classify_graph, get_benchmark_params
 from WarmStart import get_warm_start_state, extract_correlations
+
+from instance_generator import instance_generator
 
 if __package__ in (None, ""):
     project_root = Path(__file__).resolve().parents[1]
@@ -84,7 +86,7 @@ def get_peak_ram_mb():
     except Exception:
         return None
 
-def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_linegraph = False):
+def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_linegraph = False, edges = None, weights = None):
     """
     This method builds and optimises a QAOA instance on a line graph.
 
@@ -95,9 +97,9 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
     :param self_init_linegraph: whether to use line-graph singlet state preparation
     :return: None
     """
-    assert m is not None
-    edges = [(i, i + 1) for i in range(m)] # Optionally replace by desired edge list, if a linegraph is not desired
-    weights = [1.0] * len(edges)
+    assert m is not None or edges is not None
+    edges = edges if edges is not None else [(i, i + 1) for i in range(m)] # Optionally replace by desired edge list, if a linegraph is not desired
+    weights = weights if weights is not None else [1.0] * len(edges)
     set_of_nodes = {i for k in edges for i in k}
     n = len(set_of_nodes)
     print(f"Generated line graph with {m} edges, {n} nodes, and {p} layers.") if m == n - 1 else None
@@ -124,14 +126,14 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
     QAOA.self_init_linegraph = self_init_linegraph
     QAOA.build_qaoa_maxcut_circuit(add_measurements=False) # TODO check parameter (changed from True to False)
 
-    BO = BayesianOptimiser()
-
     assert sum([optimiser_bayesian, optimiser_cobyla, gridsearch]) == 1
     minimum_energy = None
     if optimiser_bayesian:
+        BO = BayesianOptimiser()
         minimum_energy = BO.bayesian_optimisation(QAOA=QAOA, N_bayes=N_bayes, no_layers=p)
     elif optimiser_cobyla:
-        returned_energy = optimise_cobyla(QAOA=QAOA, no_layers=p, max_iter=N_bayes)
+        correlations=warm_start_correlations if benchmark_params["use_correlations_as_initial_params"] else None
+        returned_energy = optimise_cobyla(QAOA=QAOA, no_layers=p, max_iter=N_bayes, correlations=correlations)
         minimum_energy = -returned_energy.fun
     elif gridsearch:
         minimum_energy = grid_search(QAOA, p, precision=precision)
@@ -145,6 +147,15 @@ def return_optimal_line(m):
     val = df.loc[df["m"] == m, "result"].item()
     return val
 
+def return_optimal_cycle(m):
+    df = pan.read_csv("optimal_results_qaoa_cycle.csv")
+    val = df.loc[df["m"] == m, "result"].item()
+    return val
+
+def return_optimal_fully_connected(m):
+    df = pan.read_csv("optimal_results_qaoa_fully_connected.csv")
+    val = df.loc[df["m"] == m, "result"].item()
+    return val
 
 if __name__ == "__main__":
     parameter_settings = get_benchmark_params()
@@ -156,6 +167,9 @@ if __name__ == "__main__":
     duration = {}
     precision = float(sys.argv[1])
     p = int(sys.argv[2])
+
+    edges, weights = instance_generator(type=parameter_settings["graph_generation_type"], n=int(sys.argv[1]), weighted=parameter_settings["weighted"])
+    m = len(edges)
     
     # Keep one shared CSV file and append safely across parallel runs.
     csv_filename = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else "qaoa_results_COBYLA.csv"
@@ -184,12 +198,21 @@ if __name__ == "__main__":
     for m in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
         start_time = time.time()
         print(f"Running QAOA for m={m} edges...; Max iterations: {int(precision)}")
-        results[m] = main(m=m, p=p, N_bayes=int(precision), self_init_linegraph=singlet_injection, init_initial_state=warm_start)
+        results[m] = main(p=p, N_bayes=int(precision), self_init_linegraph=singlet_injection, init_initial_state=warm_start, edges=edges, weights=weights)
         elapsed_time = time.time() - start_time
         finished_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         peak_ram_mb = get_peak_ram_mb()
         print(f"Finished QAOA for m={m} edges at {finished_at} on {processor_name}. Time taken: {elapsed_time:.2f} seconds. Hours: {elapsed_time / 3600:.2f} hours. Peak RAM: {peak_ram_mb} MB.")
         duration[m] = elapsed_time
+        approx_ratio = None
+        if classify_graph(edges) == "line":
+            approx_ratio = results[m] / return_optimal_line(m)
+        elif classify_graph(edges) == "cycle":
+            #approx_ratio = results[m] / return_optimal_cycle(m)
+            pass
+        elif classify_graph(edges) == "complete":
+            #approx_ratio = results[m] / return_optimal_fully_connected(m)
+            pass
 
         row = {
             'run_id': run_id,
@@ -202,7 +225,7 @@ if __name__ == "__main__":
             'result': results[m],
             'duration_seconds': elapsed_time,
             'finished_at': finished_at,
-            'approx_ratio': results[m] / return_optimal_line(m),
+            'approx_ratio': approx_ratio,
             'processor': processor_name,
             'hostname': hostname,
             'total_ram_gb': total_ram_gb,
