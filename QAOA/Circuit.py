@@ -175,6 +175,8 @@ class QAOACircuit(QuantumCircuit):
             self.qc.rx(2 * beta, range(self.n))
             self.qc.rz(2 * beta, range(self.n)) # NOTE experimental
             self.qc.ry(2 * beta, range(self.n)) # NOTE experimental
+            print(f"Layer {layer}: Added Cost and Mixer unitaries with gamma={gamma} and beta={beta}")
+            print(".rz and .ry mixer terms added in addition to classical .rx mixer") # TODO remove print if rz, ry not used!
 
         if add_measurements:
             self.qc.measure(range(self.n), range(self.n))

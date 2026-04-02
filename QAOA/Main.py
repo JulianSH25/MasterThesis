@@ -190,7 +190,7 @@ if __name__ == "__main__":
     print(f"Logical cores: {logical_cores}")
     print(f"Python version: {python_version}")
 
-    fieldnames = ['run_id', 'm', 'p', 'precision', 'singlet_injection', 'warm_start',
+    fieldnames = ['run_id', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
                   'parameter_vector', 'result', 'duration_seconds', 'finished_at', 'approx_ratio',
                   'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                   'python_version', 'peak_ram_mb']
@@ -218,7 +218,7 @@ if __name__ == "__main__":
             'run_id': run_id,
             'm': m,
             'p': p,
-            'precision': precision,
+            'precision/iterations': precision,
             'singlet_injection': singlet_injection,
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
