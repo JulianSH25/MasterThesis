@@ -12,8 +12,8 @@ config_file="benchmark_config.json"
 
 iterations_list=($(jq -r '.iterations_list[]' "$config_file"))
 depth_list=($(jq -r '.depth_list[]' "$config_file"))
-m_start=$(jq -r '.m_start' "$config_file")
-m_end=$(jq -r '.m_end' "$config_file")
+n_start=$(jq -r '.n_start' "$config_file")
+n_end=$(jq -r '.n_end' "$config_file")
 time_limit_seconds=$(jq -r '.time_limit' "$config_file") # 3 hours
 timeout_streak_limit=$(jq -r '.failed_instance_termination_thrsh' "$config_file")
 
@@ -124,9 +124,9 @@ jobs_file="$(mktemp)"
 
 for iterations in "${iterations_list[@]}"; do
     for p in "${depth_list[@]}"; do
-        for (( m=m_start; m<=m_end; m++ )); do
-            score=$(( m * p * p * iterations ))
-            echo "${score} ${iterations} ${p} ${m}" >> "$jobs_file"
+        for (( n=n_start; n<=n_end; n++ )); do
+            score=$(( n * p * p * iterations ))
+            echo "${score} ${iterations} ${p} ${n}" >> "$jobs_file"
         done
     done
 done
@@ -225,7 +225,7 @@ maybe_reduce_parallel_cap() {
 # -----------------------------
 # Launch jobs
 # -----------------------------
-while read -r score iterations p m; do
+while read -r score iterations p n; do
     if (( stop_launching )); then
         echo "Stopping further job launches because the timeout streak limit was reached."
         break
@@ -256,12 +256,12 @@ while read -r score iterations p m; do
         sleep ${ram_recovery_sample_interval_seconds}
     done
 
-    log_file="${log_subdir}/${run_timestamp}_m${m}_p${p}_it${iterations}.log"
+    log_file="${log_subdir}/${run_timestamp}_n${n}_p${p}_it${iterations}.log"
 
-    echo "Starting job: m=${m}, p=${p}, iterations=${iterations}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_jobs=$(count_running_jobs)"
+    echo "Starting job: n=${n}, p=${p}, iterations=${iterations}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_jobs=$(count_running_jobs)"
 
-    status_file="${status_subdir}/${run_timestamp}_m${m}_p${p}_it${iterations}.status"
-    cmd="${python_bin} ${main_file} ${iterations} ${p} ${m} ${m} logs/COBYLA/qaoa_results_COBYLA_${run_timestamp}.csv"
+    status_file="${status_subdir}/${run_timestamp}_n${n}_p${p}_it${iterations}.status"
+    cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} logs/COBYLA_noLine/qaoa_results_COBYLA_${run_timestamp}.csv"
     if (( use_background_mode )); then
         cmd="taskpolicy -c background ${cmd}"
     fi
@@ -283,7 +283,7 @@ while read -r score iterations p m; do
             echo \"finished_at=\$(date +'%Y-%m-%d %H:%M:%S')\"
             echo \"exit_code=\${exit_code}\"
             echo \"timed_out=\${timed_out}\"
-            echo \"m=${m}\"
+            echo \"n=${n}\"
             echo \"p=${p}\"
             echo \"iterations=${iterations}\"
         } > \"${status_file}\"
@@ -295,7 +295,7 @@ while read -r score iterations p m; do
         running_pids+=("$launched_pid")
         echo "Launched PID: ${launched_pid}; current_parallel_cap=${current_parallel_cap}"
     else
-        echo "Warning: failed to register launched job for m=${m}, p=${p}, iterations=${iterations}. Continuing with remaining jobs."
+        echo "Warning: failed to register launched job for n=${n}, p=${p}, iterations=${iterations}. Continuing with remaining jobs."
         maybe_reduce_parallel_cap
     fi
 done < "$jobs_file"

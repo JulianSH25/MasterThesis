@@ -142,22 +142,24 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
 
     return minimum_energy
 
-def return_optimal_line(m):
-    df = pan.read_csv("optimal_results_qaoa.csv")
-    val = df.loc[df["m"] == m, "result"].item()
+def return_optimal_line(n):
+    df = pan.read_csv("optimal_results_qaoa.csv", skipinitialspace=True)
+    val = df.loc[df["n"] == n, "result"].item()
     return val
 
-def return_optimal_cycle(m):
-    df = pan.read_csv("optimal_results_qaoa_cycle.csv")
-    val = df.loc[df["m"] == m, "result"].item()
+def return_optimal_cycle(n):
+    df = pan.read_csv("optimal_results_qaoa_circle.csv", skipinitialspace=True)
+    val = df.loc[df["n"] == n, "result"].item()
     return val
 
-def return_optimal_fully_connected(m):
-    df = pan.read_csv("optimal_results_qaoa_fully_connected.csv")
-    val = df.loc[df["m"] == m, "result"].item()
+def return_optimal_fully_connected(n):
+    df = pan.read_csv("optimal_results_qaoa_complete.csv", skipinitialspace=True)
+    val = df.loc[df["n"] == n, "result"].item()
     return val
 
 if __name__ == "__main__":
+    # Run QAOA benchmark:
+    # python Main.py <precision/iterations> <p: #layers/circuit depth> <n_start> <n_end> [output_csv]
     parameter_settings = get_benchmark_params()
     singlet_injection = parameter_settings["singlet_injection"]
     warm_start = parameter_settings["warm_start"]
@@ -167,9 +169,6 @@ if __name__ == "__main__":
     duration = {}
     precision = float(sys.argv[1])
     p = int(sys.argv[2])
-
-    edges, weights = instance_generator(type=parameter_settings["graph_generation_type"], n=int(sys.argv[1]), weighted=parameter_settings["weighted"])
-    m = len(edges)
     
     # Keep one shared CSV file and append safely across parallel runs.
     csv_filename = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else "qaoa_results_COBYLA.csv"
@@ -195,34 +194,39 @@ if __name__ == "__main__":
                   'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                   'python_version', 'peak_ram_mb']
 
-    for m in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
+    for n in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
+        assert parameter_settings["graph_generation_type"] in ("line", "cycle", "complete")
+        edges, weights = instance_generator(type=parameter_settings["graph_generation_type"], n=int(sys.argv[1]),
+                                            weighted=parameter_settings["weighted"])
+        m = len(edges)
         start_time = time.time()
-        print(f"Running QAOA for m={m} edges...; Max iterations: {int(precision)}")
-        results[m] = main(p=p, N_bayes=int(precision), self_init_linegraph=singlet_injection, init_initial_state=warm_start, edges=edges, weights=weights)
+        print(f"Running QAOA for n={n} nodes, m={len(edges)} edges...; Max iterations: {int(precision)}")
+        results[n] = main(p=p, N_bayes=int(precision), self_init_linegraph=singlet_injection, init_initial_state=warm_start, edges=edges, weights=weights)
         elapsed_time = time.time() - start_time
         finished_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         peak_ram_mb = get_peak_ram_mb()
-        print(f"Finished QAOA for m={m} edges at {finished_at} on {processor_name}. Time taken: {elapsed_time:.2f} seconds. Hours: {elapsed_time / 3600:.2f} hours. Peak RAM: {peak_ram_mb} MB.")
-        duration[m] = elapsed_time
+        print(f"Finished QAOA for n={n} nodes, m={m} edges at {finished_at} on {processor_name}. Time taken: {elapsed_time:.2f} seconds. Hours: {elapsed_time / 3600:.2f} hours. Peak RAM: {peak_ram_mb} MB.")
+        duration[n] = elapsed_time
         approx_ratio = None
         if classify_graph(edges) == "line":
-            approx_ratio = results[m] / return_optimal_line(m)
+            approx_ratio = results[n] / return_optimal_line(n)
         elif classify_graph(edges) == "cycle":
-            #approx_ratio = results[m] / return_optimal_cycle(m)
-            pass
+            approx_ratio = results[n] / return_optimal_cycle(n)
+            #pass
         elif classify_graph(edges) == "complete":
-            #approx_ratio = results[m] / return_optimal_fully_connected(m)
-            pass
+            approx_ratio = results[n] / return_optimal_fully_connected(n)
+            #pass
 
         row = {
             'run_id': run_id,
+            'n': n,
             'm': m,
             'p': p,
             'precision/iterations': precision,
             'singlet_injection': singlet_injection,
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
-            'result': results[m],
+            'result': results[n],
             'duration_seconds': elapsed_time,
             'finished_at': finished_at,
             'approx_ratio': approx_ratio,
@@ -258,3 +262,5 @@ if __name__ == "__main__":
     print(f"results: {results}")
     print(f"durations: {duration}")
     print(f"Results saved to: {csv_filename}")
+
+    # Run shell file: sudo nohup zsh qaoa_benchmarks.sh > logs/COBYLA_noLine/launcher_$(date +'%Y%m%d_%H%M%S').log 2>&1 &

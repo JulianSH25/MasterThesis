@@ -2,14 +2,16 @@
   "parameter_vector": [1, 1, 1],
   "iterations_list": [10000, 50000, 100000],
   "depth_list": [1, 2, 3, 4, 5],
-  "m_start": 1,
-  "m_end": 5,
+  "n_start": 1,
+  "n_end": 5,
   "singlet_injection": false,
   "start_index_singlet": 0,
   "warm_start": true,
   "warm_start_correlations": true,
   "init_QAOAparams_close_to_zero": true,
-  "use_correlations_as_initial_params": false,
+  "use_correlations_as_initial_params": true,
   "time_limit": 10800,
-  "failed_instance_termination_thrsh": 10
+  "failed_instance_termination_thrsh": 10,
+  "graph_generation_type": "complete",
+  "weighted": false
 }
