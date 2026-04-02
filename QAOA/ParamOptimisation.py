@@ -171,12 +171,17 @@ def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 1000, cor
     use_corr_init = benchmark_params["use_correlations_as_initial_params"]
 
     gamma, beta = set_random_params(no_layers, init_close_to_zero=init_close_to_zero)
+    print(f"Using random initial parameters with gamma {gamma} and beta {beta}")
 
     if use_corr_init and correlations is not None:
         corr_scalar = float(np.mean(list(correlations.values())))
         corr_scalar = float(np.clip(corr_scalar, -3.0, 3.0))
         gamma0 = np.pi * (3.0 - corr_scalar) / 6.0
         gamma = np.full(no_layers, gamma0, dtype=float)
+        print(f"Using correlation-based initial parameters with scalar {corr_scalar} and gamma0 {gamma}")
+    elif use_corr_init and correlations is None:
+        raise ValueError("correlations must be provided if use_correlations_as_initial_params is True")
+
     x0 = np.concatenate([gamma, beta])
 
     def objective(theta: np.ndarray) -> float:
