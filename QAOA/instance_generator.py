@@ -1,0 +1,27 @@
+import random
+from tokenize import String
+
+
+def instance_generator(type, n: int, weighted: bool = False):
+    if type == "line":
+        edges = make_line_graph(n)
+    elif type == "cycle":
+        edges = make_cycle_graph(n)
+    elif type == "complete":
+        edges = make_complete_graph(n)
+    else:
+        raise ValueError("Unknown graph type: " + type + "; expected 'line', 'cycle', or 'complete'.")
+    weights = [random.uniform(1e-3, 1.0) for _ in edges] if weighted else [1.0] * len(edges)
+
+    return edges, weights
+
+def make_line_graph(n: int):
+    return [(i, i + 1) for i in range(n - 1)]
+
+def make_cycle_graph(n: int):
+    if n < 3:
+        raise ValueError("cycle graph needs at least 3 nodes")
+    return [(i, i + 1) for i in range(n - 1)] + [(n - 1, 0)]
+
+def make_complete_graph(n: int):
+    return [(i, j) for i in range(n) for j in range(i + 1, n)]
