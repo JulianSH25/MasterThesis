@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import random
 
-def set_random_params(p: int, seed: int | None = None):
+def set_random_params(p: int, seed: int | None = None, init_close_to_zero: bool = False):
     """
     This function samples random QAOA angle parameters for a given circuit depth p.
 
@@ -12,8 +12,8 @@ def set_random_params(p: int, seed: int | None = None):
     :return: tuple (gamma_values, beta_values) as numpy arrays
     """
     rng = np.random.default_rng(seed)
-    gamma_values = rng.uniform(0.0, 2*np.pi, size=p)
-    beta_values = rng.uniform(0.0, np.pi, size=p)
+    gamma_values = rng.uniform(1e-10, 0.1 if init_close_to_zero else 2*np.pi, size=p)
+    beta_values = rng.uniform(1e-10, 0.1 if init_close_to_zero else np.pi, size=p)
 
     return gamma_values, beta_values
 

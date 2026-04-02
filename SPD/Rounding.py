@@ -143,7 +143,7 @@ def init_random_matrix_for_x(x: np.ndarray, r: int, seed, rng=None):
 
 def build_single_qubit_state(y, parameters):
     """
-    This function constructs one single-qubit state from rounded coordinates.
+    This function constructs one single-qubit state.
 
     The rounded vector y is mapped to Bloch components according to active
     parameters a, b, c, and then converted into a density matrix.

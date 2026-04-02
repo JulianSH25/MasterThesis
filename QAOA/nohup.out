@@ -1,0 +1,8 @@
+python: can't open file '/Users/julian_dev/Projects/MasterThesis/QAOA/mai': [Errno 2] No such file or directory
+Benchmark parameters: {'parameter_vector': [0, 0, 1], 'singlet_injection': False, 'warm_start': False}, Running QAOA with equal superposition
+Benchmark run ID: 12c969f2
+Traceback (most recent call last):
+  File "/Users/julian_dev/Projects/MasterThesis/QAOA/main.py", line 130, in <module>
+    for m in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
+                       ~~~~~~~~^^^
+IndexError: list index out of range

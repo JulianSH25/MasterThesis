@@ -1,6 +1,7 @@
 from .SDP_solver import ABCParams, SDP_Solver_
+import numpy as np
 from .Rounding import round_sdp_with_cholesky
-from .Utilities import random_instance_generator, line_instance_generator, get_edges_in_cut, save_benchmark_csv
+from .Utilities import random_instance_generator, line_instance_generator, get_edges_in_cut, save_benchmark_csv, idx
 #from testing import visualize_cut
 import datetime, random, secrets, uuid
 from datetime import datetime
@@ -120,10 +121,10 @@ if __name__ == "__main__":
     sparse = False
 
     #edges, weights, nodes = random_instance_generator(n_vertices, weights_static=True, sparse=sparse)
-    #edges = [(0, 2), (0, 3), (1, 3), (0, 1), (2, 3)]
+    edges = [(0, 2), (0, 3), (1, 3), (0, 1), (2, 3)]
     #edges = [(1, 3), (1, 2), (0, 2), (0, 1), (0, 3), (2, 3)]
     # NOTE: Define your instance here
-    edges = [(6, 11), (6, 12), (2, 6), (5, 11), (0, 2), (0, 8), (3, 11), (6, 10), (6, 7), (7, 13), (3, 4), (3, 9), (1, 9), (1, 12), (2, 3), (2, 4), (2, 5), (12, 13),]
+    #edges = [(6, 11), (6, 12), (2, 6), (5, 11), (0, 2), (0, 8), (3, 11), (6, 10), (6, 7), (7, 13), (3, 4), (3, 9), (1, 9), (1, 12), (2, 3), (2, 4), (2, 5), (12, 13),]
     weights = [1.0] * len(edges)
 
     print(f"Edges: {edges}")
@@ -131,9 +132,29 @@ if __name__ == "__main__":
     objectives = set()
 
     for _ in range(1):
-        edge_count, edges_in_cut, cuts, M_optimal, states = main(instance=(edges, weights), n_vertices=n_vertices, params=params) # NOTE: change this function call to `main_benchmark` to run the benchmark pipeline instead of the single-run flow
+        edge_count, edges_in_cut, cuts, M, states = main(instance=(edges, weights), n_vertices=n_vertices, params=params) # NOTE: change this function call to `main_benchmark` to run the benchmark pipeline instead of the single-run flow
         #edge_count, _, _, _ = main_benchmark(n_vertices, params, (edges, weights), sparse)
         objectives.add(edge_count)
         print(f"State: {states}")
+
+        for i, j in edges:
+            corr = (float(np.real(M[idx(i, 0), idx(j, 0)]))
+                    + float(np.real(M[idx(i, 1), idx(j, 1)]))
+                    + float(np.real(M[idx(i, 2), idx(j, 2)]))
+                    )
+
+            print(f"idx 0: {M[idx(i, 0), idx(j, 0)]}, idx({i}, 0): {idx(i, 0)}, idx({j}, 0): {idx(j, 0)},")
+            print(f"idx 1: {M[idx(i, 1), idx(j, 1)]}, idx(i, 1): {idx(i, 1)}, idx(j, 1): {idx(j, 1)},")
+            print(f"idx 2: {M[idx(i, 2), idx(j, 2)]}, idx(i, 2): {idx(i, 2)}, idx(j, 2): {idx(j, 2)},")
+
+            print(f"idx 01: {M[idx(i, 0), idx(j, 1)]}")
+            print(f"idx 10: {M[idx(i, 1), idx(j, 0)]}")
+            print(f"idx 02: {M[idx(i, 0), idx(j, 2)]}")
+            print(f"idx 20: {M[idx(i, 2), idx(j, 0)]}")
+            print(f"idx 12: {M[idx(i, 1), idx(j, 2)]}")
+            print(f"idx 21: {M[idx(i, 2), idx(j, 1)]}")
+
+            print(f"Correlation: {corr}")
+            print(f"Trace: {np.trace(M)}")
 
     print(f"Objectives found: {objectives}")

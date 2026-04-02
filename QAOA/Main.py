@@ -10,13 +10,14 @@ import subprocess
 from datetime import datetime
 
 import pandas as pan
+from numpy.f2py.auxfuncs import throw_error
 
 from Circuit import QAOACircuit
 from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search
 import sys
 from pathlib import Path
 from utils import get_benchmark_params
-from WarmStart import get_warm_start_state
+from WarmStart import get_warm_start_state, extract_correlations
 
 if __package__ in (None, ""):
     project_root = Path(__file__).resolve().parents[1]
@@ -101,7 +102,10 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
     n = len(set_of_nodes)
     print(f"Generated line graph with {m} edges, {n} nodes, and {p} layers.") if m == n - 1 else None
 
-    initial_state = get_warm_start_state((edges, weights), n) if init_initial_state else None
+    initial_state, moment_matrix = get_warm_start_state((edges, weights), n) if init_initial_state else (None, None)
+    warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
+
+    print(f"warm_start_correlations: {warm_start_correlations}")
 
     assert edges is not None and weights is not None and set_of_nodes is not None and n is not None and p is not None
     print(f"Edges: {edges}, weights: {weights}, set of nodes: {set_of_nodes}, n: {n} nodes, p: {p} layers, N_bayes: {N_bayes} iterations")
@@ -111,6 +115,11 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
     QAOA.params = benchmark_params["parameter_vector"]
 
     QAOA.initial_state = initial_state
+    if warm_start_correlations is not None and benchmark_params["warm_start_correlations"]:
+        QAOA.warm_start_correlations = warm_start_correlations
+    elif benchmark_params["warm_start_correlations"]:
+        raise RuntimeError("Warm start correlations are not available for this benchmark.")
+
     print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.")
     QAOA.self_init_linegraph = self_init_linegraph
     QAOA.build_qaoa_maxcut_circuit(add_measurements=False) # TODO check parameter (changed from True to False)
