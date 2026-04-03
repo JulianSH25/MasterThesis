@@ -199,6 +199,10 @@ if __name__ == "__main__":
                   'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                   'python_version', 'peak_ram_mb']
     
+    for key in parameter_settings:
+        if key not in fieldnames and isinstance(parameter_settings[key], (str, int, float, bool)):
+            fieldnames.append(key)
+    
     scalar_params = {
         k: v for k, v in parameter_settings.items()
         if isinstance(v, (str, int, float, bool))
@@ -270,9 +274,9 @@ if __name__ == "__main__":
         }
 
         # inject scalar params automatically
-        for k, v in scalar_params.items():
-            if k not in row:
-                row[k] = v
+        for key, value in scalar_params.items():
+            if key not in row and key in fieldnames:
+                row[key] = value
 
         # Simple append to CSV file
        # write_header = not os.path.exists(csv_filename) or os.path.getsize(csv_filename) == 0
