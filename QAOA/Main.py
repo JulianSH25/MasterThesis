@@ -8,6 +8,7 @@ import socket
 import resource
 import subprocess
 from datetime import datetime
+import numpy as np
 
 import pandas as pan
 from numpy.f2py.auxfuncs import throw_error
@@ -86,7 +87,7 @@ def get_peak_ram_mb():
     except Exception:
         return None
 
-def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_linegraph = False, edges = None, weights = None):
+def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_linegraph = False, edges = None, weights = None, __initial_state__ = None):
     """
     This method builds and optimises a QAOA instance on a line graph.
 
@@ -104,7 +105,10 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
     n = len(set_of_nodes)
     print(f"Generated line graph with {m} edges, {n} nodes, and {p} layers.") if m == n - 1 else None
 
-    initial_state, moment_matrix = get_warm_start_state((edges, weights), n) if init_initial_state else (None, None)
+    assert not (init_initial_state and __initial_state__), "Cannot provide both init_initial_state=True and a custom __initial_state__. Please choose one of the two options for a valid benchmark configuration."
+    initial_state, moment_matrix = get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else (None, None)
+    if __initial_state__ is not None:
+        initial_state = __initial_state__
     warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
 
     print(f"warm_start_correlations: {warm_start_correlations}")
@@ -193,6 +197,13 @@ if __name__ == "__main__":
                   'parameter_vector', 'result', 'duration_seconds', 'finished_at', 'approx_ratio',
                   'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                   'python_version', 'peak_ram_mb']
+    
+    scalar_params = {
+        k: v for k, v in parameter_settings.items()
+        if isinstance(v, (str, int, float, bool))
+    }
+
+    results_010101 = [] # optional additional benchmark results for the 010101... initial state, if enabled in the config
 
     for n in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
         assert parameter_settings["graph_generation_type"] in ("line", "cycle", "complete")
@@ -202,6 +213,17 @@ if __name__ == "__main__":
         start_time = time.time()
         print(f"Running QAOA for n={n} nodes, m={len(edges)} edges...; Max iterations: {int(precision)}")
         results[n] = main(p=p, N_bayes=int(precision), self_init_linegraph=singlet_injection, init_initial_state=warm_start, edges=edges, weights=weights)
+        if parameter_settings["compare_with_010101"]:
+            bitstring = ''.join(['1' if i % 2 else '0' for i in range(n)])
+
+            state = np.zeros(2**n, dtype=complex)
+            index = int(bitstring, 2)
+            state[index] = 1.0
+
+            initial_state = state
+
+            results_010101[n] = main(p=p, N_bayes=int(precision), edges=edges, weights=weights, __initial_state__ = initial_state)
+
         elapsed_time = time.time() - start_time
         finished_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         peak_ram_mb = get_peak_ram_mb()
@@ -227,6 +249,7 @@ if __name__ == "__main__":
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
             'result': results[n],
+            'result_010101': results_010101[n] if parameter_settings["compare_with_010101"] else None,
             'duration_seconds': elapsed_time,
             'finished_at': finished_at,
             'approx_ratio': approx_ratio,
@@ -239,6 +262,11 @@ if __name__ == "__main__":
             'peak_ram_mb': peak_ram_mb
         }
 
+        # inject scalar params automatically
+        for k, v in scalar_params.items():
+            if k not in row:
+                row[k] = v
+
         # Simple append to CSV file
        # write_header = not os.path.exists(csv_filename) or os.path.getsize(csv_filename) == 0
         
@@ -249,7 +277,7 @@ if __name__ == "__main__":
             try:
                 csvfile.seek(0, os.SEEK_END)
                 write_header = csvfile.tell() == 0
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
                 if write_header:
                     writer.writeheader()
                 writer.writerow(row)

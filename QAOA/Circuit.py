@@ -146,6 +146,7 @@ class QAOACircuit(QuantumCircuit):
             print("Initial state injected as warm start")
 
             # TODO: add warm start correlations here
+            # TODO WARNING: REMOVE WHEN COMPARING AGAINST 010101... INITIAL STATE!
             if self.warm_start_correlations is not None:
                 self.apply_warm_start_correlations()
                 print("Warm start correlations applied in the form of weak entanglement")
