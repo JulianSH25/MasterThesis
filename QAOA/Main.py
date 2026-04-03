@@ -170,6 +170,7 @@ if __name__ == "__main__":
     assert not (singlet_injection and warm_start), "Singlet injection and warm start cannot be used simultaneously, as they both modify the initial state preparation. Please choose one of the two options for a valid benchmark configuration."
     print(f"Benchmark parameters: {parameter_settings}, Running QAOA with equal superposition")
     results = {}
+    results_010101 = {}
     duration = {}
     precision = float(sys.argv[1])
     p = int(sys.argv[2])
@@ -193,8 +194,8 @@ if __name__ == "__main__":
     print(f"Logical cores: {logical_cores}")
     print(f"Python version: {python_version}")
 
-    fieldnames = ['run_id', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                  'parameter_vector', 'result', 'duration_seconds', 'finished_at', 'approx_ratio',
+    fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
+                  'parameter_vector', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'duration_seconds', 'finished_at',
                   'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                   'python_version', 'peak_ram_mb']
     
@@ -203,11 +204,9 @@ if __name__ == "__main__":
         if isinstance(v, (str, int, float, bool))
     }
 
-    results_010101 = [] # optional additional benchmark results for the 010101... initial state, if enabled in the config
-
     for n in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
         assert parameter_settings["graph_generation_type"] in ("line", "cycle", "complete")
-        edges, weights = instance_generator(type=parameter_settings["graph_generation_type"], n=int(sys.argv[1]),
+        edges, weights = instance_generator(type=parameter_settings["graph_generation_type"], n=n,
                                             weighted=parameter_settings["weighted"])
         m = len(edges)
         start_time = time.time()
@@ -230,13 +229,20 @@ if __name__ == "__main__":
         print(f"Finished QAOA for n={n} nodes, m={m} edges at {finished_at} on {processor_name}. Time taken: {elapsed_time:.2f} seconds. Hours: {elapsed_time / 3600:.2f} hours. Peak RAM: {peak_ram_mb} MB.")
         duration[n] = elapsed_time
         approx_ratio = None
+        approx_ratio_010101 = None
         if classify_graph(edges) == "line":
+            print("Computing line approximation ratio")
             approx_ratio = results[n] / return_optimal_line(n)
+            approx_ratio_010101 = results_010101[n] / return_optimal_line(n) if parameter_settings["compare_with_010101"] else None
         elif classify_graph(edges) == "cycle":
+            print("Computing cycle approximation ratio")
             approx_ratio = results[n] / return_optimal_cycle(n)
+            approx_ratio_010101 = results_010101[n] / return_optimal_cycle(n) if parameter_settings["compare_with_010101"] else None
             #pass
         elif classify_graph(edges) == "complete":
+            print("Computing complete graph approximation ratio")
             approx_ratio = results[n] / return_optimal_fully_connected(n)
+            approx_ratio_010101 = results_010101[n] / return_optimal_fully_connected(n) if parameter_settings["compare_with_010101"] else None
             #pass
 
         row = {
@@ -250,9 +256,10 @@ if __name__ == "__main__":
             'parameter_vector': str(parameter_settings["parameter_vector"]),
             'result': results[n],
             'result_010101': results_010101[n] if parameter_settings["compare_with_010101"] else None,
+            'approx_ratio': approx_ratio,
+            'approx_ratio_010101': approx_ratio_010101,
             'duration_seconds': elapsed_time,
             'finished_at': finished_at,
-            'approx_ratio': approx_ratio,
             'processor': processor_name,
             'hostname': hostname,
             'total_ram_gb': total_ram_gb,
@@ -291,4 +298,4 @@ if __name__ == "__main__":
     print(f"durations: {duration}")
     print(f"Results saved to: {csv_filename}")
 
-    # Run shell file: sudo nohup zsh qaoa_benchmarks.sh > logs/COBYLA_noLine/launcher_$(date +'%Y%m%d_%H%M%S').log 2>&1 &
+    # Run shell file: sudo nohup zsh qaoa_benchmarks.sh > logs/COBYLA/launcher_$(date +'%Y%m%d_%H%M%S').log 2>&1 &

@@ -81,6 +81,6 @@ def classify_graph(edges):
     if n >= 3 and all(x == 2 for x in d):
         return "cycle"
     if d.count(1) == 2 and d.count(2) == n - 2:
-        return "path"
+        return "line"
     return None
 
