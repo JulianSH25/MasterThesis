@@ -1,10 +1,10 @@
 {
   "optimiser": "ADAM",
   "parameter_vector": [1, 1, 1],
-  "iterations_list": [300],
-  "depth_list": [1, 2, 3, 4, 5],
-  "n_start": 3,
-  "n_end": 4,
+  "iterations_list": [100, 300, 500],
+  "depth_list": [1, 2, 3, 4, 5, 10, 15, 20],
+  "n_start": 2,
+  "n_end": 14,
   "singlet_injection": false,
   "start_index_singlet": 0,
   "warm_start": true,
@@ -15,5 +15,6 @@
   "time_limit": 10800,
   "failed_instance_termination_thrsh": 10,
   "graph_generation_type": "line",
-  "weighted": false
+  "weighted": false,
+  "easiest_first": false
 }

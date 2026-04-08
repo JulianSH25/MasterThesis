@@ -133,7 +133,13 @@ for iterations in "${iterations_list[@]}"; do
     done
 done
 
-sort -n "$jobs_file" -o "$jobs_file"
+easiest_first=$(jq -r '.easiest_first // false' "$config_file")
+
+if [[ "$easiest_first" == "true" ]]; then
+    sort -n "$jobs_file" -o "$jobs_file"
+else
+    sort -nr "$jobs_file" -o "$jobs_file"
+fi
 
 # -----------------------------
 # Helper: track launched PIDs directly
