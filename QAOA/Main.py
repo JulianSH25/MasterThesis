@@ -14,7 +14,7 @@ import pandas as pan
 from numpy.f2py.auxfuncs import throw_error
 
 from Circuit import QAOACircuit
-from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search
+from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search, optimise_adam
 import sys
 from pathlib import Path
 from utils import classify_graph, get_benchmark_params
@@ -44,6 +44,8 @@ precision = None
 
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
+
+optimiser = benchmark_params["optimiser"].lower()
 
 def get_processor_name():
     try:
@@ -132,15 +134,20 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
 
     assert sum([optimiser_bayesian, optimiser_cobyla, gridsearch]) == 1
     minimum_energy = None
-    if optimiser_bayesian:
+    if optimiser == "bayesian":
         BO = BayesianOptimiser()
         minimum_energy = BO.bayesian_optimisation(QAOA=QAOA, N_bayes=N_bayes, no_layers=p)
-    elif optimiser_cobyla:
+    elif optimiser == "cobyla":
         correlations=warm_start_correlations if benchmark_params["use_correlations_as_initial_params"] else None
         returned_energy = optimise_cobyla(QAOA=QAOA, no_layers=p, max_iter=N_bayes, correlations=correlations)
         minimum_energy = -returned_energy.fun
-    elif gridsearch:
+    elif optimiser == "adam":
+        returned_energy = optimise_adam(QAOA=QAOA, no_layers=p, steps=N_bayes)
+        minimum_energy = -returned_energy.fun
+    elif optimiser == "gridsearch":
         minimum_energy = grid_search(QAOA, p, precision=precision)
+    else:
+        throw_error(f"No valid optimiser specified. Received: {optimiser}.")
 
     print(minimum_energy)
 
@@ -176,7 +183,7 @@ if __name__ == "__main__":
     p = int(sys.argv[2])
     
     # Keep one shared CSV file and append safely across parallel runs.
-    csv_filename = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else "qaoa_results_COBYLA.csv"
+    csv_filename = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else f"qaoa_results_{optimiser}.csv"
     
     # Generate unique hash ID for this benchmark run
     run_id = str(uuid.uuid4())[:8]

@@ -3,7 +3,6 @@
 set -u
 
 mkdir -p logs
-mkdir -p logs/COBYLA
 
 # -----------------------------
 # Parameter settings
@@ -16,6 +15,9 @@ n_start=$(jq -r '.n_start' "$config_file")
 n_end=$(jq -r '.n_end' "$config_file")
 time_limit_seconds=$(jq -r '.time_limit' "$config_file") # 3 hours
 timeout_streak_limit=$(jq -r '.failed_instance_termination_thrsh' "$config_file")
+optimiser=$(jq -r '.optimiser' "$config_file")
+
+mkdir -p logs/${optimiser}
 
 if ! command -v jq >/dev/null 2>&1; then
     echo "Error: jq is required but was not found in PATH."
@@ -35,7 +37,7 @@ fi
 
 # Shared timestamp for all jobs launched by this script run.
 run_timestamp=$(date +"%Y%m%d_%H%M%S")
-log_subdir="logs/COBYLA/${run_timestamp}"
+log_subdir="logs/${optimiser}/${run_timestamp}"
 mkdir -p "$log_subdir"
 status_subdir="${log_subdir}/status"
 mkdir -p "$status_subdir"
@@ -261,7 +263,7 @@ while read -r score iterations p n; do
     echo "Starting job: n=${n}, p=${p}, iterations=${iterations}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_jobs=$(count_running_jobs)"
 
     status_file="${status_subdir}/${run_timestamp}_n${n}_p${p}_it${iterations}.status"
-    cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} logs/COBYLA_noLine/qaoa_results_COBYLA_${run_timestamp}.csv"
+    cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} logs/${optimiser}/qaoa_results_${optimiser}_${run_timestamp}.csv"
     if (( use_background_mode )); then
         cmd="taskpolicy -c background ${cmd}"
     fi

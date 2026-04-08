@@ -13,6 +13,8 @@ from utils import set_random_params, sample_initial_qaoa_params, get_benchmark_p
 
 from Circuit import QAOACircuit
 
+from qiskit_algorithms.optimizers import ADAM
+
 """def optimise_params(qc: QuantumCircuit, gammas, betas, n: int, edges: np.ndarray, weights, params, x0: np.ndarray | None = None):
 
     p = len(gammas)
@@ -179,7 +181,7 @@ def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 1000, cor
         gamma0 = np.pi * (3.0 - corr_scalar) / 6.0
         gamma = np.full(no_layers, gamma0, dtype=float)
         print(f"Using correlation-based initial parameters with scalar {corr_scalar} and gamma0 {gamma}")
-    elif use_corr_init and correlations is None:
+    elif use_corr_init is not None and correlations is None:
         raise ValueError("correlations must be provided if use_correlations_as_initial_params is True")
 
     x0 = np.concatenate([gamma, beta])
@@ -191,6 +193,25 @@ def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 1000, cor
 
     return minimize(objective, x0=x0, method="COBYLA", options={"maxiter": max_iter})
     # return minimize(objective, x0=x0, method="L-BFGS-B", options={"maxiter": max_iter})
+
+def optimise_adam(QAOA: QAOACircuit, no_layers: int, steps: int = 300, learning_rate: float = 0.05):
+    assert isinstance(QAOA, QAOACircuit)
+
+    optimiser = ADAM(maxiter=steps, lr=learning_rate)
+
+    init_close_to_zero = get_benchmark_params()["init_QAOAparams_close_to_zero"]
+    gamma, beta = set_random_params(no_layers, init_close_to_zero=init_close_to_zero)
+    x0 = np.concatenate([gamma, beta]).astype(float)
+    print(f"Using random initial parameters with gamma {gamma} and beta {beta}")
+
+    def objective(theta: np.ndarray) -> float:
+        gamma_vals = theta[:no_layers]
+        beta_vals = theta[no_layers:]
+        value = eval_QAOA_circuit((gamma_vals, beta_vals), QAOA)
+        print(f"Eval: {value}, negated: {-value}")
+        return -value
+
+    return optimiser.minimize(fun=objective, x0=x0)
 
 
 def grid_search_parameters(
