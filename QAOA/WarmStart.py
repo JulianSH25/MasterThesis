@@ -57,5 +57,7 @@ def get_warm_start_state(instance, n_vertices):
     edge_count, edges_in_cut, cuts, M_optimal, states = SDP_main(instance=instance, n_vertices=n_vertices, params=parameters)
 
     warmstart = build_qaoa_warm_start_state(states=states)
-    print(f"Warm start state: {warmstart}")
-    return warmstart, M_optimal
+    if benchmark_params["debug"]:
+        print(f"Warm start state: {warmstart}")
+    Moment_matrix = M_optimal if benchmark_params["warm_start_correlations"] else None
+    return warmstart, Moment_matrix

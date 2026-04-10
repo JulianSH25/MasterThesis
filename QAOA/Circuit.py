@@ -34,6 +34,7 @@ class QAOACircuit(QuantumCircuit):
         self.params = None
         benchm_params = get_benchmark_params()
         self.start_index = benchm_params['start_index_singlet']
+        self.debug = benchm_params['debug']
 
     def bind_circuit_parameters(
         self,

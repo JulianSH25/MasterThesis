@@ -29,6 +29,8 @@ from qiskit_algorithms.optimizers import ADAM
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
 
+debug = benchmark_params["debug"]
+
 def eval_QAOA_circuit(point: tuple[np.ndarray, np.ndarray], QAOA: QAOACircuit) -> float:
     # Step 2
     """This function receives a set of points, i.e. QAOA parameters, and evaluates the actual QAOA circuit on those parameters, returns the QAOA value found"""
@@ -208,7 +210,8 @@ def optimise_adam(QAOA: QAOACircuit, no_layers: int, steps: int = 300, learning_
         gamma_vals = theta[:no_layers]
         beta_vals = theta[no_layers:]
         value = eval_QAOA_circuit((gamma_vals, beta_vals), QAOA)
-        print(f"Eval: {value}, negated: {-value}")
+        if debug:
+            print(f"Eval: {value}, negated: {-value}")
         return -value
 
     return optimiser.minimize(fun=objective, x0=x0)

@@ -16,5 +16,8 @@
   "failed_instance_termination_thrsh": 10,
   "graph_generation_type": "line",
   "weighted": false,
-  "easiest_first": false
+  "easiest_first": true,
+  "cpu_util_threshold": 85,
+  "debug": false,
+  "rerun_exclude_finished_instances": true
 }

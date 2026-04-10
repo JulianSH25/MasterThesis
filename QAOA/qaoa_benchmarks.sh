@@ -9,6 +9,18 @@ mkdir -p logs
 # -----------------------------
 config_file="benchmark_config.json"
 
+rerun_exclude_finished_instances=$(jq -r '.rerun_exclude_finished_instances // false' "$config_file")
+whitelist_file="runkey_whitelist.json"
+whitelist=($(jq -r '.whitelist[]' "$whitelist_file"))
+completed_file="completed_runs.txt"
+typeset -A completed_map
+
+if [[ "$rerun_exclude_finished_instances" == "true" && -f "$completed_file" ]]; then
+    while read -r line; do
+        completed_map["$line"]=1
+    done < "$completed_file"
+fi
+
 iterations_list=($(jq -r '.iterations_list[]' "$config_file"))
 depth_list=($(jq -r '.depth_list[]' "$config_file"))
 n_start=$(jq -r '.n_start' "$config_file")
@@ -16,6 +28,23 @@ n_end=$(jq -r '.n_end' "$config_file")
 time_limit_seconds=$(jq -r '.time_limit' "$config_file") # 3 hours
 timeout_streak_limit=$(jq -r '.failed_instance_termination_thrsh' "$config_file")
 optimiser=$(jq -r '.optimiser' "$config_file")
+
+parameter_vector=$(jq -c '.parameter_vector' "$config_file")
+singlet_injection=$(jq -r '.singlet_injection' "$config_file")
+warm_start=$(jq -r '.warm_start' "$config_file")
+warm_start_correlations=$(jq -r '.warm_start_correlations' "$config_file")
+init_QAOAparams_close_to_zero=$(jq -r '.init_QAOAparams_close_to_zero' "$config_file")
+use_correlations_as_initial_params=$(jq -r '.use_correlations_as_initial_params' "$config_file")
+compare_with_010101=$(jq -r '.compare_with_010101' "$config_file")
+start_index_singlet=$(jq -r '.start_index_singlet' "$config_file")
+graph_generation_type=$(jq -r '.graph_generation_type' "$config_file")
+weighted=$(jq -r '.weighted' "$config_file")
+
+cpu_util_threshold=$(jq -r '.cpu_util_threshold // 85' "$config_file")
+use_cpu_limit=0
+if [[ "${optimiser:l}" == "adam" ]]; then
+    use_cpu_limit=1
+fi
 
 mkdir -p logs/${optimiser}
 
@@ -82,7 +111,7 @@ max_parallel=$(sysctl -n hw.physicalcpu 2>/dev/null || echo 4)
 # This reduces the chance of suddenly launching many large-RAM jobs at once.
 current_parallel_cap=1
 # Require several consecutive "healthy RAM" samples before increasing the cap again.
-ram_recovery_samples_required=15
+ram_recovery_samples_required=60
 ram_recovery_sample_interval_seconds=1
 healthy_ram_streak=0
 
@@ -146,6 +175,13 @@ fi
 # -----------------------------
 typeset -a running_pids=()
 
+cpu_usage_percent() {
+    # sample CPU twice and compute usage
+    local usage
+    usage=$(top -l 2 -n 0 | grep "CPU usage" | tail -n 1 | awk '{print $3}' | sed 's/%//')
+    echo "${usage:-0}"
+}
+
 refresh_running_pids() {
     local pid
     local -a still_running=()
@@ -181,19 +217,27 @@ current_timeout_streak() {
 }
 
 allowed_parallel_jobs() {
-    local free_mb
+    local free_mb cpu_usage
 
-    if (( ! use_ram_limit )); then
-        echo "$current_parallel_cap"
+    free_mb=$(available_ram_mb)
+
+    # RAM constraint
+    if (( use_ram_limit )) && (( free_mb <= min_free_ram_mb )); then
+        echo 1
         return
     fi
 
-    free_mb=$(available_ram_mb)
-    if (( free_mb <= min_free_ram_mb )); then
-        echo 1
-    else
-        echo "$current_parallel_cap"
+    # CPU constraint (only for Adam)
+    if (( use_cpu_limit )); then
+        cpu_usage=$(cpu_usage_percent)
+        if (( cpu_usage >= cpu_util_threshold )); then
+            echo 1
+            return
+        fi
     fi
+
+    # Default case
+    echo "$current_parallel_cap"
 }
 
 maybe_increase_parallel_cap() {
@@ -213,10 +257,7 @@ maybe_increase_parallel_cap() {
 
     healthy_ram_streak=0
     if (( current_parallel_cap < max_parallel )); then
-        current_parallel_cap=$(( current_parallel_cap * 2 ))
-        if (( current_parallel_cap > max_parallel )); then
-            current_parallel_cap=$max_parallel
-        fi
+        current_parallel_cap=$(( current_parallel_cap + 1 ))
     fi
 }
 
@@ -228,6 +269,83 @@ maybe_reduce_parallel_cap() {
         current_parallel_cap=1
         healthy_ram_streak=0
     fi
+
+    cpu_usage=$(cpu_usage_percent)
+    if (( use_cpu_limit )) && (( cpu_usage >= cpu_util_threshold )); then
+        current_parallel_cap=1
+        healthy_ram_streak=0
+    fi
+}
+
+normalize() {
+    local v="$1"
+
+    # Python: None -> ""
+    if [[ -z "$v" || "$v" == "null" ]]; then
+        echo ""
+        return
+    fi
+
+    # Try JSON normalization (like json.dumps(sort_keys=True))
+    if echo "$v" | jq -e . >/dev/null 2>&1; then
+        echo "$v" | jq -c -S .
+    else
+        # fallback: string strip
+        echo "$v" | awk '{$1=$1;print}'
+    fi
+}
+
+compute_m() {
+    local n="$1"
+    case "$graph_generation_type" in
+        line) echo $((n - 1)) ;;
+        cycle) echo "$n" ;;
+        complete) echo $((n * (n - 1) / 2)) ;;
+        *) echo "0" ;;
+    esac
+}
+
+build_run_key() {
+    local n="$1"
+    local p="$2"
+    local iterations="$3"
+
+    local m
+    m=$(compute_m "$n")
+
+    local key_string=""
+    local key value norm_value
+
+    for key in "${whitelist[@]}"; do
+        case "$key" in
+            n) value="$n" ;;
+            m) value="$m" ;;
+            p) value="$p" ;;
+            precision/iterations) value="$iterations" ;;  # IMPORTANT: match whitelist exactly
+            parameter_vector) value="$parameter_vector" ;;
+            singlet_injection) value="$singlet_injection" ;;
+            warm_start) value="$warm_start" ;;
+            warm_start_correlations) value="$warm_start_correlations" ;;
+            init_QAOAparams_close_to_zero) value="$init_QAOAparams_close_to_zero" ;;
+            use_correlations_as_initial_params) value="$use_correlations_as_initial_params" ;;
+            compare_with_010101) value="$compare_with_010101" ;;
+            start_index_singlet) value="$start_index_singlet" ;;
+            graph_generation_type) value="$graph_generation_type" ;;
+            weighted) value="$weighted" ;;
+            *) value="" ;;
+        esac
+
+        norm_value=$(normalize "$value")
+
+        if [[ -n "$key_string" ]]; then
+            key_string+="|"
+        fi
+        key_string+="${key}=${norm_value}"
+        echo "SH: $key_string"
+    done
+
+    # SHA1 like Python
+    echo -n "$key_string" | shasum | awk '{print $1}'
 }
 
 # -----------------------------
@@ -263,6 +381,15 @@ while read -r score iterations p n; do
 
         sleep ${ram_recovery_sample_interval_seconds}
     done
+
+    run_key=$(build_run_key "$n" "$p" "$iterations")
+
+    if [[ "$rerun_exclude_finished_instances" == "true" ]]; then
+        if [[ -n "${completed_map[$run_key]:-}" ]]; then
+            echo "Skipping already completed job: n=${n}, p=${p}, iterations=${iterations}"
+            continue
+        fi
+    fi
 
     log_file="${log_subdir}/${run_timestamp}_n${n}_p${p}_it${iterations}.log"
 

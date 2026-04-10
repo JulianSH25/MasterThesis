@@ -111,6 +111,7 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
     initial_state, moment_matrix = get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else (None, None)
     if __initial_state__ is not None:
         initial_state = __initial_state__
+        
     warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
 
     print(f"warm_start_correlations: {warm_start_correlations}")
@@ -128,7 +129,8 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
     elif benchmark_params["warm_start_correlations"]:
         raise RuntimeError("Warm start correlations are not available for this benchmark.")
 
-    print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.")
+    if benchmark_params["debug"]:
+        print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.")
     QAOA.self_init_linegraph = self_init_linegraph
     QAOA.build_qaoa_maxcut_circuit(add_measurements=False) # TODO check parameter (changed from True to False)
 
@@ -309,4 +311,4 @@ if __name__ == "__main__":
     print(f"durations: {duration}")
     print(f"Results saved to: {csv_filename}")
 
-    # Run shell file: sudo nohup zsh qaoa_benchmarks.sh > logs/COBYLA/launcher_$(date +'%Y%m%d_%H%M%S').log 2>&1 &
+    # Run shell file: sudo nohup zsh qaoa_benchmarks.sh > logs/launcher_$(date +'%Y%m%d_%H%M%S').log 2>&1 &

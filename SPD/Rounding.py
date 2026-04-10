@@ -1,5 +1,6 @@
 import numpy as np
 from .Utilities import idx, save_benchmark_csv
+#from utils import get_benchmark_params
 
 debugging = False
 benchmark_roundings = False
@@ -60,7 +61,7 @@ def cholesky_psd(M, eps=1e-12):
 
     # 3. Cholesky on repaired matrix
     M_cholesky = np.linalg.cholesky(M_psd)
-    print(f"Cholesky decomposition of M: {M_cholesky}")
+    #print(f"Cholesky decomposition of M: {M_cholesky}")
     return M_cholesky
 
 def concat_pauli_blocks(v1, v2, v3, parameters: dict):
@@ -260,6 +261,7 @@ def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = 
         print(f"Diagonal entries of product state {i}: {np.real(np.diag(state))}")
 
     print(f"y_scalar: {y_scalar}")
-    print(f"Overall Product State: {product_state}")
+    if debugging:
+        print(f"Overall Product State: {product_state}")
 
     return cuts, states
