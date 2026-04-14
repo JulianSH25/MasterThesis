@@ -37,13 +37,7 @@ def eval_QAOA_circuit(point: tuple[np.ndarray, np.ndarray], QAOA: QAOACircuit) -
 
     QAOA.bind_circuit_parameters(gamma_values=point[0], beta_values=point[1])
     statevec = QAOA.run_circuit(return_statevector=True)
-
-    product_states = {}
-    for (i, j), w in zip(QAOA.edges, QAOA.weights):
-        product_states[(i, j)] = QAOA.two_qubit_marginal(statevec, QAOA.n, i, j)
-    energy = QAOA.qaoa_compute_energy(product_states=product_states, edges=QAOA.edges, weights=QAOA.weights, params=parameters)
-
-    return float(np.real(energy))
+    return QAOA.compute_energy_from_statevector(statevec)
 
 class BayesianOptimiser:
     @staticmethod
@@ -163,7 +157,13 @@ class BayesianOptimiser:
 
         return f_m
 
-def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 1000, correlations: int = None):
+def optimise_cobyla(
+    QAOA: QAOACircuit,
+    no_layers: int,
+    max_iter: int = 1000,
+    correlations: int = None,
+    x0: np.ndarray | None = None,
+):
     """
     NOTE: ALTERNATIVE OPTIMISATION FUNCTION; this one is standalone, in the sense that all the other methods in this file are only for the Bayesian optimisation, but this one is a separate method that can be used to optimise QAOA parameters using COBYLA instead of Bayesian optimisation.
     :param no_layers: number of QAOA layers
@@ -174,47 +174,94 @@ def optimise_cobyla(QAOA: QAOACircuit, no_layers: int, max_iter: int = 1000, cor
     init_close_to_zero = get_benchmark_params()["init_QAOAparams_close_to_zero"]
     use_corr_init = benchmark_params["use_correlations_as_initial_params"]
 
-    gamma, beta = set_random_params(no_layers, init_close_to_zero=init_close_to_zero)
-    print(f"Using random initial parameters with gamma {gamma} and beta {beta}")
+    if x0 is None:
+        gamma, beta = set_random_params(no_layers, init_close_to_zero=init_close_to_zero)
+        print(f"Using random initial parameters with gamma {gamma} and beta {beta}")
 
-    if use_corr_init and correlations is not None:
-        corr_scalar = float(np.mean(list(correlations.values())))
-        corr_scalar = float(np.clip(corr_scalar, -3.0, 3.0))
-        gamma0 = np.pi * (3.0 - corr_scalar) / 6.0
-        gamma = np.full(no_layers, gamma0, dtype=float)
-        print(f"Using correlation-based initial parameters with scalar {corr_scalar} and gamma0 {gamma}")
-    elif use_corr_init is not None and correlations is None:
-        raise ValueError("correlations must be provided if use_correlations_as_initial_params is True")
+        if use_corr_init and correlations is not None:
+            corr_scalar = float(np.mean(list(correlations.values())))
+            corr_scalar = float(np.clip(corr_scalar, -3.0, 3.0))
+            gamma0 = np.pi * (3.0 - corr_scalar) / 6.0
+            gamma = np.full(no_layers, gamma0, dtype=float)
+            print(f"Using correlation-based initial parameters with scalar {corr_scalar} and gamma0 {gamma}")
+        elif use_corr_init is not None and correlations is None:
+            raise ValueError("correlations must be provided if use_correlations_as_initial_params is True")
 
-    x0 = np.concatenate([gamma, beta])
+        x0 = np.concatenate([gamma, beta])
+    else:
+        x0 = np.asarray(x0, dtype=float)
+        expected_dim = 2 * no_layers
+        if x0.shape != (expected_dim,):
+            raise ValueError(f"Expected x0 shape ({expected_dim},), got {x0.shape}")
+        print(f"Using provided initial parameters x0 with shape {x0.shape}")
 
     def objective(theta: np.ndarray) -> float:
         gamma_vals = theta[:no_layers]
         beta_vals = theta[no_layers:]
         return -eval_QAOA_circuit((gamma_vals, beta_vals), QAOA)
 
-    return minimize(objective, x0=x0, method="COBYLA", options={"maxiter": max_iter})
+    result = minimize(objective, x0=x0, method="COBYLA", options={"maxiter": max_iter})
+    setattr(result, "initial_point", x0.copy())
+    return result
     # return minimize(objective, x0=x0, method="L-BFGS-B", options={"maxiter": max_iter})
 
-def optimise_adam(QAOA: QAOACircuit, no_layers: int, steps: int = 300, learning_rate: float = 0.05):
+def optimise_adam(
+    QAOA: QAOACircuit,
+    no_layers: int,
+    steps: int = 300,
+    learning_rate: float = 0.05,
+    x0: np.ndarray | None = None,
+):
     assert isinstance(QAOA, QAOACircuit)
 
     optimiser = ADAM(maxiter=steps, lr=learning_rate)
+    optimiser.set_max_evals_grouped(2 * no_layers)
 
-    init_close_to_zero = get_benchmark_params()["init_QAOAparams_close_to_zero"]
-    gamma, beta = set_random_params(no_layers, init_close_to_zero=init_close_to_zero)
-    x0 = np.concatenate([gamma, beta]).astype(float)
-    print(f"Using random initial parameters with gamma {gamma} and beta {beta}")
+    if x0 is None:
+        init_close_to_zero = get_benchmark_params()["init_QAOAparams_close_to_zero"]
+        gamma, beta = set_random_params(no_layers, init_close_to_zero=init_close_to_zero)
+        x0 = np.concatenate([gamma, beta]).astype(float)
+        print(f"Using random initial parameters with gamma {gamma} and beta {beta}")
+    else:
+        x0 = np.asarray(x0, dtype=float)
+        expected_dim = 2 * no_layers
+        if x0.shape != (expected_dim,):
+            raise ValueError(f"Expected x0 shape ({expected_dim},), got {x0.shape}")
+        print(f"Using provided initial parameters x0 with shape {x0.shape}")
 
-    def objective(theta: np.ndarray) -> float:
-        gamma_vals = theta[:no_layers]
-        beta_vals = theta[no_layers:]
+    dimension = 2 * no_layers
+
+    def objective_single(theta_single: np.ndarray) -> float:
+        gamma_vals = theta_single[:no_layers]
+        beta_vals = theta_single[no_layers:]
         value = eval_QAOA_circuit((gamma_vals, beta_vals), QAOA)
         if debug:
             print(f"Eval: {value}, negated: {-value}")
         return -value
 
-    return optimiser.minimize(fun=objective, x0=x0)
+    def objective(theta: np.ndarray) -> float:
+        theta = np.asarray(theta, dtype=float)
+
+        if theta.ndim != 1:
+            raise ValueError(f"Expected 1D parameter array, got shape {theta.shape}")
+
+        if theta.size == dimension:
+            return objective_single(theta)
+
+        if theta.size % dimension != 0:
+            raise ValueError(
+                f"Grouped ADAM evaluation received invalid size {theta.size} for dimension {dimension}"
+            )
+
+        values = [
+            objective_single(theta[i:i + dimension])
+            for i in range(0, theta.size, dimension)
+        ]
+        return np.array(values, dtype=float)
+
+    result = optimiser.minimize(fun=objective, x0=x0)
+    setattr(result, "initial_point", x0.copy())
+    return result
 
 
 def grid_search_parameters(

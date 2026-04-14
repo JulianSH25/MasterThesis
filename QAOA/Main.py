@@ -89,7 +89,18 @@ def get_peak_ram_mb():
     except Exception:
         return None
 
-def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_linegraph = False, edges = None, weights = None, __initial_state__ = None):
+def main(
+    m=None,
+    p=20,
+    N_bayes=200,
+    init_initial_state=False,
+    self_init_linegraph=False,
+    edges=None,
+    weights=None,
+    __initial_state__=None,
+    fixed_initial_point=None,
+    return_initial_point=False,
+):
     """
     This method builds and optimises a QAOA instance on a line graph.
 
@@ -136,16 +147,25 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
 
     assert sum([optimiser_bayesian, optimiser_cobyla, gridsearch]) == 1
     minimum_energy = None
+    used_initial_point = None
     if optimiser == "bayesian":
         BO = BayesianOptimiser()
         minimum_energy = BO.bayesian_optimisation(QAOA=QAOA, N_bayes=N_bayes, no_layers=p)
     elif optimiser == "cobyla":
         correlations=warm_start_correlations if benchmark_params["use_correlations_as_initial_params"] else None
-        returned_energy = optimise_cobyla(QAOA=QAOA, no_layers=p, max_iter=N_bayes, correlations=correlations)
+        returned_energy = optimise_cobyla(
+            QAOA=QAOA,
+            no_layers=p,
+            max_iter=N_bayes,
+            correlations=correlations,
+            x0=fixed_initial_point,
+        )
         minimum_energy = -returned_energy.fun
+        used_initial_point = getattr(returned_energy, "initial_point", None)
     elif optimiser == "adam":
-        returned_energy = optimise_adam(QAOA=QAOA, no_layers=p, steps=N_bayes)
+        returned_energy = optimise_adam(QAOA=QAOA, no_layers=p, steps=N_bayes, x0=fixed_initial_point)
         minimum_energy = -returned_energy.fun
+        used_initial_point = getattr(returned_energy, "initial_point", None)
     elif optimiser == "gridsearch":
         minimum_energy = grid_search(QAOA, p, precision=precision)
     else:
@@ -153,6 +173,8 @@ def main(m = None, p=20, N_bayes=200, init_initial_state = False, self_init_line
 
     print(minimum_energy)
 
+    if return_initial_point:
+        return minimum_energy, used_initial_point
     return minimum_energy
 
 def return_optimal_line(n):
@@ -204,7 +226,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                  'parameter_vector', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'duration_seconds', 'finished_at',
+                  'parameter_vector', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                   'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                   'python_version', 'peak_ram_mb']
     
@@ -224,7 +246,15 @@ if __name__ == "__main__":
         m = len(edges)
         start_time = time.time()
         print(f"Running QAOA for n={n} nodes, m={len(edges)} edges...; Max iterations: {int(precision)}")
-        results[n] = main(p=p, N_bayes=int(precision), self_init_linegraph=singlet_injection, init_initial_state=warm_start, edges=edges, weights=weights)
+        results[n], shared_initial_point = main(
+            p=p,
+            N_bayes=int(precision),
+            self_init_linegraph=singlet_injection,
+            init_initial_state=warm_start,
+            edges=edges,
+            weights=weights,
+            return_initial_point=True,
+        )
         if parameter_settings["compare_with_010101"]:
             bitstring = ''.join(['1' if i % 2 else '0' for i in range(n)])
 
@@ -234,7 +264,15 @@ if __name__ == "__main__":
 
             initial_state = state
 
-            results_010101[n] = main(p=p, N_bayes=int(precision), edges=edges, weights=weights, __initial_state__ = initial_state)
+            print("Reusing optimiser initial parameters for 010101 comparison run.")
+            results_010101[n] = main(
+                p=p,
+                N_bayes=int(precision),
+                edges=edges,
+                weights=weights,
+                __initial_state__=initial_state,
+                fixed_initial_point=shared_initial_point,
+            )
 
         elapsed_time = time.time() - start_time
         finished_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -271,6 +309,8 @@ if __name__ == "__main__":
             'result_010101': results_010101[n] if parameter_settings["compare_with_010101"] else None,
             'approx_ratio': approx_ratio,
             'approx_ratio_010101': approx_ratio_010101,
+            'diff. approx. ratio': round(approx_ratio, 6) - round(approx_ratio_010101, 6) if parameter_settings["compare_with_010101"] else None,
+            'sdp ws greater': round(approx_ratio, 6) >= round(approx_ratio_010101, 6) if parameter_settings["compare_with_010101"] else None,
             'duration_seconds': elapsed_time,
             'finished_at': finished_at,
             'processor': processor_name,

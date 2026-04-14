@@ -111,7 +111,7 @@ max_parallel=$(sysctl -n hw.physicalcpu 2>/dev/null || echo 4)
 # This reduces the chance of suddenly launching many large-RAM jobs at once.
 current_parallel_cap=1
 # Require several consecutive "healthy RAM" samples before increasing the cap again.
-ram_recovery_samples_required=60
+ram_recovery_samples_required=15
 ram_recovery_sample_interval_seconds=1
 healthy_ram_streak=0
 

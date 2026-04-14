@@ -1,11 +1,12 @@
 from qiskit import QuantumCircuit, transpile
 from qiskit.circuit import ParameterVector
 from qiskit_aer import Aer
-from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace
+from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace, SparsePauliOp
 
 from StatePrep import prepare_line_singlet_circuit
 from utils import set_random_params, get_benchmark_params
 import numpy as np
+from collections import defaultdict
 
 use_measurements = False
 
@@ -32,9 +33,61 @@ class QAOACircuit(QuantumCircuit):
         self.warm_start_correlations = None
         self.self_init_linegraph = False
         self.params = None
+        self.cost_operator: SparsePauliOp | None = None
         benchm_params = get_benchmark_params()
         self.start_index = benchm_params['start_index_singlet']
         self.debug = benchm_params['debug']
+
+    def _pauli_label_for_edge(self, i: int, j: int, pauli: str) -> str:
+        """
+        Builds a full-length Pauli label for a 2-local term on qubits i and j.
+
+        Qiskit Pauli labels are big-endian strings where the right-most
+        character corresponds to qubit 0.
+        """
+        label = ["I"] * self.n
+        label[self.n - 1 - i] = pauli
+        label[self.n - 1 - j] = pauli
+        return "".join(label)
+
+    def build_cost_operator(self) -> None:
+        """
+        Precomputes the weighted QAOA cost Hamiltonian as a SparsePauliOp.
+
+        This operator is reused across all objective evaluations and avoids
+        repeated per-edge density-matrix/partial-trace work.
+        """
+        assert self.params is not None
+        assert self.edges is not None
+        assert self.weights is not None
+
+        a, b, c = self.params
+        norm = 1.0 / float(1 + a + b + c)
+
+        coeffs: dict[str, complex] = defaultdict(complex)
+        identity = "I" * self.n
+
+        for (i, j), w in zip(self.edges, self.weights):
+            w_norm = norm * float(w)
+            coeffs[identity] += w_norm
+            if a != 0:
+                coeffs[self._pauli_label_for_edge(i, j, "X")] += -w_norm * float(a)
+            if b != 0:
+                coeffs[self._pauli_label_for_edge(i, j, "Y")] += -w_norm * float(b)
+            if c != 0:
+                coeffs[self._pauli_label_for_edge(i, j, "Z")] += -w_norm * float(c)
+
+        pauli_terms = [(label, coeff) for label, coeff in coeffs.items() if abs(coeff) > 0]
+        self.cost_operator = SparsePauliOp.from_list(pauli_terms)
+
+    def compute_energy_from_statevector(self, statevec: Statevector) -> float:
+        """
+        Compute cost expectation in a single operator expectation call.
+        """
+        if self.cost_operator is None:
+            self.build_cost_operator()
+        value = statevec.expectation_value(self.cost_operator)
+        return float(np.real(value))
 
     def bind_circuit_parameters(
         self,
@@ -184,6 +237,7 @@ class QAOACircuit(QuantumCircuit):
             self.qc.measure(range(self.n), range(self.n))
 
         self.qc_no_params = self.qc.copy()
+        self.build_cost_operator()
 
         return self.qc, self.gammas, self.betas # TODO Consider removing since all returned params are now class variables
 

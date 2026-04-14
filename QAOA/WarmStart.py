@@ -2,6 +2,7 @@ from utils import get_benchmark_params, build_qaoa_warm_start_state
 import numpy as np
 import sys
 from pathlib import Path
+import time
 
 if __package__ in (None, ""):
     project_root = Path(__file__).resolve().parents[1]
@@ -51,12 +52,22 @@ def get_warm_start_state(instance, n_vertices):
     benchmark_params: dict = get_benchmark_params()
     parameters = benchmark_params["parameter_vector"]
 
-    print(parameters)
+    print(f"Warm-start: using parameter_vector={parameters}", flush=True)
 
     parameters = {"a": parameters[0], "b": parameters[1], "c": parameters[2]}
-    edge_count, edges_in_cut, cuts, M_optimal, states = SDP_main(instance=instance, n_vertices=n_vertices, params=parameters)
+    sdp_start = time.time()
+    print(f"Warm-start: starting SDP solve for n_vertices={n_vertices}", flush=True)
+    edge_count, edges_in_cut, cuts, M_optimal, states = SDP_main(
+        instance=instance,
+        n_vertices=n_vertices,
+        params=parameters,
+        debug=bool(benchmark_params.get("debug", False)),
+    )
+    print(f"Warm-start: SDP solve + rounding finished in {time.time() - sdp_start:.2f} seconds", flush=True)
 
+    build_start = time.time()
     warmstart = build_qaoa_warm_start_state(states=states)
+    print(f"Warm-start: statevector build finished in {time.time() - build_start:.2f} seconds", flush=True)
     if benchmark_params["debug"]:
         print(f"Warm start state: {warmstart}")
     Moment_matrix = M_optimal if benchmark_params["warm_start_correlations"] else None
