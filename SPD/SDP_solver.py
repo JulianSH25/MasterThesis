@@ -1,6 +1,7 @@
 import cvxpy as cp
 import numpy as np
 from typing import Literal, TypedDict
+import time
 
 #from MasterThesis.SPD.Rounding import compute_energy
 from .Rounding import round_sdp_with_cholesky
@@ -18,7 +19,7 @@ class ABCParams(TypedDict):
     c: Bit
 
 class SDP_Solver_():
-    def SDP_setup(self, edges, weights, n_vertices, parameters: tuple):
+    def SDP_setup(self, edges, weights, n_vertices, parameters: tuple, debug: bool = False):
         """
         This method sets up an SDP for Max-Cut with Pauli-block structure.
 
@@ -88,14 +89,18 @@ class SDP_Solver_():
         # 3.1 Diagonal entries normalised to 1/enforcing identity for products of equal pauli operators, i.e. p^+ p = I
         constraints += [M[idx(i,k), idx(i,k)] == 1 for i in range(n_vertices) for k in range(3)]
 
-        print(constraints)
-        print(objective)
+        if debug:
+            print(
+                f"SDP setup complete: n_vertices={n_vertices}, matrix_dim={3 * n_vertices}, "
+                f"edges={len(edges)}, constraints={len(constraints)}",
+                flush=True,
+            )
 
         problem = cp.Problem(cp.Maximize(objective), constraints)
 
         return problem, M, constraints
 
-    def QMC_SDP_solver_antiFerro(self, edges, weights, n_vertices, params: ABCParams):
+    def QMC_SDP_solver_antiFerro(self, edges, weights, n_vertices, params: ABCParams, debug: bool = False):
         """
         This method solves the SDP and returns the optimal moment matrix.
 
@@ -118,15 +123,28 @@ class SDP_Solver_():
             raise ValueError(f"Expected params a,b,c in {{0,1}}, got {params}")
 
         # Use the full 3n x 3n formulation with correct (i,k) indexing.
-        problem, M, _ = self.SDP_setup(edges, weights, n_vertices, parameters=(a, b, c))
+        problem, M, _ = self.SDP_setup(edges, weights, n_vertices, parameters=(a, b, c), debug=debug)
 
         # Prefer MOSEK, but fall back to SCS if MOSEK is not available/licensed.
+        start_solve = time.time()
+        solver_used = "MOSEK"
+        print(
+            f"Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices={n_vertices}, "
+            f"matrix_dim={3 * n_vertices}, edges={len(edges)}",
+            flush=True,
+        )
         try:
-            problem.solve(solver=cp.MOSEK)#, eps=1e-200, verbose=False)
-            #problem.solve(solver=cp.SCS, eps=1e-12, verbose=True)
+            problem.solve(solver=cp.MOSEK, verbose=debug)
         except Exception:
-            print("Warning: MOSEK solver not available; using SCS instead.")
-            problem.solve(solver=cp.SCS)
+            solver_used = "SCS"
+            print("Warning: MOSEK solver not available; using SCS instead.", flush=True)
+            problem.solve(solver=cp.SCS, verbose=debug)
+
+        solve_elapsed = time.time() - start_solve
+        print(
+            f"Finished SDP solve with {solver_used}. status={problem.status}. elapsed_seconds={solve_elapsed:.2f}",
+            flush=True,
+        )
 
         if problem.status not in (cp.OPTIMAL, "optimal"): #(cp.OPTIMAL, cp.OPTIMAL_INACCURATE, "optimal", "optimal_inaccurate"):
             raise RuntimeError(

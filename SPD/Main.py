@@ -90,7 +90,7 @@ def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm
 
     #visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
 
-def main(instance, n_vertices, params: dict):
+def main(instance, n_vertices, params: dict, debug: bool = False):
     """
     NOTE: Use this method to run a single SDP solve without benchmarking.
     This function runs the SDP solve and rounding flow without benchmark persistence.
@@ -105,7 +105,7 @@ def main(instance, n_vertices, params: dict):
 
     edges, weights = instance
 
-    M_optimal = solver_sdp.QMC_SDP_solver_antiFerro(edges, weights, n_vertices, params=params)
+    M_optimal = solver_sdp.QMC_SDP_solver_antiFerro(edges, weights, n_vertices, params=params, debug=debug)
 
     print("Rounding...")
     cuts, states = round_sdp_with_cholesky(M_optimal, parameters=params)
