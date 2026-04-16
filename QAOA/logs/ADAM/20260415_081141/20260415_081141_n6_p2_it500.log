@@ -1,0 +1,62 @@
+2026-04-15 11:43:03.118 system_profiler[78485:31258987] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'ADAM', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': False, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'complete', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': 90, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: aa2a36f7
+Processor: Apple M4
+Hostname: Mac-mini-som-tillhor-Julian.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating complete graph with 6 nodes...
+Running QAOA for n=6 nodes, m=15 edges...; Max iterations: 500
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=6
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=6, matrix_dim=18, edges=15
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.06
+Rounding...
+n_vertices: 6 for n = 18
+Using seed None to generate random matrix for x.
+r_0: [-0.6380475  -0.48365939 -0.5991402 ]
+Product state qubit 0: [[ 0.2004299 +0.j        -0.31902375+0.2418297j]
+ [-0.31902375-0.2418297j  0.7995701 +0.j       ]]
+Diagonal entries of product state 0: [0.2004299 0.7995701]
+r_1: [0.10398779 0.82430767 0.55651002]
+Product state qubit 1: [[0.77825501+0.j         0.0519939 -0.41215383j]
+ [0.0519939 +0.41215383j 0.22174499+0.j        ]]
+Diagonal entries of product state 1: [0.77825501 0.22174499]
+r_2: [ 0.25636818 -0.31504491  0.91379542]
+Product state qubit 2: [[0.95689771+0.j         0.12818409+0.15752246j]
+ [0.12818409-0.15752246j 0.04310229+0.j        ]]
+Diagonal entries of product state 2: [0.95689771 0.04310229]
+r_3: [ 0.10298188 -0.81129702 -0.57549272]
+Product state qubit 3: [[0.21225364+0.j         0.05149094+0.40564851j]
+ [0.05149094-0.40564851j 0.78774636+0.j        ]]
+Diagonal entries of product state 3: [0.21225364 0.78774636]
+r_4: [0.45651666 0.82613904 0.33028295]
+Product state qubit 4: [[0.66514148+0.j         0.22825833-0.41306952j]
+ [0.22825833+0.41306952j 0.33485852+0.j        ]]
+Diagonal entries of product state 4: [0.66514148 0.33485852]
+r_5: [-0.49188674 -0.36852505 -0.78881983]
+Product state qubit 5: [[ 0.10559008+0.j         -0.24594337+0.18426252j]
+ [-0.24594337-0.18426252j  0.89440992+0.j        ]]
+Diagonal entries of product state 5: [0.10559008 0.89440992]
+y_scalar: False
+[-1, 1, 1, -1, 1, -1]
+Check the cut: [-1, 1, 1, -1, 1, -1]
+9 in cut out of a total of 15 edges
+Warm-start: SDP solve + rounding finished in 0.06 seconds
+Warm-start: statevector build finished in 0.00 seconds
+warm_start_correlations: None
+Edges: [(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5), (3, 4), (3, 5), (4, 5)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5}, n: 6 nodes, p: 2 layers, N_bayes: 500 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using random initial parameters with gamma [1.12542571 2.8272279 ] and beta [0.46388942 1.68947874]
+4.477713179925868
+Finished QAOA for n=6 nodes, m=15 edges at 2026-04-15 11:43:15 on Apple M4. Time taken: 12.01 seconds. Hours: 0.00 hours. Peak RAM: 215.69 MB.
+Computing complete graph approximation ratio
+results: {6: 4.477713179925868}
+durations: {6: 12.0109281539917}
+Results saved to: logs/ADAM/qaoa_results_ADAM_20260415_081141.csv

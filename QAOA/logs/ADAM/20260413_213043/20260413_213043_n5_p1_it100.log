@@ -1,0 +1,56 @@
+2026-04-13 21:30:54.016 system_profiler[3911:25821327] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'ADAM', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': False, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': True, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'complete', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': 90, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: 9196c479
+Processor: Apple M4
+Hostname: Mac-mini-som-tillhor-Julian.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating complete graph with 5 nodes...
+Running QAOA for n=5 nodes, m=10 edges...; Max iterations: 100
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=5
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=5, matrix_dim=15, edges=10
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.03
+Rounding...
+n_vertices: 5 for n = 15
+Using seed None to generate random matrix for x.
+r_0: [-0.4553567   0.37982351  0.80522318]
+Product state qubit 0: [[ 0.90261159+0.j         -0.22767835-0.18991175j]
+ [-0.22767835+0.18991175j  0.09738841+0.j        ]]
+Diagonal entries of product state 0: [0.90261159 0.09738841]
+r_1: [-0.34604686  0.92290135 -0.16883326]
+Product state qubit 1: [[ 0.41558337+0.j         -0.17302343-0.46145068j]
+ [-0.17302343+0.46145068j  0.58441663+0.j        ]]
+Diagonal entries of product state 1: [0.41558337 0.58441663]
+r_2: [ 0.87570781 -0.47042498  0.10879416]
+Product state qubit 2: [[0.55439708+0.j         0.43785391+0.23521249j]
+ [0.43785391-0.23521249j 0.44560292+0.j        ]]
+Diagonal entries of product state 2: [0.55439708 0.44560292]
+r_3: [-0.52256843 -0.06735076 -0.849933  ]
+Product state qubit 3: [[ 0.0750335 +0.j         -0.26128422+0.03367538j]
+ [-0.26128422-0.03367538j  0.9249665 +0.j        ]]
+Diagonal entries of product state 3: [0.0750335 0.9249665]
+r_4: [-0.02844133 -0.76749841 -0.64041961]
+Product state qubit 4: [[ 0.17979019+0.j        -0.01422067+0.3837492j]
+ [-0.01422067-0.3837492j  0.82020981+0.j       ]]
+Diagonal entries of product state 4: [0.17979019 0.82020981]
+y_scalar: False
+[1, -1, 1, -1, -1]
+Check the cut: [1, -1, 1, -1, -1]
+6 in cut out of a total of 10 edges
+Warm-start: SDP solve + rounding finished in 0.03 seconds
+Warm-start: statevector build finished in 0.00 seconds
+warm_start_correlations: None
+Edges: [(0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4}, n: 5 nodes, p: 1 layers, N_bayes: 100 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using random initial parameters with gamma [0.06589197] and beta [0.08346047]
+3.0271836514000103
+Finished QAOA for n=5 nodes, m=10 edges at 2026-04-13 21:30:54 on Apple M4. Time taken: 0.39 seconds. Hours: 0.00 hours. Peak RAM: 210.55 MB.
+Computing complete graph approximation ratio
+results: {5: 3.0271836514000103}
+durations: {5: 0.3879079818725586}
+Results saved to: logs/ADAM/qaoa_results_ADAM_20260413_213043.csv

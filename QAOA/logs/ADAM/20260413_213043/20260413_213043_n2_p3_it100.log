@@ -1,0 +1,54 @@
+2026-04-13 21:34:02.884 system_profiler[10121:25834750] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'ADAM', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': False, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': True, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'complete', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': 90, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: 18c8c292
+Processor: Apple M4
+Hostname: Mac-mini-som-tillhor-Julian.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating complete graph with 2 nodes...
+Running QAOA for n=2 nodes, m=1 edges...; Max iterations: 100
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=2
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=2, matrix_dim=6, edges=1
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.03
+Rounding...
+n_vertices: 2 for n = 6
+Using seed None to generate random matrix for x.
+r_0: [ 0.80093128 -0.0927939   0.59152208]
+Product state qubit 0: [[0.79576104+0.j         0.40046564+0.04639695j]
+ [0.40046564-0.04639695j 0.20423896+0.j        ]]
+Diagonal entries of product state 0: [0.79576104 0.20423896]
+r_1: [-0.80093147  0.0927936  -0.59152187]
+Product state qubit 1: [[ 0.20423906+0.j        -0.40046574-0.0463968j]
+ [-0.40046574+0.0463968j  0.79576094+0.j       ]]
+Diagonal entries of product state 1: [0.20423906 0.79576094]
+y_scalar: False
+[1, -1]
+Check the cut: [1, -1]
+1 in cut out of a total of 1 edges
+Warm-start: SDP solve + rounding finished in 0.03 seconds
+Warm-start: statevector build finished in 0.00 seconds
+warm_start_correlations: None
+Edges: [(0, 1)], weights: [1.0], set of nodes: {0, 1}, n: 2 nodes, p: 3 layers, N_bayes: 100 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 2: Added Cost and Mixer unitaries with gamma=γ[2] and beta=β[2]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using random initial parameters with gamma [0.08693252 0.04436808 0.09926952] and beta [0.00816017 0.01423294 0.04045395]
+0.4999999999999789
+Finished QAOA for n=2 nodes, m=1 edges at 2026-04-13 21:34:03 on Apple M4. Time taken: 0.58 seconds. Hours: 0.00 hours. Peak RAM: 211.67 MB.
+Computing complete graph approximation ratio
+Traceback (most recent call last):
+  File "/Users/julian_dev/Projects/MasterThesis/QAOA/Main.py", line 295, in <module>
+    approx_ratio = results[n] / return_optimal_fully_connected(n)
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/Users/julian_dev/Projects/MasterThesis/QAOA/Main.py", line 192, in return_optimal_fully_connected
+    val = df.loc[df["n"] == n, "result"].item()
+  File "/Library/Projects/conda_environments/MasterThesis_clean/lib/python3.13/site-packages/pandas/core/base.py", line 427, in item
+    raise ValueError("can only convert an array of size 1 to a Python scalar")
+ValueError: can only convert an array of size 1 to a Python scalar

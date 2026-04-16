@@ -1,0 +1,80 @@
+2026-04-14 00:28:58.264 system_profiler[20830:26301735] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'ADAM', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': False, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': True, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'complete', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': 90, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: f57dc3fb
+Processor: Apple M4
+Hostname: Mac-mini-som-tillhor-Julian.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating complete graph with 14 nodes...
+Running QAOA for n=14 nodes, m=91 edges...; Max iterations: 500
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=14
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=14, matrix_dim=42, edges=91
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.22
+Rounding...
+n_vertices: 14 for n = 42
+Using seed None to generate random matrix for x.
+r_0: [-0.0354243  -0.14535912  0.98874458]
+Product state qubit 0: [[ 0.99437229+0.j         -0.01771215+0.07267956j]
+ [-0.01771215-0.07267956j  0.00562771+0.j        ]]
+Diagonal entries of product state 0: [0.99437229 0.00562771]
+r_1: [ 0.8695556   0.22626065 -0.43895236]
+Product state qubit 1: [[0.28052382+0.j         0.4347778 -0.11313032j]
+ [0.4347778 +0.11313032j 0.71947618+0.j        ]]
+Diagonal entries of product state 1: [0.28052382 0.71947618]
+r_2: [-0.29877599  0.41571532  0.85901902]
+Product state qubit 2: [[ 0.92950951+0.j         -0.149388  -0.20785766j]
+ [-0.149388  +0.20785766j  0.07049049+0.j        ]]
+Diagonal entries of product state 2: [0.92950951 0.07049049]
+r_3: [-0.82561732  0.27191595 -0.49438624]
+Product state qubit 3: [[ 0.25280688+0.j         -0.41280866-0.13595798j]
+ [-0.41280866+0.13595798j  0.74719312+0.j        ]]
+Diagonal entries of product state 3: [0.25280688 0.74719312]
+r_4: [0.12759845 0.6175229  0.77613407]
+Product state qubit 4: [[0.88806704+0.j         0.06379923-0.30876145j]
+ [0.06379923+0.30876145j 0.11193296+0.j        ]]
+Diagonal entries of product state 4: [0.88806704 0.11193296]
+r_5: [-0.68713887 -0.43427499 -0.58244777]
+Product state qubit 5: [[ 0.20877612+0.j         -0.34356944+0.21713749j]
+ [-0.34356944-0.21713749j  0.79122388+0.j        ]]
+Diagonal entries of product state 5: [0.20877612 0.79122388]
+r_6: [ 0.32079399 -0.76217103 -0.56230466]
+Product state qubit 6: [[0.21884767+0.j         0.160397  +0.38108552j]
+ [0.160397  -0.38108552j 0.78115233+0.j        ]]
+Diagonal entries of product state 6: [0.21884767 0.78115233]
+r_7: [0.96566592 0.23764568 0.10494698]
+Product state qubit 7: [[0.55247349+0.j         0.48283296-0.11882284j]
+ [0.48283296+0.11882284j 0.44752651+0.j        ]]
+Diagonal entries of product state 7: [0.55247349 0.44752651]
+r_8: [-0.63074406 -0.60347664  0.48782977]
+Product state qubit 8: [[ 0.74391488+0.j         -0.31537203+0.30173832j]
+ [-0.31537203-0.30173832j  0.25608512+0.j        ]]
+Diagonal entries of product state 8: [0.74391488 0.25608512]
+r_9: [-0.19895399 -0.89092263 -0.40825748]
+Product state qubit 9: [[ 0.29587126+0.j         -0.09947699+0.44546132j]
+ [-0.09947699-0.44546132j  0.70412874+0.j        ]]
+Diagonal entries of product state 9: [0.29587126 0.70412874]
+r_10: [ 0.45490676  0.24926669 -0.85494208]
+Product state qubit 10: [[0.07252896+0.j         0.22745338-0.12463335j]
+ [0.22745338+0.12463335j 0.92747104+0.j        ]]
+Diagonal entries of product state 10: [0.07252896 0.92747104]
+r_11: [-0.40048797 -0.43374704  0.80713871]
+Product state qubit 11: [[ 0.90356935+0.j         -0.20024398+0.21687352j]
+ [-0.20024398-0.21687352j  0.09643065+0.j        ]]
+Diagonal entries of product state 11: [0.90356935 0.09643065]
+r_12: [ 0.40860903  0.77829525 -0.47675482]
+Product state qubit 12: [[0.26162259+0.j         0.20430452-0.38914763j]
+ [0.20430452+0.38914763j 0.73837741+0.j        ]]
+Diagonal entries of product state 12: [0.26162259 0.73837741]
+r_13: [-0.41204533  0.90563784 -0.10019352]
+Product state qubit 13: [[ 0.44990324+0.j         -0.20602267-0.45281892j]
+ [-0.20602267+0.45281892j  0.55009676+0.j        ]]
+Diagonal entries of product state 13: [0.44990324 0.55009676]
+y_scalar: False
+[1, -1, 1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1, -1]
+Check the cut: [1, -1, 1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1, -1]
+48 in cut out of a total of 91 edges
+Warm-start: SDP solve + rounding finished in 3.76 seconds
+Warm-start: statevector build finished in 0.00 seconds

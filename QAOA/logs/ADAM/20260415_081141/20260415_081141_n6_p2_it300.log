@@ -1,0 +1,62 @@
+2026-04-15 11:17:43.607 system_profiler[46748:31191470] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'ADAM', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': False, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'complete', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': 90, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: bb93c8ae
+Processor: Apple M4
+Hostname: Mac-mini-som-tillhor-Julian.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating complete graph with 6 nodes...
+Running QAOA for n=6 nodes, m=15 edges...; Max iterations: 300
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=6
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=6, matrix_dim=18, edges=15
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.05
+Rounding...
+n_vertices: 6 for n = 18
+Using seed None to generate random matrix for x.
+r_0: [-0.45609079  0.83841324 -0.29840312]
+Product state qubit 0: [[ 0.35079844+0.j         -0.2280454 -0.41920662j]
+ [-0.2280454 +0.41920662j  0.64920156+0.j        ]]
+Diagonal entries of product state 0: [0.35079844 0.64920156]
+r_1: [-0.06934853 -0.99111215 -0.1135231 ]
+Product state qubit 1: [[ 0.44323845+0.j         -0.03467426+0.49555607j]
+ [-0.03467426-0.49555607j  0.55676155+0.j        ]]
+Diagonal entries of product state 1: [0.44323845 0.55676155]
+r_2: [ 0.81851685 -0.37596039 -0.43437765]
+Product state qubit 2: [[0.28281117+0.j         0.40925843+0.18798019j]
+ [0.40925843-0.18798019j 0.71718883+0.j        ]]
+Diagonal entries of product state 2: [0.28281117 0.71718883]
+r_3: [-0.52952579  0.21177622 -0.82143367]
+Product state qubit 3: [[ 0.08928317+0.j         -0.2647629 -0.10588811j]
+ [-0.2647629 +0.10588811j  0.91071683+0.j        ]]
+Diagonal entries of product state 3: [0.08928317 0.91071683]
+r_4: [ 0.45177538 -0.15443469  0.87866315]
+Product state qubit 4: [[0.93933158+0.j         0.22588769+0.07721734j]
+ [0.22588769-0.07721734j 0.06066842+0.j        ]]
+Diagonal entries of product state 4: [0.93933158 0.06066842]
+r_5: [0.44227238 0.14072872 0.88577117]
+Product state qubit 5: [[0.94288559+0.j         0.22113619-0.07036436j]
+ [0.22113619+0.07036436j 0.05711441+0.j        ]]
+Diagonal entries of product state 5: [0.94288559 0.05711441]
+y_scalar: False
+[-1, -1, -1, -1, 1, 1]
+Check the cut: [-1, -1, -1, -1, 1, 1]
+8 in cut out of a total of 15 edges
+Warm-start: SDP solve + rounding finished in 0.06 seconds
+Warm-start: statevector build finished in 0.00 seconds
+warm_start_correlations: None
+Edges: [(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5), (3, 4), (3, 5), (4, 5)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5}, n: 6 nodes, p: 2 layers, N_bayes: 300 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using random initial parameters with gamma [2.90838434 3.07189336] and beta [1.79711877 2.87201328]
+4.431115439126694
+Finished QAOA for n=6 nodes, m=15 edges at 2026-04-15 11:17:49 on Apple M4. Time taken: 6.29 seconds. Hours: 0.00 hours. Peak RAM: 216.39 MB.
+Computing complete graph approximation ratio
+results: {6: 4.431115439126694}
+durations: {6: 6.285477161407471}
+Results saved to: logs/ADAM/qaoa_results_ADAM_20260415_081141.csv

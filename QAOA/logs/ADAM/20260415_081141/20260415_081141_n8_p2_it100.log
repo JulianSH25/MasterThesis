@@ -1,0 +1,70 @@
+2026-04-15 08:16:18.714 system_profiler[31490:30729921] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'ADAM', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': False, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'complete', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': 90, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: 72989958
+Processor: Apple M4
+Hostname: Mac-mini-som-tillhor-Julian.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating complete graph with 8 nodes...
+Running QAOA for n=8 nodes, m=28 edges...; Max iterations: 100
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=8
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=8, matrix_dim=24, edges=28
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.08
+Rounding...
+n_vertices: 8 for n = 24
+Using seed None to generate random matrix for x.
+r_0: [ 0.78026331 -0.06233484 -0.62233716]
+Product state qubit 0: [[0.18883142+0.j         0.39013165+0.03116742j]
+ [0.39013165-0.03116742j 0.81116858+0.j        ]]
+Diagonal entries of product state 0: [0.18883142 0.81116858]
+r_1: [0.86975743 0.48960843 0.06168952]
+Product state qubit 1: [[0.53084476+0.j         0.43487871-0.24480422j]
+ [0.43487871+0.24480422j 0.46915524+0.j        ]]
+Diagonal entries of product state 1: [0.53084476 0.46915524]
+r_2: [-0.95989349 -0.10846046 -0.2585359 ]
+Product state qubit 2: [[ 0.37073205+0.j         -0.47994675+0.05423023j]
+ [-0.47994675-0.05423023j  0.62926795+0.j        ]]
+Diagonal entries of product state 2: [0.37073205 0.62926795]
+r_3: [0.37227124 0.86036284 0.34812342]
+Product state qubit 3: [[0.67406171+0.j         0.18613562-0.43018142j]
+ [0.18613562+0.43018142j 0.32593829+0.j        ]]
+Diagonal entries of product state 3: [0.67406171 0.32593829]
+r_4: [-0.47530374  0.25167892 -0.84305639]
+Product state qubit 4: [[ 0.07847181+0.j         -0.23765187-0.12583946j]
+ [-0.23765187+0.12583946j  0.92152819+0.j        ]]
+Diagonal entries of product state 4: [0.07847181 0.92152819]
+r_5: [-0.45061657  0.37589411 -0.80972114]
+Product state qubit 5: [[ 0.09513943+0.j         -0.22530829-0.18794706j]
+ [-0.22530829+0.18794706j  0.90486057+0.j        ]]
+Diagonal entries of product state 5: [0.09513943 0.90486057]
+r_6: [ 0.48521655 -0.80806878  0.3340505 ]
+Product state qubit 6: [[0.66702525+0.j         0.24260828+0.40403439j]
+ [0.24260828-0.40403439j 0.33297475+0.j        ]]
+Diagonal entries of product state 6: [0.66702525 0.33297475]
+r_7: [-0.42579975 -0.24864321  0.86998341]
+Product state qubit 7: [[ 0.9349917 +0.j        -0.21289988+0.1243216j]
+ [-0.21289988-0.1243216j  0.0650083 +0.j       ]]
+Diagonal entries of product state 7: [0.9349917 0.0650083]
+y_scalar: False
+[-1, 1, -1, 1, -1, -1, 1, 1]
+Check the cut: [-1, 1, -1, 1, -1, -1, 1, 1]
+16 in cut out of a total of 28 edges
+Warm-start: SDP solve + rounding finished in 0.09 seconds
+Warm-start: statevector build finished in 0.00 seconds
+warm_start_correlations: None
+Edges: [(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (3, 4), (3, 5), (3, 6), (3, 7), (4, 5), (4, 6), (4, 7), (5, 6), (5, 7), (6, 7)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6, 7}, n: 8 nodes, p: 2 layers, N_bayes: 100 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using random initial parameters with gamma [4.67606661 0.89169459] and beta [1.77178648 2.3141761 ]
+7.819128840896337
+Finished QAOA for n=8 nodes, m=28 edges at 2026-04-15 08:16:24 on Apple M4. Time taken: 5.64 seconds. Hours: 0.00 hours. Peak RAM: 257.84 MB.
+Computing complete graph approximation ratio
+results: {8: 7.819128840896337}
+durations: {8: 5.637732744216919}
+Results saved to: logs/ADAM/qaoa_results_ADAM_20260415_081141.csv
