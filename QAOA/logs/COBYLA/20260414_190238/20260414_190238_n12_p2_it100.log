@@ -1,0 +1,86 @@
+2026-04-14 19:06:00.799 system_profiler[85588:620256] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'COBYLA', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': False, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': True, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'complete', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': 90, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: 2441773c
+Processor: Apple M4
+Hostname: Julians-MacBook-Air-2.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating complete graph with 12 nodes...
+Running QAOA for n=12 nodes, m=66 edges...; Max iterations: 100
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=12
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=12, matrix_dim=36, edges=66
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.18
+Rounding...
+n_vertices: 12 for n = 36
+Using seed None to generate random matrix for x.
+r_0: [-0.64378261 -0.24892454 -0.72358865]
+Product state qubit 0: [[ 0.13820568+0.j         -0.3218913 +0.12446227j]
+ [-0.3218913 -0.12446227j  0.86179432+0.j        ]]
+Diagonal entries of product state 0: [0.13820568 0.86179432]
+r_1: [-0.360723    0.8592981   0.36260956]
+Product state qubit 1: [[ 0.68130478+0.j         -0.1803615 -0.42964905j]
+ [-0.1803615 +0.42964905j  0.31869522+0.j        ]]
+Diagonal entries of product state 1: [0.68130478 0.31869522]
+r_2: [ 0.59468847 -0.12547495  0.79410431]
+Product state qubit 2: [[0.89705216+0.j         0.29734423+0.06273748j]
+ [0.29734423-0.06273748j 0.10294784+0.j        ]]
+Diagonal entries of product state 2: [0.89705216 0.10294784]
+r_3: [-0.94742342 -0.22702816  0.22549296]
+Product state qubit 3: [[ 0.61274648+0.j         -0.47371171+0.11351408j]
+ [-0.47371171-0.11351408j  0.38725352+0.j        ]]
+Diagonal entries of product state 3: [0.61274648 0.38725352]
+r_4: [-0.47564492  0.53295765 -0.69979858]
+Product state qubit 4: [[ 0.15010071+0.j         -0.23782246-0.26647882j]
+ [-0.23782246+0.26647882j  0.84989929+0.j        ]]
+Diagonal entries of product state 4: [0.15010071 0.84989929]
+r_5: [-0.03318189  0.61371722  0.78882833]
+Product state qubit 5: [[ 0.89441417+0.j         -0.01659095-0.30685861j]
+ [-0.01659095+0.30685861j  0.10558583+0.j        ]]
+Diagonal entries of product state 5: [0.89441417 0.10558583]
+r_6: [0.78879892 0.02261385 0.6142352 ]
+Product state qubit 6: [[0.8071176 +0.j         0.39439946-0.01130693j]
+ [0.39439946+0.01130693j 0.1928824 +0.j        ]]
+Diagonal entries of product state 6: [0.8071176 0.1928824]
+r_7: [ 0.06867906 -0.61443441 -0.78597299]
+Product state qubit 7: [[0.1070135 +0.j         0.03433953+0.30721721j]
+ [0.03433953-0.30721721j 0.8929865 +0.j        ]]
+Diagonal entries of product state 7: [0.1070135 0.8929865]
+r_8: [ 0.23408553 -0.79595919 -0.55825884]
+Product state qubit 8: [[0.22087058+0.j         0.11704277+0.39797959j]
+ [0.11704277-0.39797959j 0.77912942+0.j        ]]
+Diagonal entries of product state 8: [0.22087058 0.77912942]
+r_9: [-0.45653129 -0.52547384  0.71795295]
+Product state qubit 9: [[ 0.85897647+0.j         -0.22826564+0.26273692j]
+ [-0.22826564-0.26273692j  0.14102353+0.j        ]]
+Diagonal entries of product state 9: [0.85897647 0.14102353]
+r_10: [-0.76717284  0.4023738  -0.49954095]
+Product state qubit 10: [[ 0.25022953+0.j        -0.38358642-0.2011869j]
+ [-0.38358642+0.2011869j  0.74977047+0.j       ]]
+Diagonal entries of product state 10: [0.25022953 0.74977047]
+r_11: [ 0.34306284 -0.25469175 -0.90412389]
+Product state qubit 11: [[0.04793806+0.j         0.17153142+0.12734588j]
+ [0.17153142-0.12734588j 0.95206194+0.j        ]]
+Diagonal entries of product state 11: [0.04793806 0.95206194]
+y_scalar: False
+[-1, 1, 1, 1, -1, 1, 1, -1, -1, 1, -1, -1]
+Check the cut: [-1, 1, 1, 1, -1, 1, 1, -1, -1, 1, -1, -1]
+36 in cut out of a total of 66 edges
+Warm-start: SDP solve + rounding finished in 0.32 seconds
+Warm-start: statevector build finished in 0.00 seconds
+warm_start_correlations: None
+Edges: [(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (0, 10), (0, 11), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9), (2, 10), (2, 11), (3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9), (3, 10), (3, 11), (4, 5), (4, 6), (4, 7), (4, 8), (4, 9), (4, 10), (4, 11), (5, 6), (5, 7), (5, 8), (5, 9), (5, 10), (5, 11), (6, 7), (6, 8), (6, 9), (6, 10), (6, 11), (7, 8), (7, 9), (7, 10), (7, 11), (8, 9), (8, 10), (8, 11), (9, 10), (9, 11), (10, 11)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, n: 12 nodes, p: 2 layers, N_bayes: 100 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using random initial parameters with gamma [0.06459507 0.07921709] and beta [0.00888901 0.03073546]
+17.585481202477258
+Finished QAOA for n=12 nodes, m=66 edges at 2026-04-14 19:18:11 on Apple M4. Time taken: 731.12 seconds. Hours: 0.20 hours. Peak RAM: 1077.7 MB.
+Computing complete graph approximation ratio
+results: {12: np.float64(17.585481202477258)}
+durations: {12: 731.1182219982147}
+Results saved to: logs/COBYLA/qaoa_results_COBYLA_20260414_190238.csv

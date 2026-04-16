@@ -1,0 +1,50 @@
+2026-04-14 19:04:57.756 system_profiler[82878:614936] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'COBYLA', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': False, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': True, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'complete', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': 90, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: 6ecc3534
+Processor: Apple M4
+Hostname: Julians-MacBook-Air-2.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating complete graph with 3 nodes...
+Running QAOA for n=3 nodes, m=3 edges...; Max iterations: 300
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=3
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=3, matrix_dim=9, edges=3
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.03
+Rounding...
+n_vertices: 3 for n = 9
+Using seed None to generate random matrix for x.
+r_0: [-0.57563372 -0.73468662  0.35900055]
+Product state qubit 0: [[ 0.67950027+0.j         -0.28781686+0.36734331j]
+ [-0.28781686-0.36734331j  0.32049973+0.j        ]]
+Diagonal entries of product state 0: [0.67950027 0.32049973]
+r_1: [ 0.94871784 -0.31422467 -0.03460228]
+Product state qubit 1: [[0.48269886+0.j         0.47435892+0.15711233j]
+ [0.47435892-0.15711233j 0.51730114+0.j        ]]
+Diagonal entries of product state 1: [0.48269886 0.51730114]
+r_2: [-0.26126391  0.9192041  -0.29462688]
+Product state qubit 2: [[ 0.35268656+0.j         -0.13063196-0.45960205j]
+ [-0.13063196+0.45960205j  0.64731344+0.j        ]]
+Diagonal entries of product state 2: [0.35268656 0.64731344]
+y_scalar: False
+[1, -1, -1]
+Check the cut: [1, -1, -1]
+2 in cut out of a total of 3 edges
+Warm-start: SDP solve + rounding finished in 0.03 seconds
+Warm-start: statevector build finished in 0.00 seconds
+warm_start_correlations: None
+Edges: [(0, 1), (0, 2), (1, 2)], weights: [1.0, 1.0, 1.0], set of nodes: {0, 1, 2}, n: 3 nodes, p: 2 layers, N_bayes: 300 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using random initial parameters with gamma [0.06586334 0.04679995] and beta [0.00087877 0.00920998]
+1.1212232436802063
+Finished QAOA for n=3 nodes, m=3 edges at 2026-04-14 19:04:57 on Apple M4. Time taken: 0.11 seconds. Hours: 0.00 hours. Peak RAM: 214.14 MB.
+Computing complete graph approximation ratio
+results: {3: np.float64(1.1212232436802063)}
+durations: {3: 0.10695695877075195}
+Results saved to: logs/COBYLA/qaoa_results_COBYLA_20260414_190238.csv

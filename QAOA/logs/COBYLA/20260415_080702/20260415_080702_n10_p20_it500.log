@@ -1,0 +1,120 @@
+2026-04-15 08:09:17.665 system_profiler[49537:681804] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'COBYLA', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': False, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': True, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'complete', 'weighted': False, 'easiest_first': False, 'cpu_util_threshold': 90, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: b84cc839
+Processor: Apple M4
+Hostname: Julians-MacBook-Air-2.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating complete graph with 10 nodes...
+Running QAOA for n=10 nodes, m=45 edges...; Max iterations: 500
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=10
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=10, matrix_dim=30, edges=45
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.09
+Rounding...
+n_vertices: 10 for n = 30
+Using seed None to generate random matrix for x.
+r_0: [-0.0320119  -0.88338272  0.46755771]
+Product state qubit 0: [[ 0.73377885+0.j         -0.01600595+0.44169136j]
+ [-0.01600595-0.44169136j  0.26622115+0.j        ]]
+Diagonal entries of product state 0: [0.73377885 0.26622115]
+r_1: [ 0.9904362  -0.04040006 -0.13192408]
+Product state qubit 1: [[0.43403796+0.j         0.4952181 +0.02020003j]
+ [0.4952181 -0.02020003j 0.56596204+0.j        ]]
+Diagonal entries of product state 1: [0.43403796 0.56596204]
+r_2: [-0.71677069  0.23169312 -0.65769148]
+Product state qubit 2: [[ 0.17115426+0.j         -0.35838534-0.11584656j]
+ [-0.35838534+0.11584656j  0.82884574+0.j        ]]
+Diagonal entries of product state 2: [0.17115426 0.82884574]
+r_3: [-0.79988969  0.53451389  0.27289446]
+Product state qubit 3: [[ 0.63644723+0.j         -0.39994484-0.26725695j]
+ [-0.39994484+0.26725695j  0.36355277+0.j        ]]
+Diagonal entries of product state 3: [0.63644723 0.36355277]
+r_4: [-0.01790115  0.75508541 -0.655382  ]
+Product state qubit 4: [[ 0.172309  +0.j         -0.00895058-0.37754271j]
+ [-0.00895058+0.37754271j  0.827691  +0.j        ]]
+Diagonal entries of product state 4: [0.172309 0.827691]
+r_5: [-0.40100986 -0.68839649  0.60440166]
+Product state qubit 5: [[ 0.80220083+0.j         -0.20050493+0.34419825j]
+ [-0.20050493-0.34419825j  0.19779917+0.j        ]]
+Diagonal entries of product state 5: [0.80220083 0.19779917]
+r_6: [ 0.67327229 -0.20460487  0.71052183]
+Product state qubit 6: [[0.85526092+0.j         0.33663614+0.10230243j]
+ [0.33663614-0.10230243j 0.14473908+0.j        ]]
+Diagonal entries of product state 6: [0.85526092 0.14473908]
+r_7: [ 0.19389654 -0.54466052  0.81593447]
+Product state qubit 7: [[0.90796723+0.j         0.09694827+0.27233026j]
+ [0.09694827-0.27233026j 0.09203277+0.j        ]]
+Diagonal entries of product state 7: [0.90796723 0.09203277]
+r_8: [-0.72726534  0.68388502 -0.0581928 ]
+Product state qubit 8: [[ 0.4709036 +0.j         -0.36363267-0.34194251j]
+ [-0.36363267+0.34194251j  0.5290964 +0.j        ]]
+Diagonal entries of product state 8: [0.4709036 0.5290964]
+r_9: [ 0.78375519 -0.38333812 -0.48865088]
+Product state qubit 9: [[0.25567456+0.j         0.3918776 +0.19166906j]
+ [0.3918776 -0.19166906j 0.74432544+0.j        ]]
+Diagonal entries of product state 9: [0.25567456 0.74432544]
+y_scalar: False
+[1, -1, -1, 1, -1, 1, 1, 1, -1, -1]
+Check the cut: [1, -1, -1, 1, -1, 1, 1, 1, -1, -1]
+25 in cut out of a total of 45 edges
+Warm-start: SDP solve + rounding finished in 0.11 seconds
+Warm-start: statevector build finished in 0.00 seconds
+warm_start_correlations: None
+Edges: [(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9), (3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9), (4, 5), (4, 6), (4, 7), (4, 8), (4, 9), (5, 6), (5, 7), (5, 8), (5, 9), (6, 7), (6, 8), (6, 9), (7, 8), (7, 9), (8, 9)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, n: 10 nodes, p: 20 layers, N_bayes: 500 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 2: Added Cost and Mixer unitaries with gamma=γ[2] and beta=β[2]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 3: Added Cost and Mixer unitaries with gamma=γ[3] and beta=β[3]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 4: Added Cost and Mixer unitaries with gamma=γ[4] and beta=β[4]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 5: Added Cost and Mixer unitaries with gamma=γ[5] and beta=β[5]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 6: Added Cost and Mixer unitaries with gamma=γ[6] and beta=β[6]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 7: Added Cost and Mixer unitaries with gamma=γ[7] and beta=β[7]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 8: Added Cost and Mixer unitaries with gamma=γ[8] and beta=β[8]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 9: Added Cost and Mixer unitaries with gamma=γ[9] and beta=β[9]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 10: Added Cost and Mixer unitaries with gamma=γ[10] and beta=β[10]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 11: Added Cost and Mixer unitaries with gamma=γ[11] and beta=β[11]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 12: Added Cost and Mixer unitaries with gamma=γ[12] and beta=β[12]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 13: Added Cost and Mixer unitaries with gamma=γ[13] and beta=β[13]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 14: Added Cost and Mixer unitaries with gamma=γ[14] and beta=β[14]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 15: Added Cost and Mixer unitaries with gamma=γ[15] and beta=β[15]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 16: Added Cost and Mixer unitaries with gamma=γ[16] and beta=β[16]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 17: Added Cost and Mixer unitaries with gamma=γ[17] and beta=β[17]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 18: Added Cost and Mixer unitaries with gamma=γ[18] and beta=β[18]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 19: Added Cost and Mixer unitaries with gamma=γ[19] and beta=β[19]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using random initial parameters with gamma [0.09785226 0.0418898  0.03462095 0.01603783 0.01226087 0.07441526
+ 0.0292003  0.04178006 0.03200569 0.01663443 0.00758789 0.08917112
+ 0.07418001 0.05120537 0.02813885 0.01737004 0.07220294 0.08722647
+ 0.03777259 0.06758065] and beta [0.04541005 0.07785564 0.07552996 0.03511969 0.0009713  0.09176871
+ 0.02253434 0.00381746 0.09892644 0.07408049 0.07489082 0.00062551
+ 0.01875471 0.01955662 0.09928388 0.02912073 0.04031766 0.07286354
+ 0.07904461 0.07140125]
+12.366562443469087
+Finished QAOA for n=10 nodes, m=45 edges at 2026-04-15 08:11:17 on Apple M4. Time taken: 119.99 seconds. Hours: 0.03 hours. Peak RAM: 359.69 MB.
+Computing complete graph approximation ratio
+results: {10: np.float64(12.366562443469087)}
+durations: {10: 119.98826599121094}
+Results saved to: logs/COBYLA/qaoa_results_COBYLA_20260415_080702.csv
