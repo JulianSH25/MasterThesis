@@ -1,0 +1,62 @@
+2026-04-13 21:34:29.390 system_profiler[11236:25837098] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'ADAM', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': False, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': True, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'complete', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': 90, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: c863142d
+Processor: Apple M4
+Hostname: Mac-mini-som-tillhor-Julian.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating complete graph with 6 nodes...
+Running QAOA for n=6 nodes, m=15 edges...; Max iterations: 100
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=6
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=6, matrix_dim=18, edges=15
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.05
+Rounding...
+n_vertices: 6 for n = 18
+Using seed None to generate random matrix for x.
+r_0: [-0.75550389  0.4883573  -0.43671617]
+Product state qubit 0: [[ 0.28164192+0.j         -0.37775195-0.24417865j]
+ [-0.37775195+0.24417865j  0.71835808+0.j        ]]
+Diagonal entries of product state 0: [0.28164192 0.71835808]
+r_1: [ 0.84955745 -0.50804373 -0.14192852]
+Product state qubit 1: [[0.42903574+0.j         0.42477873+0.25402187j]
+ [0.42477873-0.25402187j 0.57096426+0.j        ]]
+Diagonal entries of product state 1: [0.42903574 0.57096426]
+r_2: [-0.50551846  0.22198066  0.83377195]
+Product state qubit 2: [[ 0.91688598+0.j         -0.25275923-0.11099033j]
+ [-0.25275923+0.11099033j  0.08311402+0.j        ]]
+Diagonal entries of product state 2: [0.91688598 0.08311402]
+r_3: [ 0.67307132 -0.20450767 -0.71074019]
+Product state qubit 3: [[0.14462991+0.j         0.33653566+0.10225384j]
+ [0.33653566-0.10225384j 0.85537009+0.j        ]]
+Diagonal entries of product state 3: [0.14462991 0.85537009]
+r_4: [-0.19505296 -0.97729812  0.08272073]
+Product state qubit 4: [[ 0.54136037+0.j         -0.09752648+0.48864906j]
+ [-0.09752648-0.48864906j  0.45863963+0.j        ]]
+Diagonal entries of product state 4: [0.54136037 0.45863963]
+r_5: [0.31627404 0.92876222 0.193317  ]
+Product state qubit 5: [[0.5966585 +0.j         0.15813702-0.46438111j]
+ [0.15813702+0.46438111j 0.4033415 +0.j        ]]
+Diagonal entries of product state 5: [0.5966585 0.4033415]
+y_scalar: False
+[-1, -1, 1, -1, 1, 1]
+Check the cut: [-1, -1, 1, -1, 1, 1]
+9 in cut out of a total of 15 edges
+Warm-start: SDP solve + rounding finished in 0.06 seconds
+Warm-start: statevector build finished in 0.00 seconds
+warm_start_correlations: None
+Edges: [(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5), (3, 4), (3, 5), (4, 5)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5}, n: 6 nodes, p: 2 layers, N_bayes: 100 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using random initial parameters with gamma [0.0820679  0.07696132] and beta [0.09417305 0.04447762]
+4.47732754620121
+Finished QAOA for n=6 nodes, m=15 edges at 2026-04-13 21:34:31 on Apple M4. Time taken: 1.85 seconds. Hours: 0.00 hours. Peak RAM: 216.33 MB.
+Computing complete graph approximation ratio
+results: {6: 4.47732754620121}
+durations: {6: 1.8505117893218994}
+Results saved to: logs/ADAM/qaoa_results_ADAM_20260413_213043.csv

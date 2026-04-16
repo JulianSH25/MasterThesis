@@ -1,0 +1,64 @@
+2026-04-10 20:20:21.651 system_profiler[14011:19376794] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'ADAM', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': True, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'line', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': 85, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: 4fe98e58
+Processor: Apple M4
+Hostname: Mac-mini-som-tillhor-Julian.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating line graph with 3 nodes...
+Running QAOA for n=3 nodes, m=2 edges...; Max iterations: 500
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=3
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=3, matrix_dim=9, edges=2
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.03
+Rounding...
+n_vertices: 3 for n = 9
+Using seed None to generate random matrix for x.
+r_0: [-0.07939685  0.97841284  0.19079949]
+Product state qubit 0: [[ 0.59539974+0.j         -0.03969843-0.48920642j]
+ [-0.03969843+0.48920642j  0.40460026+0.j        ]]
+Diagonal entries of product state 0: [0.59539974 0.40460026]
+r_1: [ 0.07938995 -0.97841104 -0.19081162]
+Product state qubit 1: [[0.40459419+0.j         0.03969497+0.48920552j]
+ [0.03969497-0.48920552j 0.59540581+0.j        ]]
+Diagonal entries of product state 1: [0.40459419 0.59540581]
+r_2: [-0.0793827   0.97840939  0.19082311]
+Product state qubit 2: [[ 0.59541155+0.j         -0.03969135-0.48920469j]
+ [-0.03969135+0.48920469j  0.40458845+0.j        ]]
+Diagonal entries of product state 2: [0.59541155 0.40458845]
+y_scalar: False
+[1, -1, 1]
+Check the cut: [1, -1, 1]
+2 in cut out of a total of 2 edges
+Warm-start: SDP solve + rounding finished in 0.04 seconds
+Warm-start: statevector build finished in 0.00 seconds
+warm_start_correlations: None
+Edges: [(0, 1), (1, 2)], weights: [1.0, 1.0], set of nodes: {0, 1, 2}, n: 3 nodes, p: 3 layers, N_bayes: 500 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 2: Added Cost and Mixer unitaries with gamma=γ[2] and beta=β[2]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using random initial parameters with gamma [3.48774572 0.14347073 2.09628818] and beta [1.31666263 1.499395   2.86335799]
+0.9999977039462927
+Reusing optimiser initial parameters for 010101 comparison run.
+warm_start_correlations: None
+Edges: [(0, 1), (1, 2)], weights: [1.0, 1.0], set of nodes: {0, 1, 2}, n: 3 nodes, p: 3 layers, N_bayes: 500 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 2: Added Cost and Mixer unitaries with gamma=γ[2] and beta=β[2]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using provided initial parameters x0 with shape (6,)
+0.9999977436850144
+Finished QAOA for n=3 nodes, m=2 edges at 2026-04-10 20:20:32 on Apple M4. Time taken: 11.32 seconds. Hours: 0.00 hours. Peak RAM: 210.78 MB.
+Computing line approximation ratio
+results: {3: 0.9999977039462927}
+durations: {3: 11.316981077194214}
+Results saved to: logs/ADAM/qaoa_results_ADAM_20260410_144026.csv

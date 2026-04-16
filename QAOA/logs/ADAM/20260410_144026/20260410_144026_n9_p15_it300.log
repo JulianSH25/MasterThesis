@@ -1,0 +1,140 @@
+2026-04-11 18:08:17.457 system_profiler[64732:22763579] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'ADAM', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': True, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'line', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': 85, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: 97b51a5a
+Processor: Apple M4
+Hostname: Mac-mini-som-tillhor-Julian.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating line graph with 9 nodes...
+Running QAOA for n=9 nodes, m=8 edges...; Max iterations: 300
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=9
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=9, matrix_dim=27, edges=8
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.08
+Rounding...
+n_vertices: 9 for n = 27
+Using seed None to generate random matrix for x.
+r_0: [ 0.92465186 -0.2901908  -0.24659327]
+Product state qubit 0: [[0.37670336+0.j        0.46232593+0.1450954j]
+ [0.46232593-0.1450954j 0.62329664+0.j       ]]
+Diagonal entries of product state 0: [0.37670336 0.62329664]
+r_1: [-0.92465317  0.29018978  0.24658956]
+Product state qubit 1: [[ 0.62329478+0.j         -0.46232658-0.14509489j]
+ [-0.46232658+0.14509489j  0.37670522+0.j        ]]
+Diagonal entries of product state 1: [0.62329478 0.37670522]
+r_2: [ 0.92465605 -0.29018612 -0.24658304]
+Product state qubit 2: [[0.37670848+0.j         0.46232803+0.14509306j]
+ [0.46232803-0.14509306j 0.62329152+0.j        ]]
+Diagonal entries of product state 2: [0.37670848 0.62329152]
+r_3: [-0.9246565  0.290186   0.2465815]
+Product state qubit 3: [[ 0.62329075+0.j       -0.46232825-0.145093j]
+ [-0.46232825+0.145093j  0.37670925+0.j      ]]
+Diagonal entries of product state 3: [0.62329075 0.37670925]
+r_4: [ 0.92465787 -0.29018311 -0.24657978]
+Product state qubit 4: [[0.37671011+0.j         0.46232893+0.14509156j]
+ [0.46232893-0.14509156j 0.62328989+0.j        ]]
+Diagonal entries of product state 4: [0.37671011 0.62328989]
+r_5: [-0.92465833  0.29018562  0.2465751 ]
+Product state qubit 5: [[ 0.62328755+0.j         -0.46232916-0.14509281j]
+ [-0.46232916+0.14509281j  0.37671245+0.j        ]]
+Diagonal entries of product state 5: [0.62328755 0.37671245]
+r_6: [ 0.92465976 -0.29018374 -0.24657194]
+Product state qubit 6: [[0.37671403+0.j         0.46232988+0.14509187j]
+ [0.46232988-0.14509187j 0.62328597+0.j        ]]
+Diagonal entries of product state 6: [0.37671403 0.62328597]
+r_7: [-0.92465971  0.29018919  0.24656572]
+Product state qubit 7: [[ 0.62328286+0.j         -0.46232986-0.14509459j]
+ [-0.46232986+0.14509459j  0.37671714+0.j        ]]
+Diagonal entries of product state 7: [0.62328286 0.37671714]
+r_8: [ 0.92465893 -0.29018817 -0.24656984]
+Product state qubit 8: [[0.37671508+0.j         0.46232946+0.14509409j]
+ [0.46232946-0.14509409j 0.62328492+0.j        ]]
+Diagonal entries of product state 8: [0.37671508 0.62328492]
+y_scalar: False
+[-1, 1, -1, 1, -1, 1, -1, 1, -1]
+Check the cut: [-1, 1, -1, 1, -1, 1, -1, 1, -1]
+8 in cut out of a total of 8 edges
+Warm-start: SDP solve + rounding finished in 0.09 seconds
+Warm-start: statevector build finished in 0.00 seconds
+warm_start_correlations: None
+Edges: [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6, 7, 8}, n: 9 nodes, p: 15 layers, N_bayes: 300 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 2: Added Cost and Mixer unitaries with gamma=γ[2] and beta=β[2]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 3: Added Cost and Mixer unitaries with gamma=γ[3] and beta=β[3]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 4: Added Cost and Mixer unitaries with gamma=γ[4] and beta=β[4]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 5: Added Cost and Mixer unitaries with gamma=γ[5] and beta=β[5]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 6: Added Cost and Mixer unitaries with gamma=γ[6] and beta=β[6]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 7: Added Cost and Mixer unitaries with gamma=γ[7] and beta=β[7]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 8: Added Cost and Mixer unitaries with gamma=γ[8] and beta=β[8]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 9: Added Cost and Mixer unitaries with gamma=γ[9] and beta=β[9]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 10: Added Cost and Mixer unitaries with gamma=γ[10] and beta=β[10]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 11: Added Cost and Mixer unitaries with gamma=γ[11] and beta=β[11]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 12: Added Cost and Mixer unitaries with gamma=γ[12] and beta=β[12]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 13: Added Cost and Mixer unitaries with gamma=γ[13] and beta=β[13]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 14: Added Cost and Mixer unitaries with gamma=γ[14] and beta=β[14]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using random initial parameters with gamma [2.48279763 2.00256386 5.19172557 5.76846005 5.5665323  0.62449063
+ 3.16951034 6.1501755  2.35198552 4.4034289  1.0321296  2.67816193
+ 2.50035159 2.36608578 5.79142424] and beta [2.18994538 1.33387145 1.00351126 2.5154233  1.53101891 2.34061988
+ 2.79917654 1.31492794 0.93815146 2.23085947 1.59832718 2.08338361
+ 2.43429472 0.20509466 0.66426176]
+3.8723740161044975
+Reusing optimiser initial parameters for 010101 comparison run.
+warm_start_correlations: None
+Edges: [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6, 7, 8}, n: 9 nodes, p: 15 layers, N_bayes: 300 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 2: Added Cost and Mixer unitaries with gamma=γ[2] and beta=β[2]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 3: Added Cost and Mixer unitaries with gamma=γ[3] and beta=β[3]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 4: Added Cost and Mixer unitaries with gamma=γ[4] and beta=β[4]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 5: Added Cost and Mixer unitaries with gamma=γ[5] and beta=β[5]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 6: Added Cost and Mixer unitaries with gamma=γ[6] and beta=β[6]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 7: Added Cost and Mixer unitaries with gamma=γ[7] and beta=β[7]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 8: Added Cost and Mixer unitaries with gamma=γ[8] and beta=β[8]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 9: Added Cost and Mixer unitaries with gamma=γ[9] and beta=β[9]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 10: Added Cost and Mixer unitaries with gamma=γ[10] and beta=β[10]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 11: Added Cost and Mixer unitaries with gamma=γ[11] and beta=β[11]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 12: Added Cost and Mixer unitaries with gamma=γ[12] and beta=β[12]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 13: Added Cost and Mixer unitaries with gamma=γ[13] and beta=β[13]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 14: Added Cost and Mixer unitaries with gamma=γ[14] and beta=β[14]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using provided initial parameters x0 with shape (30,)
+3.8723737721771347
+Finished QAOA for n=9 nodes, m=8 edges at 2026-04-11 18:27:13 on Apple M4. Time taken: 1136.29 seconds. Hours: 0.32 hours. Peak RAM: 398.56 MB.
+Computing line approximation ratio
+results: {9: 3.8723740161044975}
+durations: {9: 1136.2897469997406}
+Results saved to: logs/ADAM/qaoa_results_ADAM_20260410_144026.csv

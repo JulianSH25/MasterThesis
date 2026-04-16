@@ -1,0 +1,62 @@
+2026-04-14 04:09:12.512 system_profiler[82564:26871993] hw.cpufamily: 0x6f5129ac
+Benchmark parameters: {'optimiser': 'ADAM', 'parameter_vector': [1, 1, 1], 'iterations_list': [100, 300, 500], 'depth_list': [1, 2, 3, 4, 5, 10, 15, 20], 'n_start': 2, 'n_end': 14, 'singlet_injection': False, 'start_index_singlet': 0, 'warm_start': True, 'compare_with_010101': False, 'warm_start_correlations': False, 'init_QAOAparams_close_to_zero': True, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': 10, 'graph_generation_type': 'complete', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': 90, 'debug': False, 'rerun_exclude_finished_instances': True}, Running QAOA with equal superposition
+Benchmark run ID: 2e9ee1f7
+Processor: Apple M4
+Hostname: Mac-mini-som-tillhor-Julian.local
+Total RAM (GB): 16.0
+Physical cores: 10
+Logical cores: 10
+Python version: 3.13.1
+Generating complete graph with 5 nodes...
+Running QAOA for n=5 nodes, m=10 edges...; Max iterations: 300
+Warm-start: using parameter_vector=[1, 1, 1]
+Warm-start: starting SDP solve for n_vertices=5
+Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices=5, matrix_dim=15, edges=10
+Finished SDP solve with MOSEK. status=optimal. elapsed_seconds=0.04
+Rounding...
+n_vertices: 5 for n = 15
+Using seed None to generate random matrix for x.
+r_0: [ 0.12770524 -0.03005873 -0.99135657]
+Product state qubit 0: [[0.00432172+0.j         0.06385262+0.01502937j]
+ [0.06385262-0.01502937j 0.99567828+0.j        ]]
+Diagonal entries of product state 0: [0.00432172 0.99567828]
+r_1: [-0.24810933 -0.03059523  0.96824878]
+Product state qubit 1: [[ 0.98412439+0.j         -0.12405466+0.01529762j]
+ [-0.12405466-0.01529762j  0.01587561+0.j        ]]
+Diagonal entries of product state 1: [0.98412439 0.01587561]
+r_2: [0.42303125 0.53872473 0.7285741 ]
+Product state qubit 2: [[0.86428705+0.j         0.21151563-0.26936237j]
+ [0.21151563+0.26936237j 0.13571295+0.j        ]]
+Diagonal entries of product state 2: [0.86428705 0.13571295]
+r_3: [-0.4712387  -0.30599265 -0.82722584]
+Product state qubit 3: [[ 0.08638708+0.j         -0.23561935+0.15299632j]
+ [-0.23561935-0.15299632j  0.91361292+0.j        ]]
+Diagonal entries of product state 3: [0.08638708 0.91361292]
+r_4: [-0.36273659 -0.57799702 -0.73098674]
+Product state qubit 4: [[ 0.13450663+0.j         -0.1813683 +0.28899851j]
+ [-0.1813683 -0.28899851j  0.86549337+0.j        ]]
+Diagonal entries of product state 4: [0.13450663 0.86549337]
+y_scalar: False
+[-1, 1, 1, -1, -1]
+Check the cut: [-1, 1, 1, -1, -1]
+6 in cut out of a total of 10 edges
+Warm-start: SDP solve + rounding finished in 0.05 seconds
+Warm-start: statevector build finished in 0.00 seconds
+warm_start_correlations: None
+Edges: [(0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4}, n: 5 nodes, p: 4 layers, N_bayes: 300 iterations
+Initial state injected as warm start
+Layer 0: Added Cost and Mixer unitaries with gamma=γ[0] and beta=β[0]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 1: Added Cost and Mixer unitaries with gamma=γ[1] and beta=β[1]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 2: Added Cost and Mixer unitaries with gamma=γ[2] and beta=β[2]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Layer 3: Added Cost and Mixer unitaries with gamma=γ[3] and beta=β[3]
+.rz and .ry mixer terms added in addition to classical .rx mixer
+Using random initial parameters with gamma [0.02784051 0.0994343  0.03652413 0.08877639] and beta [0.01939534 0.0696659  0.03773515 0.07512028]
+2.978215353197657
+Finished QAOA for n=5 nodes, m=10 edges at 2026-04-14 04:09:27 on Apple M4. Time taken: 15.00 seconds. Hours: 0.00 hours. Peak RAM: 213.7 MB.
+Computing complete graph approximation ratio
+results: {5: 2.978215353197657}
+durations: {5: 15.004775285720825}
+Results saved to: logs/ADAM/qaoa_results_ADAM_20260413_213043.csv
