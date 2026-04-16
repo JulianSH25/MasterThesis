@@ -195,11 +195,18 @@ def return_optimal_fully_connected(n):
 if __name__ == "__main__":
     # Run QAOA benchmark:
     # python Main.py <precision/iterations> <p: #layers/circuit depth> <n_start> <n_end> [output_csv]
+    global_starttime = time.time()
+    time_section = time.time()
+    time_sections = {}
+    print(f"Starting QAOA benchmark with global start time: {global_starttime}")
+
+    # Load benchmark parameters from json
     parameter_settings = get_benchmark_params()
     singlet_injection = parameter_settings["singlet_injection"]
     warm_start = parameter_settings["warm_start"]
     assert not (singlet_injection and warm_start), "Singlet injection and warm start cannot be used simultaneously, as they both modify the initial state preparation. Please choose one of the two options for a valid benchmark configuration."
     print(f"Benchmark parameters: {parameter_settings}, Running QAOA with equal superposition")
+    # Initialise some variables to store results and metadata about the benchmark run.
     results = {}
     results_010101 = {}
     duration = {}
@@ -239,13 +246,26 @@ if __name__ == "__main__":
         if isinstance(v, (str, int, float, bool))
     }
 
+    # XXX TIME: log time taken for initialisation and parameter loading
+    time_sections["initialisation"] = time.time() - time_section
+    print(f"Initialisation time: {time_sections['initialisation']:.2f} seconds; started at {time_sections} and finished at {time.time()}")
+
     for n in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
+        time_section = time.time()
         assert parameter_settings["graph_generation_type"] in ("line", "cycle", "complete")
         edges, weights = instance_generator(type=parameter_settings["graph_generation_type"], n=n,
                                             weighted=parameter_settings["weighted"])
         m = len(edges)
+
+        # XXX Time
+        time_sections[f"instance_generation_n_{n}"] = time.time() - time_section
+        print(f"Instance generation for n={n} took {time_sections[f'instance_generation_n_{n}']:.2f} seconds; started at {time_section} and finished at {time.time()}")
+
         start_time = time.time()
         print(f"Running QAOA for n={n} nodes, m={len(edges)} edges...; Max iterations: {int(precision)}")
+        # XXX Time
+        time_section = time.time()
+ 
         results[n], shared_initial_point = main(
             p=p,
             N_bayes=int(precision),
@@ -255,7 +275,15 @@ if __name__ == "__main__":
             weights=weights,
             return_initial_point=True,
         )
+        # XXX Time
+        time_sections[f"qaoa_optimisation_n_{n}"] = time.time() - time_section
+        print(f"QAOA optimisation for n={n} took {time_sections[f'qaoa_optimisation_n_{n}']:.2f} seconds; started at {time_section} and finished at {time.time()}")
+
+
         if parameter_settings["compare_with_010101"]:
+            # XXX Time
+            time_section = time.time()
+
             bitstring = ''.join(['1' if i % 2 else '0' for i in range(n)])
 
             state = np.zeros(2**n, dtype=complex)
@@ -273,8 +301,14 @@ if __name__ == "__main__":
                 __initial_state__=initial_state,
                 fixed_initial_point=shared_initial_point,
             )
+            # XXX Time
+            time_sections[f"qaoa_optimisation_010101_n_{n}"] = time.time() - time_section
+            print(f"QAOA optimisation for 010101 state at n={n} took {time_sections[f'qaoa_optimisation_010101_n_{n}']:.2f} seconds; started at {time_section} and finished at {time.time()}")  
 
         elapsed_time = time.time() - start_time
+        # XXX Time
+        time_section = time.time()
+
         finished_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         peak_ram_mb = get_peak_ram_mb()
         print(f"Finished QAOA for n={n} nodes, m={m} edges at {finished_at} on {processor_name}. Time taken: {elapsed_time:.2f} seconds. Hours: {elapsed_time / 3600:.2f} hours. Peak RAM: {peak_ram_mb} MB.")
@@ -346,9 +380,28 @@ if __name__ == "__main__":
             finally:
                 fcntl.flock(csvfile.fileno(), fcntl.LOCK_UN)
 
+        # XXX Time
+        time_sections[f"csv_writing_n_{n}"] = time.time() - time_section
+        print(f"CSV writing for n={n} took {time_sections[f'csv_writing_n_{n}']:.2f} seconds; started at {time_section} and finished at {time.time()}")
+
+    # XXX Time
+    time_section = time.time()
 
     print(f"results: {results}")
     print(f"durations: {duration}")
     print(f"Results saved to: {csv_filename}")
 
+    global_endtime = time.time()
+    print(f"Global end time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+    # XXX Time
+    time_sections["finalisation"] = time.time() - time_section
+    print(f"Finalisation time: {time_sections['finalisation']:.2f} seconds; started at {time_section} and finished at {time.time()}")
+    sum_sections_time = sum(time_sections.values())
+    print(f"Sum of all section times: {sum_sections_time:.2f} seconds")
+    with open(f"time/qaoa_time_sections_{run_id}.csv", 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=['section', 'duration_seconds'])
+        writer.writeheader()
+        for section, duration_sec in time_sections.items():
+            writer.writerow({'section': section, 'duration_seconds': round(duration_sec, 2)})
     # Run shell file: sudo nohup zsh qaoa_benchmarks.sh > logs/launcher_$(date +'%Y%m%d_%H%M%S').log 2>&1 &
