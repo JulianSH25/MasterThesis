@@ -228,6 +228,7 @@ def optimise_adam(
     assert isinstance(QAOA, QAOACircuit)
 
     optimiser = ADAM(maxiter=steps, lr=learning_rate)
+    print(f"ADAM optimizer configured with maxiter={steps} and learning_rate={learning_rate}")
     optimiser.set_max_evals_grouped(2 * no_layers)
 
     if x0 is None:
