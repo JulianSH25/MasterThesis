@@ -164,7 +164,7 @@ def main(
         minimum_energy = -returned_energy.fun
         used_initial_point = getattr(returned_energy, "initial_point", None)
     elif optimiser == "adam":
-        returned_energy = optimise_adam(QAOA=QAOA, no_layers=p, steps=N_bayes, x0=fixed_initial_point)
+        returned_energy = optimise_adam(QAOA=QAOA, no_layers=p, steps=N_bayes, x0=fixed_initial_point, learning_rate=benchmark_params["learning_rate_adam"])
         minimum_energy = -returned_energy.fun
         used_initial_point = getattr(returned_energy, "initial_point", None)
     elif optimiser == "gridsearch":
