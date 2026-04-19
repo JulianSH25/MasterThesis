@@ -143,6 +143,7 @@ def main(
         print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.")
     QAOA.self_init_linegraph = self_init_linegraph
     QAOA.build_qaoa_maxcut_circuit(add_measurements=False) # TODO check parameter (changed from True to False)
+    initial_ws_energy = QAOA.initial_ws_energy
 
     assert sum([optimiser_bayesian, optimiser_cobyla, gridsearch]) == 1
     minimum_energy = None
@@ -162,7 +163,7 @@ def main(
         minimum_energy = -returned_energy.fun
         used_initial_point = getattr(returned_energy, "initial_point", None)
     elif optimiser == "adam":
-        returned_energy = optimise_adam(QAOA=QAOA, no_layers=p, steps=N_bayes, x0=fixed_initial_point)
+        returned_energy = optimise_adam(QAOA=QAOA, no_layers=p, steps=N_bayes, x0=fixed_initial_point, learning_rate=benchmark_params["learning_rate_adam"])
         minimum_energy = -returned_energy.fun
         used_initial_point = getattr(returned_energy, "initial_point", None)
     elif optimiser == "gridsearch":
@@ -173,8 +174,8 @@ def main(
     print(minimum_energy)
 
     if return_initial_point:
-        return minimum_energy, used_initial_point
-    return minimum_energy
+        return minimum_energy, used_initial_point, initial_ws_energy
+    return minimum_energy, initial_ws_energy
 
 def return_optimal_line(n):
     df = pan.read_csv("optimal_results_qaoa.csv", skipinitialspace=True)
@@ -232,7 +233,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                  'parameter_vector', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                  'parameter_vector', 'initial_ws_energy', 'QAOA_improvement_over_SDP', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                   'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                   'python_version', 'peak_ram_mb']
     
@@ -265,7 +266,7 @@ if __name__ == "__main__":
         # XXX Time
         time_section = time.time()
  
-        results[n], shared_initial_point = main(
+        results[n], shared_initial_point, initial_ws_energy = main(
             p=p,
             N_bayes=int(precision),
             self_init_linegraph=singlet_injection,
@@ -292,7 +293,7 @@ if __name__ == "__main__":
             initial_state = state
 
             print("Reusing optimiser initial parameters for 010101 comparison run.")
-            results_010101[n] = main(
+            results_010101[n], initial_ws_energy_010101 = main(
                 p=p,
                 N_bayes=int(precision),
                 edges=edges,
@@ -339,6 +340,8 @@ if __name__ == "__main__":
             'singlet_injection': singlet_injection,
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
+            'initial_ws_energy': initial_ws_energy,
+            'QAOA_improvement_over_SDP': results[n] - initial_ws_energy if initial_ws_energy is not None else None,
             'result': results[n],
             'result_010101': results_010101[n] if parameter_settings["compare_with_010101"] else None,
             'approx_ratio': approx_ratio,

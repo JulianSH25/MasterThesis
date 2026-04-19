@@ -37,6 +37,7 @@ class QAOACircuit(QuantumCircuit):
         benchm_params = get_benchmark_params()
         self.start_index = benchm_params['start_index_singlet']
         self.debug = benchm_params['debug']
+        self.initial_ws_energy = None
 
     def _pauli_label_for_edge(self, i: int, j: int, pauli: str) -> str:
         """
@@ -193,11 +194,15 @@ class QAOACircuit(QuantumCircuit):
             _initial_state = np.asarray(self.initial_state, dtype=complex)
             assert _initial_state.shape == (2**self.n,)
             assert _initial_state.ndim == 1
+            # obsolete?
             norm = np.linalg.norm(_initial_state)
             assert norm > 0
             _initial_state /= norm
             self.qc.initialize(_initial_state, range(self.n))
             print("Initial state injected as warm start")
+            E_initial = self.compute_energy_from_statevector(Statevector(_initial_state))
+            self.initial_ws_energy = E_initial
+            print(f"Initial state energy for vector-normalised SDP solution used as warm start: {E_initial}")
 
             # TODO: add warm start correlations here
             # TODO WARNING: REMOVE WHEN COMPARING AGAINST 010101... INITIAL STATE!

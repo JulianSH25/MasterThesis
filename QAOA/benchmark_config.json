@@ -1,9 +1,10 @@
 {
   "optimiser": "ADAM",
   "parameter_vector": [1, 1, 1],
-  "iterations_list": [100, 300, 500],
+  "iterations_list": [50, 100, 200],
+  "learning_rate_adam": 0.01,
   "depth_list": [1, 2, 3, 4, 5, 10, 15, 20],
-  "n_start": 2,
+  "n_start": 3,
   "n_end": 14,
   "singlet_injection": false,
   "start_index_singlet": 0,
@@ -16,7 +17,7 @@
   "failed_instance_termination_thrsh": 10,
   "graph_generation_type": "complete",
   "weighted": false,
-  "easiest_first": true,
+  "easiest_first": false,
   "cpu_util_threshold": 90,
   "debug": false,
   "rerun_exclude_finished_instances": true

@@ -31,13 +31,18 @@ parameters = benchmark_params["parameter_vector"]
 
 debug = benchmark_params["debug"]
 
+Energies: list[float] = [] # Used to store energy values from each QAOA iteration; Used in eval_QAOA_circuit (right below)
+Optimisation_time: list[float] = [] # Used to store time taken for each evaluation of the objective function during ADAM & COBYLA optimisation;
+
 def eval_QAOA_circuit(point: tuple[np.ndarray, np.ndarray], QAOA: QAOACircuit) -> float:
     # Step 2
     """This function receives a set of points, i.e. QAOA parameters, and evaluates the actual QAOA circuit on those parameters, returns the QAOA value found"""
 
     QAOA.bind_circuit_parameters(gamma_values=point[0], beta_values=point[1])
     statevec = QAOA.run_circuit(return_statevector=True)
-    return QAOA.compute_energy_from_statevector(statevec)
+    E = QAOA.compute_energy_from_statevector(statevec)
+    Energies.append(E)
+    return E
 
 class BayesianOptimiser:
     @staticmethod
@@ -184,7 +189,7 @@ def optimise_cobyla(
             gamma0 = np.pi * (3.0 - corr_scalar) / 6.0
             gamma = np.full(no_layers, gamma0, dtype=float)
             print(f"Using correlation-based initial parameters with scalar {corr_scalar} and gamma0 {gamma}")
-        elif use_corr_init is not None and correlations is None:
+        elif use_corr_init and correlations is None:
             raise ValueError("correlations must be provided if use_correlations_as_initial_params is True")
 
         x0 = np.concatenate([gamma, beta])
@@ -196,12 +201,20 @@ def optimise_cobyla(
         print(f"Using provided initial parameters x0 with shape {x0.shape}")
 
     def objective(theta: np.ndarray) -> float:
+        start = time.time() # XXX Time
         gamma_vals = theta[:no_layers]
         beta_vals = theta[no_layers:]
-        return -eval_QAOA_circuit((gamma_vals, beta_vals), QAOA)
+        energy = -eval_QAOA_circuit((gamma_vals, beta_vals), QAOA)
+
+        Optimisation_time.append(time.time() - start) # XXX Time
+
+        return energy
 
     result = minimize(objective, x0=x0, method="COBYLA", options={"maxiter": max_iter})
     setattr(result, "initial_point", x0.copy())
+    print(f"Energies observed during COBYLA optimization: {Energies}")
+    print(f"Total optimisation time observed during COBYLA optimization: {sum(Optimisation_time):.6f} seconds")
+    print(f"Median time per evaluation during COBYLA optimization: {np.median(Optimisation_time):.6f} seconds")
     return result
     # return minimize(objective, x0=x0, method="L-BFGS-B", options={"maxiter": max_iter})
 
@@ -239,6 +252,7 @@ def optimise_adam(
         return -value
 
     def objective(theta: np.ndarray) -> float:
+        start = time.time() # XXX Time
         theta = np.asarray(theta, dtype=float)
 
         if theta.ndim != 1:
@@ -256,10 +270,15 @@ def optimise_adam(
             objective_single(theta[i:i + dimension])
             for i in range(0, theta.size, dimension)
         ]
-        return np.array(values, dtype=float)
+        energy = np.array(values, dtype=float)
+        Optimisation_time.append(time.time() - start) # XXX Time
+        return energy
 
     result = optimiser.minimize(fun=objective, x0=x0)
     setattr(result, "initial_point", x0.copy())
+    print(f"Energies observed during COBYLA optimization: {Energies}")
+    print(f"Total optimisation time observed during ADAM optimization: {sum(Optimisation_time):.6f} seconds")
+    print(f"Median time per evaluation during ADAM optimization: {np.median(Optimisation_time):.6f} seconds")
     return result
 
 
