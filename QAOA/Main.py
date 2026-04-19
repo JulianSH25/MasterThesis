@@ -234,7 +234,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                  'parameter_vector', 'initial_ws_energy', 'QAOA_improvement_over_SDP', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                  'parameter_vector', 'initial_ws_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                   'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                   'python_version', 'peak_ram_mb']
     
@@ -341,6 +341,7 @@ if __name__ == "__main__":
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
             'initial_ws_energy': initial_ws_energy,
+            'initial_ws_energy_010101': initial_ws_energy_010101 if parameter_settings["compare_with_010101"] else None,
             'QAOA_improvement_over_SDP': results[n] - initial_ws_energy if initial_ws_energy is not None else None,
             'result': results[n],
             'result_010101': results_010101[n] if parameter_settings["compare_with_010101"] else None,
