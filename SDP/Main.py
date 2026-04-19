@@ -110,9 +110,13 @@ def main(instance, n_vertices, params: dict, debug: bool = False):
     print("Rounding...")
     cuts, states = round_sdp_with_cholesky(M_optimal, parameters=params)
     print(cuts)
+    energy = solver_sdp.compute_energy(states, edges=edges, weights=weights, params=params)
+    print(f"Energy of rounded cut: {energy}")
     edge_count, edges_in_cut = get_edges_in_cut(cuts, edges)
     print(f"{edge_count} in cut out of a total of {len(edges)} edges")
-    return edge_count, edges_in_cut, cuts, M_optimal, states
+    # BUG for quantum maxcut neither an edge count nor cut should be returned; This is currently not critical but should be fixed, if just for clean code 
+    #return edge_count, edges_in_cut, cuts, M_optimal, states
+    return energy, M_optimal, states
 
 if __name__ == "__main__":
     # NOTE: Run this to run the main function that executes one SDP solve and rounding without benchmarking. To run the benchmark pipeline, run the `run_single_benchmark` function in `benchmark_pipeline.py` instead. (i.e. change function call below)

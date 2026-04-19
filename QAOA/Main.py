@@ -27,8 +27,6 @@ if __package__ in (None, ""):
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
 
-from SPD.Main import main as SDP_main
-
 #edges = [(0, 1), (1, 2)]  # , (2, 3), (3, 4), (4, 5), (5, 6)]  # ring
 #weights = [1.0] * len(edges)
 #set_of_nodes = {i for k in edges for i in k}
@@ -47,6 +45,7 @@ parameters = benchmark_params["parameter_vector"]
 
 optimiser = benchmark_params["optimiser"].lower()
 
+# TODO move to utils
 def get_processor_name():
     try:
         chip_name = subprocess.check_output(
@@ -59,7 +58,7 @@ def get_processor_name():
         pass
     return platform.processor() or platform.machine()
 
-
+# TODO move
 def get_total_ram_gb():
     try:
         total_bytes = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"], text=True).strip())
@@ -67,21 +66,21 @@ def get_total_ram_gb():
     except Exception:
         return None
 
-
+# TODO move
 def get_physical_cores():
     try:
         return int(subprocess.check_output(["sysctl", "-n", "hw.physicalcpu"], text=True).strip())
     except Exception:
         return os.cpu_count()
 
-
+# TODO move
 def get_logical_cores():
     try:
         return int(subprocess.check_output(["sysctl", "-n", "hw.logicalcpu"], text=True).strip())
     except Exception:
         return os.cpu_count()
 
-
+# TODO move
 def get_peak_ram_mb():
     try:
         peak_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
@@ -316,6 +315,7 @@ if __name__ == "__main__":
         duration[n] = elapsed_time
         approx_ratio = None
         approx_ratio_010101 = None
+        # BUG illegally classifies single edge line graphs as complete graphs
         if classify_graph(edges) == "line":
             print("Computing line approximation ratio")
             approx_ratio = results[n] / return_optimal_line(n)
@@ -396,14 +396,15 @@ if __name__ == "__main__":
     print(f"Results saved to: {csv_filename}")
 
     global_endtime = time.time()
-    print(f"Global end time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Global end time: {global_endtime}")
 
     # XXX Time
     time_sections["finalisation"] = time.time() - time_section
     print(f"Finalisation time: {time_sections['finalisation']:.2f} seconds; started at {time_section} and finished at {time.time()}")
     sum_sections_time = sum(time_sections.values())
     print(f"Sum of all section times: {sum_sections_time:.2f} seconds")
-    with open(f"time/qaoa_time_sections_{run_id}.csv", 'w', newline='') as csvfile:
+    time_sections["total_time"] = global_endtime - global_starttime
+    with open(f"time/{run_id}.csv", 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=['section', 'duration_seconds'])
         writer.writeheader()
         for section, duration_sec in time_sections.items():

@@ -9,8 +9,8 @@ if __package__ in (None, ""):
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
 
-from SPD.Main import main as SDP_main
-from SPD.Utilities import idx
+from SDP.Main import main as SDP_main
+from SDP.Utilities import idx
 
 def initial_state_rotation(product_state):
     pass
@@ -57,7 +57,7 @@ def get_warm_start_state(instance, n_vertices):
     parameters = {"a": parameters[0], "b": parameters[1], "c": parameters[2]}
     sdp_start = time.time()
     print(f"Warm-start: starting SDP solve for n_vertices={n_vertices}", flush=True)
-    edge_count, edges_in_cut, cuts, M_optimal, states = SDP_main(
+    energy, M_optimal, states = SDP_main(
         instance=instance,
         n_vertices=n_vertices,
         params=parameters,

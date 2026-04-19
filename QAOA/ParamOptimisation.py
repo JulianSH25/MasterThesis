@@ -226,7 +226,6 @@ def optimise_adam(
     x0: np.ndarray | None = None,
 ):
     assert isinstance(QAOA, QAOACircuit)
-
     optimiser = ADAM(maxiter=steps, lr=learning_rate)
     optimiser.set_max_evals_grouped(2 * no_layers)
 
