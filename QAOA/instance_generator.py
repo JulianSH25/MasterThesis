@@ -1,5 +1,6 @@
 import random
 from tokenize import String
+from utils import random_instance_generator
 
 
 def instance_generator(type, n: int, weighted: bool = False):
@@ -9,6 +10,9 @@ def instance_generator(type, n: int, weighted: bool = False):
         edges = make_cycle_graph(n)
     elif type == "complete":
         edges = make_complete_graph(n)
+    elif type == "random":
+        edges, _, _ = random_instance_generator(n, weights_static=not weighted, sparse=True)
+        print(f"Generated random graph with {n} nodes and {len(edges)} edges.")
     else:
         raise ValueError("Unknown graph type: " + type + "; expected 'line', 'cycle', or 'complete'.")
     weights = [random.uniform(1e-3, 1.0) for _ in edges] if weighted else [1.0] * len(edges)

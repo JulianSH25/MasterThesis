@@ -252,7 +252,7 @@ if __name__ == "__main__":
 
     for n in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
         time_section = time.time()
-        assert parameter_settings["graph_generation_type"] in ("line", "cycle", "complete")
+        assert parameter_settings["graph_generation_type"] in ("line", "cycle", "complete", "random")
         edges, weights = instance_generator(type=parameter_settings["graph_generation_type"], n=n,
                                             weighted=parameter_settings["weighted"])
         m = len(edges)
@@ -316,20 +316,25 @@ if __name__ == "__main__":
         approx_ratio = None
         approx_ratio_010101 = None
         # BUG illegally classifies single edge line graphs as complete graphs
-        if classify_graph(edges) == "line":
-            print("Computing line approximation ratio")
-            approx_ratio = results[n] / return_optimal_line(n)
-            approx_ratio_010101 = results_010101[n] / return_optimal_line(n) if parameter_settings["compare_with_010101"] else None
-        elif classify_graph(edges) == "cycle":
-            print("Computing cycle approximation ratio")
-            approx_ratio = results[n] / return_optimal_cycle(n)
-            approx_ratio_010101 = results_010101[n] / return_optimal_cycle(n) if parameter_settings["compare_with_010101"] else None
-            #pass
-        elif classify_graph(edges) == "complete":
-            print("Computing complete graph approximation ratio")
-            approx_ratio = results[n] / return_optimal_fully_connected(n)
-            approx_ratio_010101 = results_010101[n] / return_optimal_fully_connected(n) if parameter_settings["compare_with_010101"] else None
-            #pass
+        try:
+            if classify_graph(edges) == "line":
+                print("Computing line approximation ratio")
+                approx_ratio = results[n] / return_optimal_line(n)
+                approx_ratio_010101 = results_010101[n] / return_optimal_line(n) if parameter_settings["compare_with_010101"] else None
+            elif classify_graph(edges) == "cycle":
+                print("Computing cycle approximation ratio")
+                approx_ratio = results[n] / return_optimal_cycle(n)
+                approx_ratio_010101 = results_010101[n] / return_optimal_cycle(n) if parameter_settings["compare_with_010101"] else None
+                #pass
+            elif classify_graph(edges) == "complete":
+                print("Computing complete graph approximation ratio")
+                approx_ratio = results[n] / return_optimal_fully_connected(n)
+                approx_ratio_010101 = results_010101[n] / return_optimal_fully_connected(n) if parameter_settings["compare_with_010101"] else None
+                #pass
+            else:
+                print("Unknown graph type for approximation ratio calculation; skipping approx ratio computation.")
+        except Exception as e:
+            print(f"Error during approximation ratio calculation: {e}. Skipping approx ratio computation for n={n}.")
 
         row = {
             'run_id': run_id,
