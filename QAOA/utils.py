@@ -18,6 +18,59 @@ def set_random_params(p: int, seed: int | None = None, init_close_to_zero: bool 
 
     return gamma_values, beta_values
 
+def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
+    """
+    This function generates a random connected undirected graph instance.
+
+    Guarantees connectivity via a random spanning tree, then adds additional
+    edges stochastically based on sparsity. Sparse graphs use denser edge thresholds.
+
+    :param nodes: number of vertices
+    :param weights_static: if True, all edges have weight 1.0; otherwise random [1e-10, 1.0]
+    :param sparse: if True, use high edge threshold (0.8-0.99); otherwise random threshold
+    :return: tuple (edges, weights, nodes) describing the graph
+    """
+    if nodes <= 0:
+        return [], [], nodes
+    if nodes == 1:
+        return [], [], nodes
+
+    edges: list[tuple[int, int]] = []
+    weights: list[float] = []
+    edge_set: set[tuple[int, int]] = set()  # store as (min(u,v), max(u,v))
+
+    # Keep the original "threshold" semantics:
+    # add a candidate edge with probability ~ (1 - threshold)
+    threshold = random.random() if not sparse else random.uniform(0.8, 0.99)
+
+    def add_edge(u: int, v: int):
+        a, b = (u, v) if u < v else (v, u)
+        if a == b:
+            return
+        if (a, b) in edge_set:
+            return
+        edge_set.add((a, b))
+        edges.append((a, b))
+        weights.append(random.uniform(1e-10, 1.0) if not weights_static else 1.0)
+
+    # 1) Ensure connectivity via a random spanning tree
+    perm = list(range(nodes))
+    random.shuffle(perm)
+    for idx in range(1, nodes):
+        u = perm[idx]
+        v = random.choice(perm[:idx])  # connect to any previous node
+        add_edge(u, v)
+
+    # 2) Add extra random edges
+    for i in range(nodes):
+        for j in range(i + 1, nodes):
+            if (i, j) in edge_set:
+                continue
+            if random.random() > threshold:
+                add_edge(i, j)
+
+    return edges, weights, nodes
+
 def sample_initial_qaoa_params(n: int, p: int) -> list[tuple[list[float], list[float]]]:
     """
     This function samples initial QAOA parameter tuples for Bayesian optimisation. I realise it is basically a duplicate of the above function I already used before in a different place.
