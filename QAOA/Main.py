@@ -27,8 +27,6 @@ if __package__ in (None, ""):
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
 
-from SPD.Main import main as SDP_main
-
 #edges = [(0, 1), (1, 2)]  # , (2, 3), (3, 4), (4, 5), (5, 6)]  # ring
 #weights = [1.0] * len(edges)
 #set_of_nodes = {i for k in edges for i in k}
@@ -47,6 +45,7 @@ parameters = benchmark_params["parameter_vector"]
 
 optimiser = benchmark_params["optimiser"].lower()
 
+# TODO move to utils
 def get_processor_name():
     try:
         chip_name = subprocess.check_output(
@@ -59,7 +58,7 @@ def get_processor_name():
         pass
     return platform.processor() or platform.machine()
 
-
+# TODO move
 def get_total_ram_gb():
     try:
         total_bytes = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"], text=True).strip())
@@ -67,21 +66,21 @@ def get_total_ram_gb():
     except Exception:
         return None
 
-
+# TODO move
 def get_physical_cores():
     try:
         return int(subprocess.check_output(["sysctl", "-n", "hw.physicalcpu"], text=True).strip())
     except Exception:
         return os.cpu_count()
 
-
+# TODO move
 def get_logical_cores():
     try:
         return int(subprocess.check_output(["sysctl", "-n", "hw.logicalcpu"], text=True).strip())
     except Exception:
         return os.cpu_count()
 
-
+# TODO move
 def get_peak_ram_mb():
     try:
         peak_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
@@ -234,7 +233,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                  'parameter_vector', 'initial_ws_energy', 'QAOA_improvement_over_SDP', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                  'parameter_vector', 'initial_ws_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                   'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                   'python_version', 'peak_ram_mb']
     
@@ -253,7 +252,7 @@ if __name__ == "__main__":
 
     for n in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
         time_section = time.time()
-        assert parameter_settings["graph_generation_type"] in ("line", "cycle", "complete")
+        assert parameter_settings["graph_generation_type"] in ("line", "cycle", "complete", "random")
         edges, weights = instance_generator(type=parameter_settings["graph_generation_type"], n=n,
                                             weighted=parameter_settings["weighted"])
         m = len(edges)
@@ -316,20 +315,26 @@ if __name__ == "__main__":
         duration[n] = elapsed_time
         approx_ratio = None
         approx_ratio_010101 = None
-        if classify_graph(edges) == "line":
-            print("Computing line approximation ratio")
-            approx_ratio = results[n] / return_optimal_line(n)
-            approx_ratio_010101 = results_010101[n] / return_optimal_line(n) if parameter_settings["compare_with_010101"] else None
-        elif classify_graph(edges) == "cycle":
-            print("Computing cycle approximation ratio")
-            approx_ratio = results[n] / return_optimal_cycle(n)
-            approx_ratio_010101 = results_010101[n] / return_optimal_cycle(n) if parameter_settings["compare_with_010101"] else None
-            #pass
-        elif classify_graph(edges) == "complete":
-            print("Computing complete graph approximation ratio")
-            approx_ratio = results[n] / return_optimal_fully_connected(n)
-            approx_ratio_010101 = results_010101[n] / return_optimal_fully_connected(n) if parameter_settings["compare_with_010101"] else None
-            #pass
+        # BUG illegally classifies single edge line graphs as complete graphs
+        try:
+            if classify_graph(edges) == "line":
+                print("Computing line approximation ratio")
+                approx_ratio = results[n] / return_optimal_line(n)
+                approx_ratio_010101 = results_010101[n] / return_optimal_line(n) if parameter_settings["compare_with_010101"] else None
+            elif classify_graph(edges) == "cycle":
+                print("Computing cycle approximation ratio")
+                approx_ratio = results[n] / return_optimal_cycle(n)
+                approx_ratio_010101 = results_010101[n] / return_optimal_cycle(n) if parameter_settings["compare_with_010101"] else None
+                #pass
+            elif classify_graph(edges) == "complete":
+                print("Computing complete graph approximation ratio")
+                approx_ratio = results[n] / return_optimal_fully_connected(n)
+                approx_ratio_010101 = results_010101[n] / return_optimal_fully_connected(n) if parameter_settings["compare_with_010101"] else None
+                #pass
+            else:
+                print("Unknown graph type for approximation ratio calculation; skipping approx ratio computation.")
+        except Exception as e:
+            print(f"Error during approximation ratio calculation: {e}. Skipping approx ratio computation for n={n}.")
 
         row = {
             'run_id': run_id,
@@ -341,6 +346,7 @@ if __name__ == "__main__":
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
             'initial_ws_energy': initial_ws_energy,
+            'initial_ws_energy_010101': initial_ws_energy_010101 if parameter_settings["compare_with_010101"] else None,
             'QAOA_improvement_over_SDP': results[n] - initial_ws_energy if initial_ws_energy is not None else None,
             'result': results[n],
             'result_010101': results_010101[n] if parameter_settings["compare_with_010101"] else None,
@@ -395,14 +401,15 @@ if __name__ == "__main__":
     print(f"Results saved to: {csv_filename}")
 
     global_endtime = time.time()
-    print(f"Global end time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Global end time: {global_endtime}")
 
     # XXX Time
     time_sections["finalisation"] = time.time() - time_section
     print(f"Finalisation time: {time_sections['finalisation']:.2f} seconds; started at {time_section} and finished at {time.time()}")
     sum_sections_time = sum(time_sections.values())
     print(f"Sum of all section times: {sum_sections_time:.2f} seconds")
-    with open(f"time/qaoa_time_sections_{run_id}.csv", 'w', newline='') as csvfile:
+    time_sections["total_time"] = global_endtime - global_starttime
+    with open(f"time/{run_id}.csv", 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=['section', 'duration_seconds'])
         writer.writeheader()
         for section, duration_sec in time_sections.items():

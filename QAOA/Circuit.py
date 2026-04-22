@@ -214,6 +214,7 @@ class QAOACircuit(QuantumCircuit):
             print("Line graph state preparation: Singlet injection")
             print(f"Singlets induced on ODD parity edges") if self.start_index == 0 else print("Singlets induced on EVEN parity edges")
             prepare_line_singlet_circuit(self.qc, self.n, start_index=self.start_index)
+            #self.initial_ws_energy = self.compute_energy_from_statevector(Statevector(self.qc.draw(output='statevector')))
         else:
             self.qc.h(range(self.n)) # Default: equal superposition
             print("Default QAOA state preparation: Equal superposition")

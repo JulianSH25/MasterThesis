@@ -15,9 +15,9 @@
   "use_correlations_as_initial_params": false,
   "time_limit": 10800,
   "failed_instance_termination_thrsh": 10,
-  "graph_generation_type": "complete",
+  "graph_generation_type": "random",
   "weighted": false,
-  "easiest_first": false,
+  "easiest_first": true,
   "cpu_util_threshold": 90,
   "debug": false,
   "rerun_exclude_finished_instances": true
