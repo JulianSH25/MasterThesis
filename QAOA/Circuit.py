@@ -3,6 +3,7 @@ from qiskit.circuit import ParameterVector
 from qiskit_aer import Aer
 from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace, SparsePauliOp
 from scipy.stats import contingency
+from math import pi
 import csv
 
 from StatePrep import prepare_line_singlet_circuit
@@ -42,6 +43,7 @@ class QAOACircuit(QuantumCircuit):
         benchm_params = get_benchmark_params()
         self.start_index = benchm_params['start_index_singlet']
         self.debug = benchm_params['debug']
+        self.log_qc_svg = benchm_params['save_circuit_svg']
         self.debug_path = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else None
         self.debug_run_counter = 0
         self.parameter_log_path: Path | None = None # NOTE for debugging only
@@ -155,7 +157,16 @@ class QAOACircuit(QuantumCircuit):
                 f"len(beta_values)={len(beta_values)} vs {len(self.betas)}"
             )
 
-        bind_map = {self.gammas[i]: float(gamma_values[i]) for i in range(len(self.gammas))}
+        # Wrap negative angles to [0, 2π] for gammas and [0, π] for betas to ensure consistent parameter logging and circuit binding
+        # TODO consider doing this in the optimiser already to avoid future bugs
+        for i in range(len(gamma_values)):
+            if float(gamma_values[i]) < 0:
+                gamma_values[i] = 2*pi - float(gamma_values[i])  # Wrap negative angles to [0, 2π]
+        for i in range(len(beta_values)):
+            if float(beta_values[i]) < 0:
+                beta_values[i] = pi - float(beta_values[i])  # Wrap negative angles to [0, 2π]
+
+        bind_map = {self.gammas[i]: float(gamma_values[i]) if float(gamma_values[i]) >= 0 else pi for i in range(len(self.gammas))}
         bind_map.update({self.betas[i]: float(beta_values[i]) for i in range(len(self.betas))})
 
         #self.qc_no_params = self.qc.copy()
@@ -212,10 +223,13 @@ class QAOACircuit(QuantumCircuit):
             circuit = circuit if circuit is not None else self.qc
             print("Quantum circuit build:")
             print(circuit.draw()) if print_to_log else print("Circuit drawing skipped in console output due to print_to_log=False; Saving to svg file instead.")
-            debug_path = Path(self.debug_path)
-            debug_path.mkdir(parents=True, exist_ok=True)
-            fig = circuit.draw(output="mpl", fold=1000)
-            fig.savefig(debug_path / f"{self.n}_{self.p}_{len(self.edges)}_{str(uuid.uuid4())[:8]}_{name_addition}_circuit.svg", bbox_inches="tight")
+            if self.log_qc_svg and self.debug_path:
+                debug_path = Path(self.debug_path)
+                debug_path.mkdir(parents=True, exist_ok=True)
+                fig = circuit.draw(output="mpl", fold=1000)
+                fig.savefig(debug_path / f"{self.n}_{self.p}_{len(self.edges)}_{str(uuid.uuid4())[:8]}_{name_addition}_circuit.svg", bbox_inches="tight")
+            else:
+                print(f"Circuit SVG saving skipped due to log_qc_svg=False or debug_path not set. [log_qc_svg={self.log_qc_svg}, debug_path={'set' if self.debug_path else 'not set'}]")
         except Exception as e:
             print(f"Logging of cirquit failed with exception: {e}")
             pass
