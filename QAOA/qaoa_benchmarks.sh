@@ -396,7 +396,7 @@ while read -r score iterations p n; do
     echo "Starting job: n=${n}, p=${p}, iterations=${iterations}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_jobs=$(count_running_jobs)"
 
     status_file="${status_subdir}/${run_timestamp}_n${n}_p${p}_it${iterations}.status"
-    cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} logs/${optimiser}/qaoa_results_${optimiser}_${run_timestamp}.csv"
+    cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} logs/${optimiser}/qaoa_results_${optimiser}_${run_timestamp}"
     if (( use_background_mode )); then
         cmd="taskpolicy -c background ${cmd}"
     fi

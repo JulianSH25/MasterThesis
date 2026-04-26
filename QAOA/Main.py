@@ -214,7 +214,8 @@ if __name__ == "__main__":
     p = int(sys.argv[2])
     
     # Keep one shared CSV file and append safely across parallel runs.
-    csv_filename = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else f"qaoa_results_{optimiser}.csv"
+    debug_csv_path = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else f"qaoa_results_{optimiser}"
+    csv_filename = f"{debug_csv_path}.csv"
     
     # Generate unique hash ID for this benchmark run
     run_id = str(uuid.uuid4())[:8]
