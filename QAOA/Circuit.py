@@ -299,9 +299,10 @@ class QAOACircuit(QuantumCircuit):
             a, b, c = self.params
             for (j, k), w in zip(self.edges, self.weights):
                 w = w/ (1 + a + b + c)
-                self.qc.rxx(gamma, j, k)
-                self.qc.ryy(gamma, j, k)
-                self.qc.rzz(gamma, j, k)
+                # NOTE multiplying all parameters by 2 since qiskit's rxx, ryy, rzz gates apply a rotation of theta/2 for an input angle theta; i.e. we undo the default 1/2 division to allow full parameter range!
+                self.qc.rxx(2*gamma, j, k)
+                self.qc.ryy(2*gamma, j, k)
+                self.qc.rzz(2*gamma, j, k)
                 # BUG this is a temporary change to test for possible bugs.
                 # NOTE the above temporary notation does NOT accomodate for weighted instances
                 """self.qc.rxx(-2 * gamma * w * a, j, k)

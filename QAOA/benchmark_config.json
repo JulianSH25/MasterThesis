@@ -3,9 +3,9 @@
   "parameter_vector": [1, 1, 1],
   "iterations_list": [50],
   "learning_rate_adam": 0.01,
-  "depth_list": [2],
+  "depth_list": [2, 5],
   "n_start": 3,
-  "n_end": 8,
+  "n_end": 10,
   "singlet_injection": false,
   "start_index_singlet": 0,
   "warm_start": true,
@@ -15,10 +15,11 @@
   "use_correlations_as_initial_params": false,
   "time_limit": 10800,
   "failed_instance_termination_thrsh": 10,
-  "graph_generation_type": "complete",
+  "graph_generation_type": "line",
   "weighted": false,
   "easiest_first": true,
   "cpu_util_threshold": 90,
   "debug": true,
-  "rerun_exclude_finished_instances": true
+  "save_circuit_svg": false,
+  "rerun_exclude_finished_instances": false
 }
