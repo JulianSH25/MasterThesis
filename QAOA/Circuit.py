@@ -2,10 +2,14 @@ from qiskit import QuantumCircuit, transpile
 from qiskit.circuit import ParameterVector
 from qiskit_aer import Aer
 from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace, SparsePauliOp
+from scipy.stats import contingency
+import csv
 
 from StatePrep import prepare_line_singlet_circuit
 from utils import set_random_params, get_benchmark_params
 import numpy as np
+import sys, uuid, time
+from pathlib import Path
 from collections import defaultdict
 
 use_measurements = False
@@ -20,6 +24,7 @@ class QAOACircuit(QuantumCircuit):
         :param edges: list of graph edges as qubit index pairs
         :param weights: edge weights aligned with edges
         """
+        self.uid = str(uuid.uuid4())[:8]
         self.n = n # number of nodes
         self.p = p # Circuit depth; number of layers
         self.edges = edges
@@ -37,7 +42,46 @@ class QAOACircuit(QuantumCircuit):
         benchm_params = get_benchmark_params()
         self.start_index = benchm_params['start_index_singlet']
         self.debug = benchm_params['debug']
+        self.debug_path = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else None
+        self.debug_run_counter = 0
+        self.parameter_log_path: Path | None = None # NOTE for debugging only
         self.initial_ws_energy = None
+
+    def _append_parameter_log_row(self, gamma_values, beta_values) -> None:
+        if not self.debug:
+            return
+
+        if not self.debug_path:
+            print("Parameter logging skipped because debug_path is not set.")
+            return
+
+        debug_dir = Path(self.debug_path)
+        debug_dir.mkdir(parents=True, exist_ok=True)
+
+        if self.parameter_log_path is None:
+            self.parameter_log_path = debug_dir / (
+                f"{self.n}_{self.p}_{len(self.edges)}_{self.uid}_parameter_trace.csv"
+            )
+
+        fieldnames = ["bind_index", "run_counter_at_bind", "timestamp"]
+        fieldnames.extend([f"gamma_{i + 1}" for i in range(self.p)])
+        fieldnames.extend([f"beta_{i + 1}" for i in range(self.p)])
+
+        next_run_counter = self.debug_run_counter + 1
+        row = {
+            "bind_index": next_run_counter,
+            "run_counter_at_bind": self.debug_run_counter,
+            "timestamp": time.time(),
+        }
+        row.update({f"gamma_{i + 1}": float(gamma_values[i]) for i in range(self.p)})
+        row.update({f"beta_{i + 1}": float(beta_values[i]) for i in range(self.p)})
+
+        write_header = not self.parameter_log_path.exists()
+        with self.parameter_log_path.open("a", newline="") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            if write_header:
+                writer.writeheader()
+            writer.writerow(row)
 
     def _pauli_label_for_edge(self, i: int, j: int, pauli: str) -> str:
         """
@@ -116,6 +160,7 @@ class QAOACircuit(QuantumCircuit):
 
         #self.qc_no_params = self.qc.copy()
         self.qc = self.qc_no_params.assign_parameters(bind_map, inplace=False)
+        self._append_parameter_log_row(gamma_values=gamma_values, beta_values=beta_values)
 
     @staticmethod
     def qaoa_compute_energy(product_states, edges, weights=None, params = None):
@@ -161,6 +206,19 @@ class QAOACircuit(QuantumCircuit):
             self.qc.rxx(-2*x, i, j)
             self.qc.ryy(-2*x, i, j)
             self.qc.rzz(-2*x, i, j)
+
+    def print_circuit(self, circuit = None, name_addition = "", print_to_log = False):
+        try:
+            circuit = circuit if circuit is not None else self.qc
+            print("Quantum circuit build:")
+            print(circuit.draw()) if print_to_log else print("Circuit drawing skipped in console output due to print_to_log=False; Saving to svg file instead.")
+            debug_path = Path(self.debug_path)
+            debug_path.mkdir(parents=True, exist_ok=True)
+            fig = circuit.draw(output="mpl", fold=1000)
+            fig.savefig(debug_path / f"{self.n}_{self.p}_{len(self.edges)}_{str(uuid.uuid4())[:8]}_{name_addition}_circuit.svg", bbox_inches="tight")
+        except Exception as e:
+            print(f"Logging of cirquit failed with exception: {e}")
+            pass
 
     def build_qaoa_maxcut_circuit(self, add_measurements=True):
         """
@@ -220,16 +278,21 @@ class QAOACircuit(QuantumCircuit):
             print("Default QAOA state preparation: Equal superposition")
 
         for layer in range(self.p):
-            gamma = self.gammas[layer]#
+            gamma = self.gammas[layer]
             beta  = self.betas[layer]
 
             # add Cost Hamiltonian for all edges, taking into account their respective weights
             a, b, c = self.params
             for (j, k), w in zip(self.edges, self.weights):
                 w = w/ (1 + a + b + c)
-                self.qc.rxx(-2 * gamma * w * a, j, k)
+                self.qc.rxx(gamma, j, k)
+                self.qc.ryy(gamma, j, k)
+                self.qc.rzz(gamma, j, k)
+                # BUG this is a temporary change to test for possible bugs.
+                # NOTE the above temporary notation does NOT accomodate for weighted instances
+                """self.qc.rxx(-2 * gamma * w * a, j, k)
                 self.qc.ryy(-2 * gamma * w * b, j, k)
-                self.qc.rzz(-2 * gamma * w * c, j, k)  # z_j z_k, i.e. z interaction term between qubtis j and k
+                self.qc.rzz(-2 * gamma * w * c, j, k) """ # z_j z_k, i.e. z interaction term between qubtis j and k
                 # The factor 2 accomodates for qiskits default weighting of /2 for .rzz, .rxx, .ryy
 
             # add Mixer Hamiltionian for all nodes
@@ -245,6 +308,9 @@ class QAOACircuit(QuantumCircuit):
         self.qc_no_params = self.qc.copy()
         self.build_cost_operator()
 
+        if self.debug:
+            self.print_circuit(name_addition=f"initial_({self.debug_run_counter})", print_to_log=True)
+
         return self.qc, self.gammas, self.betas # TODO Consider removing since all returned params are now class variables
 
     def run_circuit(
@@ -257,11 +323,14 @@ class QAOACircuit(QuantumCircuit):
         """Runs the circuit on the specified backend and returns the results. A quantum circuit needs to be passed. All other parameters are optional."""
         assert self.qc is not None
         assert self.gammas is not None and self.betas is not None
+        self.debug_run_counter += 1
         if return_statevector:
             qc_bound = self.qc.remove_final_measurements(inplace=False)
+            self.print_circuit(qc_bound, name_addition=f"run_{self.debug_run_counter}") if self.debug else None
             return Statevector.from_instruction(qc_bound)
 
         tqc = transpile(self.qc, backend=self.backend, optimization_level=1)
+        self.print_circuit(tqc, name_addition=f"run_{self.debug_run_counter}") if self.debug else None
 
         run_args = {"shots": shots}
         if seed is not None:
