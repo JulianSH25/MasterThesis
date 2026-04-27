@@ -31,6 +31,7 @@ class QAOACircuit(QuantumCircuit):
         self.p = p # Circuit depth; number of layers
         self.edges = edges
         self.weights = weights
+        self.circuit_type = get_benchmark_params()['circuit_type'].lower()
         self.no_param_types = None
         self.qaoa_parameters: list[np.ndarray[float]] = [] # e.g. [gammas, betas] -> this implementation enables to have more parameters than just fixed gamma and beta
         self.param_ranges: list[tuple] | tuple = [(0, 2*pi), (0, pi)]
@@ -350,32 +351,48 @@ class QAOACircuit(QuantumCircuit):
             self.qc.h(range(self.n)) # Default: equal superposition
             print("Default QAOA state preparation: Equal superposition")
 
-        for layer in range(self.p):
-            gamma = self.qaoa_parameters[0][layer]
-            beta = self.qaoa_parameters[1][layer]
+        a, b, c = self.params
+        if self.circuit_type == 'standard':
+            print("Building standard QAOA circuit with 2 parameter types (γ and β)")
+            for layer in range(self.p):
+                gamma = self.qaoa_parameters[0][layer]
+                beta = self.qaoa_parameters[1][layer]
 
-            # add Cost Hamiltonian for all edges, taking into account their respective weights
-            a, b, c = self.params
-            for (j, k), w in zip(self.edges, self.weights):
-                w = w/ (1 + a + b + c)
-                # NOTE multiplying all parameters by 2 since qiskit's rxx, ryy, rzz gates apply a rotation of theta/2 for an input angle theta; i.e. we undo the default 1/2 division to allow full parameter range!
-                self.qc.rxx(2*gamma, j, k)
-                self.qc.ryy(2*gamma, j, k)
-                self.qc.rzz(2*gamma, j, k)
-                # BUG this is a temporary change to test for possible bugs.
-                # NOTE the above temporary notation does NOT accomodate for weighted instances
-                """self.qc.rxx(-2 * gamma * w * a, j, k)
-                self.qc.ryy(-2 * gamma * w * b, j, k)
-                self.qc.rzz(-2 * gamma * w * c, j, k) """ # z_j z_k, i.e. z interaction term between qubtis j and k
-                # The factor 2 accomodates for qiskits default weighting of /2 for .rzz, .rxx, .ryy
+                # add Cost Hamiltonian for all edges, taking into account their respective weights
+                for (j, k), w in zip(self.edges, self.weights):
+                    w = w/ (1 + a + b + c)
+                    # NOTE multiplying all parameters by 2 since qiskit's rxx, ryy, rzz gates apply a rotation of theta/2 for an input angle theta; i.e. we undo the default 1/2 division to allow full parameter range!
+                    self.qc.rxx(2*gamma, j, k)
+                    self.qc.ryy(2*gamma, j, k)
+                    self.qc.rzz(2*gamma, j, k)
+                    # BUG this is a temporary change to test for possible bugs.
+                    # NOTE the above temporary notation does NOT accomodate for weighted instances
+                    """self.qc.rxx(-2 * gamma * w * a, j, k)
+                    self.qc.ryy(-2 * gamma * w * b, j, k)
+                    self.qc.rzz(-2 * gamma * w * c, j, k) """ # z_j z_k, i.e. z interaction term between qubtis j and k
+                    # The factor 2 accomodates for qiskits default weighting of /2 for .rzz, .rxx, .ryy
 
-            # add Mixer Hamiltionian for all nodes
-            self.qc.rx(2 * beta, range(self.n))
-            self.qc.rz(2 * beta, range(self.n)) # NOTE experimental
-            self.qc.ry(2 * beta, range(self.n)) # NOTE experimental
-            print(f"Layer {layer}: Added Cost and Mixer unitaries with gamma={gamma} and beta={beta}")
-            print(".rz and .ry mixer terms added in addition to classical .rx mixer") # TODO remove print if rz, ry not used!
-
+                # add Mixer Hamiltionian for all nodes
+                self.qc.rx(2 * beta, range(self.n))
+                self.qc.rz(2 * beta, range(self.n)) # NOTE experimental
+                self.qc.ry(2 * beta, range(self.n)) # NOTE experimental
+                print(f"Layer {layer}: Added Cost and Mixer unitaries with gamma={gamma} and beta={beta}")
+                print(".rz and .ry mixer terms added in addition to classical .rx mixer") # TODO remove print if rz, ry not used!
+        elif self.circuit_type == 'hamqaoa':
+            # TODO: Implement HAMQAOA circuit building
+            for layer in range(self.p):
+                a, b, c, d = self.qaoa_parameters[0][layer], self.qaoa_parameters[1][layer], self.qaoa_parameters[2][layer], self.qaoa_parameters[3][layer]
+                for (j, k), w in zip(self.edges, self.weights):
+                    self.qc.rzz(2*a, j, k)
+                self.qc.rx(2*b, range(self.n))
+                self.qc.rz(2*c, range(self.n))
+                idx = 1
+                for i in range(self.n):
+                    self.qc.r((-1)**idx * 2*d, i)
+                    idx += 1
+        else:
+            raise ValueError(f"Unsupported circuit type: {self.circuit_type} in build_qaoa_maxcut_circuit()")
+        
         if add_measurements:
             self.qc.measure(range(self.n), range(self.n))
 
@@ -453,7 +470,7 @@ if __name__ == "__main__":
 
     counts_higher_energy, counts_lower_energy = 0, 0
     def benchmark():
-        gamma_values, beta_values = set_random_params(p)
+        gamma_values, beta_values = set_random_params(p, range=(0, 2*np.pi)), set_random_params(p, range=(0, np.pi))
         print(gamma_values, beta_values)
 
 
