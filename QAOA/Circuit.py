@@ -10,6 +10,7 @@ from StatePrep import prepare_line_singlet_circuit
 from utils import set_random_params, get_benchmark_params
 import numpy as np
 import sys, uuid, time
+import warnings
 from pathlib import Path
 from collections import defaultdict
 
@@ -30,8 +31,9 @@ class QAOACircuit(QuantumCircuit):
         self.p = p # Circuit depth; number of layers
         self.edges = edges
         self.weights = weights
-        self.gammas: np.ndarray[float] = None
-        self.betas: np.ndarray[float] = None
+        self.no_param_types = None
+        self.qaoa_parameters: list[np.ndarray[float]] = [] # e.g. [gammas, betas] -> this implementation enables to have more parameters than just fixed gamma and beta
+        self.param_ranges: list[tuple] | tuple = [(0, 2*pi), (0, pi)]
         self.qc: QuantumCircuit = None
         self.qc_no_params: QuantumCircuit = None # Auxiliary variable that is used to update the quantum circuit parameters
         self.backend = Aer.get_backend('qasm_simulator')
@@ -50,7 +52,32 @@ class QAOACircuit(QuantumCircuit):
         self.parameter_log_path: Path | None = None # NOTE for debugging only
         self.initial_ws_energy = None
 
-    def _append_parameter_log_row(self, gamma_values, beta_values) -> None:
+        circuit_type = get_benchmark_params()['circuit_type']
+        if circuit_type == 'standard':
+            self.no_param_types = 2
+        elif 'no_param_types' in benchm_params:
+            self.no_param_types = int(benchm_params['no_param_types'])
+
+    @property
+    def gammas(self):
+        warnings.warn(
+            "QAOACircuit.gammas is deprecated. Use self.qaoa_parameters[0] instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.qaoa_parameters[0] if len(self.qaoa_parameters) > 0 else None
+
+    @property
+    def betas(self):
+        warnings.warn(
+            "QAOACircuit.betas is deprecated. Use self.qaoa_parameters[1] instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.qaoa_parameters[1] if len(self.qaoa_parameters) > 1 else None
+        
+
+    def _append_parameter_log_row(self, parameters: list[list[float]]) -> None:
         if not self.debug:
             return
 
@@ -67,8 +94,14 @@ class QAOACircuit(QuantumCircuit):
             )
 
         fieldnames = ["bind_index", "run_counter_at_bind", "previous_result", "timestamp"]
-        fieldnames.extend([f"gamma_{i + 1}" for i in range(self.p)])
-        fieldnames.extend([f"beta_{i + 1}" for i in range(self.p)])
+        for group_index, param_group in enumerate(parameters):
+            if group_index == 0:
+                prefix = "gamma"
+            elif group_index == 1:
+                prefix = "beta"
+            else:
+                prefix = f"theta{group_index + 1}"
+            fieldnames.extend([f"{prefix}_{i + 1}" for i in range(len(param_group))])
 
         next_run_counter = self.debug_run_counter + 1
         row = {
@@ -77,8 +110,14 @@ class QAOACircuit(QuantumCircuit):
             "previous_result": self.debug_previous_result,
             "timestamp": time.time(),
         }
-        row.update({f"gamma_{i + 1}": float(gamma_values[i]) for i in range(self.p)})
-        row.update({f"beta_{i + 1}": float(beta_values[i]) for i in range(self.p)})
+        for group_index, param_group in enumerate(parameters):
+            if group_index == 0:
+                prefix = "gamma"
+            elif group_index == 1:
+                prefix = "beta"
+            else:
+                prefix = f"theta{group_index + 1}"
+            row.update({f"{prefix}_{i + 1}": float(param_group[i]) for i in range(len(param_group))})
 
         write_header = not self.parameter_log_path.exists()
         with self.parameter_log_path.open("a", newline="") as csvfile:
@@ -140,40 +179,53 @@ class QAOACircuit(QuantumCircuit):
 
     def bind_circuit_parameters(
         self,
-        gamma_values,
-        beta_values,
+        parameters: list[np.ndarray]
     ) -> None:
         """
         This method binds numeric values to a parameterized QAOA circuit.
 
         # made class variable: :param qc: Qiskit QuantumCircuit object
-        # made class variable: :param gammas: ParameterVector (or list of Parameter) for the cost-layer angles γ[0..p-1] (original placeholders/previous assignments)
-        # made class variable: :param betas: ParameterVector (or list of Parameter) for the mixer-layer angles β[0..p-1] (original placeholders/previous assignments)
-        :param gamma_values: list of float parameter values for the edge interaction gates
-        :param beta_values: list of float parameter values for the individual node X rotation gates
+        :param parameters: list of parameter groups matching self.qaoa_parameters,
+            e.g. [gamma_values, beta_values]
         :return: Qiskit QuantumCircuit object (i.e. parameterized version of the passed QAOA circuit (:param qc), to be used in place of the passed circuit)
         """
-        if len(gamma_values) != len(self.gammas) or len(beta_values) != len(self.betas):
+        assert self.qaoa_parameters is not None and len(self.qaoa_parameters) > 0
+
+        if len(parameters) != len(self.qaoa_parameters):
             raise ValueError(
-                f"Length mismatch: len(gamma_values)={len(gamma_values)} vs {len(self.gammas)}, "
-                f"len(beta_values)={len(beta_values)} vs {len(self.betas)}"
+                f"Length mismatch: len(parameters)={len(parameters)} vs len(self.qaoa_parameters)={len(self.qaoa_parameters)}"
             )
 
-        # Wrap negative angles to [0, 2π] for gammas and [0, π] for betas to ensure consistent parameter logging and circuit binding
-        # TODO consider doing this in the optimiser already to avoid future bugs
-        for i in range(len(gamma_values)):
-            if float(gamma_values[i]) < 0:
-                gamma_values[i] = 2*pi - float(gamma_values[i])  # Wrap negative angles to [0, 2π]
-        for i in range(len(beta_values)):
-            if float(beta_values[i]) < 0:
-                beta_values[i] = pi - float(beta_values[i])  # Wrap negative angles to [0, 2π]
+        bind_map = {}
+        normalised_parameters: list[list[float]] = []
 
-        bind_map = {self.gammas[i]: float(gamma_values[i]) if float(gamma_values[i]) >= 0 else pi for i in range(len(self.gammas))}
-        bind_map.update({self.betas[i]: float(beta_values[i]) for i in range(len(self.betas))})
+        for idx, (parameter_vector, parameter_values) in enumerate(zip(self.qaoa_parameters, parameters)):
+            if len(parameter_values) != len(parameter_vector):
+                raise ValueError(
+                    f"Length mismatch in parameter group {idx}: len(values)={len(parameter_values)} vs len(vector)={len(parameter_vector)}"
+                )
+
+            if isinstance(self.param_ranges, list):
+                if len(self.param_ranges) == 0:
+                    raise ValueError("self.param_ranges must not be empty when provided as a list")
+                bounds = self.param_ranges[idx] if idx < len(self.param_ranges) else self.param_ranges[-1]
+            else:
+                bounds = self.param_ranges
+            LB, UB = bounds
+
+            normalised_values: list[float] = []
+            for value in parameter_values:
+                value = float(value)
+                if value < LB:
+                    value = UB - value  # Keep values in configured range for stable binding/logging
+                normalised_values.append(value)
+
+            bind_map.update({parameter_vector[i]: normalised_values[i] for i in range(len(parameter_vector))})
+            normalised_parameters.append(normalised_values)
 
         #self.qc_no_params = self.qc.copy()
         self.qc = self.qc_no_params.assign_parameters(bind_map, inplace=False)
-        self._append_parameter_log_row(gamma_values=gamma_values, beta_values=beta_values)
+        self._append_parameter_log_row(parameters=normalised_parameters)
 
     @staticmethod
     def qaoa_compute_energy(product_states, edges, weights=None, params = None):
@@ -257,8 +309,12 @@ class QAOACircuit(QuantumCircuit):
         assert len(self.weights) == len(self.edges)
 
         # Placeholder parameter vectors (angles)
-        self.gammas = ParameterVector("γ", self.p)
-        self.betas  = ParameterVector("β", self.p)
+        no_param_types = int(self.no_param_types) if self.no_param_types is not None else 2
+        if no_param_types < 2:
+            raise ValueError(f"no_param_types must be >= 2 for this circuit, got {no_param_types}")
+
+        param_names = ["γ", "β"] + [f"θ{k + 3}" for k in range(no_param_types - 2)]
+        self.qaoa_parameters = [ParameterVector(name, self.p) for name in param_names]
 
         self.qc = QuantumCircuit(self.n, self.n if add_measurements else 0)
 
@@ -294,8 +350,8 @@ class QAOACircuit(QuantumCircuit):
             print("Default QAOA state preparation: Equal superposition")
 
         for layer in range(self.p):
-            gamma = self.gammas[layer]
-            beta  = self.betas[layer]
+            gamma = self.qaoa_parameters[0][layer]
+            beta = self.qaoa_parameters[1][layer]
 
             # add Cost Hamiltonian for all edges, taking into account their respective weights
             a, b, c = self.params
@@ -328,7 +384,7 @@ class QAOACircuit(QuantumCircuit):
         if self.debug:
             self.print_circuit(name_addition=f"initial_({self.debug_run_counter})", print_to_log=True)
 
-        return self.qc, self.gammas, self.betas # TODO Consider removing since all returned params are now class variables
+        return self.qc, self.qaoa_parameters
 
     def run_circuit(
             self,
@@ -339,7 +395,7 @@ class QAOACircuit(QuantumCircuit):
         # TODO rewrite for clean code; seperate classical result return from quantum result return (currently via param :return_statevector)
         """Runs the circuit on the specified backend and returns the results. A quantum circuit needs to be passed. All other parameters are optional."""
         assert self.qc is not None
-        assert self.gammas is not None and self.betas is not None
+        assert self.qaoa_parameters is not None and len(self.qaoa_parameters) > 0
         self.debug_run_counter += 1
         if return_statevector: # NOTE this is the Quantum Max Cut case
             qc_bound = self.qc.remove_final_measurements(inplace=False)
@@ -400,8 +456,8 @@ if __name__ == "__main__":
         print(gamma_values, beta_values)
 
 
-        def test(qc, gammas, betas):
-            QAOA.bind_circuit_parameters(gamma_values=gamma_values, beta_values=beta_values)
+        def test(qc):
+            QAOA.bind_circuit_parameters(parameters=[gamma_values, beta_values])
             assert QAOA.qc.num_parameters == 0
             results, _ = QAOA.run_circuit(shots=1024, return_statevector=not use_measurements)
 
@@ -420,16 +476,16 @@ if __name__ == "__main__":
                 return None
 
         QAOA.self_init_linegraph = True
-        qc_, gammas_, betas_ = QAOA.build_qaoa_maxcut_circuit()
+        qc_, _ = QAOA.build_qaoa_maxcut_circuit()
         print(qc_.draw("text"))
         """Test on equal superposition:"""
-        energy_injected = test(qc_, gammas_, betas_)
+        energy_injected = test(qc_)
 
         QAOA.self_init_linegraph = False
-        qc_, gammas_, betas_ = QAOA.build_qaoa_maxcut_circuit()
+        qc_, _ = QAOA.build_qaoa_maxcut_circuit()
         print(qc_.draw("text"))
         """Test on random initial state:"""
-        energy_equal_superpos = test(qc_, gammas_, betas_)
+        energy_equal_superpos = test(qc_)
 
         print(f"Energy injected: {energy_injected}")
         print(f"Energy equal superposition: {energy_equal_superpos}")

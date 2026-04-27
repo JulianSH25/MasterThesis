@@ -1,5 +1,6 @@
 {
   "optimiser": "gridsearch",
+  "circuit_type": "standard",
   "parameter_vector": [1, 1, 1],
   "iterations_list": [0.1],
   "learning_rate_adam": 0.05,

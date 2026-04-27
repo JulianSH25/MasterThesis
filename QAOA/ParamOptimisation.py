@@ -34,16 +34,17 @@ debug = benchmark_params["debug"]
 Energies: list[float] = [] # Used to store energy values from each QAOA iteration; Used in eval_QAOA_circuit (right below)
 Optimisation_time: list[float] = [] # Used to store time taken for each evaluation of the objective function during ADAM & COBYLA optimisation;
 
-def eval_QAOA_circuit(point: tuple[np.ndarray, np.ndarray], QAOA: QAOACircuit) -> float:
+def eval_QAOA_circuit(point: list[np.ndarray], QAOA: QAOACircuit) -> float:
     # Step 2
     """This function receives a set of points, i.e. QAOA parameters, and evaluates the actual QAOA circuit on those parameters, returns the QAOA value found"""
 
-    QAOA.bind_circuit_parameters(gamma_values=point[0], beta_values=point[1])
+    QAOA.bind_circuit_parameters(parameters=point)
     statevec = QAOA.run_circuit(return_statevector=True)
     E = QAOA.compute_energy_from_statevector(statevec)
     QAOA.debug_previous_result = E
     Energies.append(E)
     return E
+
 
 class BayesianOptimiser:
     @staticmethod
@@ -284,58 +285,69 @@ def optimise_adam(
     return result
 
 
-def grid_search_parameters(
-    precision: float,
-    p: int,
-    shuffle: bool = True,
-) -> list[tuple[np.ndarray, np.ndarray]]:
+def grid_search(QAOA: QAOACircuit, no_layers: int, precision: float, shuffle: bool = False):
+    group_lengths = [len(parameter_group) for parameter_group in QAOA.qaoa_parameters]
+    if not group_lengths:
+        raise ValueError("QAOA.qaoa_parameters must be populated before grid search")
+
     if precision <= 0:
         raise ValueError("precision must be positive")
-    if p <= 0:
-        raise ValueError("p must be positive")
-    print(f"Generating grid search parameters with precision {precision} and p {p}")    
+    if any(length <= 0 for length in group_lengths):
+        raise ValueError("all group lengths must be positive")
 
-    gamma_values = np.arange(0, 2 * pi, precision, dtype=float)
-    beta_values = np.arange(0, pi, precision, dtype=float)
+    if no_layers is not None and any(length != no_layers for length in group_lengths):
+        print(
+            f"Grid search received no_layers={no_layers}, but QAOA.qaoa_parameters has group lengths {group_lengths}. "
+            f"Using the circuit-defined lengths instead."
+        )
 
-    full_grid = [gamma_values] * p + [beta_values] * p
+    if isinstance(QAOA.param_ranges, list):
+        if len(QAOA.param_ranges) == 0:
+            raise ValueError("QAOA.param_ranges must not be empty when provided as a list")
+        parameter_ranges = list(QAOA.param_ranges)
+        if len(parameter_ranges) < len(group_lengths):
+            parameter_ranges.extend([parameter_ranges[-1]] * (len(group_lengths) - len(parameter_ranges)))
+        parameter_ranges = parameter_ranges[:len(group_lengths)]
+    else:
+        parameter_ranges = [QAOA.param_ranges] * len(group_lengths)
 
-    parameters: list[tuple[np.ndarray, np.ndarray]] = []
+    value_spaces = [np.arange(lb, ub, precision, dtype=float) for lb, ub in parameter_ranges]
+    parameter_axes = [value_spaces[group_index] for group_index, length in enumerate(group_lengths) for _ in range(length)]
 
-    for params in itertools.product(*full_grid):
-        gammas = np.array(params[:p], dtype=float)
-        betas = np.array(params[p:], dtype=float)
-        parameters.append((gammas, betas))
+    def parameter_stream():
+        for params in itertools.product(*parameter_axes):
+            offset = 0
+            grouped_params = []
+            for length in group_lengths:
+                grouped_params.append(np.array(params[offset:offset + length], dtype=float))
+                offset += length
+            yield tuple(grouped_params)
 
-    if shuffle:
-        random.shuffle(parameters) # Just for fun
-
-    return parameters
-
-def grid_search(QAOA: QAOACircuit, no_layers: int, precision: float):
-    parameters_grid = grid_search_parameters(precision, no_layers)
+    total_parameters = 1
+    for bounds, length in zip(parameter_ranges, group_lengths):
+        axis_size = len(np.arange(bounds[0], bounds[1], precision, dtype=float))
+        total_parameters *= axis_size ** length
 
     y: list[float] = []
 
     n = 1
     f_m = 0  # Best minimum of function
     print(f"Starting optimization with f_m={f_m}")
-    for point in parameters_grid:
+    
+    for point in parameter_stream():
         # Step I: Posteerior update now happens at the end of the loop, where also the optimisation parameters sigma, l are updated
         #assert len(points) == len(y)
         eval = eval_QAOA_circuit(point, QAOA=QAOA)
         if eval > f_m:  # NOTE somehow the paper says to minimise, but we will now be maximising!
             f_m = eval
-            print(f"New best energy found: {f_m} in iteration {n} out of {len(parameters_grid)}")
+            print(f"New best energy found: {f_m} in iteration {n} out of {total_parameters}")
         # training_set[maximising_point] = eval
         y.append(eval)
-        if n % 1000 == 0 or n == len(parameters_grid):
-            print(f"Status Report: Finished iteration {n} out of {len(parameters_grid)}. Current energy: {f_m}. Timestamp: {time.strftime('%H:%M:%S', time.gmtime(time.time()))}")
+        if n % 1000 == 0 or n == total_parameters:
+            print(f"Status Report: Finished iteration {n} out of {total_parameters}. Current energy: {f_m}. Timestamp: {time.strftime('%H:%M:%S', time.gmtime(time.time()))}")
         n += 1
 
     return f_m
 
 if __name__ == "__main__":
-    params = grid_search_parameters(0.5, 1, shuffle=False)
-    print(len(params))
-    print(params)
+    print("ParamOptimisation grid search helpers are intended to be used via Main.py.")
