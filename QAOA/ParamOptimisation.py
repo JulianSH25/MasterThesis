@@ -182,7 +182,9 @@ def optimise_cobyla(
     use_corr_init = benchmark_params["use_correlations_as_initial_params"]
 
     if x0 is None:
-        gamma, beta = set_random_params(no_layers, init_close_to_zero=init_close_to_zero)
+        parameters = []
+        for _ in range(QAOA.no_param_types):
+            parameters.append(set_random_params(QAOA.p, QAOA.param_ranges, init_close_to_zero=init_close_to_zero))
         print(f"Using random initial parameters with gamma {gamma} and beta {beta}")
 
         if use_corr_init and correlations is not None:
@@ -194,19 +196,19 @@ def optimise_cobyla(
         elif use_corr_init and correlations is None:
             raise ValueError("correlations must be provided if use_correlations_as_initial_params is True")
 
-        x0 = np.concatenate([gamma, beta])
+        x0 = np.concatenate(parameters).astype(float)
     else:
         x0 = np.asarray(x0, dtype=float)
-        expected_dim = 2 * no_layers
+        expected_dim = QAOA.p * QAOA.no_param_types
         if x0.shape != (expected_dim,):
             raise ValueError(f"Expected x0 shape ({expected_dim},), got {x0.shape}")
         print(f"Using provided initial parameters x0 with shape {x0.shape}")
 
-    def objective(theta: np.ndarray) -> float:
+    def objective(x0: np.ndarray) -> float:
         start = time.time() # XXX Time
-        gamma_vals = theta[:no_layers]
-        beta_vals = theta[no_layers:]
-        energy = -eval_QAOA_circuit((gamma_vals, beta_vals), QAOA)
+        gamma_vals = x0[:no_layers]
+        beta_vals = x0[no_layers:]
+        energy = -eval_QAOA_circuit(x0, QAOA)
 
         Optimisation_time.append(time.time() - start) # XXX Time
 
@@ -223,7 +225,7 @@ def optimise_cobyla(
 def optimise_adam(
     QAOA: QAOACircuit,
     no_layers: int,
-    steps: int = 300,
+    steps: int,
     learning_rate: float = 0.05,
     x0: np.ndarray | None = None,
 ):
@@ -234,22 +236,23 @@ def optimise_adam(
 
     if x0 is None:
         init_close_to_zero = get_benchmark_params()["init_QAOAparams_close_to_zero"]
-        gamma, beta = set_random_params(no_layers, init_close_to_zero=init_close_to_zero)
-        x0 = np.concatenate([gamma, beta]).astype(float)
+        parameters = []
+        parameters.append(set_random_params(QAOA.p, range=QAOA.param_ranges, init_close_to_zero=init_close_to_zero)) # TODO adapt for more parameter types
+        x0 = np.concatenate(parameters).astype(float)
         print(f"Using random initial parameters with gamma {gamma} and beta {beta}")
     else:
         x0 = np.asarray(x0, dtype=float)
-        expected_dim = 2 * no_layers
+        expected_dim = QAOA.p * QAOA.no_param_types
         if x0.shape != (expected_dim,):
             raise ValueError(f"Expected x0 shape ({expected_dim},), got {x0.shape}")
         print(f"Using provided initial parameters x0 with shape {x0.shape}")
 
     dimension = 2 * no_layers
 
-    def objective_single(theta_single: np.ndarray) -> float:
-        gamma_vals = theta_single[:no_layers]
-        beta_vals = theta_single[no_layers:]
-        value = eval_QAOA_circuit((gamma_vals, beta_vals), QAOA)
+    def objective_single(x0: np.ndarray) -> float:
+        #gamma_vals = x0[:no_layers]
+        #beta_vals = x0[no_layers:]
+        value = eval_QAOA_circuit(x0, QAOA)
         if debug:
             print(f"Eval: {value}, negated: {-value}")
         return -value

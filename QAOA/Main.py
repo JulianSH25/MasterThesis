@@ -89,9 +89,9 @@ def get_peak_ram_mb():
         return None
 
 def main(
-    m=None,
-    p=20,
-    N_bayes=200,
+    p: int,
+    N_bayes: int | float,
+    m = None,
     init_initial_state=False,
     self_init_linegraph=False,
     edges=None,
