@@ -275,15 +275,16 @@ class QAOACircuit(QuantumCircuit):
     def print_circuit(self, circuit = None, name_addition = "", print_to_log = False):
         try:
             circuit = circuit if circuit is not None else self.qc
-            print("Quantum circuit build:")
-            print(circuit.draw()) if print_to_log else print("Circuit drawing skipped in console output due to print_to_log=False; Saving to svg file instead.")
+            #print("Quantum circuit build:")
+            #print(circuit.draw()) if print_to_log else print("Circuit drawing skipped in console output due to print_to_log=False; Saving to svg file instead.")
             if self.log_qc_svg and self.debug_path:
                 debug_path = Path(self.debug_path)
                 debug_path.mkdir(parents=True, exist_ok=True)
                 fig = circuit.draw(output="mpl", fold=1000)
                 fig.savefig(debug_path / f"{self.n}_{self.p}_{len(self.edges)}_{str(uuid.uuid4())[:8]}_{name_addition}_circuit.svg", bbox_inches="tight")
             else:
-                print(f"Circuit SVG saving skipped due to log_qc_svg=False or debug_path not set. [log_qc_svg={self.log_qc_svg}, debug_path={'set' if self.debug_path else 'not set'}]")
+                #print(f"Circuit SVG saving skipped due to log_qc_svg=False or debug_path not set. [log_qc_svg={self.log_qc_svg}, debug_path={'set' if self.debug_path else 'not set'}]")
+                pass
         except Exception as e:
             print(f"Logging of cirquit failed with exception: {e}")
             pass
