@@ -41,6 +41,7 @@ def eval_QAOA_circuit(point: tuple[np.ndarray, np.ndarray], QAOA: QAOACircuit) -
     QAOA.bind_circuit_parameters(gamma_values=point[0], beta_values=point[1])
     statevec = QAOA.run_circuit(return_statevector=True)
     E = QAOA.compute_energy_from_statevector(statevec)
+    QAOA.debug_previous_result = E
     Energies.append(E)
     return E
 
@@ -292,6 +293,7 @@ def grid_search_parameters(
         raise ValueError("precision must be positive")
     if p <= 0:
         raise ValueError("p must be positive")
+    print(f"Generating grid search parameters with precision {precision} and p {p}")    
 
     gamma_values = np.arange(0, 2 * pi, precision, dtype=float)
     beta_values = np.arange(0, pi, precision, dtype=float)

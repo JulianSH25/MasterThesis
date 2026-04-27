@@ -46,6 +46,7 @@ class QAOACircuit(QuantumCircuit):
         self.log_qc_svg = benchm_params['save_circuit_svg']
         self.debug_path = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else None
         self.debug_run_counter = 0
+        self.debug_previous_result: float | None = None
         self.parameter_log_path: Path | None = None # NOTE for debugging only
         self.initial_ws_energy = None
 
@@ -65,7 +66,7 @@ class QAOACircuit(QuantumCircuit):
                 f"{self.n}_{self.p}_{len(self.edges)}_{self.uid}_parameter_trace.csv"
             )
 
-        fieldnames = ["bind_index", "run_counter_at_bind", "timestamp"]
+        fieldnames = ["bind_index", "run_counter_at_bind", "previous_result", "timestamp"]
         fieldnames.extend([f"gamma_{i + 1}" for i in range(self.p)])
         fieldnames.extend([f"beta_{i + 1}" for i in range(self.p)])
 
@@ -73,6 +74,7 @@ class QAOACircuit(QuantumCircuit):
         row = {
             "bind_index": next_run_counter,
             "run_counter_at_bind": self.debug_run_counter,
+            "previous_result": self.debug_previous_result,
             "timestamp": time.time(),
         }
         row.update({f"gamma_{i + 1}": float(gamma_values[i]) for i in range(self.p)})
@@ -339,28 +341,29 @@ class QAOACircuit(QuantumCircuit):
         assert self.qc is not None
         assert self.gammas is not None and self.betas is not None
         self.debug_run_counter += 1
-        if return_statevector:
+        if return_statevector: # NOTE this is the Quantum Max Cut case
             qc_bound = self.qc.remove_final_measurements(inplace=False)
             self.print_circuit(qc_bound, name_addition=f"run_{self.debug_run_counter}") if self.debug else None
             return Statevector.from_instruction(qc_bound)
+        else:
+            tqc = transpile(self.qc, backend=self.backend, optimization_level=1)
+            self.print_circuit(tqc, name_addition=f"run_{self.debug_run_counter}") if self.debug else None
 
-        tqc = transpile(self.qc, backend=self.backend, optimization_level=1)
-        self.print_circuit(tqc, name_addition=f"run_{self.debug_run_counter}") if self.debug else None
+            run_args = {"shots": shots}
+            if seed is not None:
+                run_args["seed_simulator"] = int(seed)
 
-        run_args = {"shots": shots}
-        if seed is not None:
-            run_args["seed_simulator"] = int(seed)
+            result = self.backend.run(tqc, **run_args).result()
 
-        result = self.backend.run(tqc, **run_args).result()
+            product_states: dict[tuple[int, int], np.ndarray] = {}
+            total_energy = 0
+            for (i, j), w in zip(self.edges, self.weights):
+                res = self.two_qubit_marginal(psi=result, n=self.n, i=0, j=1)
+                product_states[(i, j)] = res
+            total_energy = QAOACircuit.qaoa_compute_energy(product_states, self.edges, self.weights, params=self.params).real
+            self.debug_previous_result = total_energy
 
-        product_states: dict[tuple[int, int], np.ndarray] = {}
-        total_energy = 0
-        for (i, j), w in zip(self.edges, self.weights):
-            res = self.two_qubit_marginal(psi=result, n=self.n, i=0, j=1)
-            product_states[(i, j)] = res
-        total_energy = QAOACircuit.qaoa_compute_energy(product_states, self.edges, self.weights, params=self.params).real
-
-        return result.get_counts(), total_energy
+            return result.get_counts(), total_energy
 
     @staticmethod
     def two_qubit_marginal(psi, n, i, j):
