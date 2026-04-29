@@ -240,7 +240,10 @@ def optimise_adam(
     worst_result, best_result_value = float("inf"), float("-inf")
     best_result_obj = None
     best_results_log = []
-    for _ in range(benchmark_params.get("optimiser_debug_iterations", 1)):
+    _iterations = benchmark_params.get("optimiser_debug_iterations")
+    _iterations = 1 if _iterations is None else _iterations
+    assert type(_iterations)==int
+    for _ in range(_iterations, 1):
         print(f"Debug iteration {_+1}/{benchmark_params.get('optimiser_debug_iterations', 1)}")
         result = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=x0)
         if -result.fun < worst_result:
