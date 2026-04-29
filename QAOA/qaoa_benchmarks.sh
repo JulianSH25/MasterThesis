@@ -105,7 +105,7 @@ min_free_ram_mb=1024
 
 # Max number of concurrent jobs.
 # Default to the number of physical CPU cores, with a fallback to 4.
-max_parallel=4 #$(sysctl -n hw.physicalcpu 2>/dev/null || echo 4)
+max_parallel=$(sysctl -n hw.physicalcpu 2>/dev/null || echo 4)
 
 # Gradually ramp up concurrency instead of immediately jumping to max_parallel.
 # This reduces the chance of suddenly launching many large-RAM jobs at once.
