@@ -79,6 +79,18 @@ stop_launching=0
 # Detect chip / SoC name once.
 chip_name=$(system_profiler SPHardwareDataType 2>/dev/null | awk -F': ' '/Chip|Processor Name/ {print $2; exit}')
 
+# Detect core count for thread settings.
+# Prefer physical cores for compute-heavy BLAS operations.
+physical_cores=$(sysctl -n hw.physicalcpu 2>/dev/null || echo "")
+logical_cores=$(sysctl -n hw.logicalcpu 2>/dev/null || echo "")
+if [[ -z "${physical_cores}" || "${physical_cores}" == "0" ]]; then
+    physical_cores=${logical_cores}
+fi
+if [[ -z "${physical_cores}" || "${physical_cores}" == "0" ]]; then
+    physical_cores=1
+fi
+blas_threads=${physical_cores}
+
 # Run jobs in a lower-priority / efficiency-oriented mode on selected chips.
 # taskpolicy supports background QoS clamps on macOS.
 use_background_mode=0
@@ -104,8 +116,9 @@ use_ram_limit=1
 min_free_ram_mb=1024
 
 # Max number of concurrent jobs.
-# Default to the number of physical CPU cores, with a fallback to 4.
-max_parallel=$(sysctl -n hw.physicalcpu 2>/dev/null || echo 4)
+# Set to 1 for sequential execution to avoid system crashes with OpenBLAS.
+# OpenBLAS is compiled with USE_OPENMP=0, causing resource contention in parallel mode.
+max_parallel=1
 
 # Gradually ramp up concurrency instead of immediately jumping to max_parallel.
 # This reduces the chance of suddenly launching many large-RAM jobs at once.
@@ -405,9 +418,10 @@ while read -r score iterations p n; do
     fi
 
     nohup zsh -c "
-        export OMP_NUM_THREADS=1
-        export OPENBLAS_NUM_THREADS=1
-        export MKL_NUM_THREADS=1
+        export OMP_NUM_THREADS=${blas_threads}
+        export OPENBLAS_NUM_THREADS=${blas_threads}
+        export MKL_NUM_THREADS=${blas_threads}
+        export NUMEXPR_NUM_THREADS=${blas_threads}
         nice -n ${nice_value} ${cmd}
         exit_code=\$?
         timed_out=0
@@ -439,4 +453,4 @@ rm -f "$jobs_file"
 
 echo "All jobs submitted."
 echo "Benchmark configuration from ${config_file}:"$'\n'"${benchmark_config_dump}"
-echo "Detected chip: ${chip_name:-unknown}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; ram_recovery_samples_required: ${ram_recovery_samples_required}; ram_recovery_sample_interval_seconds: ${ram_recovery_sample_interval_seconds}; timeout_streak_limit: ${timeout_streak_limit}; python_bin: ${python_bin}"
+echo "Detected chip: ${chip_name:-unknown}; physical_cores: ${physical_cores}; logical_cores: ${logical_cores}; blas_threads: ${blas_threads}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; ram_recovery_samples_required: ${ram_recovery_samples_required}; ram_recovery_sample_interval_seconds: ${ram_recovery_sample_interval_seconds}; timeout_streak_limit: ${timeout_streak_limit}; python_bin: ${python_bin}"

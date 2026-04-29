@@ -5,6 +5,7 @@ from qiskit import QuantumCircuit
 from scipy.optimize import minimize
 from scipy.stats import norm
 import time
+from joblib import Parallel, delayed
 
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import ConstantKernel, Matern, WhiteKernel
@@ -240,10 +241,10 @@ def optimise_adam(
     worst_result, best_result_value = float("inf"), float("-inf")
     best_result_obj = None
     best_results_log = []
-    _iterations = benchmark_params.get("optimiser_debug_iterations")
-    _iterations = 1 if _iterations is None else _iterations
-    assert type(_iterations)==int
-    for _ in range(_iterations, 1):
+    #_iterations = benchmark_params.get("optimiser_debug_iterations")
+    #_iterations = 1 if _iterations is None else _iterations
+    #assert type(_iterations)==int
+    for _ in range(benchmark_params.get("optimiser_debug_iterations")):
         print(f"Debug iteration {_+1}/{benchmark_params.get('optimiser_debug_iterations', 1)}")
         result = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=x0)
         if -result.fun < worst_result:
@@ -322,10 +323,11 @@ def _adam_optimiser(
                 f"Grouped ADAM evaluation received invalid size {theta.size} for dimension {dimension}"
             )
 
-        values = [
-            objective_single(theta[i:i + dimension])
+        # Parallelize batched evaluations across all CPU cores
+        values = Parallel(n_jobs=-1)(
+            delayed(objective_single)(theta[i:i + dimension])
             for i in range(0, theta.size, dimension)
-        ]
+        )
         energy = np.array(values, dtype=float)
         Optimisation_time.append(time.time() - start) # XXX Time
         return energy

@@ -5,7 +5,7 @@
   "iterations_list": [50, 100, 200, 500],
   "learning_rate_adam": 0.05,
   "depth_list": [1, 2, 5, 10],
-  "n_start": 15,
+  "n_start": 11,
   "n_end": 30,
   "singlet_injection": false,
   "start_index_singlet": 0,
@@ -23,5 +23,5 @@
   "debug": false,
   "save_circuit_svg": false,
   "rerun_exclude_finished_instances": false,
-  "optimiser_debug_iterations": 10
+  "optimiser_debug_iterations": 1
 }
