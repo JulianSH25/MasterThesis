@@ -71,6 +71,9 @@ def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
             if random.random() > threshold:
                 add_edge(i, j)
 
+    if classify_graph(edges) in {"line", "complete"} and not nodes <= 3:
+        edges, weights, nodes = random_instance_generator(nodes, weights_static, sparse)  
+
     return edges, weights, nodes
 
 def sample_initial_qaoa_params(n: int, p: int) -> list[tuple[list[float], list[float]]]:

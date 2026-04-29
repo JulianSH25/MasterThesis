@@ -183,9 +183,14 @@ def optimise_cobyla(
 
     if x0 is None:
         parameters = []
-        for _ in range(QAOA.no_param_types):
-            parameters.append(set_random_params(QAOA.p, QAOA.param_ranges, init_close_to_zero=init_close_to_zero))
-        print(f"Using random initial parameters with gamma {gamma} and beta {beta}")
+        for param_type_idx in range(QAOA.no_param_types):
+            # Extract bounds for this specific parameter type
+            if isinstance(QAOA.param_ranges, list):
+                bounds = QAOA.param_ranges[param_type_idx] if param_type_idx < len(QAOA.param_ranges) else QAOA.param_ranges[-1]
+            else:
+                bounds = QAOA.param_ranges
+            parameters.append(set_random_params(QAOA.p, bounds, init_close_to_zero=init_close_to_zero))
+        print(f"Using random initial parameters with {QAOA.no_param_types} parameter types")
 
         if use_corr_init and correlations is not None:
             corr_scalar = float(np.mean(list(correlations.values())))
@@ -222,7 +227,34 @@ def optimise_cobyla(
     return result
     # return minimize(objective, x0=x0, method="L-BFGS-B", options={"maxiter": max_iter})
 
+######
+# NOTE this is only a wrapper function for the adam optimiser. The actual optimisation happens below in '_adam_optimiser'
 def optimise_adam(
+    QAOA: QAOACircuit,
+    no_layers: int,
+    steps: int,
+    learning_rate: float = 0.05,
+    x0: np.ndarray | None = None,
+):
+    benchmark_params: dict = get_benchmark_params()
+    worst_result, best_result_value = float("inf"), float("-inf")
+    best_result_obj = None
+    best_results_log = []
+    for _ in range(benchmark_params.get("optimiser_debug_iterations", 1)):
+        print(f"Debug iteration {_+1}/{benchmark_params.get('optimiser_debug_iterations', 1)}")
+        result = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=x0)
+        if -result.fun < worst_result:
+            worst_result = -result.fun
+        if -result.fun > best_result_value:
+            best_result_value = -result.fun
+            best_result_obj = result
+        best_results_log.append(-result.fun)
+    print(f"ADAM optimization debug: best_result={best_result_value}, worst_result={worst_result}")
+    print(f"ADAM optimization debug: all results observed across iterations: {best_results_log}")
+    return best_result_obj if best_result_obj is not None else result
+
+
+def _adam_optimiser(
     QAOA: QAOACircuit,
     no_layers: int,
     steps: int,
@@ -232,14 +264,25 @@ def optimise_adam(
     assert isinstance(QAOA, QAOACircuit)
     optimiser = ADAM(maxiter=steps, lr=learning_rate)
     print(f"ADAM optimizer configured with maxiter={steps} and learning_rate={learning_rate}")
-    optimiser.set_max_evals_grouped(2 * no_layers)
+    optimiser.set_max_evals_grouped(QAOA.p * QAOA.no_param_types)
 
     if x0 is None:
         init_close_to_zero = get_benchmark_params()["init_QAOAparams_close_to_zero"]
         parameters = []
-        parameters.append(set_random_params(QAOA.p, range=QAOA.param_ranges, init_close_to_zero=init_close_to_zero)) # TODO adapt for more parameter types
+        for param_type_idx in range(QAOA.no_param_types):
+            # Extract bounds for this specific parameter type
+            if isinstance(QAOA.param_ranges, list):
+                bounds = QAOA.param_ranges[param_type_idx] if param_type_idx < len(QAOA.param_ranges) else QAOA.param_ranges[-1]
+            else:
+                bounds = QAOA.param_ranges
+            parameters.append(set_random_params(QAOA.p, bounds, init_close_to_zero=init_close_to_zero))
+        print(f"Generated {QAOA.no_param_types} random initial parameter sets for ADAM optimization")
         x0 = np.concatenate(parameters).astype(float)
-        print(f"Using random initial parameters with gamma {gamma} and beta {beta}")
+        print(f"Using random initial parameters with:")
+        idx = 1
+        for parameter_type in parameters:
+            print(f"Param_type {idx}:  {parameter_type}")
+            idx += 1
     else:
         x0 = np.asarray(x0, dtype=float)
         expected_dim = QAOA.p * QAOA.no_param_types
@@ -247,12 +290,16 @@ def optimise_adam(
             raise ValueError(f"Expected x0 shape ({expected_dim},), got {x0.shape}")
         print(f"Using provided initial parameters x0 with shape {x0.shape}")
 
-    dimension = 2 * no_layers
+    dimension = QAOA.p * QAOA.no_param_types
 
     def objective_single(x0: np.ndarray) -> float:
-        #gamma_vals = x0[:no_layers]
-        #beta_vals = x0[no_layers:]
-        value = eval_QAOA_circuit(x0, QAOA)
+        # Split flat array into grouped parameters matching circuit structure
+        x0_grouped = []
+        offset = 0
+        for _ in range(QAOA.no_param_types):
+            x0_grouped.append(x0[offset:offset + QAOA.p])
+            offset += QAOA.p
+        value = eval_QAOA_circuit(x0_grouped, QAOA)
         if debug:
             print(f"Eval: {value}, negated: {-value}")
         return -value
@@ -282,7 +329,7 @@ def optimise_adam(
 
     result = optimiser.minimize(fun=objective, x0=x0)
     setattr(result, "initial_point", x0.copy())
-    print(f"Energies observed during COBYLA optimization: {Energies}")
+    print(f"Energies observed during ADAM optimization: {Energies}")
     print(f"Total optimisation time observed during ADAM optimization: {sum(Optimisation_time):.6f} seconds")
     print(f"Median time per evaluation during ADAM optimization: {np.median(Optimisation_time):.6f} seconds")
     return result

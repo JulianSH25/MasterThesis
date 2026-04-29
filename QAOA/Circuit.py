@@ -34,11 +34,13 @@ class QAOACircuit(QuantumCircuit):
         self.circuit_type = get_benchmark_params()['circuit_type'].lower()
         self.no_param_types = None
         self.qaoa_parameters: list[np.ndarray[float]] = [] # e.g. [gammas, betas] -> this implementation enables to have more parameters than just fixed gamma and beta
-        self.param_ranges: list[tuple] | tuple = [(0, 2*pi), (0, pi)]
+        self.param_ranges: list[tuple] | tuple | None = None
         self.qc: QuantumCircuit = None
         self.qc_no_params: QuantumCircuit = None # Auxiliary variable that is used to update the quantum circuit parameters
         self.backend = Aer.get_backend('qasm_simulator')
         self.initial_state = None
+        self.classical_WS_cut = None
+        self.WS_ENERGY = None
         self.warm_start_correlations = None
         self.self_init_linegraph = False
         self.params = None
@@ -56,26 +58,12 @@ class QAOACircuit(QuantumCircuit):
         circuit_type = get_benchmark_params()['circuit_type']
         if circuit_type == 'standard':
             self.no_param_types = 2
+            self.param_ranges = [(0, 2*pi), (0, pi)]
+        elif circuit_type == 'hamqaoa':
+            self.no_param_types = 4
+            self.param_ranges = [(-pi, pi) for _ in range(self.no_param_types)]
         elif 'no_param_types' in benchm_params:
             self.no_param_types = int(benchm_params['no_param_types'])
-
-    @property
-    def gammas(self):
-        warnings.warn(
-            "QAOACircuit.gammas is deprecated. Use self.qaoa_parameters[0] instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.qaoa_parameters[0] if len(self.qaoa_parameters) > 0 else None
-
-    @property
-    def betas(self):
-        warnings.warn(
-            "QAOACircuit.betas is deprecated. Use self.qaoa_parameters[1] instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.qaoa_parameters[1] if len(self.qaoa_parameters) > 1 else None
         
 
     def _append_parameter_log_row(self, parameters: list[list[float]]) -> None:
@@ -386,10 +374,10 @@ class QAOACircuit(QuantumCircuit):
                     self.qc.rzz(2*a, j, k)
                 self.qc.rx(2*b, range(self.n))
                 self.qc.rz(2*c, range(self.n))
-                idx = 1
+                
                 for i in range(self.n):
-                    self.qc.r((-1)**idx * 2*d, i)
-                    idx += 1
+                    print(f"Applying fourth gate of HAMQAOA layer {layer} on qubit {i} with parameter {d} and classical warm start cut value {self.classical_WS_cut[i]}") if self.debug else None
+                    self.qc.rz(self.classical_WS_cut[i] * 2*d, i)
         else:
             raise ValueError(f"Unsupported circuit type: {self.circuit_type} in build_qaoa_maxcut_circuit()")
         

@@ -57,7 +57,7 @@ def get_warm_start_state(instance, n_vertices):
     parameters = {"a": parameters[0], "b": parameters[1], "c": parameters[2]}
     sdp_start = time.time()
     print(f"Warm-start: starting SDP solve for n_vertices={n_vertices}", flush=True)
-    energy, M_optimal, states = SDP_main(
+    energy, M_optimal, states, classical_cut = SDP_main(
         instance=instance,
         n_vertices=n_vertices,
         params=parameters,
@@ -71,4 +71,4 @@ def get_warm_start_state(instance, n_vertices):
     if benchmark_params["debug"]:
         print(f"Warm start state: {warmstart}")
     Moment_matrix = M_optimal if benchmark_params["warm_start_correlations"] else None
-    return warmstart, Moment_matrix
+    return (warmstart, classical_cut), Moment_matrix

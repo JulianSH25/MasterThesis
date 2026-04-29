@@ -118,9 +118,10 @@ def main(
     print(f"Generated line graph with {m} edges, {n} nodes, and {p} layers.") if m == n - 1 else None
 
     assert not (init_initial_state and __initial_state__), "Cannot provide both init_initial_state=True and a custom __initial_state__. Please choose one of the two options for a valid benchmark configuration."
-    initial_state, moment_matrix = get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else (None, None)
+    (initial_state, classical_cut), moment_matrix = get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else (None, None)
     if __initial_state__ is not None:
         initial_state = __initial_state__
+        # BUG if a custom initial state is provided, the classical cut from the SDP warm start is not available for HAMQAOA
         
     warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
 
@@ -134,6 +135,10 @@ def main(
     QAOA.params = benchmark_params["parameter_vector"]
 
     QAOA.initial_state = initial_state
+    QAOA.classical_WS_cut = classical_cut
+    if get_benchmark_params()["debug"]:
+        print(f"Initial state set to: {initial_state}") if initial_state is not None else print("No initial state provided.")
+        print(f"Classical warm start cut set to: {classical_cut}") if classical_cut is not None else print("No classical warm start cut provided.")
     if warm_start_correlations is not None and benchmark_params["warm_start_correlations"]:
         QAOA.warm_start_correlations = warm_start_correlations
     elif benchmark_params["warm_start_correlations"]:
