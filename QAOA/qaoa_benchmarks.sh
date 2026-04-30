@@ -39,6 +39,7 @@ compare_with_010101=$(jq -r '.compare_with_010101' "$config_file")
 start_index_singlet=$(jq -r '.start_index_singlet' "$config_file")
 graph_generation_type=$(jq -r '.graph_generation_type' "$config_file")
 weighted=$(jq -r '.weighted' "$config_file")
+relative_graph_adjList_path=$(jq -r '.relative_graph_adjList_path // empty' "$config_file")
 
 cpu_util_threshold=$(jq -r '.cpu_util_threshold // 85' "$config_file")
 use_cpu_limit=0
@@ -168,6 +169,22 @@ jobs_file="$(mktemp)"
 
 for iterations in "${iterations_list[@]}"; do
     for p in "${depth_list[@]}"; do
+        if [[ "$graph_generation_type" == "HOG" ]]; then
+            if [[ -z "$relative_graph_adjList_path" ]]; then
+                echo "Error: relative_graph_adjList_path must be set for graph_generation_type=HOG."
+                exit 1
+            fi
+
+            hog_graph_count=$(count_hog_graphs "$relative_graph_adjList_path")
+            if [[ -z "$hog_graph_count" || "$hog_graph_count" == "0" ]]; then
+                echo "Error: no HOG graphs found in $relative_graph_adjList_path."
+                exit 1
+            fi
+
+            n_start=0
+            n_end=$((hog_graph_count - 1))
+        fi
+
         for (( n=n_start; n<=n_end; n++ )); do
             score=$(( n * p * p * iterations ))
             echo "${score} ${iterations} ${p} ${n}" >> "$jobs_file"
@@ -314,8 +331,24 @@ compute_m() {
         line) echo $((n - 1)) ;;
         cycle) echo "$n" ;;
         complete) echo $((n * (n - 1) / 2)) ;;
+        HOG) echo "n/a" ;;
         *) echo "0" ;;
     esac
+}
+
+count_hog_graphs() {
+    local path="$1"
+    awk '
+        BEGIN { count = 0; in_block = 0 }
+        /^[[:space:]]*$/ { in_block = 0; next }
+        {
+            if (!in_block) {
+                count += 1
+                in_block = 1
+            }
+        }
+        END { print count }
+    ' "$path"
 }
 
 build_run_key() {
@@ -345,6 +378,7 @@ build_run_key() {
             start_index_singlet) value="$start_index_singlet" ;;
             graph_generation_type) value="$graph_generation_type" ;;
             weighted) value="$weighted" ;;
+            hog_graph_index) value="$n" ;;
             *) value="" ;;
         esac
 

@@ -238,19 +238,24 @@ if __name__ == "__main__":
     print(f"Logical cores: {logical_cores}")
     print(f"Python version: {python_version}")
 
-    fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                  'parameter_vector', 'initial_ws_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
-                  'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
-                  'python_version', 'peak_ram_mb']
-    
+    base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
+                       'parameter_vector', 'initial_ws_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                       'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
+                       'python_version', 'peak_ram_mb']
+
+    # start from base_fieldnames and insert scalar params next; reproducibility columns appended last
+    fieldnames = list(base_fieldnames)
     for key in parameter_settings:
         if key not in fieldnames and isinstance(parameter_settings[key], (str, int, float, bool)):
             fieldnames.append(key)
-    
+
     scalar_params = {
         k: v for k, v in parameter_settings.items()
         if isinstance(v, (str, int, float, bool))
     }
+
+    # reproducibility columns (may be large) should be last
+    fieldnames.extend(['edges', 'weights'])
 
     # XXX TIME: log time taken for initialisation and parameter loading
     time_sections["initialisation"] = time.time() - time_section
@@ -258,9 +263,21 @@ if __name__ == "__main__":
 
     for n in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
         time_section = time.time()
-        assert parameter_settings["graph_generation_type"] in ("line", "cycle", "complete", "random")
-        edges, weights = instance_generator(type=parameter_settings["graph_generation_type"], n=n,
-                                            weighted=parameter_settings["weighted"])
+        # make graph_generation_type check case-insensitive
+        assert isinstance(parameter_settings.get("graph_generation_type"), str), "graph_generation_type must be a string"
+        graph_generation_type = parameter_settings["graph_generation_type"].lower()
+        assert graph_generation_type in ("line", "cycle", "complete", "random", "hog")
+
+        # Determine whether instances are considered weighted in this benchmark
+        weighted_flag = bool(parameter_settings.get("weighted", False))
+
+        # Delegate all instance generation (including HOG) to instance_generator
+        edges, weights = instance_generator(
+            type=graph_generation_type,
+            n=n,
+            weighted=weighted_flag,
+            random_weights=bool(parameter_settings.get("random_weights", False)),
+        )
         m = len(edges)
 
         # XXX Time
@@ -370,6 +387,10 @@ if __name__ == "__main__":
             'python_version': python_version,
             'peak_ram_mb': peak_ram_mb
         }
+
+        # include edges and weights (weights only meaningful when benchmark flagged as weighted)
+        row['edges'] = str(edges)
+        row['weights'] = str(weights) if weighted_flag else None
 
         # inject scalar params automatically
         for key, value in scalar_params.items():

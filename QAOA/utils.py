@@ -142,3 +142,31 @@ def classify_graph(edges):
         return "line"
     return None
 
+def read_graphs_as_edge_lists(path: str = get_benchmark_params()["relative_graph_adjList_path"]) -> list[list[tuple[int, int]]]:
+    # Used to decompose "House of Graphs" adjacency lists and format into edge lists
+    graphs = []
+    
+    with open(path, "r") as f:
+        content = f.read().strip()
+    
+    # split graphs by blank lines
+    raw_graphs = content.split("\n\n")
+    
+    for raw_graph in raw_graphs:
+        edges = set()
+        
+        for line in raw_graph.splitlines():
+            node, neighbors = line.split(":")
+            u = int(node.strip())
+            
+            for v_str in neighbors.strip().split():
+                v = int(v_str)
+                
+                # avoid duplicate edges (u,v) and (v,u)
+                edge = tuple(sorted((u, v)))
+                edges.add(edge)
+        
+        graphs.append(list(edges))
+    
+    return graphs
+

@@ -23,5 +23,6 @@
   "debug": false,
   "save_circuit_svg": false,
   "rerun_exclude_finished_instances": false,
-  "optimiser_debug_iterations": 1
+  "optimiser_debug_iterations": 1,
+  "relative_graph_adjList_path": "graph_adjLists"
 }

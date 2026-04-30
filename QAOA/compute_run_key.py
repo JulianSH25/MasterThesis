@@ -19,8 +19,10 @@ def compute_m(n, graph_type):
         return n * (n - 1) // 2
     elif graph_type == "random":
         return "n/a"
+    elif graph_type == "HOG":
+        return "n/a"
     else:
-        raise ValueError("Unknown graph type: " + graph_type + "; expected 'line', 'cycle', 'complete', or 'random'.")
+        raise ValueError("Unknown graph type: " + graph_type + "; expected 'line', 'cycle', 'complete', 'random', or 'HOG'.")
 
 def main():
     config_file = sys.argv[1]
