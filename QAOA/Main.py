@@ -176,6 +176,13 @@ def main(
     else:
         throw_error(f"No valid optimiser specified. Received: {optimiser}.")
 
+    if initial_ws_energy is not None and minimum_energy is not None and minimum_energy < initial_ws_energy:
+        print(
+            "Warm-start fallback: optimiser result was below the SDP warm-start energy; "
+            "using the warm-start energy instead."
+        )
+        minimum_energy = initial_ws_energy
+
     print(minimum_energy)
 
     if return_initial_point:

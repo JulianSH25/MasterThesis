@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 from numpy import pi
 import random, itertools
@@ -323,8 +325,23 @@ def _adam_optimiser(
                 f"Grouped ADAM evaluation received invalid size {theta.size} for dimension {dimension}"
             )
 
-        # Parallelize batched evaluations across all CPU cores
-        values = Parallel(n_jobs=-1)(
+        batch_count = theta.size // dimension
+        thread_env_values = []
+        for env_name in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+            try:
+                thread_env_values.append(int(os.environ.get(env_name, "0") or 0))
+            except ValueError:
+                thread_env_values.append(0)
+
+        n_jobs = int(os.environ.get("QAOA_JOBLIB_N_JOBS", "0") or 0)
+        if n_jobs <= 0:
+            if thread_env_values and max(thread_env_values) > 1:
+                n_jobs = 1
+            else:
+                n_jobs = os.cpu_count() or 1
+        n_jobs = max(1, min(n_jobs, batch_count))
+
+        values = Parallel(n_jobs=n_jobs, prefer="threads", require="sharedmem")(
             delayed(objective_single)(theta[i:i + dimension])
             for i in range(0, theta.size, dimension)
         )
