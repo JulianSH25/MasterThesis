@@ -262,7 +262,7 @@ if __name__ == "__main__":
     }
 
     # reproducibility columns (may be large) should be last
-    fieldnames.extend(['edges', 'weights'])
+    fieldnames.extend(['hog_graph_index', 'edges', 'weights'])
 
     # XXX TIME: log time taken for initialisation and parameter loading
     time_sections["initialisation"] = time.time() - time_section
@@ -286,13 +286,14 @@ if __name__ == "__main__":
             random_weights=bool(parameter_settings.get("random_weights", False)),
         )
         m = len(edges)
+        node_count = len({i for edge in edges for i in edge})
 
         # XXX Time
         time_sections[f"instance_generation_n_{n}"] = time.time() - time_section
         print(f"Instance generation for n={n} took {time_sections[f'instance_generation_n_{n}']:.2f} seconds; started at {time_section} and finished at {time.time()}")
 
         start_time = time.time()
-        print(f"Running QAOA for n={n} nodes, m={len(edges)} edges...; Max iterations: {int(precision)}")
+        print(f"Running QAOA for n={node_count} nodes, m={len(edges)} edges...; Max iterations: {int(precision)}")
         # XXX Time
         time_section = time.time()
  
@@ -314,9 +315,9 @@ if __name__ == "__main__":
             # XXX Time
             time_section = time.time()
 
-            bitstring = ''.join(['1' if i % 2 else '0' for i in range(n)])
+            bitstring = ''.join(['1' if i % 2 else '0' for i in range(node_count)])
 
-            state = np.zeros(2**n, dtype=complex)
+            state = np.zeros(2**node_count, dtype=complex)
             index = int(bitstring, 2)
             state[index] = 1.0
 
@@ -341,25 +342,25 @@ if __name__ == "__main__":
 
         finished_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         peak_ram_mb = get_peak_ram_mb()
-        print(f"Finished QAOA for n={n} nodes, m={m} edges at {finished_at} on {processor_name}. Time taken: {elapsed_time:.2f} seconds. Hours: {elapsed_time / 3600:.2f} hours. Peak RAM: {peak_ram_mb} MB.")
-        duration[n] = elapsed_time
+        print(f"Finished QAOA for n={node_count} nodes, m={m} edges at {finished_at} on {processor_name}. Time taken: {elapsed_time:.2f} seconds. Hours: {elapsed_time / 3600:.2f} hours. Peak RAM: {peak_ram_mb} MB.")
+        duration[node_count] = elapsed_time
         approx_ratio = None
         approx_ratio_010101 = None
         # BUG illegally classifies single edge line graphs as complete graphs
         try:
             if classify_graph(edges) == "line":
                 print("Computing line approximation ratio")
-                approx_ratio = results[n] / return_optimal_line(n)
-                approx_ratio_010101 = results_010101[n] / return_optimal_line(n) if parameter_settings["compare_with_010101"] else None
+                approx_ratio = results[n] / return_optimal_line(node_count)
+                approx_ratio_010101 = results_010101[n] / return_optimal_line(node_count) if parameter_settings["compare_with_010101"] else None
             elif classify_graph(edges) == "cycle":
                 print("Computing cycle approximation ratio")
-                approx_ratio = results[n] / return_optimal_cycle(n)
-                approx_ratio_010101 = results_010101[n] / return_optimal_cycle(n) if parameter_settings["compare_with_010101"] else None
+                approx_ratio = results[n] / return_optimal_cycle(node_count)
+                approx_ratio_010101 = results_010101[n] / return_optimal_cycle(node_count) if parameter_settings["compare_with_010101"] else None
                 #pass
             elif classify_graph(edges) == "complete":
                 print("Computing complete graph approximation ratio")
-                approx_ratio = results[n] / return_optimal_fully_connected(n)
-                approx_ratio_010101 = results_010101[n] / return_optimal_fully_connected(n) if parameter_settings["compare_with_010101"] else None
+                approx_ratio = results[n] / return_optimal_fully_connected(node_count)
+                approx_ratio_010101 = results_010101[n] / return_optimal_fully_connected(node_count) if parameter_settings["compare_with_010101"] else None
                 #pass
             else:
                 print("Unknown graph type for approximation ratio calculation; skipping approx ratio computation.")
@@ -368,7 +369,7 @@ if __name__ == "__main__":
 
         row = {
             'run_id': run_id,
-            'n': n,
+            'n': node_count,
             'm': m,
             'p': p,
             'precision/iterations': precision,
@@ -392,7 +393,8 @@ if __name__ == "__main__":
             'physical_cores': physical_cores,
             'logical_cores': logical_cores,
             'python_version': python_version,
-            'peak_ram_mb': peak_ram_mb
+            'peak_ram_mb': peak_ram_mb,
+            'hog_graph_index': n if graph_generation_type == "hog" else None
         }
 
         # include edges and weights (weights only meaningful when benchmark flagged as weighted)
