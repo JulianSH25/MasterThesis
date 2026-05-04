@@ -247,7 +247,7 @@ def optimise_adam(
 ):
     benchmark_params: dict = get_benchmark_params()
     if benchmark_params.get("optimiser_use_heuristic"):
-        _, x0 = heuristic_optimiser(QAOA, no_layers, learning_rate=learning_rate)
+        x0 = heuristic_optimiser(QAOA, no_layers, learning_rate=learning_rate)
     best_result_obj = None
     print("Running ADAM optimization with a single iteration (no debug loop)")
     best_result_obj = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=x0)
@@ -286,7 +286,7 @@ def heuristic_optimiser(
         print(f"ADAM optimization heuristic: best point found across iterations: {best_point}")
         print(f"Improvement over worst result: {best_result_value - worst_result}")
         print(f"Improvement over worst result (percentage): {(best_result_value - worst_result) / abs(worst_result) * 100:.5f}%")
-    return best_result_obj, best_point if best_result_obj is not None else result, best_point
+    return best_point
 
 
 def _adam_optimiser(
