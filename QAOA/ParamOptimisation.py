@@ -51,6 +51,7 @@ def eval_QAOA_circuit(point: list[np.ndarray], QAOA: QAOACircuit) -> float:
     if debug and debug_allInfo:
         print(f"Debugging info for idx {idx_counter}:")
         print(f"Statevector: {statevec}")
+        idx_counter += 1g
     return E
 
 
