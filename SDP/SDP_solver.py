@@ -183,9 +183,14 @@ class SDP_Solver_():
         :return: real energy value of the product state
         """
         weights = weights if weights is not None else np.ones(len(edges))
-        #assert params is not None
-        #a, b, c = params.get("a"), params.get("b"), params.get("c")
-        a, b, c = 1, 1, 1
+        if params is None:
+            a, b, c = 1, 1, 1
+        elif isinstance(params, dict):
+            a, b, c = params.get("a"), params.get("b"), params.get("c")
+        else:
+            a, b, c = params
+        if any(v not in (0, 1) for v in (a, b, c)):
+            raise ValueError(f"Expected params a,b,c in {{0,1}}, got {(a, b, c)}")
 
         I = np.eye(2, dtype=complex)
         X = np.array([[0, 1], [1, 0]], dtype=complex)

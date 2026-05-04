@@ -14,6 +14,7 @@ import pandas as pan
 from numpy.f2py.auxfuncs import throw_error
 
 from Circuit import QAOACircuit
+from qiskit.quantum_info import Statevector
 from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search, optimise_adam
 import sys
 from pathlib import Path
@@ -119,7 +120,11 @@ def main(
     print(f"Generated line graph with {m} edges, {n} nodes, and {p} layers.") if m == n - 1 else None
 
     assert not (init_initial_state and __initial_state__), "Cannot provide both init_initial_state=True and a custom __initial_state__. Please choose one of the two options for a valid benchmark configuration."
-    (initial_state, product_states, classical_cut), moment_matrix = get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else (None, None)
+    (initial_state, product_states, classical_cut), moment_matrix = (
+        get_warm_start_state((edges, weights), n)
+        if init_initial_state and not __initial_state__
+        else ((None, None, None), None)
+    )
     if __initial_state__ is not None:
         initial_state = __initial_state__
         # BUG if a custom initial state is provided, the classical cut from the SDP warm start is not available for HAMQAOA
@@ -133,19 +138,32 @@ def main(
     print(f"Edges: {edges}, weights: {weights}, set of nodes: {set_of_nodes}, n: {n} nodes, p: {p} layers, N_bayes: {N_bayes} iterations")
     QAOA = QAOACircuit(n=n, p=p, edges=edges, weights=weights)
 
-    initial_energy_prodStates = None
-
-    """if product_states is not None:
-        product_states_matrix: dict[tuple[int, int], np.ndarray] = {}
-        idx = 0
-        for (i, j) in edges:
-            product_states_matrix[(i, j)] = product_states[idx]
-            idx += 1
-        initial_energy_prodStates = QAOA.qaoa_compute_energy(product_states_matrix, edges, weights, (1, 1, 1))  # compute initial energy of the warm-start product states; this is used for the HAMQAOA initial state energy and for the warm-start fallback mechanism in the optimiser
-        print(f"Initial energy of warm-start product states: {initial_energy_prodStates}")"""
-
     benchmark_params: dict = get_benchmark_params()
     QAOA.params = benchmark_params["parameter_vector"]
+    energy_audit = bool(benchmark_params.get("energy_audit", False) or benchmark_params.get("debug", False))
+
+    initial_energy_prodStates = None
+    initial_energy_statevector = None
+    if product_states is not None:
+        edge_marginals = {
+            (i, j): np.kron(product_states[i], product_states[j])
+            for (i, j) in edges
+        }
+        initial_energy_prodStates = QAOACircuit.qaoa_compute_energy(
+            edge_marginals,
+            edges,
+            weights,
+            params=tuple(QAOA.params),
+        ).real
+        if energy_audit:
+            print(f"Initial energy from SDP product states: {initial_energy_prodStates}")
+
+    if initial_state is not None:
+        initial_energy_statevector = QAOA.compute_energy_from_statevector(
+            Statevector(np.asarray(initial_state, dtype=complex))
+        )
+        if energy_audit:
+            print(f"Initial energy from warm-start statevector: {initial_energy_statevector}")
 
     QAOA.initial_state = initial_state
     QAOA.classical_WS_cut = classical_cut
@@ -162,6 +180,13 @@ def main(
     QAOA.self_init_linegraph = self_init_linegraph
     QAOA.build_qaoa_maxcut_circuit(add_measurements=False) # TODO check parameter (changed from True to False)
     initial_ws_energy = QAOA.initial_ws_energy
+    if energy_audit:
+        print(
+            "Energy audit summary: "
+            f"statevector={initial_energy_statevector}, "
+            f"product_states={initial_energy_prodStates}, "
+            f"initial_ws_energy={initial_ws_energy}"
+        )
 
     assert sum([optimiser_bayesian, optimiser_cobyla, gridsearch]) == 1
     minimum_energy = None
@@ -199,8 +224,14 @@ def main(
     print(minimum_energy)
 
     if return_initial_point:
-        return minimum_energy, used_initial_point, initial_ws_energy, initial_energy_prodStates
-    return minimum_energy, initial_ws_energy, initial_energy_prodStates
+        return (
+            minimum_energy,
+            used_initial_point,
+            initial_ws_energy,
+            initial_energy_prodStates,
+            initial_energy_statevector,
+        )
+    return minimum_energy, initial_ws_energy, initial_energy_prodStates, initial_energy_statevector
 
 def return_optimal_line(n):
     df = pan.read_csv("optimal_results_qaoa.csv", skipinitialspace=True)
@@ -259,7 +290,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'initial_ws_energy', 'initial_ws_energy_prodStates', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                       'parameter_vector', 'initial_ws_energy', 'initial_ws_energy_prodStates', 'initial_energy_statevector', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb']
 
@@ -310,7 +341,7 @@ if __name__ == "__main__":
         # XXX Time
         time_section = time.time()
  
-        results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates = main(
+        results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates, initial_energy_statevector = main(
             p=p,
             N_bayes=int(precision),
             self_init_linegraph=singlet_injection,
@@ -337,7 +368,7 @@ if __name__ == "__main__":
             initial_state = state
 
             print("Reusing optimiser initial parameters for 010101 comparison run.")
-            results_010101[n], initial_ws_energy_010101, __initial_energy_prodStates = main(
+            results_010101[n], initial_ws_energy_010101, __initial_energy_prodStates, __initial_energy_statevector = main(
                 p=p,
                 N_bayes=int(precision),
                 edges=edges,
@@ -391,6 +422,7 @@ if __name__ == "__main__":
             'parameter_vector': str(parameter_settings["parameter_vector"]),
             'initial_ws_energy': initial_ws_energy,
             'initial_ws_energy_prodStates': initial_energy_prodStates,
+            'initial_energy_statevector': initial_energy_statevector,
             'initial_ws_energy_010101': initial_ws_energy_010101 if parameter_settings["compare_with_010101"] else None,
             'QAOA_improvement_over_SDP': results[n] - initial_ws_energy if initial_ws_energy is not None else None,
             'result': results[n],
