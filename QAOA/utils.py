@@ -154,19 +154,27 @@ def read_graphs_as_edge_lists(path: str = get_benchmark_params()["relative_graph
     
     for raw_graph in raw_graphs:
         edges = set()
+        vertices = set()
         
         for line in raw_graph.splitlines():
             node, neighbors = line.split(":")
             u = int(node.strip())
+            vertices.add(u)
             
             for v_str in neighbors.strip().split():
                 v = int(v_str)
+                vertices.add(v)
                 
                 # avoid duplicate edges (u,v) and (v,u)
                 edge = tuple(sorted((u, v)))
                 edges.add(edge)
+
+        # Relabel vertices to zero-based indices so downstream SDP/QAOA code
+        # can safely use idx(i, k) with i in range(n_vertices).
+        relabel = {vertex: index for index, vertex in enumerate(sorted(vertices))}
+        normalized_edges = [tuple(sorted((relabel[u], relabel[v]))) for u, v in edges]
         
-        graphs.append(list(edges))
+        graphs.append(normalized_edges)
     
     return graphs
 

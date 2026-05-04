@@ -240,24 +240,30 @@ def optimise_adam(
     x0: np.ndarray | None = None,
 ):
     benchmark_params: dict = get_benchmark_params()
-    worst_result, best_result_value = float("inf"), float("-inf")
     best_result_obj = None
-    best_results_log = []
     #_iterations = benchmark_params.get("optimiser_debug_iterations")
     #_iterations = 1 if _iterations is None else _iterations
     #assert type(_iterations)==int
-    for _ in range(benchmark_params.get("optimiser_debug_iterations")):
-        print(f"Debug iteration {_+1}/{benchmark_params.get('optimiser_debug_iterations', 1)}")
-        result = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=x0)
-        if -result.fun < worst_result:
-            worst_result = -result.fun
-        if -result.fun > best_result_value:
-            best_result_value = -result.fun
-            best_result_obj = result
-        best_results_log.append(-result.fun)
-    print(f"ADAM optimization debug: best_result={best_result_value}, worst_result={worst_result}")
-    print(f"ADAM optimization debug: all results observed across iterations: {best_results_log}")
-    return best_result_obj if best_result_obj is not None else result
+    if benchmark_params.get("optimiser_debug_iterations") == 1:
+        print("Running ADAM optimization with a single iteration (no debug loop)")
+        best_result_obj = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=x0)
+        return best_result_obj
+    else:
+        # Iterate over many runs of the ADAM optmiser with different randmly initialised parameters.
+        worst_result, best_result_value = float("inf"), float("-inf")
+        best_results_log = []
+        for _ in range(benchmark_params.get("optimiser_debug_iterations")):
+            print(f"Debug iteration {_+1}/{benchmark_params.get('optimiser_debug_iterations', 1)}")
+            result = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=x0)
+            if -result.fun < worst_result:
+                worst_result = -result.fun
+            if -result.fun > best_result_value:
+                best_result_value = -result.fun
+                best_result_obj = result
+            best_results_log.append(-result.fun)
+        print(f"ADAM optimization debug: best_result={best_result_value}, worst_result={worst_result}")
+        print(f"ADAM optimization debug: all results observed across iterations: {best_results_log}")
+        return best_result_obj if best_result_obj is not None else result
 
 
 def _adam_optimiser(

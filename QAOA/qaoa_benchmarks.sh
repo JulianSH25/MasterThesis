@@ -2,6 +2,12 @@
 
 set -u
 
+AWK_BIN=$(command -v awk 2>/dev/null || echo /usr/bin/awk)
+if [[ ! -x "$AWK_BIN" ]]; then
+    echo "Error: awk is required but was not found in PATH or at /usr/bin/awk."
+    exit 1
+fi
+
 mkdir -p logs
 
 # -----------------------------
@@ -78,7 +84,7 @@ echo "${benchmark_config_dump}"
 stop_launching=0
 
 # Detect chip / SoC name once.
-chip_name=$(system_profiler SPHardwareDataType 2>/dev/null | awk -F': ' '/Chip|Processor Name/ {print $2; exit}')
+chip_name=$(system_profiler SPHardwareDataType 2>/dev/null | "$AWK_BIN" -F': ' '/Chip|Processor Name/ {print $2; exit}')
 
 # Detect core count for thread settings.
 # Prefer physical cores for compute-heavy BLAS operations.
@@ -133,9 +139,9 @@ healthy_ram_streak=0
 available_ram_mb() {
     local page_size free_pages speculative_pages inactive_pages bytes
     page_size=$(sysctl -n hw.pagesize 2>/dev/null || echo 4096)
-    free_pages=$(vm_stat | awk '/Pages free/ {gsub("\\.", "", $3); print $3}')
-    speculative_pages=$(vm_stat | awk '/Pages speculative/ {gsub("\\.", "", $3); print $3}')
-    inactive_pages=$(vm_stat | awk '/Pages inactive/ {gsub("\\.", "", $3); print $3}')
+    free_pages=$(vm_stat | "$AWK_BIN" '/Pages free/ {gsub("\\.", "", $3); print $3}')
+    speculative_pages=$(vm_stat | "$AWK_BIN" '/Pages speculative/ {gsub("\\.", "", $3); print $3}')
+    inactive_pages=$(vm_stat | "$AWK_BIN" '/Pages inactive/ {gsub("\\.", "", $3); print $3}')
 
     free_pages=${free_pages:-0}
     speculative_pages=${speculative_pages:-0}
@@ -144,6 +150,22 @@ available_ram_mb() {
     bytes=$(( (free_pages + speculative_pages + inactive_pages) * page_size ))
     echo $(( bytes / 1024 / 1024 ))
 }
+
+count_hog_graphs() {
+    local path="$1"
+    "$AWK_BIN" '
+        BEGIN { count = 0; in_block = 0 }
+        /^[[:space:]]*$/ { in_block = 0; next }
+        {
+            if (!in_block) {
+                count += 1
+                in_block = 1
+            }
+        }
+        END { print count }
+    ' "$path"
+}
+
 # -----------------------------
 # Pick timeout command
 # -----------------------------
@@ -208,7 +230,7 @@ typeset -a running_pids=()
 cpu_usage_percent() {
     # sample CPU twice and compute usage
     local usage
-    usage=$(top -l 2 -n 0 | grep "CPU usage" | tail -n 1 | awk '{print $3}' | sed 's/%//')
+    usage=$(top -l 2 -n 0 | grep "CPU usage" | tail -n 1 | "$AWK_BIN" '{print $3}' | sed 's/%//')
     echo "${usage:-0}"
 }
 
@@ -235,7 +257,7 @@ current_timeout_streak() {
     streak=0
 
     for file in $(ls -t "$status_subdir"/*.status 2>/dev/null); do
-        timed_out=$(awk -F= '/^timed_out=/{print $2}' "$file" 2>/dev/null)
+        timed_out=$("$AWK_BIN" -F= '/^timed_out=/{print $2}' "$file" 2>/dev/null)
         if [[ "$timed_out" == "1" ]]; then
             streak=$(( streak + 1 ))
         else
@@ -321,7 +343,7 @@ normalize() {
         echo "$v" | jq -c -S .
     else
         # fallback: string strip
-        echo "$v" | awk '{$1=$1;print}'
+        echo "$v" | "$AWK_BIN" '{$1=$1;print}'
     fi
 }
 
@@ -334,21 +356,6 @@ compute_m() {
         HOG) echo "n/a" ;;
         *) echo "0" ;;
     esac
-}
-
-count_hog_graphs() {
-    local path="$1"
-    awk '
-        BEGIN { count = 0; in_block = 0 }
-        /^[[:space:]]*$/ { in_block = 0; next }
-        {
-            if (!in_block) {
-                count += 1
-                in_block = 1
-            }
-        }
-        END { print count }
-    ' "$path"
 }
 
 build_run_key() {
@@ -392,7 +399,7 @@ build_run_key() {
     done
 
     # SHA1 like Python
-    echo -n "$key_string" | shasum | awk '{print $1}'
+    echo -n "$key_string" | shasum | "$AWK_BIN" '{print $1}'
 }
 
 # -----------------------------

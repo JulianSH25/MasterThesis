@@ -5,7 +5,7 @@
   "iterations_list": [50, 100, 200, 500],
   "learning_rate_adam": 0.05,
   "depth_list": [1, 2, 5, 10],
-  "n_start": 11,
+  "n_start": 0,
   "n_end": 30,
   "singlet_injection": false,
   "start_index_singlet": 0,
@@ -16,7 +16,7 @@
   "use_correlations_as_initial_params": false,
   "time_limit": 10800,
   "failed_instance_termination_thrsh": 10,
-  "graph_generation_type": "random",
+  "graph_generation_type": "HOG",
   "weighted": false,
   "easiest_first": true,
   "cpu_util_threshold": 90,
@@ -24,5 +24,5 @@
   "save_circuit_svg": false,
   "rerun_exclude_finished_instances": false,
   "optimiser_debug_iterations": 1,
-  "relative_graph_adjList_path": "graph_adjLists"
+  "relative_graph_adjList_path": "/Users/julian_dev/Projects/MasterThesis/QAOA/HOG_graphs/list_27_graphs_adjacency_list.txt"
 }
