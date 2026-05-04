@@ -47,6 +47,7 @@ class QAOACircuit(QuantumCircuit):
         self.cost_operator: SparsePauliOp | None = None
         benchm_params = get_benchmark_params()
         self.start_index = benchm_params['start_index_singlet']
+        self.warm_start_flag = bool(benchm_params.get("warm_start", False))
         self.warm_start_mode = str(benchm_params.get("warm_start_mode", "standard")).lower()
         self.warm_start_corr_strength = float(benchm_params.get("warm_start_corr_strength", 1.0))
         self.warm_start_corr_repeats = int(benchm_params.get("warm_start_corr_repeats", 1))
@@ -290,8 +291,10 @@ class QAOACircuit(QuantumCircuit):
         warm_mode = self._resolve_warm_start_mode()
         corr_strength, corr_repeats = self._resolve_correlation_settings(warm_mode)
 
-        assert warm_mode in {"standard", "amplified", "entangled"}
-        assert not (self.initial_state and self.self_init_linegraph), "Cannot use both an initial statevector and self-initializing line graph (singlets ws) warm start simultaneously"
+        if self.initial_state is not None and self.self_init_linegraph:
+            raise ValueError(
+                "Cannot use both an initial statevector and self-initializing line graph (singlets ws) warm start simultaneously"
+            )
 
 
         if warm_mode in {"amplified", "entangled"} and self.warm_start_correlations is None:
@@ -385,7 +388,7 @@ class QAOACircuit(QuantumCircuit):
         self.qc = QuantumCircuit(self.n, self.n if add_measurements else 0)
 
         # Initialise using configured warm-start mode
-        if self.self_init_linegraph or self.apply_warm_start:
+        if self.self_init_linegraph or self.warm_start_flag:
             self.apply_warm_start()
         else:
             self.qc.h(range(self.n))
