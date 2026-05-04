@@ -261,6 +261,8 @@ def heuristic_optimiser(
     benchmark_params: dict = get_benchmark_params()
     best_result_obj = None
     steps = benchmark_params.get("heuristic_optimiser_iterations")
+    if benchmark_params.get("init_QAOAparams_close_to_zero"):
+        raise Warning("Heuristic optimiser is being used with init_QAOAparams_close_to_zero=True, which means that all random initial parameters will be close to zero. This may limit the effectiveness of the heuristic optimiser, as it relies on sampling a diverse set of initial parameters. Consider setting init_QAOAparams_close_to_zero=False for better performance of the heuristic optimiser.")
     
     # Iterate over many runs of the ADAM optmiser with different randmly initialised parameters.
     worst_result, best_result_value = float("inf"), float("-inf")
