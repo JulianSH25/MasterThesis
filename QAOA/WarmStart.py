@@ -71,7 +71,7 @@ def get_warm_start_state(instance, n_vertices):
     if benchmark_params["debug"]:
         print(f"Warm start state: {warmstart}")
         print("Product states:")
-        for idx in range(states):
+        for idx in range(len(states)):
             print(f"Product state {idx}: {states[idx]}")
         print(f"Moment Matrix: {M_optimal}")
     Moment_matrix = M_optimal if benchmark_params["warm_start_correlations"] else None
