@@ -44,6 +44,7 @@ benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
 
 optimiser = benchmark_params["optimiser"].lower()
+_initial_energy_prodStates = None
 
 # TODO move to utils
 def get_processor_name():
@@ -124,8 +125,10 @@ def main(
         # BUG if a custom initial state is provided, the classical cut from the SDP warm start is not available for HAMQAOA
     
     if product_states is not None:
-        QAOA.
-        
+        initial_energy_prodStates = QAOA.qaoa_compute_energy(product_states, edges, weights, (1, 1, 1))  # compute initial energy of the warm-start product states; this is used for the HAMQAOA initial state energy and for the warm-start fallback mechanism in the optimiser
+        print(f"Initial energy of warm-start product states: {initial_energy_prodStates}")
+        _initial_energy_prodStates = initial_energy_prodStates
+
     warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
 
     print(f"warm_start_correlations: {warm_start_correlations}")
@@ -249,7 +252,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'initial_ws_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                       'parameter_vector', 'initial_ws_energy', 'initial_ws_energy_prodStates', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb']
 
@@ -380,6 +383,7 @@ if __name__ == "__main__":
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
             'initial_ws_energy': initial_ws_energy,
+            'initial_ws_energy_prodStates': _initial_energy_prodStates,
             'initial_ws_energy_010101': initial_ws_energy_010101 if parameter_settings["compare_with_010101"] else None,
             'QAOA_improvement_over_SDP': results[n] - initial_ws_energy if initial_ws_energy is not None else None,
             'result': results[n],
