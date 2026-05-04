@@ -55,6 +55,8 @@ class QAOACircuit(QuantumCircuit):
         self.parameter_log_path: Path | None = None # NOTE for debugging only
         self.initial_ws_energy = None
 
+        print(f"Solving for uuid: {self.uuid}")
+
         circuit_type = get_benchmark_params()['circuit_type']
         if circuit_type == 'standard':
             self.no_param_types = 2
@@ -228,7 +230,7 @@ class QAOACircuit(QuantumCircuit):
         :return: complex energy expectation value for the full edge Hamiltonian
         """
         # H_map = np.zeros((len(edges), len(edges)), dtype=complex)
-        assert params is not None
+        assert params is not None # BUG do not declare None above
         weights = weights if weights is not None else np.ones(len(edges))
 
         a, b, c = params
