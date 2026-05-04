@@ -47,6 +47,9 @@ class QAOACircuit(QuantumCircuit):
         self.cost_operator: SparsePauliOp | None = None
         benchm_params = get_benchmark_params()
         self.start_index = benchm_params['start_index_singlet']
+        self.warm_start_mode = str(benchm_params.get("warm_start_mode", "standard")).lower()
+        self.warm_start_corr_strength = float(benchm_params.get("warm_start_corr_strength", 1.0))
+        self.warm_start_corr_repeats = int(benchm_params.get("warm_start_corr_repeats", 1))
         self.debug = benchm_params['debug']
         self.log_qc_svg = benchm_params['save_circuit_svg']
         self.debug_path = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else None
@@ -250,18 +253,89 @@ class QAOACircuit(QuantumCircuit):
 
         return energy
 
-    def apply_warm_start_correlations(self):
-        for (i, j) in self.edges:
-            c_ij = self.warm_start_correlations[(i, j)]
+    def apply_warm_start_correlations_with_strength(self, strength: float = 1.0, repeats: int = 1):
+        repeats = max(1, int(repeats))
+        for _ in range(repeats):
+            for (i, j) in self.edges:
+                c_ij = self.warm_start_correlations[(i, j)]
 
-            c_ij = float(np.clip(c_ij, -3.0, 3.0))
-            x = np.pi * (c_ij - 3.0) / 6.0
+                c_ij = float(np.clip(c_ij, -3.0, 3.0))
+                x = strength * np.pi * (c_ij - 3.0) / 6.0
 
-            print(f"Applying warm start correlation {c_ij} on edge ({i}, {j}) with rotation angle {x:.4f} radians")
+                print(f"Applying warm start correlation {c_ij} on edge ({i}, {j}) with rotation angle {x:.4f} radians")
 
-            self.qc.rxx(-2*x, i, j)
-            self.qc.ryy(-2*x, i, j)
-            self.qc.rzz(-2*x, i, j)
+                self.qc.rxx(-2*x, i, j)
+                self.qc.ryy(-2*x, i, j)
+                self.qc.rzz(-2*x, i, j)
+
+    def _set_initial_ws_energy(self, label: str) -> None:
+        statevec = Statevector.from_instruction(self.qc)
+        self.initial_ws_energy = self.compute_energy_from_statevector(statevec)
+        print(f"Initial state energy for {label}: {self.initial_ws_energy}")
+
+    def _resolve_warm_start_mode(self) -> str:
+        warm_mode = self.warm_start_mode
+        if warm_mode not in {"standard", "amplified", "entangled"}:
+            raise ValueError(f"Unsupported warm_start_mode: {warm_mode}")
+        return warm_mode
+
+    def _resolve_correlation_settings(self, warm_mode: str) -> tuple[float, int]:
+        strength = self.warm_start_corr_strength
+        repeats = max(1, self.warm_start_corr_repeats)
+        if warm_mode == "amplified" and strength == 1.0 and repeats == 1:
+            strength = 2.0
+        return strength, repeats
+
+    def apply_warm_start(self) -> None:
+        warm_mode = self._resolve_warm_start_mode()
+        corr_strength, corr_repeats = self._resolve_correlation_settings(warm_mode)
+
+        assert warm_mode in {"standard", "amplified", "entangled"}
+        assert not (self.initial_state and self.self_init_linegraph), "Cannot use both an initial statevector and self-initializing line graph (singlets ws) warm start simultaneously"
+
+
+        if warm_mode in {"amplified", "entangled"} and self.warm_start_correlations is None:
+            raise RuntimeError("warm_start_correlations are required for amplified/entangled warm start modes")
+
+        if warm_mode == "entangled":
+            # Use equal superposition as the base state for the entangled warm start, then apply correlations to induce entanglement
+            self.qc.h(range(self.n))
+            print("Entangled warm start: equal superposition + correlations")
+            self.apply_warm_start_correlations_with_strength(
+                strength=corr_strength,
+                repeats=corr_repeats,
+            )
+            self._set_initial_ws_energy("entangled warm start")
+            return
+
+        if self.initial_state is not None:
+            # Otherwise, if an initial statevector is provided, use it directly as the initial state for the circuit
+            _initial_state = np.asarray(self.initial_state, dtype=complex)
+            assert _initial_state.shape == (2**self.n,)
+            assert _initial_state.ndim == 1
+            norm = np.linalg.norm(_initial_state)
+            assert norm > 0
+            _initial_state /= norm
+            self.qc.initialize(_initial_state, range(self.n))
+            print("Initial state injected as warm start")
+
+            if self.warm_start_correlations is not None:
+                # Amplify the provided warm start vector by applying correlations as weak entangling gates, which can help to escape local minima and provide a stronger initial signal for the optimization, while still preserving the core structure of the provided state.
+                self.apply_warm_start_correlations_with_strength(
+                    strength=corr_strength,
+                    repeats=corr_repeats,
+                )
+                print("Warm start correlations applied in the form of weak entanglement")
+            self._set_initial_ws_energy("warm start")
+            return
+
+        if self.self_init_linegraph:
+            # Apply singlet injections for line graph warm start
+            assert self.start_index is not None and isinstance(self.start_index, int) and self.start_index in {0, 1}
+            print("Line graph state preparation: Singlet injection")
+            print(f"Singlets induced on ODD parity edges") if self.start_index == 0 else print("Singlets induced on EVEN parity edges")
+            prepare_line_singlet_circuit(self.qc, self.n, start_index=self.start_index)
+            return
 
     def print_circuit(self, circuit = None, name_addition = "", print_to_log = False):
         try:
@@ -310,36 +384,12 @@ class QAOACircuit(QuantumCircuit):
 
         self.qc = QuantumCircuit(self.n, self.n if add_measurements else 0)
 
-        # Initialise in equal superposition
-        #qc.h(range(n))
-        if self.initial_state is not None:
-            _initial_state = np.asarray(self.initial_state, dtype=complex)
-            assert _initial_state.shape == (2**self.n,)
-            assert _initial_state.ndim == 1
-            # obsolete?
-            norm = np.linalg.norm(_initial_state)
-            assert norm > 0
-            _initial_state /= norm
-            self.qc.initialize(_initial_state, range(self.n))
-            print("Initial state injected as warm start")
-            E_initial = self.compute_energy_from_statevector(Statevector(_initial_state))
-            self.initial_ws_energy = E_initial
-            print(f"Initial state energy for vector-normalised SDP solution used as warm start: {E_initial}")
-
-            # TODO: add warm start correlations here
-            # TODO WARNING: REMOVE WHEN COMPARING AGAINST 010101... INITIAL STATE!
-            if self.warm_start_correlations is not None:
-                self.apply_warm_start_correlations()
-                print("Warm start correlations applied in the form of weak entanglement")
-        elif self.self_init_linegraph:
-            assert self.start_index is not None and isinstance(self.start_index, int) and self.start_index in {0, 1}
-            print("Line graph state preparation: Singlet injection")
-            print(f"Singlets induced on ODD parity edges") if self.start_index == 0 else print("Singlets induced on EVEN parity edges")
-            prepare_line_singlet_circuit(self.qc, self.n, start_index=self.start_index)
-            #self.initial_ws_energy = self.compute_energy_from_statevector(Statevector(self.qc.draw(output='statevector')))
+        # Initialise using configured warm-start mode
+        if self.self_init_linegraph or self.apply_warm_start:
+            self.apply_warm_start()
         else:
-            self.qc.h(range(self.n)) # Default: equal superposition
-            print("Default QAOA state preparation: Equal superposition")
+            self.qc.h(range(self.n))
+            print("No warm start: Default initial state is equal superposition")
 
         a, b, c = self.params
         if self.circuit_type == 'standard':

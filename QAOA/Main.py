@@ -140,6 +140,7 @@ def main(
 
     benchmark_params: dict = get_benchmark_params()
     QAOA.params = benchmark_params["parameter_vector"]
+    warm_start_mode = str(benchmark_params.get("warm_start_mode", "standard")).lower()
     energy_audit = bool(benchmark_params.get("energy_audit", False) or benchmark_params.get("debug", False))
 
     initial_energy_prodStates = None
@@ -158,7 +159,7 @@ def main(
         if energy_audit:
             print(f"Initial energy from SDP product states: {initial_energy_prodStates}")
 
-    if initial_state is not None:
+    if initial_state is not None and warm_start_mode != "entangled":
         initial_energy_statevector = QAOA.compute_energy_from_statevector(
             Statevector(np.asarray(initial_state, dtype=complex))
         )
@@ -170,9 +171,10 @@ def main(
     if get_benchmark_params()["debug"]:
         print(f"Initial state set to: {initial_state}") if initial_state is not None else print("No initial state provided.")
         print(f"Classical warm start cut set to: {classical_cut}") if classical_cut is not None else print("No classical warm start cut provided.")
-    if warm_start_correlations is not None and benchmark_params["warm_start_correlations"]:
+    use_correlations = bool(benchmark_params.get("warm_start_correlations", False)) or warm_start_mode in {"amplified", "entangled"}
+    if warm_start_correlations is not None and use_correlations:
         QAOA.warm_start_correlations = warm_start_correlations
-    elif benchmark_params["warm_start_correlations"]:
+    elif use_correlations:
         raise RuntimeError("Warm start correlations are not available for this benchmark.")
 
     if benchmark_params["debug"]:
