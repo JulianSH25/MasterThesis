@@ -236,6 +236,9 @@ def optimise_cobyla(
     return result
     # return minimize(objective, x0=x0, method="L-BFGS-B", options={"maxiter": max_iter})
 
+def heuristic_optimiser():
+    pass
+
 ######
 # NOTE this is only a wrapper function for the adam optimiser. The actual optimisation happens below in '_adam_optimiser'
 def optimise_adam(
@@ -246,30 +249,47 @@ def optimise_adam(
     x0: np.ndarray | None = None,
 ):
     benchmark_params: dict = get_benchmark_params()
+    if benchmark_params.get("optimiser_use_heuristic"):
+        _, x0 = heuristic_optimiser(QAOA, no_layers, learning_rate=learning_rate)
     best_result_obj = None
-    #_iterations = benchmark_params.get("optimiser_debug_iterations")
-    #_iterations = 1 if _iterations is None else _iterations
-    #assert type(_iterations)==int
-    if benchmark_params.get("optimiser_debug_iterations") == 1:
-        print("Running ADAM optimization with a single iteration (no debug loop)")
-        best_result_obj = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=x0)
-        return best_result_obj
-    else:
-        # Iterate over many runs of the ADAM optmiser with different randmly initialised parameters.
-        worst_result, best_result_value = float("inf"), float("-inf")
-        best_results_log = []
-        for _ in range(benchmark_params.get("optimiser_debug_iterations")):
-            print(f"Debug iteration {_+1}/{benchmark_params.get('optimiser_debug_iterations', 1)}")
-            result = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=x0)
-            if -result.fun < worst_result:
-                worst_result = -result.fun
-            if -result.fun > best_result_value:
-                best_result_value = -result.fun
-                best_result_obj = result
-            best_results_log.append(-result.fun)
-        print(f"ADAM optimization debug: best_result={best_result_value}, worst_result={worst_result}")
-        print(f"ADAM optimization debug: all results observed across iterations: {best_results_log}")
-        return best_result_obj if best_result_obj is not None else result
+    print("Running ADAM optimization with a single iteration (no debug loop)")
+    best_result_obj = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=x0)
+    return best_result_obj
+
+# NOTE same as optimise_adam but iterates many times
+def heuristic_optimiser(
+        QAOA: QAOACircuit,
+    no_layers: int,
+    learning_rate: float = 0.05,
+    ):
+    benchmark_params: dict = get_benchmark_params()
+    best_result_obj = None
+    steps = benchmark_params.get("heuristic_optimiser_iterations")
+    
+    # Iterate over many runs of the ADAM optmiser with different randmly initialised parameters.
+    worst_result, best_result_value = float("inf"), float("-inf")
+    best_results_log: dict = {}
+    points: dict = {}
+    best_point = None
+    for idx in range(benchmark_params.get("heuristic_optimiser_sampleSize")):
+        print(f"Debug iteration {idx+1}/{benchmark_params.get('heuristic_optimiser_sampleSize', 1)}")
+        result, point = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=None)
+        # call adam optimiser many times with a small number of steps to test different random initial parameters (sampled in adam optimiser) and return the best point (i.e. best parameters) to optimise further with Adam but this time more steps
+        points[idx] = point
+        if -result.fun < worst_result:
+            worst_result = -result.fun
+        if -result.fun > best_result_value:
+            best_result_value = -result.fun
+            best_result_obj = result
+            best_point = point
+        best_results_log[idx] = -result.fun
+    print(f"ADAM optimization heuristic: best_result={best_result_value}, worst_result={worst_result}")
+    if benchmark_params.get("debug"):
+        print(f"ADAM optimization heuristic: all results observed across iterations: {best_results_log}")
+        print(f"ADAM optimization heuristic: best point found across iterations: {best_point}")
+        print(f"Improvement over worst result: {best_result_value - worst_result}")
+        print(f"Improvement over worst result (percentage): {(best_result_value - worst_result) / abs(worst_result) * 100:.5f}%")
+    return best_result_obj, best_point if best_result_obj is not None else result, best_point
 
 
 def _adam_optimiser(
@@ -367,7 +387,7 @@ def _adam_optimiser(
     print(f"Energies observed during ADAM optimization: {Energies}")
     print(f"Total optimisation time observed during ADAM optimization: {sum(Optimisation_time):.6f} seconds")
     print(f"Median time per evaluation during ADAM optimization: {np.median(Optimisation_time):.6f} seconds")
-    return result
+    return result, x0
 
 
 def grid_search(QAOA: QAOACircuit, no_layers: int, precision: float, shuffle: bool = False):
