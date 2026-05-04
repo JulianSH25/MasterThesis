@@ -1,6 +1,6 @@
 {
   "optimiser": "adam",
-  "optimiser_use_heuristic": true,
+  "optimiser_use_heuristic": false,
   "heuristic_optimiser_iterations": 5,
   "heuristic_optimiser_sampleSize": 100,
   "circuit_type": "hamqaoa",
@@ -13,7 +13,7 @@
   "singlet_injection": false,
   "start_index_singlet": 0,
   "warm_start": true,
-  "warm_start_mode": "amplified",
+  "warm_start_mode": "entangled",
   "warm_start_corr_strength": 2.0,
   "warm_start_corr_repeats": 1,
   "compare_with_010101": false,
@@ -30,5 +30,5 @@
   "save_circuit_svg": false,
   "rerun_exclude_finished_instances": false,
   "optimiser_debug_iterations": 1,
-  "relative_graph_adjList_path": "/Users/julian/PycharmProjects/PythonProject/MasterThesis/QAOA/HOG_graphs/list_27_graphs_adjacency_list.txt"
+  "relative_graph_adjList_path": "HOG_graphs/list_27_graphs_adjacency_list.txt"
 }

@@ -292,7 +292,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'initial_ws_energy', 'initial_ws_energy_prodStates', 'initial_energy_statevector', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                       'parameter_vector', 'initial_ws_energy', 'initial_ws_energy_prodStates', 'initial_energy_statevector', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb']
 
@@ -426,7 +426,8 @@ if __name__ == "__main__":
             'initial_ws_energy_prodStates': initial_energy_prodStates,
             'initial_energy_statevector': initial_energy_statevector,
             'initial_ws_energy_010101': initial_ws_energy_010101 if parameter_settings["compare_with_010101"] else None,
-            'QAOA_improvement_over_SDP': results[n] - initial_ws_energy if initial_ws_energy is not None else None,
+            'QAOA_improvement_over_SDP': results[n] - initial_energy_statevector if initial_energy_statevector is not None else None,
+            'QAOA_improvement_over_SDP_prodStatesEnergy': results[n] - initial_energy_prodStates if initial_energy_prodStates is not None else None,
             'result': results[n],
             'result_010101': results_010101[n] if parameter_settings["compare_with_010101"] else None,
             'approx_ratio': approx_ratio,
