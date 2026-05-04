@@ -236,9 +236,6 @@ def optimise_cobyla(
     return result
     # return minimize(objective, x0=x0, method="L-BFGS-B", options={"maxiter": max_iter})
 
-def heuristic_optimiser():
-    pass
-
 ######
 # NOTE this is only a wrapper function for the adam optimiser. The actual optimisation happens below in '_adam_optimiser'
 def optimise_adam(
