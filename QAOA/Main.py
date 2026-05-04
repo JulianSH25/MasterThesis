@@ -118,10 +118,13 @@ def main(
     print(f"Generated line graph with {m} edges, {n} nodes, and {p} layers.") if m == n - 1 else None
 
     assert not (init_initial_state and __initial_state__), "Cannot provide both init_initial_state=True and a custom __initial_state__. Please choose one of the two options for a valid benchmark configuration."
-    (initial_state, classical_cut), moment_matrix = get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else (None, None)
+    (initial_state, product_states, classical_cut), moment_matrix = get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else (None, None)
     if __initial_state__ is not None:
         initial_state = __initial_state__
         # BUG if a custom initial state is provided, the classical cut from the SDP warm start is not available for HAMQAOA
+    
+    if product_states is not None:
+        QAOA.
         
     warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
 

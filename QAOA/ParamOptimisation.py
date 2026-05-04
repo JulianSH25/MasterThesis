@@ -357,6 +357,7 @@ def _adam_optimiser(
             delayed(objective_single)(theta[i:i + dimension])
             for i in range(0, theta.size, dimension)
         )
+        #idx_counter += n_jobs
         energy = np.array(values, dtype=float)
         Optimisation_time.append(time.time() - start) # XXX Time
         return energy
