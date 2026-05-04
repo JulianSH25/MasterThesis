@@ -70,5 +70,9 @@ def get_warm_start_state(instance, n_vertices):
     print(f"Warm-start: statevector build finished in {time.time() - build_start:.2f} seconds", flush=True)
     if benchmark_params["debug"]:
         print(f"Warm start state: {warmstart}")
+        print("Product states:")
+        for idx in range(states):
+            print(f"Product state {idx}: {states[idx]}")
+        print(f"Moment Matrix: {M_optimal}")
     Moment_matrix = M_optimal if benchmark_params["warm_start_correlations"] else None
     return (warmstart, classical_cut), Moment_matrix
