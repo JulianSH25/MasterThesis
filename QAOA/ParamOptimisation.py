@@ -33,6 +33,8 @@ benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
 
 debug = benchmark_params["debug"]
+debug_allInfo = True
+idx_counter = 1
 
 Energies: list[float] = [] # Used to store energy values from each QAOA iteration; Used in eval_QAOA_circuit (right below)
 Optimisation_time: list[float] = [] # Used to store time taken for each evaluation of the objective function during ADAM & COBYLA optimisation;
@@ -46,6 +48,9 @@ def eval_QAOA_circuit(point: list[np.ndarray], QAOA: QAOACircuit) -> float:
     E = QAOA.compute_energy_from_statevector(statevec)
     QAOA.debug_previous_result = E
     Energies.append(E)
+    if debug and debug_allInfo:
+        print(f"Debugging info for idx {idx_counter}:")
+        print(f"Statevector: {statevec}")
     return E
 
 
