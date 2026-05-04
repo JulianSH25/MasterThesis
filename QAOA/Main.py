@@ -44,7 +44,7 @@ benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
 
 optimiser = benchmark_params["optimiser"].lower()
-_initial_energy_prodStates = None
+_initial_energy_prodStates = 0
 
 # TODO move to utils
 def get_processor_name():
@@ -124,10 +124,6 @@ def main(
         initial_state = __initial_state__
         # BUG if a custom initial state is provided, the classical cut from the SDP warm start is not available for HAMQAOA
     
-    if product_states is not None:
-        initial_energy_prodStates = QAOA.qaoa_compute_energy(product_states, edges, weights, (1, 1, 1))  # compute initial energy of the warm-start product states; this is used for the HAMQAOA initial state energy and for the warm-start fallback mechanism in the optimiser
-        print(f"Initial energy of warm-start product states: {initial_energy_prodStates}")
-        _initial_energy_prodStates = initial_energy_prodStates
 
     warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
 
@@ -136,6 +132,17 @@ def main(
     assert edges is not None and weights is not None and set_of_nodes is not None and n is not None and p is not None
     print(f"Edges: {edges}, weights: {weights}, set of nodes: {set_of_nodes}, n: {n} nodes, p: {p} layers, N_bayes: {N_bayes} iterations")
     QAOA = QAOACircuit(n=n, p=p, edges=edges, weights=weights)
+
+    initial_energy_prodStates = None
+
+    """if product_states is not None:
+        product_states_matrix: dict[tuple[int, int], np.ndarray] = {}
+        idx = 0
+        for (i, j) in edges:
+            product_states_matrix[(i, j)] = product_states[idx]
+            idx += 1
+        initial_energy_prodStates = QAOA.qaoa_compute_energy(product_states_matrix, edges, weights, (1, 1, 1))  # compute initial energy of the warm-start product states; this is used for the HAMQAOA initial state energy and for the warm-start fallback mechanism in the optimiser
+        print(f"Initial energy of warm-start product states: {initial_energy_prodStates}")"""
 
     benchmark_params: dict = get_benchmark_params()
     QAOA.params = benchmark_params["parameter_vector"]
@@ -192,8 +199,8 @@ def main(
     print(minimum_energy)
 
     if return_initial_point:
-        return minimum_energy, used_initial_point, initial_ws_energy
-    return minimum_energy, initial_ws_energy
+        return minimum_energy, used_initial_point, initial_ws_energy, initial_energy_prodStates
+    return minimum_energy, initial_ws_energy, initial_energy_prodStates
 
 def return_optimal_line(n):
     df = pan.read_csv("optimal_results_qaoa.csv", skipinitialspace=True)
@@ -303,7 +310,7 @@ if __name__ == "__main__":
         # XXX Time
         time_section = time.time()
  
-        results[n], shared_initial_point, initial_ws_energy = main(
+        results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates = main(
             p=p,
             N_bayes=int(precision),
             self_init_linegraph=singlet_injection,
@@ -330,7 +337,7 @@ if __name__ == "__main__":
             initial_state = state
 
             print("Reusing optimiser initial parameters for 010101 comparison run.")
-            results_010101[n], initial_ws_energy_010101 = main(
+            results_010101[n], initial_ws_energy_010101, __initial_energy_prodStates = main(
                 p=p,
                 N_bayes=int(precision),
                 edges=edges,
@@ -383,7 +390,7 @@ if __name__ == "__main__":
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
             'initial_ws_energy': initial_ws_energy,
-            'initial_ws_energy_prodStates': _initial_energy_prodStates,
+            'initial_ws_energy_prodStates': initial_energy_prodStates,
             'initial_ws_energy_010101': initial_ws_energy_010101 if parameter_settings["compare_with_010101"] else None,
             'QAOA_improvement_over_SDP': results[n] - initial_ws_energy if initial_ws_energy is not None else None,
             'result': results[n],
@@ -452,6 +459,7 @@ if __name__ == "__main__":
     sum_sections_time = sum(time_sections.values())
     print(f"Sum of all section times: {sum_sections_time:.2f} seconds")
     time_sections["total_time"] = global_endtime - global_starttime
+    print(f"run_id: {run_id}")
     with open(f"time/{run_id}.csv", 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=['section', 'duration_seconds'])
         writer.writeheader()

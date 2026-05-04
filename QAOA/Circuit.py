@@ -55,7 +55,7 @@ class QAOACircuit(QuantumCircuit):
         self.parameter_log_path: Path | None = None # NOTE for debugging only
         self.initial_ws_energy = None
 
-        print(f"Solving for uuid: {self.uuid}")
+        print(f"Solving for uuid: {self.uid}")
 
         circuit_type = get_benchmark_params()['circuit_type']
         if circuit_type == 'standard':
