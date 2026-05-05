@@ -12,7 +12,7 @@
   "n_end": 30,
   "singlet_injection": false,
   "start_index_singlet": 0,
-  "warm_start": true,
+  "warm_start": false,
   "warm_start_mode": "amplified",
   "warm_start_corr_strength": 2.0,
   "warm_start_corr_repeats": 1,
