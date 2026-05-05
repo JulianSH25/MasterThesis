@@ -7,7 +7,6 @@
     "parameter_vector",
     "singlet_injection",
     "warm_start",
-    "warm_start_correlations",
     "init_QAOAparams_close_to_zero",
     "use_correlations_as_initial_params",
     "compare_with_010101",

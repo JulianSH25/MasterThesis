@@ -17,7 +17,6 @@
   "warm_start_corr_strength": 2.0,
   "warm_start_corr_repeats": 1,
   "compare_with_010101": false,
-  "warm_start_correlations": false,
   "init_QAOAparams_close_to_zero": false,
   "use_correlations_as_initial_params": false,
   "time_limit": 10800,

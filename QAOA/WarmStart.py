@@ -75,6 +75,6 @@ def get_warm_start_state(instance, n_vertices):
             print(f"Product state {idx}: {states[idx]}")
         print(f"Moment Matrix: {M_optimal}")
     warm_start_mode = str(benchmark_params.get("warm_start_mode", "standard")).lower()
-    need_correlations = bool(benchmark_params.get("warm_start_correlations")) or warm_start_mode in {"amplified", "entangled"}
+    need_correlations = warm_start_mode in {"amplified", "entangled"} or bool(benchmark_params.get("use_correlations_as_initial_params", False))
     Moment_matrix = M_optimal if need_correlations else None
     return (warmstart, states, classical_cut), Moment_matrix

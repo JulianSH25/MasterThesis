@@ -378,7 +378,7 @@ build_run_key() {
             parameter_vector) value="$parameter_vector" ;;
             singlet_injection) value="$singlet_injection" ;;
             warm_start) value="$warm_start" ;;
-            warm_start_correlations) value="$warm_start_correlations" ;;
+            #warm_start_correlations) value="$warm_start_correlations" ;;
             init_QAOAparams_close_to_zero) value="$init_QAOAparams_close_to_zero" ;;
             use_correlations_as_initial_params) value="$use_correlations_as_initial_params" ;;
             compare_with_010101) value="$compare_with_010101" ;;
