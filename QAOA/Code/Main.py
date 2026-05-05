@@ -1,26 +1,25 @@
 import time
 import csv
 import os
+from typing import Any, Literal
 import uuid
 import fcntl
 import platform
 import socket
-import resource
-import subprocess
 from datetime import datetime
 import numpy as np
-
-import pandas as pan
-from numpy.f2py.auxfuncs import throw_error
-
-from Circuit import QAOACircuit
-from qiskit.quantum_info import Statevector
-from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search, optimise_adam
 import sys
 from pathlib import Path
-from Utils import classify_graph, get_benchmark_params
-from WarmStart import get_warm_start_state, extract_correlations
+import pandas as pan
+from numpy.f2py.auxfuncs import throw_error
+from qiskit.quantum_info import Statevector
 
+# Local imports
+from Circuit import QAOACircuit
+from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search, optimise_adam
+from Utils import classify_graph, get_benchmark_params
+from Utils import get_processor_name, get_total_ram_gb, get_physical_cores, get_logical_cores, get_peak_ram_mb
+from WarmStart import get_warm_start_state, extract_correlations
 from InstanceGenerator import instance_generator
 
 if __package__ in (None, ""):
@@ -29,91 +28,30 @@ if __package__ in (None, ""):
         sys.path.insert(0, str(project_root))
     os.chdir(project_root)
 
-#edges = [(0, 1), (1, 2)]  # , (2, 3), (3, 4), (4, 5), (5, 6)]  # ring
-#weights = [1.0] * len(edges)
-#set_of_nodes = {i for k in edges for i in k}
-#n = len(set_of_nodes)
-#print(set_of_nodes, n)
-#p = 20
-
-optimiser_bayesian = False
-optimiser_cobyla = True
-gridsearch = False
-
 precision = None
 
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
 
 optimiser = benchmark_params["optimiser"].lower()
-_initial_energy_prodStates = 0
 
-# TODO move to utils
-def get_processor_name():
-    try:
-        chip_name = subprocess.check_output(
-            ["system_profiler", "SPHardwareDataType"], text=True
-        )
-        for line in chip_name.splitlines():
-            if "Chip:" in line or "Processor Name:" in line:
-                return line.split(":", 1)[1].strip()
-    except Exception:
-        pass
-    return platform.processor() or platform.machine()
-
-# TODO move
-def get_total_ram_gb():
-    try:
-        total_bytes = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"], text=True).strip())
-        return round(total_bytes / (1024 ** 3), 2)
-    except Exception:
-        return None
-
-# TODO move
-def get_physical_cores():
-    try:
-        return int(subprocess.check_output(["sysctl", "-n", "hw.physicalcpu"], text=True).strip())
-    except Exception:
-        return os.cpu_count()
-
-# TODO move
-def get_logical_cores():
-    try:
-        return int(subprocess.check_output(["sysctl", "-n", "hw.logicalcpu"], text=True).strip())
-    except Exception:
-        return os.cpu_count()
-
-# TODO move
-def get_peak_ram_mb():
-    try:
-        peak_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        return round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 ** 2), 2)
-    except Exception:
-        return None
-
-def main(
-    p: int,
-    N_bayes: int | float,
-    m = None,
-    init_initial_state=False,
-    self_init_linegraph=False,
-    edges=None,
-    weights=None,
-    __initial_state__=None,
-    fixed_initial_point=None,
-    return_initial_point=False,
-):
+def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_init_linegraph=False, edges=None,
+    weights=None, __initial_state__=None, fixed_initial_point=None, return_initial_point=False) -> tuple[float | Literal[0] | None, Any | None, float | None, float | Any | None, float | None] | tuple[float | Literal[0] | None, float | None, float | Any | None, float | None]:
     """
     This method builds and optimises a QAOA instance on a line graph.
 
-    :param m: number of edges for the generated line graph
     :param p: number of QAOA layers
     :param N_bayes: number of optimisation iterations
+    :param m: number of edges for the generated line graph;
     :param init_initial_state: whether to inject an SDP-derived warm-start state
     :param self_init_linegraph: whether to use line-graph singlet state preparation
-    :return: None
+    :param edges: optional edge list to override instance generation; if None, instance will be generated according to benchmark parameters
+    :param weights: optional weight list to override instance generation; if None, instance will be generated according to benchmark parameters
+    :param __initial_state__: optional custom initial statevector to override both the SDP warm start and the line-graph singlet state preparation; if provided, this statevector will be used as the initial state for QAOA instead of any warm-start state;
+    :param fixed_initial_point: optional initial parameter point for COBYLA or Adam optimisers; if None, optimiser will use its default initialisation strategy
+    :param return_initial_point: whether to return the initial parameter point used by the optimiser (relevant for COBYLA and Adam optimisers when fixed_initial_point is None, as they will use a default initialisation strategy in that case)
     """
-    assert m is not None or edges is not None
+    assert m is not None or edges is not None # XXX sanity check
     edges = edges if edges is not None else [(i, i + 1) for i in range(m)] # Optionally replace by desired edge list, if a linegraph is not desired
     weights = weights if weights is not None else [1.0] * len(edges)
     set_of_nodes = {i for k in edges for i in k}
@@ -121,28 +59,24 @@ def main(
     print(f"Generated line graph with {m} edges, {n} nodes, and {p} layers.") if m == n - 1 else None
 
     assert not (init_initial_state and __initial_state__), "Cannot provide both init_initial_state=True and a custom __initial_state__. Please choose one of the two options for a valid benchmark configuration."
-    (initial_state, product_states, classical_cut), moment_matrix = (
-        get_warm_start_state((edges, weights), n)
-        if init_initial_state and not __initial_state__
-        else ((None, None, None), None)
-    )
+
+    (initial_state, product_states, classical_cut), moment_matrix = (get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else ((None, None, None), None))
     if __initial_state__ is not None:
         initial_state = __initial_state__
-        # BUG if a custom initial state is provided, the classical cut from the SDP warm start is not available for HAMQAOA
+        if benchmark_params.get("circuit_type", "").lower() == "hamqaoa":
+            raise Warning("A custom initial state was provided for a HAMQAOA circuit. The classical cut from the SDP warm start will not be available for this run, and any benchmark results should be interpreted accordingly, especially when comparing against runs that do use the SDP warm start.")
     
-
     warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
-
     print(f"warm_start_correlations: {warm_start_correlations}")
-
-    assert edges is not None and weights is not None and set_of_nodes is not None and n is not None and p is not None
+    assert edges is not None and weights is not None and set_of_nodes is not None and n is not None and p is not None # XXX sanity check
     print(f"Edges: {edges}, weights: {weights}, set of nodes: {set_of_nodes}, n: {n} nodes, p: {p} layers, N_bayes: {N_bayes} iterations")
-    QAOA = QAOACircuit(n=n, p=p, edges=edges, weights=weights)
+
+    QAOA = QAOACircuit(n=n, p=p, edges=edges, weights=weights) # Create QAOA circuit instance with specified parameters
 
     benchmark_params: dict = get_benchmark_params()
     QAOA.params = benchmark_params["parameter_vector"]
     warm_start_mode = str(benchmark_params.get("warm_start_mode", "standard")).lower()
-    energy_audit = bool(benchmark_params.get("energy_audit", False) or benchmark_params.get("debug", False))
+    energy_audit = benchmark_params.get("debug", False)
 
     initial_energy_prodStates = None
     initial_energy_statevector = None
@@ -167,48 +101,37 @@ def main(
         if energy_audit:
             print(f"Initial energy from warm-start statevector: {initial_energy_statevector}")
 
-    QAOA.initial_state = initial_state
-    QAOA.classical_WS_cut = classical_cut
+    QAOA.initial_state = initial_state # assign circuit parameter: initial statevector for statevector-based energy evaluation and warm-starting; if None, circuit will use equal superposition initial state
+    QAOA.classical_WS_cut = classical_cut # assign circuit parameter: classical warm start cut from SDP solution, used for certain Circuit setups (influences rotation angles in QAOA) and for audit comparisons; if None, no classical warm start cut will be used
     if get_benchmark_params()["debug"]:
         print(f"Initial state set to: {initial_state}") if initial_state is not None else print("No initial state provided.")
         print(f"Classical warm start cut set to: {classical_cut}") if classical_cut is not None else print("No classical warm start cut provided.")
-    use_correlations = init_initial_state and (
-        warm_start_mode in {"amplified", "entangled"}
-        or bool(benchmark_params.get("use_correlations_as_initial_params", False))
-    )
+
+    use_correlations = init_initial_state and (warm_start_mode in {"amplified", "entangled"}or bool(benchmark_params.get("use_correlations_as_initial_params", False)))
     if warm_start_correlations is not None and use_correlations:
-        QAOA.warm_start_correlations = warm_start_correlations
+        QAOA.warm_start_correlations = warm_start_correlations # assign circuit parameter: assign warm start correlations which can then be used for warm start initialisation or as initial parameters
     elif use_correlations:
         raise RuntimeError("Warm start correlations are required for warm_start_mode or correlation-based initial params, but none were available.")
 
-    if benchmark_params["debug"]:
-        print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.")
-    QAOA.self_init_linegraph = self_init_linegraph
-    QAOA.build_qaoa_maxcut_circuit(add_measurements=False) # TODO check parameter (changed from True to False)
-    initial_ws_energy = QAOA.initial_ws_energy
-    if energy_audit:
-        print(
-            "Energy audit summary: "
-            f"statevector={initial_energy_statevector}, "
-            f"product_states={initial_energy_prodStates}, "
-            f"initial_ws_energy={initial_ws_energy}"
-        )
+    print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.") if benchmark_params["debug"] else None
+    
+    QAOA.self_init_linegraph = self_init_linegraph # assign circuit parameter: whether to use line-graph singlet state preparation
 
-    assert sum([optimiser_bayesian, optimiser_cobyla, gridsearch]) == 1
+    """[1] Construct the QAOA circuit"""
+    QAOA.build_qaoa_maxcut_circuit(add_measurements=False)
+
+    initial_ws_energy = QAOA.initial_ws_energy # assign circuit parameter: initial warm-start energy from SDP solution, used for audit comparisons
+    print(f"Energy audit summary: statevector={initial_energy_statevector}, product_states={initial_energy_prodStates}, initial_ws_energy={initial_ws_energy}") if energy_audit else None
+
     minimum_energy = None
     used_initial_point = None
+    """[2] Start the QAOA evaluation loop with the specified optimiser"""
     if optimiser == "bayesian":
         BO = BayesianOptimiser()
         minimum_energy = BO.bayesian_optimisation(QAOA=QAOA, N_bayes=N_bayes, no_layers=p)
     elif optimiser == "cobyla":
         correlations=warm_start_correlations if benchmark_params["use_correlations_as_initial_params"] else None
-        returned_energy = optimise_cobyla(
-            QAOA=QAOA,
-            no_layers=p,
-            max_iter=N_bayes,
-            correlations=correlations,
-            x0=fixed_initial_point,
-        )
+        returned_energy = optimise_cobyla(QAOA=QAOA, no_layers=p, max_iter=N_bayes, correlations=correlations, x0=fixed_initial_point)
         minimum_energy = -returned_energy.fun
         used_initial_point = getattr(returned_energy, "initial_point", None)
     elif optimiser == "adam":
@@ -240,17 +163,17 @@ def main(
     return minimum_energy, initial_ws_energy, initial_energy_prodStates, initial_energy_statevector
 
 def return_optimal_line(n):
-    df = pan.read_csv("optimal_results_qaoa.csv", skipinitialspace=True)
+    df = pan.read_csv("optimal_results/optimal_results_qaoa.csv", skipinitialspace=True)
     val = df.loc[df["n"] == n, "result"].item()
     return val
 
 def return_optimal_cycle(n):
-    df = pan.read_csv("optimal_results_qaoa_circle.csv", skipinitialspace=True)
+    df = pan.read_csv("optimal_results/optimal_results_qaoa_circle.csv", skipinitialspace=True)
     val = df.loc[df["n"] == n, "result"].item()
     return val
 
 def return_optimal_fully_connected(n):
-    df = pan.read_csv("optimal_results_qaoa_complete.csv", skipinitialspace=True)
+    df = pan.read_csv("optimal_results/optimal_results_qaoa_complete.csv", skipinitialspace=True)
     val = df.loc[df["n"] == n, "result"].item()
     return val
 

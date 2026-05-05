@@ -182,3 +182,42 @@ def read_graphs_as_edge_lists(path: str = get_benchmark_params()["relative_graph
     
     return graphs
 
+"""Methods to retrieve benchmarking metrics"""
+def get_processor_name():
+    try:
+        chip_name = subprocess.check_output(
+            ["system_profiler", "SPHardwareDataType"], text=True
+        )
+        for line in chip_name.splitlines():
+            if "Chip:" in line or "Processor Name:" in line:
+                return line.split(":", 1)[1].strip()
+    except Exception:
+        pass
+    return platform.processor() or platform.machine()
+
+def get_total_ram_gb():
+    try:
+        total_bytes = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"], text=True).strip())
+        return round(total_bytes / (1024 ** 3), 2)
+    except Exception:
+        return None
+
+def get_physical_cores():
+    try:
+        return int(subprocess.check_output(["sysctl", "-n", "hw.physicalcpu"], text=True).strip())
+    except Exception:
+        return os.cpu_count()
+
+def get_logical_cores():
+    try:
+        return int(subprocess.check_output(["sysctl", "-n", "hw.logicalcpu"], text=True).strip())
+    except Exception:
+        return os.cpu_count()
+
+def get_peak_ram_mb():
+    try:
+        peak_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        return round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 ** 2), 2)
+    except Exception:
+        return None
+
