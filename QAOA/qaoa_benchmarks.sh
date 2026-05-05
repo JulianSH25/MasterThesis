@@ -8,12 +8,12 @@ if [[ ! -x "$AWK_BIN" ]]; then
     exit 1
 fi
 
-mkdir -p logs
+mkdir -p Results/logs
 
 # -----------------------------
 # Parameter settings
 # -----------------------------
-config_file="benchmark_config.json"
+config_file="Code/benchmark_config.json"
 
 rerun_exclude_finished_instances=$(jq -r '.rerun_exclude_finished_instances // false' "$config_file")
 whitelist_file="runkey_whitelist.json"
@@ -53,7 +53,7 @@ if [[ "${optimiser:l}" == "adam" ]]; then
     use_cpu_limit=1
 fi
 
-mkdir -p logs/${optimiser}
+mkdir -p Results/logs/${optimiser}
 
 if ! command -v jq >/dev/null 2>&1; then
     echo "Error: jq is required but was not found in PATH."
@@ -64,7 +64,7 @@ benchmark_config_dump=$(jq -r 'to_entries[] | "  \(.key): \(.value|tojson)"' "$c
 
 # Benchmark config
 
-main_file="Main.py"
+main_file="Code/Main.py"
 python_bin=$(command -v python)
 if [[ -z "${python_bin}" ]]; then
     echo "Error: could not find python in PATH."
@@ -73,7 +73,7 @@ fi
 
 # Shared timestamp for all jobs launched by this script run.
 run_timestamp=$(date +"%Y%m%d_%H%M%S")
-log_subdir="logs/${optimiser}/${run_timestamp}"
+log_subdir="Results/logs/${optimiser}/${run_timestamp}"
 mkdir -p "$log_subdir"
 status_subdir="${log_subdir}/status"
 mkdir -p "$status_subdir"
@@ -192,14 +192,14 @@ jobs_file="$(mktemp)"
 for iterations in "${iterations_list[@]}"; do
     for p in "${depth_list[@]}"; do
         if [[ "$graph_generation_type" == "HOG" ]]; then
-            if [[ -z "$relative_graph_adjList_path" ]]; then
+            if [[ -z "Code/$relative_graph_adjList_path" ]]; then
                 echo "Error: relative_graph_adjList_path must be set for graph_generation_type=HOG."
                 exit 1
             fi
 
-            hog_graph_count=$(count_hog_graphs "$relative_graph_adjList_path")
+            hog_graph_count=$(count_hog_graphs "Code/$relative_graph_adjList_path")
             if [[ -z "$hog_graph_count" || "$hog_graph_count" == "0" ]]; then
-                echo "Error: no HOG graphs found in $relative_graph_adjList_path."
+                echo "Error: no HOG graphs found in Code/$relative_graph_adjList_path."
                 exit 1
             fi
 
@@ -450,7 +450,7 @@ while read -r score iterations p n; do
     echo "Starting job: n=${n}, p=${p}, iterations=${iterations}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_jobs=$(count_running_jobs)"
 
     status_file="${status_subdir}/${run_timestamp}_n${n}_p${p}_it${iterations}.status"
-    cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} logs/${optimiser}/qaoa_results_${optimiser}_${run_timestamp}"
+    cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} Results/logs/${optimiser}/qaoa_results_${optimiser}_${run_timestamp}"
     if (( use_background_mode )); then
         cmd="taskpolicy -c background ${cmd}"
     fi
