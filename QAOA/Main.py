@@ -312,7 +312,7 @@ if __name__ == "__main__":
 
     # XXX TIME: log time taken for initialisation and parameter loading
     time_sections["initialisation"] = time.time() - time_section
-    print(f"Initialisation time: {time_sections['initialisation']:.2f} seconds; started at {time_sections} and finished at {time.time()}")
+    print(f"Initialisation time: {time_sections['initialisation']:.2f} seconds; started at stardate {time_sections} and finished at stardate{time.time()}")
 
     for n in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
         time_section = time.time()
@@ -336,7 +336,7 @@ if __name__ == "__main__":
 
         # XXX Time
         time_sections[f"instance_generation_n_{n}"] = time.time() - time_section
-        print(f"Instance generation for n={n} took {time_sections[f'instance_generation_n_{n}']:.2f} seconds; started at {time_section} and finished at {time.time()}")
+        print(f"Instance generation for n={n} took {time_sections[f'instance_generation_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")
 
         start_time = time.time()
         print(f"Running QAOA for n={node_count} nodes, m={len(edges)} edges...; Max iterations: {int(precision)}")
@@ -354,7 +354,7 @@ if __name__ == "__main__":
         )
         # XXX Time
         time_sections[f"qaoa_optimisation_n_{n}"] = time.time() - time_section
-        print(f"QAOA optimisation for n={n} took {time_sections[f'qaoa_optimisation_n_{n}']:.2f} seconds; started at {time_section} and finished at {time.time()}")
+        print(f"QAOA optimisation for n={n} took {time_sections[f'qaoa_optimisation_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")
 
 
         if parameter_settings["compare_with_010101"]:
@@ -380,7 +380,7 @@ if __name__ == "__main__":
             )
             # XXX Time
             time_sections[f"qaoa_optimisation_010101_n_{n}"] = time.time() - time_section
-            print(f"QAOA optimisation for 010101 state at n={n} took {time_sections[f'qaoa_optimisation_010101_n_{n}']:.2f} seconds; started at {time_section} and finished at {time.time()}")  
+            print(f"QAOA optimisation for 010101 state at n={n} took {time_sections[f'qaoa_optimisation_010101_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")  
 
         elapsed_time = time.time() - start_time
         # XXX Time
@@ -476,7 +476,7 @@ if __name__ == "__main__":
 
         # XXX Time
         time_sections[f"csv_writing_n_{n}"] = time.time() - time_section
-        print(f"CSV writing for n={n} took {time_sections[f'csv_writing_n_{n}']:.2f} seconds; started at {time_section} and finished at {time.time()}")
+        print(f"CSV writing for n={n} took {time_sections[f'csv_writing_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")
 
     # XXX Time
     time_section = time.time()
@@ -490,7 +490,7 @@ if __name__ == "__main__":
 
     # XXX Time
     time_sections["finalisation"] = time.time() - time_section
-    print(f"Finalisation time: {time_sections['finalisation']:.2f} seconds; started at {time_section} and finished at {time.time()}")
+    print(f"Finalisation time: {time_sections['finalisation']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")
     sum_sections_time = sum(time_sections.values())
     print(f"Sum of all section times: {sum_sections_time:.2f} seconds")
     time_sections["total_time"] = global_endtime - global_starttime
