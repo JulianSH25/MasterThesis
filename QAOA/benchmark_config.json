@@ -1,8 +1,8 @@
 {
   "optimiser": "adam",
   "optimiser_use_heuristic": true,
-  "heuristic_optimiser_iterations": 5,
-  "heuristic_optimiser_sampleSize": 100,
+  "heuristic_optimiser_iterations": 2,
+  "heuristic_optimiser_sampleSize": 1000,
   "circuit_type": "hamqaoa",
   "parameter_vector": [1, 1, 1],
   "iterations_list": [50],
@@ -29,5 +29,5 @@
   "save_circuit_svg": false,
   "rerun_exclude_finished_instances": false,
   "optimiser_debug_iterations": 1,
-  "relative_graph_adjList_path": "/Users/julian/PycharmProjects/PythonProject/MasterThesis/QAOA/HOG_graphs/list_27_graphs_adjacency_list.txt"
+  "relative_graph_adjList_path": "HOG_graphs/list_27_graphs_adjacency_list.txt"
 }
