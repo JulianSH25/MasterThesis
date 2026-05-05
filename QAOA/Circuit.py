@@ -426,13 +426,21 @@ class QAOACircuit(QuantumCircuit):
             for layer in range(self.p):
                 a, b, c, d = self.qaoa_parameters[0][layer], self.qaoa_parameters[1][layer], self.qaoa_parameters[2][layer], self.qaoa_parameters[3][layer]
                 for (j, k), w in zip(self.edges, self.weights):
-                    self.qc.rzz(2*a, j, k)
-                self.qc.rx(2*b, range(self.n))
-                self.qc.rz(2*c, range(self.n))
-                
+                    self.qc.rzz(2*a, j, k) # Gate 1 of HAMQAOA layer: ZZ interaction term with parameter a
+                self.qc.rx(2*b, range(self.n)) # Gate 2 of HAMQAOA layer: X mixer term with parameter b
+                self.qc.rz(2*c, range(self.n)) # Gate 3 of HAMQAOA layer: Z mixer term with parameter c
+
+                cut_values = self.classical_WS_cut
+                if cut_values is None:
+                    raise Warning("No classical warm-start cut provided for HAMQAOA; using random cut values for fourth HAMQAOA gate. This may lead to suboptimal performance and may be unintentional if a classical warm start was intended.")
+                    assert not get_benchmark_params().get("warm_start")
+                    cut_values = np.random.choice([-1, 1], size=self.n)
+                    if self.debug:
+                        print("No classical warm-start cut; using random cut for fourth HAMQAOA gate.")
+
                 for i in range(self.n):
-                    print(f"Applying fourth gate of HAMQAOA layer {layer} on qubit {i} with parameter {d} and classical warm start cut value {self.classical_WS_cut[i]}") if self.debug else None
-                    self.qc.rz(self.classical_WS_cut[i] * 2*d, i)
+                    print(f"Applying fourth gate of HAMQAOA layer {layer} on qubit {i} with parameter {d} and classical warm start cut value {cut_values[i]}") if self.debug else None
+                    self.qc.rz(cut_values[i] * 2*d, i) # Gate 4 of HAMQAOA layer: Z rotation with parameter d and classical warm-start cut value as rotation direction
         else:
             raise ValueError(f"Unsupported circuit type: {self.circuit_type} in build_qaoa_maxcut_circuit()")
         
