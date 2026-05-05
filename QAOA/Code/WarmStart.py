@@ -12,6 +12,8 @@ if __package__ in (None, ""):
 from SDP.Main import main as SDP_main
 from SDP.Utilities import idx
 
+"""This is the interface between QAOA and the SDP solver in order to obtain the SDP warm start solution and pass it on to the QAOA circuit preparation"""
+
 def initial_state_rotation(product_state):
     pass
 
