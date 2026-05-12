@@ -149,7 +149,7 @@ def classify_graph(edges):
 
 def log_exact_result(energy: float, n: int, m: int, edges: list, weights: list, graph_type: str) -> None:
     """Log exact solver result to optimal_results_misc.csv with metadata."""
-    csv_path = Path(__file__).resolve().parent / "optimal_results_misc.csv"
+    csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
     fieldnames = ["energy", "n", "m", "edges", "weights", "graph_type"]
     row = {
         "energy": energy,
