@@ -35,6 +35,10 @@ parameters = benchmark_params["parameter_vector"]
 
 optimiser = benchmark_params["optimiser"].lower()
 
+
+def _optimal_results_path(filename: str) -> Path:
+    return Path(__file__).resolve().parent / "optimal_results" / filename
+
 def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_init_linegraph=False, edges=None,
     weights=None, __initial_state__=None, fixed_initial_point=None, return_initial_point=False) -> tuple[float | Literal[0] | None, Any | None, float | None, float | Any | None, float | None] | tuple[float | Literal[0] | None, float | None, float | Any | None, float | None]:
     """
@@ -170,17 +174,17 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
     return minimum_energy, initial_ws_energy, initial_energy_prodStates, initial_energy_statevector
 
 def return_optimal_line(n):
-    df = pan.read_csv("optimal_results/optimal_results_qaoa.csv", skipinitialspace=True)
+    df = pan.read_csv(_optimal_results_path("optimal_results_qaoa.csv"), skipinitialspace=True)
     val = df.loc[df["n"] == n, "result"].item()
     return val
 
 def return_optimal_cycle(n):
-    df = pan.read_csv("optimal_results/optimal_results_qaoa_circle.csv", skipinitialspace=True)
+    df = pan.read_csv(_optimal_results_path("optimal_results_qaoa_circle.csv"), skipinitialspace=True)
     val = df.loc[df["n"] == n, "result"].item()
     return val
 
 def return_optimal_fully_connected(n):
-    df = pan.read_csv("optimal_results/optimal_results_qaoa_complete.csv", skipinitialspace=True)
+    df = pan.read_csv(_optimal_results_path("optimal_results_qaoa_complete.csv"), skipinitialspace=True)
     val = df.loc[df["n"] == n, "result"].item()
     return val
 
