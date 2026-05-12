@@ -167,6 +167,31 @@ def log_exact_result(energy: float, n: int, m: int, edges: list, weights: list, 
             writer.writeheader()
         writer.writerow(row)
 
+def get_exact_result_from_misc(edges: list, weights: list) -> float | None:
+    """Look up exact result from optimal_results_misc.csv by matching edges and weights.
+    
+    :param edges: edge list to match
+    :param weights: weight list to match
+    :return: exact energy if found, None otherwise
+    """
+    csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
+    if not csv_path.exists():
+        raise FileNotFoundError(f"optimal_results_misc.csv not found at {csv_path}")
+    
+    edges_str = str(edges)
+    weights_str = str(weights)
+    
+    try:
+        with csv_path.open("r") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if row.get("edges") == edges_str and row.get("weights") == weights_str:
+                    return float(row["energy"])
+    except Exception as e:
+        print(f"Error reading optimal_results_misc.csv: {e}")
+    
+    return None
+
 def read_graphs_as_edge_lists(path: str = get_benchmark_params()["relative_graph_adjList_path"]) -> list[list[tuple[int, int]]]:
     # Used to decompose "House of Graphs" adjacency lists and format into edge lists
     graphs = []

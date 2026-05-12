@@ -19,6 +19,7 @@ from Circuit import QAOACircuit
 from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search, optimise_adam, optimise_exact
 from Utils import classify_graph, get_benchmark_params
 from Utils import get_processor_name, get_total_ram_gb, get_physical_cores, get_logical_cores, get_peak_ram_mb
+from Utils import get_exact_result_from_misc
 from WarmStart import get_warm_start_state, extract_correlations
 from InstanceGenerator import instance_generator
 
@@ -359,9 +360,20 @@ if __name__ == "__main__":
                     approx_ratio = results[n] / optimal
                     approx_ratio_010101 = results_010101[n] / optimal if parameter_settings["compare_with_010101"] else None
             else:
-                print("Unknown graph type for approximation ratio calculation; skipping approx ratio computation.")
+                print("Unknown graph type for approximation ratio calculation; checking misc CSV.")
         except Exception as e:
-            print(f"Error during approximation ratio calculation: {e}. Skipping approx ratio computation for n={n}.")
+            print(f"Error during approximation ratio calculation: {e}. Checking misc CSV as fallback.")
+        
+        # Fallback: check misc CSV for matching edges and weights
+        if approx_ratio is None:
+            print(f"Checking optimal_results_misc.csv for matching edges and weights...")
+            optimal_from_misc = get_exact_result_from_misc(edges, weights)
+            if optimal_from_misc is not None:
+                print(f"Found matching exact result in misc CSV: {optimal_from_misc}")
+                approx_ratio = results[n] / optimal_from_misc
+                approx_ratio_010101 = results_010101[n] / optimal_from_misc if parameter_settings["compare_with_010101"] else None
+            else:
+                print("No matching result found in misc CSV; skipping approx ratio computation.")
 
         row = {
             'run_id': run_id,
