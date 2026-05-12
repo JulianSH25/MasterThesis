@@ -16,7 +16,7 @@ from qiskit.quantum_info import Statevector
 
 # Local imports
 from Circuit import QAOACircuit
-from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search, optimise_adam
+from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search, optimise_adam, optimise_exact
 from Utils import classify_graph, get_benchmark_params
 from Utils import get_processor_name, get_total_ram_gb, get_physical_cores, get_logical_cores, get_peak_ram_mb
 from WarmStart import get_warm_start_state, extract_correlations
@@ -125,6 +125,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
 
     minimum_energy = None
     used_initial_point = None
+    exact_mode = False
     """[2] Start the QAOA evaluation loop with the specified optimiser"""
     if optimiser == "bayesian":
         BO = BayesianOptimiser()
@@ -140,10 +141,16 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
         used_initial_point = getattr(returned_energy, "initial_point", None)
     elif optimiser == "gridsearch":
         minimum_energy = grid_search(QAOA, p, precision=precision)
+    elif optimiser == "exact":
+        exact_mode = True
+        minimum_energy = optimise_exact(QAOA)
     else:
         throw_error(f"No valid optimiser specified. Received: {optimiser}.")
 
-    if initial_ws_energy is not None and minimum_energy is not None and minimum_energy < initial_ws_energy:
+    if (not exact_mode
+        and initial_ws_energy is not None
+        and minimum_energy is not None
+        and minimum_energy < initial_ws_energy):
         print(
             "Warm-start fallback: optimiser result was below the SDP warm-start energy; "
             "using the warm-start energy instead."

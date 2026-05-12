@@ -5,6 +5,8 @@ from numpy import pi
 import random, itertools
 from qiskit import QuantumCircuit
 from scipy.optimize import minimize
+from scipy.sparse import issparse
+from scipy.sparse.linalg import eigsh
 from scipy.stats import norm
 import time
 from joblib import Parallel, delayed
@@ -194,6 +196,45 @@ def eval_QAOA_circuit(point: list[np.ndarray], QAOA: QAOACircuit) -> float:
         print(f"Statevector: {statevec}")
         #idx_counter += 1g
     return E
+
+
+def optimise_exact(QAOA: QAOACircuit) -> float:
+    """
+    Compute the exact maximum eigenvalue of the QAOA cost Hamiltonian.
+    """
+    if QAOA.cost_operator is None:
+        QAOA.build_cost_operator()
+
+    operator = QAOA.cost_operator
+    if operator is None:
+        raise RuntimeError("Cost operator is not available for exact optimization.")
+
+    H = None
+    if hasattr(operator, "to_spmatrix"):
+        try:
+            H = operator.to_spmatrix()
+        except Exception:
+            H = None
+
+    if H is None:
+        try:
+            H = operator.to_matrix(sparse=True)
+        except Exception:
+            H = operator.to_matrix()
+
+    if issparse(H):
+        try:
+            vals = eigsh(H, k=1, which="LA", return_eigenvectors=False)
+            return float(np.real(vals[0]))
+        except Exception as exc:
+            if debug:
+                print(f"Sparse eigensolver failed ({exc}); falling back to dense.")
+            H = H.toarray()
+
+    H_dense = np.asarray(H, dtype=complex)
+    H_dense = 0.5 * (H_dense + H_dense.conj().T)
+    vals = np.linalg.eigvalsh(H_dense)
+    return float(np.max(np.real(vals)))
 
 
 class BayesianOptimiser:
