@@ -7,6 +7,7 @@ import os
 import resource
 import random
 from collections import Counter
+import csv
 
 def set_random_params(p: int, range: tuple[float, float], seed: int | None = None, init_close_to_zero: bool = False):
     """
@@ -145,6 +146,26 @@ def classify_graph(edges):
     if d.count(1) == 2 and d.count(2) == n - 2:
         return "line"
     return None
+
+def log_exact_result(energy: float, n: int, m: int, edges: list, weights: list, graph_type: str) -> None:
+    """Log exact solver result to optimal_results_misc.csv with metadata."""
+    csv_path = Path(__file__).resolve().parent / "optimal_results_misc.csv"
+    fieldnames = ["energy", "n", "m", "edges", "weights", "graph_type"]
+    row = {
+        "energy": energy,
+        "n": n,
+        "m": m,
+        "edges": str(edges),
+        "weights": str(weights),
+        "graph_type": graph_type,
+    }
+    
+    write_header = not csv_path.exists() or csv_path.stat().st_size == 0
+    with csv_path.open("a", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        if write_header:
+            writer.writeheader()
+        writer.writerow(row)
 
 def read_graphs_as_edge_lists(path: str = get_benchmark_params()["relative_graph_adjList_path"]) -> list[list[tuple[int, int]]]:
     # Used to decompose "House of Graphs" adjacency lists and format into edge lists

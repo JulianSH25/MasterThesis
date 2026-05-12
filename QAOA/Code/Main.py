@@ -40,7 +40,7 @@ def _optimal_results_path(filename: str) -> Path:
     return Path(__file__).resolve().parent / "optimal_results" / filename
 
 def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_init_linegraph=False, edges=None,
-    weights=None, __initial_state__=None, fixed_initial_point=None, return_initial_point=False) -> tuple[float | Literal[0] | None, Any | None, float | None, float | Any | None, float | None] | tuple[float | Literal[0] | None, float | None, float | Any | None, float | None]:
+    weights=None, __initial_state__=None, fixed_initial_point=None, return_initial_point=False, graph_generation_type: str = "unknown") -> tuple[float | Literal[0] | None, Any | None, float | None, float | Any | None, float | None] | tuple[float | Literal[0] | None, float | None, float | Any | None, float | None]:
     """
     This method builds and optimises a QAOA instance on a line graph.
 
@@ -147,7 +147,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
         minimum_energy = grid_search(QAOA, p, precision=precision)
     elif optimiser == "exact":
         exact_mode = True
-        minimum_energy = optimise_exact(QAOA)
+        minimum_energy = optimise_exact(QAOA, graph_generation_type=graph_generation_type)
     else:
         throw_error(f"No valid optimiser specified. Received: {optimiser}.")
 
@@ -289,6 +289,7 @@ if __name__ == "__main__":
             edges=edges,
             weights=weights,
             return_initial_point=True,
+            graph_generation_type=graph_generation_type,
         )
         # XXX Time
         time_sections[f"qaoa_optimisation_n_{n}"] = time.time() - time_section
