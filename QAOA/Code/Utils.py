@@ -101,12 +101,18 @@ def build_qaoa_warm_start_state(states: list[np.ndarray]):
     """
     This function builds a global warm-start statevector from local density matrices.
 
-    :param states: list of local density matrices as returned from the SDP solver, one for each edge in the graph; each state is a 4x4 numpy array representing the two-qubit density matrix for the corresponding edge
+    :param states: list of local density matrices as returned from the SDP solver, one for each edge in the graph; each state is a 2x2 numpy array, representing the respective vertex
     :return: normalised global warm-start statevector
     """
     statevec = np.array([1.0 + 0.0j])
+    if debug := get_benchmark_params().get("debug", False): #XXX
+        print("Building warm-start statevector from local density matrices:")
+        print(f"Number of local states (edges): {len(states)}")
+        print(f"Dimensionality of each local state: {states[0].shape if states else 'N/A'}")
 
     for state in states:
+        if debug: #XXX
+            print(f"Dimensionality of local state: {state.shape}")
         ew, ev = np.linalg.eigh(state)
         idx = np.argmax(ew) # maximum eigenvalue index
         max_ew = float(ew[idx]) # maximum eigenvalue, used to find out how pure the state is
@@ -114,8 +120,15 @@ def build_qaoa_warm_start_state(states: list[np.ndarray]):
 
         if max_ew < 1 - 1e-10: raise ValueError("State is not pure enough for unique ket extraction; maximum Eigenvalue is " + str(max_ew))
         statevec = np.kron(statevec, x)
+    
+    if debug: #XXX
+        print(f"Unnormalised warm-start statevector: {statevec}")
+        print(f"Norm of unnormalised statevector: {np.linalg.norm(statevec)}")
+        print("Finished building warm-start statevector.")
 
-    return statevec / np.linalg.norm(statevec)
+    return_vec = statevec / np.linalg.norm(statevec)
+    if debug: print(f"Size of normalised warm-start statevector: {return_vec.shape}, norm: {np.linalg.norm(return_vec)}") #XXX
+    return return_vec
 
 def get_benchmark_params() -> dict:
     """
