@@ -1,5 +1,8 @@
 import numpy as np
-from .Utilities import idx, save_benchmark_csv
+if __package__ in (None, ""):
+    from Utilities import idx, save_benchmark_csv
+else:
+    from .Utilities import idx, save_benchmark_csv
 #from utils import get_benchmark_params
 
 debugging = False
@@ -230,6 +233,7 @@ def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = 
     y_scalar: bool = False
     product_state = None
     states: list = [None] * n_vertices
+    bloch_vectors: list = [None] * n_vertices
     for i in range(n_vertices):
         v1 = V[idx(i, 0), :]  # X block
         v2 = V[idx(i, 1), :]  # Y block
@@ -246,6 +250,7 @@ def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = 
         if debugging: print(f"y: {y} with shape {y.shape}")
 
         r_i, state = build_single_qubit_state(y, parameters)
+        bloch_vectors[i] = r_i
         states[i] = state
         product_state = state if product_state is None else np.kron(product_state, state)
 
@@ -264,4 +269,4 @@ def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = 
     if debugging:
         print(f"Overall Product State: {product_state}")
 
-    return cuts, states
+    return cuts, states, bloch_vectors

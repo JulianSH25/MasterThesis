@@ -2,6 +2,12 @@ import random
 from datetime import datetime
 import csv
 import json
+import numpy as np
+
+if __package__ in (None, ""):
+    from Lasserre_level_2 import P, PP
+else:
+    from .Lasserre_level_2 import P, PP
 
 
 def idx(i: int, k: int) -> int:
@@ -18,6 +24,23 @@ def idx(i: int, k: int) -> int:
     # k: 0->X, 1->Y, 2->Z
     return 3 * i + k
     #return i * k
+
+def extract_level1_submatrix_from_level2(M_level2, pidx, n_vertices):
+    """
+    Extract the 3n x 3n level-1 Pauli submatrix from a level-2 Lasserre moment matrix.
+
+    The output ordering matches idx(i, k) = 3*i + k:
+        X_0, Y_0, Z_0, X_1, Y_1, Z_1, ...
+    """
+    level1_indices = []
+
+    for i in range(n_vertices):
+        for k in range(3):
+            level1_indices.append(pidx[P(i, k)])
+
+    M_level1 = M_level2[np.ix_(level1_indices, level1_indices)]
+
+    return M_level1
 
 def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
     """
