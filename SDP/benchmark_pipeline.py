@@ -12,10 +12,16 @@ import json
 import time
 import random
 
-from Main import main_benchmark
-from Gurobi_exact_solver import gurobi_maxcut
-from SDP_solver import ABCParams
-from Utilities import line_instance_generator, save_benchmark_csv, random_instance_generator
+if __package__ in (None, ""):
+    from Main import main_benchmark
+    from Gurobi_exact_solver import gurobi_maxcut
+    from SDP_solver import ABCParams
+    from Utilities import line_instance_generator, save_benchmark_csv, random_instance_generator
+else:
+    from .Main import main_benchmark
+    from .Gurobi_exact_solver import gurobi_maxcut
+    from .SDP_solver import ABCParams
+    from .Utilities import line_instance_generator, save_benchmark_csv, random_instance_generator
 from gurobipy import GurobiError
 from datetime import datetime
 import uuid

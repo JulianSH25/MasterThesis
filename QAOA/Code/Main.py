@@ -231,7 +231,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'initial_ws_energy', 'initial_ws_energy_prodStates', 'initial_energy_statevector', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                       'parameter_vector', 'optimal_result', 'initial_ws_energy_prodStates', 'initial_energy_statevector', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb']
 
@@ -364,10 +364,12 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Error during approximation ratio calculation: {e}. Checking misc CSV as fallback.")
         
+        optimal_result = None
         # Fallback: check misc CSV for matching edges and weights
         if approx_ratio is None:
             print(f"Checking optimal_results_misc.csv for matching edges and weights...")
             optimal_from_misc = get_exact_result_from_misc(edges, weights)
+            optimal_result = optimal_from_misc
             if optimal_from_misc is not None:
                 print(f"Found matching exact result in misc CSV: {optimal_from_misc}")
                 approx_ratio = results[n] / optimal_from_misc
@@ -384,11 +386,11 @@ if __name__ == "__main__":
             'singlet_injection': singlet_injection,
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
-            'initial_ws_energy': initial_ws_energy,
+            'optimal_energy': optimal_result,
             'initial_ws_energy_prodStates': initial_energy_prodStates,
             'initial_energy_statevector': initial_energy_statevector,
             'initial_ws_energy_010101': initial_ws_energy_010101 if parameter_settings["compare_with_010101"] else None,
-            'QAOA_improvement_over_SDP': results[n] - initial_energy_statevector if initial_energy_statevector is not None else None,
+            'QAOA_improvement_over_SDP_statevectorEnergy': results[n] - initial_energy_statevector if initial_energy_statevector is not None else None,
             'QAOA_improvement_over_SDP_prodStatesEnergy': results[n] - initial_energy_prodStates if initial_energy_prodStates is not None else None,
             'result': results[n],
             'result_010101': results_010101[n] if parameter_settings["compare_with_010101"] else None,

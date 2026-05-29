@@ -147,7 +147,6 @@ class QAOACircuit(QuantumCircuit):
                 print(f"Layer {layer}: Added Cost and Mixer unitaries with gamma={gamma} and beta={beta}")
                 print(".rz and .ry mixer terms added in addition to classical .rx mixer") # TODO remove print if rz, ry not used!
         elif self.circuit_type == 'hamqaoa':
-            # TODO: Implement HAMQAOA circuit building
             for layer in range(self.p):
                 a, b, c, d = self.qaoa_parameters[0][layer], self.qaoa_parameters[1][layer], self.qaoa_parameters[2][layer], self.qaoa_parameters[3][layer]
                 for (j, k), w in zip(self.edges, self.weights):
