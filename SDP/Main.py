@@ -100,7 +100,7 @@ def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm
 
     #visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
 
-def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level: int = 1):
+def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level: int = 1, initial_solver_level_M: int = 2):
     """
     Run a single SDP solve and rounding flow.
 
@@ -117,10 +117,14 @@ def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level
     :param instance: tuple (edges, weights) describing the graph
     :param n_vertices: number of vertices in the graph instance
     :param params: SDP Hamiltonian coefficients as a, b, c bits
+    :param initial_solver_level_M: for lasserre_level=2, select whether the downstream warm-start / Algorithm 17 pipeline uses the full level-2 King matrix (2) or the reduced 3n GP-GW matrix (1)
     :return: tuple (edge_count, edges_in_cut, cuts, M_optimal, states)
     """
     solver_sdp = SDP_Solver_()
     edges, weights = instance
+
+    if initial_solver_level_M not in (1, 2):
+        raise ValueError(f"Unsupported initial_solver_level_M: {initial_solver_level_M}")
 
     if lasserre_level == 1:
         M_optimal = solver_sdp.QMC_SDP_solver_antiFerro(
@@ -136,7 +140,7 @@ def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level
         pidx = None
 
     elif lasserre_level == 2:
-        M_optimal, basis, pidx = solver_sdp.QMC_SDP_solver_antiFerro_level_2(
+        M_level2_full, basis, pidx = solver_sdp.QMC_SDP_solver_antiFerro_level_2(
             edges,
             weights,
             n_vertices,
@@ -144,11 +148,22 @@ def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level
             debug=debug,
         )
 
-        M_for_rounding = extract_level1_submatrix_from_level2(
-            M_level2=M_optimal,
-            pidx=pidx,
-            n_vertices=n_vertices,
-        )
+        if initial_solver_level_M == 1:
+            M_optimal = extract_level1_submatrix_from_level2(
+                M_level2=M_level2_full,
+                pidx=pidx,
+                n_vertices=n_vertices,
+            )
+            M_for_rounding = M_optimal
+            basis = None
+            pidx = None
+        else:
+            M_optimal = M_level2_full
+            M_for_rounding = extract_level1_submatrix_from_level2(
+                M_level2=M_level2_full,
+                pidx=pidx,
+                n_vertices=n_vertices,
+            )
 
     else:
         raise ValueError(f"Unsupported Lasserre level: {lasserre_level}")

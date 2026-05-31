@@ -63,12 +63,17 @@ def get_warm_start_state(instance, n_vertices):
     if lasserre_level not in (1, 2):
         raise ValueError(f"Expected lasserre_level to be 1 or 2, got {lasserre_level}")
 
+    initial_solver_level_M = int(benchmark_params.get("initial_solver_level_M", lasserre_level))
+    if initial_solver_level_M not in (1, 2):
+        raise ValueError(f"Expected initial_solver_level_M to be 1 or 2, got {initial_solver_level_M}")
+
     energy, M_optimal, states, classical_cut, level2_result = SDP_main(
         instance=instance,
         n_vertices=n_vertices,
         params=parameters,
         debug=bool(benchmark_params.get("debug", False)),
         lasserre_level=lasserre_level,
+        initial_solver_level_M=initial_solver_level_M,
     )
     print(f"Warm-start: SDP solve + rounding finished in {time.time() - sdp_start:.2f} seconds", flush=True)
 

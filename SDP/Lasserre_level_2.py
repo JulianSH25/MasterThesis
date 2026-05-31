@@ -165,16 +165,31 @@ class Level_2_Rounding:
     def build_x_vars(self):
         I = ()
 
+        use_reduced_matrix = self.pidx is None
+
         for (i, j) in self.edges:
-            XiXj = PP(i, 0, j, 0)
-            YiYj = PP(i, 1, j, 1)
-            ZiZj = PP(i, 2, j, 2)
-            term = (
-                1.0
-                + self.M_level2[self.pidx[I], self.pidx[XiXj]]
-                + self.M_level2[self.pidx[I], self.pidx[YiYj]]
-                + self.M_level2[self.pidx[I], self.pidx[ZiZj]]
-            )
+            if use_reduced_matrix:
+                if self.M_level2.shape[0] != 3 * self.n_vertices:
+                    raise ValueError(
+                        "Reduced-matrix Algorithm 17 mode expects a 3n x 3n matrix."
+                    )
+
+                term = (
+                    1.0
+                    + self.M_level2[3 * i + 0, 3 * j + 0]
+                    + self.M_level2[3 * i + 1, 3 * j + 1]
+                    + self.M_level2[3 * i + 2, 3 * j + 2]
+                )
+            else:
+                XiXj = PP(i, 0, j, 0)
+                YiYj = PP(i, 1, j, 1)
+                ZiZj = PP(i, 2, j, 2)
+                term = (
+                    1.0
+                    + self.M_level2[self.pidx[I], self.pidx[XiXj]]
+                    + self.M_level2[self.pidx[I], self.pidx[YiYj]]
+                    + self.M_level2[self.pidx[I], self.pidx[ZiZj]]
+                )
 
             self.x_dict[(i, j)] = float(np.real(-0.5 * term))
 
@@ -518,7 +533,6 @@ class Level_2_Rounding:
             "weights",
             "n_vertices",
             "M_level2",
-            "pidx",
             "bloch_vectors",
             "beta_star",
         ]
@@ -529,9 +543,6 @@ class Level_2_Rounding:
 
         if self.M_level2 is None:
             raise ValueError("self.M_level2 is None.")
-
-        if self.pidx is None:
-            raise ValueError("self.pidx is None.")
 
         if self.bloch_vectors is None:
             raise ValueError("self.bloch_vectors is None.")
