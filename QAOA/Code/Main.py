@@ -30,6 +30,7 @@ if __package__ in (None, ""):
     os.chdir(project_root)
 
 precision = None
+last_sdp_objective_value = None
 
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
@@ -42,6 +43,7 @@ def _optimal_results_path(filename: str) -> Path:
 
 def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_init_linegraph=False, edges=None,
     weights=None, __initial_state__=None, fixed_initial_point=None, return_initial_point=False, graph_generation_type: str = "unknown") -> tuple[float | Literal[0] | None, Any | None, float | None, float | Any | None, float | None] | tuple[float | Literal[0] | None, float | None, float | Any | None, float | None]:
+    global last_sdp_objective_value
     """
     This method builds and optimises a QAOA instance on a line graph.
 
@@ -65,7 +67,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
 
     assert not (init_initial_state and __initial_state__), "Cannot provide both init_initial_state=True and a custom __initial_state__. Please choose one of the two options for a valid benchmark configuration."
 
-    (initial_state, product_states, classical_cut), moment_matrix = (get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else ((None, None, None), None))
+    (initial_state, product_states, classical_cut), moment_matrix, warm_start_result = (get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else ((None, None, None), None, None))
     if __initial_state__ is not None:
         initial_state = __initial_state__
         if benchmark_params.get("circuit_type", "").lower() == "hamqaoa":
@@ -84,7 +86,9 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
     energy_audit = benchmark_params.get("debug", False)
 
     initial_energy_prodStates = None
-    initial_energy_statevector = None
+    initial_sdp_statevector_energy = None
+    sdp_objective_value = warm_start_result.get("sdp_objective_value") if warm_start_result is not None else None
+    last_sdp_objective_value = sdp_objective_value
     if product_states is not None:
         edge_marginals = {
             (i, j): np.kron(product_states[i], product_states[j])
@@ -100,11 +104,11 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
             print(f"Initial energy from SDP product states: {initial_energy_prodStates}")
 
     if initial_state is not None and (not init_initial_state or warm_start_mode != "entangled"):
-        initial_energy_statevector = QAOA.compute_energy_from_statevector(
+        initial_sdp_statevector_energy = QAOA.compute_energy_from_statevector(
             Statevector(np.asarray(initial_state, dtype=complex))
         )
         if energy_audit:
-            print(f"Initial energy from warm-start statevector: {initial_energy_statevector}")
+            print(f"Initial energy from warm-start statevector: {initial_sdp_statevector_energy}")
 
     QAOA.initial_state = initial_state # assign circuit parameter: initial statevector for statevector-based energy evaluation and warm-starting; if None, circuit will use equal superposition initial state
     QAOA.classical_WS_cut = classical_cut # assign circuit parameter: classical warm start cut from SDP solution, used for certain Circuit setups (influences rotation angles in QAOA) and for audit comparisons; if None, no classical warm start cut will be used
@@ -126,7 +130,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
     QAOA.build_qaoa_maxcut_circuit(add_measurements=False)
 
     initial_ws_energy = QAOA.initial_ws_energy # assign circuit parameter: initial warm-start energy from SDP solution, used for audit comparisons
-    print(f"Energy audit summary: statevector={initial_energy_statevector}, product_states={initial_energy_prodStates}, initial_ws_energy={initial_ws_energy}") if energy_audit else None
+    print(f"Energy audit summary: statevector={initial_sdp_statevector_energy}, product_states={initial_energy_prodStates}, initial_ws_energy={initial_ws_energy}, sdp_objective={sdp_objective_value}") if energy_audit else None
 
     minimum_energy = None
     used_initial_point = None
@@ -170,9 +174,9 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
             used_initial_point,
             initial_ws_energy,
             initial_energy_prodStates,
-            initial_energy_statevector,
+            initial_sdp_statevector_energy,
         )
-    return minimum_energy, initial_ws_energy, initial_energy_prodStates, initial_energy_statevector
+    return minimum_energy, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy
 
 def return_optimal_line(n):
     df = pan.read_csv(_optimal_results_path("optimal_results_qaoa.csv"), skipinitialspace=True)
@@ -231,7 +235,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'optimal_result', 'initial_ws_energy_prodStates', 'initial_energy_statevector', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                       'parameter_vector', 'optimal_result', 'sdp_objective_value', 'initial_ws_energy_prodStates', 'initial_energy_statevector', 'initial_sdp_statevector_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb']
 
@@ -282,7 +286,7 @@ if __name__ == "__main__":
         # XXX Time
         time_section = time.time()
  
-        results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates, initial_energy_statevector = main(
+        results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy = main(
             p=p,
             N_bayes=int(precision),
             self_init_linegraph=singlet_injection,
@@ -292,6 +296,7 @@ if __name__ == "__main__":
             return_initial_point=True,
             graph_generation_type=graph_generation_type,
         )
+        sdp_objective_value = last_sdp_objective_value
         # XXX Time
         time_sections[f"qaoa_optimisation_n_{n}"] = time.time() - time_section
         print(f"QAOA optimisation for n={n} took {time_sections[f'qaoa_optimisation_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")
@@ -387,10 +392,13 @@ if __name__ == "__main__":
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
             'optimal_energy': optimal_result,
+            'optimal_result': optimal_result,
+            'sdp_objective_value': sdp_objective_value,
             'initial_ws_energy_prodStates': initial_energy_prodStates,
-            'initial_energy_statevector': initial_energy_statevector,
+            'initial_energy_statevector': initial_sdp_statevector_energy,
+            'initial_sdp_statevector_energy': initial_sdp_statevector_energy,
             'initial_ws_energy_010101': initial_ws_energy_010101 if parameter_settings["compare_with_010101"] else None,
-            'QAOA_improvement_over_SDP_statevectorEnergy': results[n] - initial_energy_statevector if initial_energy_statevector is not None else None,
+            'QAOA_improvement_over_SDP_statevectorEnergy': results[n] - initial_sdp_statevector_energy if initial_sdp_statevector_energy is not None else None,
             'QAOA_improvement_over_SDP_prodStatesEnergy': results[n] - initial_energy_prodStates if initial_energy_prodStates is not None else None,
             'result': results[n],
             'result_010101': results_010101[n] if parameter_settings["compare_with_010101"] else None,

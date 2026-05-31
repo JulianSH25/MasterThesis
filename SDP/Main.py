@@ -185,7 +185,7 @@ def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level
 
     sdp_objective_value = getattr(solver_sdp, "last_objective_value", None)
 
-    level2_result = None
+    sdp_result = None
     if lasserre_level == 2:
         rounder = Level_2_Rounding()
         rounder.edges = edges
@@ -196,18 +196,21 @@ def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level
         rounder.pidx = pidx
         rounder.bloch_vectors = bloch_vectors
         rounder.beta_star = 0.390
-        level2_result = rounder.QMC_rounding(seed=seed, max_vertices=16)
-        if sdp_objective_value is not None:
-            level2_result["sdp_objective_value"] = float(sdp_objective_value)
-            level2_result["initial_solver_level_M"] = initial_solver_level_M
-        print(f"Algorithm 17 lower-bound energy: {level2_result['lower_bound_energy']}")
-        print(f"Algorithm 17 actual entangled-state energy: {level2_result['actual_energy']}")
+        sdp_result = rounder.QMC_rounding(seed=seed, max_vertices=16)
+        print(f"Algorithm 17 lower-bound energy: {sdp_result['lower_bound_energy']}")
+        print(f"Algorithm 17 actual entangled-state energy: {sdp_result['actual_energy']}")
+
+    if sdp_objective_value is not None:
+        sdp_result = sdp_result or {}
+        sdp_result["sdp_objective_value"] = float(sdp_objective_value)
+        sdp_result["initial_solver_level_M"] = initial_solver_level_M
+        sdp_result["lasserre_level"] = lasserre_level
         print(f"SDP objective value: {sdp_objective_value}")
 
     edge_count, edges_in_cut = get_edges_in_cut(cuts, edges)
     print(f"{edge_count} in cut out of a total of {len(edges)} edges")
 
-    return energy, M_optimal, states, cuts, level2_result
+    return energy, M_optimal, states, cuts, sdp_result
 
 
 if __name__ == "__main__":

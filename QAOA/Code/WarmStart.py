@@ -76,7 +76,7 @@ def get_warm_start_state(instance, n_vertices):
         sdp_seed = int(sdp_seed)
         print(f"Warm-start: using configured sdp_seed={sdp_seed}", flush=True)
 
-    energy, M_optimal, states, classical_cut, level2_result = SDP_main(
+    energy, M_optimal, states, classical_cut, sdp_result = SDP_main(
         instance=instance,
         n_vertices=n_vertices,
         params=parameters,
@@ -89,9 +89,9 @@ def get_warm_start_state(instance, n_vertices):
 
     build_start = time.time()
     if lasserre_level == 2:
-        if level2_result is None:
-            raise RuntimeError("lasserre_level=2 was requested, but SDP_main returned no level2_result.")
-        warmstart = np.asarray(level2_result["final_state_vector"], dtype=complex)
+        if sdp_result is None or "final_state_vector" not in sdp_result:
+            raise RuntimeError("lasserre_level=2 was requested, but SDP_main returned no level-2 result.")
+        warmstart = np.asarray(sdp_result["final_state_vector"], dtype=complex)
         warmstart = warmstart / np.linalg.norm(warmstart)
         print(
             f"Warm-start: using level-2 Algorithm 17 entangled statevector with shape {warmstart.shape}",
@@ -108,11 +108,13 @@ def get_warm_start_state(instance, n_vertices):
         print("Product states:")
         for idx in range(len(states)):
             print(f"Product state {idx}: {states[idx]}")
-        if level2_result is not None:
-            print(f"Algorithm 17 actual energy: {level2_result.get('actual_energy')}")
-            print(f"Algorithm 17 lower-bound energy: {level2_result.get('lower_bound_energy')}")
+        if sdp_result is not None:
+            print(f"SDP objective value: {sdp_result.get('sdp_objective_value')}")
+            if "actual_energy" in sdp_result:
+                print(f"Algorithm 17 actual energy: {sdp_result.get('actual_energy')}")
+                print(f"Algorithm 17 lower-bound energy: {sdp_result.get('lower_bound_energy')}")
         print(f"Moment Matrix: {M_optimal}")
     warm_start_mode = str(benchmark_params.get("warm_start_mode", "standard")).lower()
     need_correlations = warm_start_mode in {"amplified", "entangled"} or bool(benchmark_params.get("use_correlations_as_initial_params", False))
     Moment_matrix = M_optimal if need_correlations else None
-    return (warmstart, states, classical_cut), Moment_matrix
+    return (warmstart, states, classical_cut), Moment_matrix, sdp_result
