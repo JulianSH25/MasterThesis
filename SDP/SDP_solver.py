@@ -48,6 +48,8 @@ class SDP_Solver_():
         # Step 2: objective
         objective = 0
 
+        scale = 1 / (1 + a + b + c)
+
         for (i, j), w in zip(edges, weights):
             term = 1
 
@@ -60,9 +62,7 @@ class SDP_Solver_():
             if c == 1:
                 term -= M[pidx[P(i, 2)], pidx[P(j, 2)]]
 
-            # Use 0.5 if you want King/QMC normalization:
-            # h_ij = 1/2 * (I - XX - YY - ZZ)
-            objective += 0.5 * w * term
+            objective += scale * w * term
 
         # Step 3: constraints
         constraints = [M >> 0] # (1): M PSD constraint
@@ -145,6 +145,8 @@ class SDP_Solver_():
 
 
         # build the objective function:
+        scale = 1 / (1 + a + b + c)
+
         for (i, j), w in zip(edges, weights):
             term = 1
             if a == 1:
@@ -153,8 +155,7 @@ class SDP_Solver_():
                 term -= M[idx(i, 1), idx(j, 1)]
             if c == 1:
                 term -= M[idx(i, 2), idx(j, 2)]
-            objective += w * term
-            #objective += w * (1 - term) #/2 #  WHY /2? -> # REVIEW: removed /2
+            objective += scale * w * term
         # Step 3: Defining constraints
         #
         # 3.3 M PSD:
@@ -329,7 +330,7 @@ class SDP_Solver_():
 
         energy = 0.0
         for (i, j), w in zip(edges, weights):
-            # Matches your SDP objective term: w * (1 - a<XX> - b<YY> - c<ZZ>)
+            # Matches the normalized Hamiltonian term used in the SDP objective.
             H_ij = 1/(1+ a+b+c) * w * (
                     np.kron(I, I)
                     - a * np.kron(X, X)

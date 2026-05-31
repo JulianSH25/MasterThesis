@@ -203,6 +203,7 @@ def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level
     if sdp_objective_value is not None:
         sdp_result = sdp_result or {}
         sdp_result["sdp_objective_value"] = float(sdp_objective_value)
+        sdp_result["sdp_objective_value_normalized"] = float(sdp_objective_value)
         sdp_result["initial_solver_level_M"] = initial_solver_level_M
         sdp_result["lasserre_level"] = lasserre_level
         print(f"SDP objective value: {sdp_objective_value}")

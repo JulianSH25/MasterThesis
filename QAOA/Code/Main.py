@@ -88,6 +88,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
     initial_energy_prodStates = None
     initial_sdp_statevector_energy = None
     sdp_objective_value = warm_start_result.get("sdp_objective_value") if warm_start_result is not None else None
+    sdp_objective_value_normalized = sdp_objective_value
     last_sdp_objective_value = sdp_objective_value
     if product_states is not None:
         edge_marginals = {
@@ -130,7 +131,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
     QAOA.build_qaoa_maxcut_circuit(add_measurements=False)
 
     initial_ws_energy = QAOA.initial_ws_energy # assign circuit parameter: initial warm-start energy from SDP solution, used for audit comparisons
-    print(f"Energy audit summary: statevector={initial_sdp_statevector_energy}, product_states={initial_energy_prodStates}, initial_ws_energy={initial_ws_energy}, sdp_objective={sdp_objective_value}") if energy_audit else None
+    print(f"Energy audit summary: statevector={initial_sdp_statevector_energy}, product_states={initial_energy_prodStates}, initial_ws_energy={initial_ws_energy}, sdp_objective={sdp_objective_value}, normalized_sdp_objective={sdp_objective_value_normalized}") if energy_audit else None
 
     minimum_energy = None
     used_initial_point = None
@@ -235,7 +236,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'optimal_result', 'sdp_objective_value', 'initial_ws_energy_prodStates', 'initial_energy_statevector', 'initial_sdp_statevector_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                       'parameter_vector', 'optimal_result', 'sdp_objective_value', 'sdp_objective_value_normalized', 'initial_ws_energy_prodStates', 'initial_energy_statevector', 'initial_sdp_statevector_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb']
 
@@ -297,6 +298,7 @@ if __name__ == "__main__":
             graph_generation_type=graph_generation_type,
         )
         sdp_objective_value = last_sdp_objective_value
+        sdp_objective_value_normalized = sdp_objective_value
         # XXX Time
         time_sections[f"qaoa_optimisation_n_{n}"] = time.time() - time_section
         print(f"QAOA optimisation for n={n} took {time_sections[f'qaoa_optimisation_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")
@@ -394,6 +396,7 @@ if __name__ == "__main__":
             'optimal_energy': optimal_result,
             'optimal_result': optimal_result,
             'sdp_objective_value': sdp_objective_value,
+            'sdp_objective_value_normalized': sdp_objective_value_normalized,
             'initial_ws_energy_prodStates': initial_energy_prodStates,
             'initial_energy_statevector': initial_sdp_statevector_energy,
             'initial_sdp_statevector_energy': initial_sdp_statevector_energy,
