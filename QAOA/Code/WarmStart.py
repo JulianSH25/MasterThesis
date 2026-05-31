@@ -3,6 +3,7 @@ import numpy as np
 import sys
 from pathlib import Path
 import time
+import secrets
 
 if __package__ in (None, ""):
     project_root = Path(__file__).resolve().parents[2]
@@ -67,6 +68,14 @@ def get_warm_start_state(instance, n_vertices):
     if initial_solver_level_M not in (1, 2):
         raise ValueError(f"Expected initial_solver_level_M to be 1 or 2, got {initial_solver_level_M}")
 
+    sdp_seed = benchmark_params.get("sdp_seed", None)
+    if sdp_seed is None:
+        sdp_seed = secrets.randbits(64)
+        print(f"Warm-start: no sdp_seed in config, generated fallback seed {sdp_seed}", flush=True)
+    else:
+        sdp_seed = int(sdp_seed)
+        print(f"Warm-start: using configured sdp_seed={sdp_seed}", flush=True)
+
     energy, M_optimal, states, classical_cut, level2_result = SDP_main(
         instance=instance,
         n_vertices=n_vertices,
@@ -74,6 +83,7 @@ def get_warm_start_state(instance, n_vertices):
         debug=bool(benchmark_params.get("debug", False)),
         lasserre_level=lasserre_level,
         initial_solver_level_M=initial_solver_level_M,
+        seed=sdp_seed,
     )
     print(f"Warm-start: SDP solve + rounding finished in {time.time() - sdp_start:.2f} seconds", flush=True)
 

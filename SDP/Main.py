@@ -100,7 +100,7 @@ def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm
 
     #visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
 
-def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level: int = 1, initial_solver_level_M: int = 2):
+def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level: int = 1, initial_solver_level_M: int = 2, seed: int | None = None):
     """
     Run a single SDP solve and rounding flow.
 
@@ -118,6 +118,7 @@ def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level
     :param n_vertices: number of vertices in the graph instance
     :param params: SDP Hamiltonian coefficients as a, b, c bits
     :param initial_solver_level_M: for lasserre_level=2, select whether the downstream warm-start / Algorithm 17 pipeline uses the full level-2 King matrix (2) or the reduced 3n GP-GW matrix (1)
+    :param seed: optional seed for seeded rounding and Algorithm 17 sampling
     :return: tuple (edge_count, edges_in_cut, cuts, M_optimal, states)
     """
     solver_sdp = SDP_Solver_()
@@ -169,7 +170,7 @@ def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level
         raise ValueError(f"Unsupported Lasserre level: {lasserre_level}")
 
     print("Rounding...")
-    cuts, states, bloch_vectors = round_sdp_with_cholesky(M_for_rounding, parameters=params)
+    cuts, states, bloch_vectors = round_sdp_with_cholesky(M_for_rounding, parameters=params, seed=seed)
 
     print(cuts)
 
@@ -182,6 +183,8 @@ def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level
 
     print(f"Energy of rounded cut/product state: {energy}")
 
+    sdp_objective_value = getattr(solver_sdp, "last_objective_value", None)
+
     level2_result = None
     if lasserre_level == 2:
         rounder = Level_2_Rounding()
@@ -193,9 +196,13 @@ def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level
         rounder.pidx = pidx
         rounder.bloch_vectors = bloch_vectors
         rounder.beta_star = 0.390
-        level2_result = rounder.QMC_rounding(max_vertices=16)
+        level2_result = rounder.QMC_rounding(seed=seed, max_vertices=16)
+        if sdp_objective_value is not None:
+            level2_result["sdp_objective_value"] = float(sdp_objective_value)
+            level2_result["initial_solver_level_M"] = initial_solver_level_M
         print(f"Algorithm 17 lower-bound energy: {level2_result['lower_bound_energy']}")
         print(f"Algorithm 17 actual entangled-state energy: {level2_result['actual_energy']}")
+        print(f"SDP objective value: {sdp_objective_value}")
 
     edge_count, edges_in_cut = get_edges_in_cut(cuts, edges)
     print(f"{edge_count} in cut out of a total of {len(edges)} edges")

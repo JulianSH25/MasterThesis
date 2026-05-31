@@ -207,7 +207,8 @@ def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = 
     :param debugging: enables additional debug logging
     :return: tuple (cuts, states) with cut labels and single-qubit states
     """
-    if seed: print(f"Setting seed to {seed}")
+    if seed is not None:
+        print(f"Setting seed to {seed}")
     debugging = debugging
 
     M = (M + M.T) / 2 # symmetrising matrix

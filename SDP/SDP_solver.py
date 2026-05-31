@@ -225,6 +225,7 @@ class SDP_Solver_():
         if problem.status not in (cp.OPTIMAL, "optimal"):
             raise RuntimeError(f"SDP did not solve to optimality. status={problem.status}")
 
+        self.last_objective_value = problem.value
         return M.value, basis, pidx
 
     def QMC_SDP_solver_antiFerro(self, edges, weights, n_vertices, params: ABCParams, debug: bool = False):
@@ -280,6 +281,7 @@ class SDP_Solver_():
                 "If this is unexpected, try checking solver output or relaxing constraints."
             )
 
+        self.last_objective_value = problem.value
         return M.value
 
     """def compute_energy(product_states, edges, weights=None):
