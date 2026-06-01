@@ -179,8 +179,9 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
             initial_ws_energy,
             initial_energy_prodStates,
             initial_sdp_statevector_energy,
+            warm_start_result,
         )
-    return minimum_energy, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy
+    return minimum_energy, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy, warm_start_result
 
 def return_optimal_line(n):
     df = pan.read_csv(_optimal_results_path("optimal_results_qaoa.csv"), skipinitialspace=True)
@@ -290,7 +291,7 @@ if __name__ == "__main__":
         # XXX Time
         time_section = time.time()
  
-        results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy = main(
+        results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy, warm_start_result = main(
             p=p,
             N_bayes=int(precision),
             self_init_linegraph=singlet_injection,
@@ -320,7 +321,7 @@ if __name__ == "__main__":
             initial_state = state
 
             print("Reusing optimiser initial parameters for 010101 comparison run.")
-            results_010101[n], initial_ws_energy_010101, __initial_energy_prodStates, __initial_energy_statevector = main(
+            results_010101[n], initial_ws_energy_010101, __initial_energy_prodStates, __initial_energy_statevector, _ = main(
                 p=p,
                 N_bayes=int(precision),
                 edges=edges,
