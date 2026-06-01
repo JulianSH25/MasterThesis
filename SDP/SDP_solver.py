@@ -48,7 +48,9 @@ class SDP_Solver_():
         # Step 2: objective
         objective = 0
 
-        scale = float(0.5) #1 / (1 + a + b + c)
+        # King/QMC convention for params=(1,1,1): h_ij = 1/2(I - XX - YY - ZZ).
+        # Fall back to the old normalised convention for non-QMC parameter vectors.
+        scale = 0.5 if (a, b, c) == (1, 1, 1) else 1 / (1 + a + b + c)
 
         for (i, j), w in zip(edges, weights):
             term = 1
@@ -145,7 +147,9 @@ class SDP_Solver_():
 
 
         # build the objective function:
-        scale = 1 / (1 + a + b + c)
+        # King/QMC convention for params=(1,1,1): h_ij = 1/2(I - XX - YY - ZZ).
+        # Fall back to the old normalised convention for non-QMC parameter vectors.
+        scale = 0.5 if (a, b, c) == (1, 1, 1) else 1 / (1 + a + b + c)
 
         for (i, j), w in zip(edges, weights):
             term = 1
@@ -330,8 +334,9 @@ class SDP_Solver_():
 
         energy = 0.0
         for (i, j), w in zip(edges, weights):
-            # Matches the normalized Hamiltonian term used in the SDP objective.
-            H_ij = float(0.5) * w * ( #1/(1+ a+b+c) * w * (
+            # Matches the Hamiltonian term used in the SDP objective.
+            scale = 0.5 if (a, b, c) == (1, 1, 1) else 1 / (1 + a + b + c)
+            H_ij = scale * w * (
                     np.kron(I, I)
                     - a * np.kron(X, X)
                     - b * np.kron(Y, Y)

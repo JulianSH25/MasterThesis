@@ -128,7 +128,8 @@ class QAOACircuit(QuantumCircuit):
 
                 # add Cost Hamiltonian for all edges, taking into account their respective weights
                 for (j, k), w in zip(self.edges, self.weights):
-                    w = w/ (1 + a + b + c)
+                    scale = 0.5 if (a, b, c) == (1, 1, 1) else 1.0 / float(1 + a + b + c)
+                    w = w * scale
                     # NOTE multiplying all parameters by 2 since qiskit's rxx, ryy, rzz gates apply a rotation of theta/2 for an input angle theta; i.e. we undo the default 1/2 division to allow full parameter range!
                     self.qc.rxx(2*gamma, j, k)
                     self.qc.ryy(2*gamma, j, k)
@@ -408,8 +409,13 @@ class QAOACircuit(QuantumCircuit):
 
         energy = 0.0
         for (i, j), w in zip(edges, weights):
-            H = float(0.5) * w * ( #(1/(1 + a+b+c) * w *
-                    np.kron(I, I) - a * np.kron(X, X) - b * np.kron(Y, Y) - c * np.kron(Z, Z)
+            scale = 0.5 if (a, b, c) == (1, 1, 1) else 1.0 / float(1 + a + b + c)
+
+            H = scale * w * (
+                np.kron(I, I)
+                - a * np.kron(X, X)
+                - b * np.kron(Y, Y)
+                - c * np.kron(Z, Z)
             )
             #p = np.kron(product_states[i], product_states[j])
             l = product_states[(i, j)]

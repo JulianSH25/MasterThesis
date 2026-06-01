@@ -481,6 +481,7 @@ class Level_2_Rounding:
         I = np.eye(2, dtype=complex)
         X, Y, Z = self.pauli_matrices()
 
+        # King/QMC convention: h_ij = 1/2(I - XX - YY - ZZ).
         h_qmc = 0.5 * (
             np.kron(I, I)
             - np.kron(X, X)
