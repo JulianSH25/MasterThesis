@@ -48,7 +48,7 @@ class SDP_Solver_():
         # Step 2: objective
         objective = 0
 
-        scale = 1 / (1 + a + b + c)
+        scale = float(0.5) #1 / (1 + a + b + c)
 
         for (i, j), w in zip(edges, weights):
             term = 1
@@ -331,7 +331,7 @@ class SDP_Solver_():
         energy = 0.0
         for (i, j), w in zip(edges, weights):
             # Matches the normalized Hamiltonian term used in the SDP objective.
-            H_ij = 1/(1+ a+b+c) * w * (
+            H_ij = float(0.5) * w * ( #1/(1+ a+b+c) * w * (
                     np.kron(I, I)
                     - a * np.kron(X, X)
                     - b * np.kron(Y, Y)

@@ -278,7 +278,7 @@ class QAOACircuit(QuantumCircuit):
         assert self.weights is not None
 
         a, b, c = self.params
-        norm = 1.0 / float(1 + a + b + c)
+        norm = float(0.5) # 1.0 / float(1 + a + b + c)
 
         coeffs: dict[str, complex] = defaultdict(complex)
         identity = "I" * self.n
@@ -408,8 +408,9 @@ class QAOACircuit(QuantumCircuit):
 
         energy = 0.0
         for (i, j), w in zip(edges, weights):
-            H = (1/(1 + a+b+c) * w *
-                 (np.kron(I, I) - a * np.kron(X, X) - b * np.kron(Y, Y) - c * np.kron(Z, Z)))
+            H = float(0.5) * w * ( #(1/(1 + a+b+c) * w *
+                    np.kron(I, I) - a * np.kron(X, X) - b * np.kron(Y, Y) - c * np.kron(Z, Z)
+            )
             #p = np.kron(product_states[i], product_states[j])
             l = product_states[(i, j)]
             energy += np.trace(H @ l)
