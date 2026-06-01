@@ -32,5 +32,6 @@
   "save_circuit_svg": false,
   "rerun_exclude_finished_instances": false,
   "optimiser_debug_iterations": 1,
+  "num_repeats": 1,
   "relative_graph_adjList_path": "HOG_graphs/list_27_graphs_adjacency_list.txt"
 }

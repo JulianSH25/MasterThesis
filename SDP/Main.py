@@ -200,16 +200,22 @@ def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level
         print(f"Algorithm 17 lower-bound energy: {sdp_result['lower_bound_energy']}")
         print(f"Algorithm 17 actual entangled-state energy: {sdp_result['actual_energy']}")
 
-    if sdp_objective_value is not None:
+    if sdp_objective_value is not None or lasserre_level == 2:
         sdp_result = sdp_result or {}
-        sdp_result["sdp_objective_value"] = float(sdp_objective_value)
-        sdp_result["sdp_objective_value_normalized"] = float(sdp_objective_value)
+        sdp_result["rounded_solution_energy"] = float(energy)
+        if sdp_objective_value is not None:
+            sdp_result["sdp_objective_value"] = float(sdp_objective_value)
+            sdp_result["sdp_objective_value_normalized"] = float(sdp_objective_value)
         sdp_result["initial_solver_level_M"] = initial_solver_level_M
         sdp_result["lasserre_level"] = lasserre_level
-        print(f"SDP objective value: {sdp_objective_value}")
+        if sdp_objective_value is not None:
+            print(f"SDP objective value: {sdp_objective_value}")
 
     edge_count, edges_in_cut = get_edges_in_cut(cuts, edges)
     print(f"{edge_count} in cut out of a total of {len(edges)} edges")
+
+    if sdp_result is not None:
+        SDP_Solver_.GP_rounding_energy = sdp_result["actual_energy"]
 
     return energy, M_optimal, states, cuts, sdp_result
 

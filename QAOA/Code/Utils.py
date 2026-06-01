@@ -138,7 +138,13 @@ def get_benchmark_params() -> dict:
     """
     config_path = Path(__file__).resolve().parent / "benchmark_config.json"
     with config_path.open("r", encoding="utf-8") as config_file:
-        return json.load(config_file)
+        params = json.load(config_file)
+    
+    # Allow sdp_seed to be overridden via environment variable SDP_SEED_OVERRIDE
+    if "SDP_SEED_OVERRIDE" in os.environ:
+        params["sdp_seed"] = int(os.environ["SDP_SEED_OVERRIDE"])
+    
+    return params
 
 def classify_graph(edges):
     verts = {u for e in edges for u in e}

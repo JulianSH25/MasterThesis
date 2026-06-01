@@ -34,6 +34,7 @@ n_end=$(jq -r '.n_end' "$config_file")
 time_limit_seconds=$(jq -r '.time_limit' "$config_file") # 3 hours
 timeout_streak_limit=$(jq -r '.failed_instance_termination_thrsh' "$config_file")
 optimiser=$(jq -r '.optimiser' "$config_file")
+num_repeats=$(jq -r '.num_repeats // 1' "$config_file")
 
 parameter_vector=$(jq -c '.parameter_vector' "$config_file")
 singlet_injection=$(jq -r '.singlet_injection' "$config_file")
@@ -222,6 +223,26 @@ else
     sort -nr "$jobs_file" -o "$jobs_file"
 fi
 
+# Master repeat loop
+for (( repeat_idx=1; repeat_idx<=num_repeats; repeat_idx++ )); do
+    echo ""
+    echo "===================="
+    echo "Repeat run: ${repeat_idx}/${num_repeats}"
+    echo "===================="
+    echo ""
+    
+    # Reset stop_launching flag for each repeat
+    stop_launching=0
+    
+    # Compute derived seed for this repeat (if sdp_seed is configured in config)
+    configured_sdp_seed=$(jq -r '.sdp_seed // empty' "$config_file")
+    derived_sdp_seed=""
+    if [[ -n "$configured_sdp_seed" ]]; then
+        seed_increment_per_repeat=1000000
+        derived_sdp_seed=$(( configured_sdp_seed + (repeat_idx - 1) * seed_increment_per_repeat ))
+        echo "Derived SDP seed for repeat ${repeat_idx}: ${derived_sdp_seed} (base: ${configured_sdp_seed}, increment: ${seed_increment_per_repeat})"
+    fi
+
 # -----------------------------
 # Helper: track launched PIDs directly
 # -----------------------------
@@ -405,22 +426,22 @@ build_run_key() {
 # -----------------------------
 # Launch jobs
 # -----------------------------
-while read -r score iterations p n; do
-    if (( stop_launching )); then
-        echo "Stopping further job launches because the timeout streak limit was reached."
-        break
-    fi
-    while true; do
-        maybe_reduce_parallel_cap
-        maybe_increase_parallel_cap
-        ram_limited_parallel=$(allowed_parallel_jobs)
-        ram_limited_parallel=${ram_limited_parallel:-0}
+    while read -r score iterations p n; do
+        if (( stop_launching )); then
+            echo "Stopping further job launches because the timeout streak limit was reached."
+            break
+        fi
+        while true; do
+            maybe_reduce_parallel_cap
+            maybe_increase_parallel_cap
+            ram_limited_parallel=$(allowed_parallel_jobs)
+            ram_limited_parallel=${ram_limited_parallel:-0}
 
-        current_jobs=$(count_running_jobs)
-        current_jobs=${current_jobs:-0}
+            current_jobs=$(count_running_jobs)
+            current_jobs=${current_jobs:-0}
 
-        timeout_streak=$(current_timeout_streak)
-        timeout_streak=${timeout_streak:-0}
+            timeout_streak=$(current_timeout_streak)
+            timeout_streak=${timeout_streak:-0}
         if (( timeout_streak >= timeout_streak_limit )); then
             echo "Timeout streak limit reached (${timeout_streak}/${timeout_streak_limit}). Stopping further job launches."
             stop_launching=1
@@ -463,6 +484,9 @@ while read -r score iterations p n; do
         export OPENBLAS_NUM_THREADS=${blas_threads}
         export MKL_NUM_THREADS=${blas_threads}
         export NUMEXPR_NUM_THREADS=${blas_threads}
+        if [[ -n \"${derived_sdp_seed}\" ]]; then
+            export SDP_SEED_OVERRIDE=${derived_sdp_seed}
+        fi
         nice -n ${nice_value} ${cmd}
         exit_code=\$?
         timed_out=0
@@ -488,10 +512,14 @@ while read -r score iterations p n; do
         echo "Warning: failed to register launched job for n=${n}, p=${p}, iterations=${iterations}. Continuing with remaining jobs."
         maybe_reduce_parallel_cap
     fi
-done < "$jobs_file"
+    done < "$jobs_file"
+
+    echo "Completed jobs for repeat run: ${repeat_idx}/${num_repeats}"
+    echo ""
+done
 
 rm -f "$jobs_file"
 
-echo "All jobs submitted."
+echo "All repeat runs submitted (total repeats: ${num_repeats})."
 echo "Benchmark configuration from ${config_file}:"$'\n'"${benchmark_config_dump}"
 echo "Detected chip: ${chip_name:-unknown}; physical_cores: ${physical_cores}; logical_cores: ${logical_cores}; blas_threads: ${blas_threads}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; ram_recovery_samples_required: ${ram_recovery_samples_required}; ram_recovery_sample_interval_seconds: ${ram_recovery_sample_interval_seconds}; timeout_streak_limit: ${timeout_streak_limit}; python_bin: ${python_bin}"
