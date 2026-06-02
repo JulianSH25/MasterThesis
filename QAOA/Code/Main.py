@@ -105,6 +105,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
             edges,
             weights,
             params=tuple(QAOA.params),
+            lasserre_level=benchmark_params.get("lasserre_level")
         ).real
         if energy_audit:
             print(f"Initial energy from SDP product states: {initial_energy_prodStates}")
@@ -206,6 +207,7 @@ if __name__ == "__main__":
     global_starttime = time.time()
     time_section = time.time()
     time_sections = {}
+    lasserre_level = get_benchmark_params().get("lasserre_level")
     print(f"Starting QAOA benchmark with global start time: {global_starttime}")
 
     # Load benchmark parameters from json
@@ -242,7 +244,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'optimal_result', 'sdp_objective_value', 'sdp_objective_value_king_normalized', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates', 'initial_sdp_statevector_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb']
 
@@ -421,11 +423,11 @@ if __name__ == "__main__":
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
             'optimal_result': optimal_result,
-            'sdp_objective_value': sdp_objective_value,
-            'sdp_objective_value_king_normalized': sdp_objective_value_normalized / normalisation_factor,
-            'algorithm17_actual_energy': algorithm17_actual_energy / normalisation_factor,
-            'algorithm17_lower_bound_energy': algorithm17_lower_bound_energy / normalisation_factor,
-            'initial_ws_energy_prodStates': initial_energy_prodStates / normalisation_factor,
+            'sdp_objective_value_step1': sdp_objective_value,
+            'sdp_objective_value_king_normalized_step1': sdp_objective_value_normalized / normalisation_factor,
+            'algorithm17_actual_energy': algorithm17_actual_energy / normalisation_factor if lasserre_level == 2 else None,
+            'algorithm17_lower_bound_energy': algorithm17_lower_bound_energy / normalisation_factor if lasserre_level == 2 else None,
+            'initial_ws_energy_prodStates_step2': initial_energy_prodStates / normalisation_factor,
             'initial_sdp_statevector_energy': initial_sdp_statevector_energy / normalisation_factor,
             'initial_ws_energy_010101': initial_ws_energy_010101 / normalisation_factor if parameter_settings["compare_with_010101"] else None,
             'QAOA_improvement_over_SDP_statevectorEnergy': results[n] - initial_sdp_statevector_energy if initial_sdp_statevector_energy is not None else None,

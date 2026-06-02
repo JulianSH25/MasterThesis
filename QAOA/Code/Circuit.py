@@ -330,7 +330,7 @@ class QAOACircuit(QuantumCircuit):
             for (i, j), w in zip(self.edges, self.weights):
                 res = self.two_qubit_marginal(psi=result, n=self.n, i=0, j=1)
                 product_states[(i, j)] = res
-            total_energy = QAOACircuit.qaoa_compute_energy(product_states, self.edges, self.weights, params=self.params).real
+            total_energy = QAOACircuit.qaoa_compute_energy(product_states, self.edges, self.weights, params=self.params, lasserre_level=self.lasserre_level).real
             self.debug_previous_result = total_energy
 
             return result.get_counts(), total_energy
@@ -387,7 +387,7 @@ class QAOACircuit(QuantumCircuit):
         
     # 1st option to compute energy from two-qubit marginals; this is the more general method that can be used for both statevector and measurement result inputs, as long as the appropriate two-qubit marginals are provided in the form of reduced density matrices for each edge.
     @staticmethod
-    def qaoa_compute_energy(product_states, edges, weights=None, params = None) -> float | Any:
+    def qaoa_compute_energy(product_states, edges, weights=None, params = None, lasserre_level: int | None = None) -> float | Any:
         """
         This method computes the Hamiltonian expectation from two-qubit edge marginals.
 
@@ -410,7 +410,7 @@ class QAOACircuit(QuantumCircuit):
 
         energy = 0.0
         for (i, j), w in zip(edges, weights):
-            scale = 0.5 if self.lasserre_level == 2 else 1.0 / float(1 + a + b + c)
+            scale = 0.5 if lasserre_level == 2 else 1.0 / float(1 + a + b + c)
 
             H = scale * w * (
                 np.kron(I, I)
@@ -593,7 +593,7 @@ if __name__ == "__main__":
                 for (i, j), w in zip(edges, weights):
                     p = QAOA.two_qubit_marginal(results, n, 0, 1)
                     product_states[(i, j)] = p
-                total_energy = QAOA.qaoa_compute_energy(product_states, edges, weights, params=self.params).real
+                total_energy = QAOA.qaoa_compute_energy(product_states, edges, weights, params=self.params, lasserre_level=self.lasserre_level).real
                 print(f"Energy: {total_energy}")
                 return total_energy
             else:
