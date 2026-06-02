@@ -65,7 +65,7 @@ def heuristic_optimiser(
     points: dict = {}
     best_point = None
     for idx in range(benchmark_params.get("heuristic_optimiser_sampleSize")):
-        print(f"Debug iteration {idx+1}/{benchmark_params.get('heuristic_optimiser_sampleSize', 1)}")
+        print(f"Debug iteration {idx+1}/{benchmark_params.get('heuristic_optimiser_sampleSize', 1)}") if debug else None
         result, point = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=None)
         # call adam optimiser many times with a small number of steps to test different random initial parameters (sampled in adam optimiser) and return the best point (i.e. best parameters) to optimise further with Adam but this time more steps
         points[idx] = point
@@ -76,8 +76,8 @@ def heuristic_optimiser(
             best_result_obj = result
             best_point = point
         best_results_log[idx] = -result.fun
-    print(f"ADAM optimization heuristic: best_result={best_result_value}, worst_result={worst_result}")
     if benchmark_params.get("debug"):
+        print(f"ADAM optimization heuristic: best_result={best_result_value}, worst_result={worst_result}")
         print(f"ADAM optimization heuristic: all results observed across iterations: {best_results_log}")
         print(f"ADAM optimization heuristic: best point found across iterations: {best_point}")
         print(f"Improvement over worst result: {best_result_value - worst_result}")
@@ -94,7 +94,7 @@ def _adam_optimiser(
 ):
     assert isinstance(QAOA, QAOACircuit)
     optimiser = ADAM(maxiter=steps, lr=learning_rate)
-    print(f"ADAM optimizer configured with maxiter={steps} and learning_rate={learning_rate}")
+    print(f"ADAM optimizer configured with maxiter={steps} and learning_rate={learning_rate}") if debug else None
     optimiser.set_max_evals_grouped(QAOA.p * QAOA.no_param_types)
 
     if x0 is None:
@@ -107,19 +107,19 @@ def _adam_optimiser(
             else:
                 bounds = QAOA.param_ranges
             parameters.append(set_random_params(QAOA.p, bounds, init_close_to_zero=init_close_to_zero))
-        print(f"Generated {QAOA.no_param_types} random initial parameter sets for ADAM optimization")
+        print(f"Generated {QAOA.no_param_types} random initial parameter sets for ADAM optimization") if debug else None
         x0 = np.concatenate(parameters).astype(float)
-        print(f"Using random initial parameters with:")
+        print(f"Using random initial parameters with:") if debug else None
         idx = 1
         for parameter_type in parameters:
-            print(f"Param_type {idx}:  {parameter_type}")
+            print(f"Param_type {idx}:  {parameter_type}") if debug else None
             idx += 1
     else:
         x0 = np.asarray(x0, dtype=float)
         expected_dim = QAOA.p * QAOA.no_param_types
         if x0.shape != (expected_dim,):
             raise ValueError(f"Expected x0 shape ({expected_dim},), got {x0.shape}")
-        print(f"Using provided initial parameters x0 with shape {x0.shape}")
+        print(f"Using provided initial parameters x0 with shape {x0.shape}") if debug else None
 
     dimension = QAOA.p * QAOA.no_param_types
 
@@ -178,9 +178,10 @@ def _adam_optimiser(
 
     result = optimiser.minimize(fun=objective, x0=x0)
     setattr(result, "initial_point", x0.copy())
-    print(f"Energies observed during ADAM optimization: {Energies}")
-    print(f"Total optimisation time observed during ADAM optimization: {sum(Optimisation_time):.6f} seconds")
-    print(f"Median time per evaluation during ADAM optimization: {np.median(Optimisation_time):.6f} seconds")
+    if debug:
+        print(f"Energies observed during ADAM optimization: {Energies}")
+        print(f"Total optimisation time observed during ADAM optimization: {sum(Optimisation_time):.6f} seconds")
+        print(f"Median time per evaluation during ADAM optimization: {np.median(Optimisation_time):.6f} seconds")
     return result, x0
 
 def eval_QAOA_circuit(point: list[np.ndarray], QAOA: QAOACircuit) -> float:
