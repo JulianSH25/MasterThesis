@@ -22,7 +22,6 @@ if __package__ in (None, ""):
 else:
     from .Utilities import idx
 
-Lasserre_level = 1
 Bit = Literal[0, 1]
 
 class ABCParams(TypedDict):
@@ -31,6 +30,10 @@ class ABCParams(TypedDict):
     c: Bit
 
 class SDP_Solver_():
+
+    def __init__(self, lasserre_level):
+        self.lasserre_level = lasserre_level
+
     def SDP_setup_level_2(self, edges, weights, n_vertices, parameters: tuple, debug: bool = False):
 
         a, b, c = parameters
@@ -50,7 +53,7 @@ class SDP_Solver_():
 
         # King/QMC convention for params=(1,1,1): h_ij = 1/2(I - XX - YY - ZZ).
         # Fall back to the old normalised convention for non-QMC parameter vectors.
-        scale = 0.5 if (a, b, c) == (1, 1, 1) else 1 / (1 + a + b + c)
+        scale = 0.5 if self.lasserre_level == 2 else 1 / (1 + a + b + c)
 
         for (i, j), w in zip(edges, weights):
             term = 1
@@ -149,7 +152,7 @@ class SDP_Solver_():
         # build the objective function:
         # King/QMC convention for params=(1,1,1): h_ij = 1/2(I - XX - YY - ZZ).
         # Fall back to the old normalised convention for non-QMC parameter vectors.
-        scale = 0.5 if (a, b, c) == (1, 1, 1) else 1 / (1 + a + b + c)
+        scale = 0.5 if self.lasserre_level == 2 else 1 / (1 + a + b + c)
 
         for (i, j), w in zip(edges, weights):
             term = 1
@@ -335,7 +338,7 @@ class SDP_Solver_():
         energy = 0.0
         for (i, j), w in zip(edges, weights):
             # Matches the Hamiltonian term used in the SDP objective.
-            scale = 0.5 if (a, b, c) == (1, 1, 1) else 1 / (1 + a + b + c)
+            scale = 0.5 if self.lasserre_level == 2 else 1 / (1 + a + b + c)
             H_ij = scale * w * (
                     np.kron(I, I)
                     - a * np.kron(X, X)
@@ -352,7 +355,7 @@ class SDP_Solver_():
         return float(energy)
 
 if __name__ == '__main__':
-    solver_sdp = SDP_Solver_()
+    solver_sdp = SDP_Solver_(lasserre_level=2) # NOTE ADAPT LEVEL AS DESIRED
     edges = [(0, 1), (1, 2), (2, 3)]  # A triangle graph
     weights = [1 for _ in edges]
     n_vertices = 4

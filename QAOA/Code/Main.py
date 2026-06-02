@@ -35,6 +35,8 @@ last_sdp_objective_value = None
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
 
+normalisation_factor = benchmark_params["lasserre_level"]
+
 optimiser = benchmark_params["optimiser"].lower()
 
 
@@ -240,7 +242,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'optimal_result', 'sdp_objective_value', 'sdp_objective_value_normalized', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates', 'initial_energy_statevector', 'initial_sdp_statevector_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                       'parameter_vector', 'optimal_result', 'sdp_objective_value', 'sdp_objective_value_king_normalized', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates', 'initial_sdp_statevector_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb']
 
@@ -299,10 +301,31 @@ if __name__ == "__main__":
             edges=edges,
             weights=weights,
             return_initial_point=True,
-            graph_generation_type=graph_generation_type,
+            graph_generation_type=graph_generation_type
         )
-        sdp_objective_value = last_sdp_objective_value
-        sdp_objective_value_normalized = sdp_objective_value
+        sdp_objective_value = (
+            warm_start_result.get("sdp_objective_value")
+            if warm_start_result is not None
+            else last_sdp_objective_value
+        )
+
+        sdp_objective_value_normalized = (
+            warm_start_result.get("sdp_objective_value_normalized")
+            if warm_start_result is not None
+            else sdp_objective_value
+        )
+
+        algorithm17_actual_energy = (
+            warm_start_result.get("actual_energy")
+            if warm_start_result is not None
+            else None
+        )
+
+        algorithm17_lower_bound_energy = (
+            warm_start_result.get("lower_bound_energy")
+            if warm_start_result is not None
+            else None
+        )
         # XXX Time
         time_sections[f"qaoa_optimisation_n_{n}"] = time.time() - time_section
         print(f"QAOA optimisation for n={n} took {time_sections[f'qaoa_optimisation_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")
@@ -327,7 +350,7 @@ if __name__ == "__main__":
                 edges=edges,
                 weights=weights,
                 __initial_state__=initial_state,
-                fixed_initial_point=shared_initial_point,
+                fixed_initial_point=shared_initial_point
             )
             # XXX Time
             time_sections[f"qaoa_optimisation_010101_n_{n}"] = time.time() - time_section
@@ -352,24 +375,24 @@ if __name__ == "__main__":
                 if optimal is None:
                     print("Missing optimal_results_qaoa.csv; skipping line approximation ratio.")
                 else:
-                    approx_ratio = results[n] / optimal
-                    approx_ratio_010101 = results_010101[n] / optimal if parameter_settings["compare_with_010101"] else None
+                    approx_ratio = (results[n] / normalisation_factor) / optimal
+                    approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal if parameter_settings["compare_with_010101"] else None
             elif graph_type == "cycle":
                 print("Computing cycle approximation ratio")
                 optimal = return_optimal_cycle(node_count)
                 if optimal is None:
                     print("Missing optimal_results_qaoa_circle.csv; skipping cycle approximation ratio.")
                 else:
-                    approx_ratio = results[n] / optimal
-                    approx_ratio_010101 = results_010101[n] / optimal if parameter_settings["compare_with_010101"] else None
+                    approx_ratio = (results[n] / normalisation_factor) / optimal
+                    approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal if parameter_settings["compare_with_010101"] else None
             elif graph_type == "complete":
                 print("Computing complete graph approximation ratio")
                 optimal = return_optimal_fully_connected(node_count)
                 if optimal is None:
                     print("Missing optimal_results_qaoa_complete.csv; skipping complete approximation ratio.")
                 else:
-                    approx_ratio = results[n] / optimal
-                    approx_ratio_010101 = results_010101[n] / optimal if parameter_settings["compare_with_010101"] else None
+                    approx_ratio = (results[n] / normalisation_factor) / optimal
+                    approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal if parameter_settings["compare_with_010101"] else None
             else:
                 print("Unknown graph type for approximation ratio calculation; checking misc CSV.")
         except Exception as e:
@@ -383,8 +406,8 @@ if __name__ == "__main__":
             optimal_result = optimal_from_misc
             if optimal_from_misc is not None:
                 print(f"Found matching exact result in misc CSV: {optimal_from_misc}")
-                approx_ratio = results[n] / optimal_from_misc
-                approx_ratio_010101 = results_010101[n] / optimal_from_misc if parameter_settings["compare_with_010101"] else None
+                approx_ratio = (results[n] / normalisation_factor) / optimal_from_misc
+                approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal_from_misc if parameter_settings["compare_with_010101"] else None
             else:
                 print("No matching result found in misc CSV; skipping approx ratio computation.")
 
@@ -397,20 +420,18 @@ if __name__ == "__main__":
             'singlet_injection': singlet_injection,
             'warm_start': warm_start,
             'parameter_vector': str(parameter_settings["parameter_vector"]),
-            'optimal_energy': optimal_result,
             'optimal_result': optimal_result,
             'sdp_objective_value': sdp_objective_value,
-            'sdp_objective_value_normalized': sdp_objective_value_normalized,
-            'algorithm17_actual_energy': algorithm17_actual_energy,
-            'algorithm17_lower_bound_energy': algorithm17_lower_bound_energy,
-            'initial_ws_energy_prodStates': initial_energy_prodStates,
-            'initial_energy_statevector': initial_sdp_statevector_energy,
-            'initial_sdp_statevector_energy': initial_sdp_statevector_energy,
-            'initial_ws_energy_010101': initial_ws_energy_010101 if parameter_settings["compare_with_010101"] else None,
+            'sdp_objective_value_king_normalized': sdp_objective_value_normalized / normalisation_factor,
+            'algorithm17_actual_energy': algorithm17_actual_energy / normalisation_factor,
+            'algorithm17_lower_bound_energy': algorithm17_lower_bound_energy / normalisation_factor,
+            'initial_ws_energy_prodStates': initial_energy_prodStates / normalisation_factor,
+            'initial_sdp_statevector_energy': initial_sdp_statevector_energy / normalisation_factor,
+            'initial_ws_energy_010101': initial_ws_energy_010101 / normalisation_factor if parameter_settings["compare_with_010101"] else None,
             'QAOA_improvement_over_SDP_statevectorEnergy': results[n] - initial_sdp_statevector_energy if initial_sdp_statevector_energy is not None else None,
             'QAOA_improvement_over_SDP_prodStatesEnergy': results[n] - initial_energy_prodStates if initial_energy_prodStates is not None else None,
-            'result': results[n],
-            'result_010101': results_010101[n] if parameter_settings["compare_with_010101"] else None,
+            'result': results[n] / normalisation_factor,
+            'result_010101': results_010101[n] / normalisation_factor if parameter_settings["compare_with_010101"] else None,
             'approx_ratio': approx_ratio,
             'approx_ratio_010101': approx_ratio_010101,
             'diff. approx. ratio': round(approx_ratio, 6) - round(approx_ratio_010101, 6) if parameter_settings["compare_with_010101"] else None,

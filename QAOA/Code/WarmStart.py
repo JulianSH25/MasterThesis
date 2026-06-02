@@ -60,7 +60,7 @@ def get_warm_start_state(instance, n_vertices):
     parameters = {"a": parameters[0], "b": parameters[1], "c": parameters[2]}
     sdp_start = time.time()
     print(f"Warm-start: starting SDP solve for n_vertices={n_vertices}", flush=True)
-    lasserre_level = int(benchmark_params.get("lasserre_level", 1))
+    lasserre_level = int(benchmark_params.get("lasserre_level"))
     if lasserre_level not in (1, 2):
         raise ValueError(f"Expected lasserre_level to be 1 or 2, got {lasserre_level}")
 

@@ -100,7 +100,7 @@ def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm
 
     #visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
 
-def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level: int = 1, initial_solver_level_M: int = 2, seed: int | None = None):
+def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False, initial_solver_level_M: int = 2, seed: int | None = None):
     """
     Run a single SDP solve and rounding flow.
 
@@ -121,7 +121,7 @@ def main(instance, n_vertices, params: dict, debug: bool = False, lasserre_level
     :param seed: optional seed for seeded rounding and Algorithm 17 sampling
     :return: tuple (edge_count, edges_in_cut, cuts, M_optimal, states)
     """
-    solver_sdp = SDP_Solver_()
+    solver_sdp = SDP_Solver_(lasserre_level=lasserre_level)
     edges, weights = instance
 
     if initial_solver_level_M not in (1, 2):

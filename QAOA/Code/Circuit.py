@@ -68,6 +68,7 @@ class QAOACircuit(QuantumCircuit):
         self.debug_previous_result: float | None = None
         self.parameter_log_path: Path | None = None # NOTE for debugging only
         self.initial_ws_energy = None
+        self.lasserre_level = int(benchm_params.get("lasserre_level"))
 
         print(f"Solving for uuid: {self.uid}")
 
@@ -128,7 +129,7 @@ class QAOACircuit(QuantumCircuit):
 
                 # add Cost Hamiltonian for all edges, taking into account their respective weights
                 for (j, k), w in zip(self.edges, self.weights):
-                    scale = 0.5 if (a, b, c) == (1, 1, 1) else 1.0 / float(1 + a + b + c)
+                    scale = 0.5 if self.lasserre_level == 2 else 1.0 / float(1 + a + b + c)
                     w = w * scale
                     # NOTE multiplying all parameters by 2 since qiskit's rxx, ryy, rzz gates apply a rotation of theta/2 for an input angle theta; i.e. we undo the default 1/2 division to allow full parameter range!
                     self.qc.rxx(2*gamma, j, k)
@@ -279,7 +280,7 @@ class QAOACircuit(QuantumCircuit):
         assert self.weights is not None
 
         a, b, c = self.params
-        norm = float(0.5) # 1.0 / float(1 + a + b + c)
+        norm = float(0.5) if self.lasserre_level == 2 else 1.0 / float(1 + a + b + c)
 
         coeffs: dict[str, complex] = defaultdict(complex)
         identity = "I" * self.n
@@ -409,7 +410,7 @@ class QAOACircuit(QuantumCircuit):
 
         energy = 0.0
         for (i, j), w in zip(edges, weights):
-            scale = 0.5 if (a, b, c) == (1, 1, 1) else 1.0 / float(1 + a + b + c)
+            scale = 0.5 if self.lasserre_level == 2 else 1.0 / float(1 + a + b + c)
 
             H = scale * w * (
                 np.kron(I, I)
