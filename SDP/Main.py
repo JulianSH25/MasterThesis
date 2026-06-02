@@ -7,10 +7,10 @@ else:
 import numpy as np
 if __package__ in (None, ""):
     from Rounding import round_sdp_with_cholesky
-    from Utilities import extract_level1_submatrix_from_level2, random_instance_generator, line_instance_generator, get_edges_in_cut, save_benchmark_csv, idx
+    from Utilities import extract_level1_submatrix_from_level2, random_instance_generator, line_instance_generator, get_edges_in_cut, save_benchmark_csv, idx, get_benchmark_params
 else:
     from .Rounding import round_sdp_with_cholesky
-    from .Utilities import extract_level1_submatrix_from_level2, random_instance_generator, line_instance_generator, get_edges_in_cut, save_benchmark_csv, idx
+    from .Utilities import extract_level1_submatrix_from_level2, random_instance_generator, line_instance_generator, get_edges_in_cut, save_benchmark_csv, idx, get_benchmark_params
 #from testing import visualize_cut
 import datetime, random, secrets, uuid
 from datetime import datetime
@@ -18,6 +18,7 @@ from datetime import datetime
 benchmark_roundings = True
 fixed_seed = False
 lasserre_level = 2
+debug = get_benchmark_params().get("debug", False)
 
 def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm_filename = None, uuid__ = None):
     """
@@ -172,7 +173,7 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
     print("Rounding...")
     cuts, states, bloch_vectors = round_sdp_with_cholesky(M_for_rounding, parameters=params, seed=seed)
 
-    print(cuts)
+    print(cuts) if debug else None
 
     energy = solver_sdp.compute_energy(
         states,
@@ -249,7 +250,7 @@ if __name__ == "__main__":
     )
 
     print("\n=== Product-state / GP rounding result ===")
-    print(f"Cuts: {cuts}")
+    print(f"Cuts: {cuts}") if debug else None
     print(f"Product-state energy: {product_energy}")
     print(f"Number of local product states: {len(product_states)}")
 
@@ -258,14 +259,15 @@ if __name__ == "__main__":
         lower_bound_energy = level2_result["lower_bound_energy"]
         actual_energy = level2_result["actual_energy"]
 
-        print("\n=== Algorithm 17 entangled-state result ===")
-        print(f"Final state-vector shape: {final_state.shape}")
-        print(f"Final state-vector norm: {np.linalg.norm(final_state)}")
-        print(f"Algorithm 17 lower-bound energy: {lower_bound_energy}")
-        print(f"Actual entangled-state energy: {actual_energy}")
-        print(f"x_ij values: {level2_result['x_dict']}")
-        print(f"theta_ij values: {level2_result['theta_dict']}")
-        print(f"epsilon_ij signs: {level2_result['epsilon_dict']}")
+        if debug:
+            print("\n=== Algorithm 17 entangled-state result ===")
+            print(f"Final state-vector shape: {final_state.shape}")
+            print(f"Final state-vector norm: {np.linalg.norm(final_state)}")
+            print(f"Algorithm 17 lower-bound energy: {lower_bound_energy}")
+            print(f"Actual entangled-state energy: {actual_energy}")
+            print(f"x_ij values: {level2_result['x_dict']}")
+            print(f"theta_ij values: {level2_result['theta_dict']}")
+            print(f"epsilon_ij signs: {level2_result['epsilon_dict']}")
 
         assert final_state.shape == (2 ** n_vertices,)
         assert np.isclose(np.linalg.norm(final_state), 1.0, atol=1e-6)

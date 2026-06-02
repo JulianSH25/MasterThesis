@@ -13,7 +13,16 @@ mkdir -p Results/logs
 # -----------------------------
 # Parameter settings
 # -----------------------------
-config_file="Code/benchmark_config.json"
+config_source_file="Code/benchmark_config.json"
+
+run_timestamp=$(date +"%Y%m%d_%H%M%S")
+config_snapshot_dir="Results/config_snapshots"
+mkdir -p "$config_snapshot_dir"
+
+config_file="${config_snapshot_dir}/benchmark_config_${run_timestamp}_$$.json"
+cp "$config_source_file" "$config_file"
+
+echo "Using benchmark config snapshot: ${config_file}"
 
 rerun_exclude_finished_instances=$(jq -r '.rerun_exclude_finished_instances // false' "$config_file")
 whitelist_file="runkey_whitelist.json"
@@ -73,7 +82,6 @@ if [[ -z "${python_bin}" ]]; then
 fi
 
 # Shared timestamp for all jobs launched by this script run.
-run_timestamp=$(date +"%Y%m%d_%H%M%S")
 log_subdir="Results/logs/${optimiser}/${run_timestamp}"
 mkdir -p "$log_subdir"
 status_subdir="${log_subdir}/status"
@@ -484,6 +492,7 @@ build_run_key() {
         export OPENBLAS_NUM_THREADS=${blas_threads}
         export MKL_NUM_THREADS=${blas_threads}
         export NUMEXPR_NUM_THREADS=${blas_threads}
+        export BENCHMARK_CONFIG_FILE="${config_file}"
         if [[ -n \"${derived_sdp_seed}\" ]]; then
             export SDP_SEED_OVERRIDE=${derived_sdp_seed}
         fi

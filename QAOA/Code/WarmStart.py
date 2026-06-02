@@ -13,6 +13,8 @@ if __package__ in (None, ""):
 from SDP.Main import main as SDP_main
 from SDP.Utilities import idx
 
+debug = get_benchmark_params().get("debug", False)
+
 """This is the interface between QAOA and the SDP solver in order to obtain the SDP warm start solution and pass it on to the QAOA circuit preparation"""
 
 def initial_state_rotation(product_state):
@@ -26,8 +28,8 @@ def extract_correlations(M, edges):
                 + float(np.real(M[idx(i, 1), idx(j, 1)]))
                 + float(np.real(M[idx(i, 2), idx(j, 2)]))
         )
-
-        print(f"idx 0: {M[idx(i, 0), idx(j, 0)]}")
+        
+        """print(f"idx 0: {M[idx(i, 0), idx(j, 0)]}")
         print(f"idx 1: {M[idx(i, 1), idx(j, 1)]}")
         print(f"idx 2: {M[idx(i, 2), idx(j, 2)]}")
 
@@ -36,7 +38,7 @@ def extract_correlations(M, edges):
         print(f"idx 02: {M[idx(i, 0), idx(j, 2)]}")
         print(f"idx 20: {M[idx(i, 2), idx(j, 0)]}")
         print(f"idx 12: {M[idx(i, 1), idx(j, 2)]}")
-        print(f"idx 21: {M[idx(i, 2), idx(j, 1)]}")
+        print(f"idx 21: {M[idx(i, 2), idx(j, 1)]}")"""
 
         correlations[(i, j)] = corr
 
@@ -55,7 +57,7 @@ def get_warm_start_state(instance, n_vertices):
     benchmark_params: dict = get_benchmark_params()
     parameters = benchmark_params["parameter_vector"]
 
-    print(f"Warm-start: using parameter_vector={parameters}", flush=True)
+    print(f"Warm-start: using parameter_vector={parameters}", flush=True) if debug else None
 
     parameters = {"a": parameters[0], "b": parameters[1], "c": parameters[2]}
     sdp_start = time.time()
@@ -103,7 +105,7 @@ def get_warm_start_state(instance, n_vertices):
             f"Warm-start: built level-1 GP/GW product statevector in {time.time() - build_start:.2f} seconds",
             flush=True,
         )
-    if benchmark_params["debug"]:
+    if debug:
         print(f"Warm start state: {warmstart}")
         print("Product states:")
         for idx in range(len(states)):

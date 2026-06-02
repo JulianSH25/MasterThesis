@@ -1,6 +1,8 @@
 import random
 from datetime import datetime
 import csv
+import os
+from pathlib import Path
 import json
 import numpy as np
 
@@ -9,6 +11,27 @@ if __package__ in (None, ""):
 else:
     from .Lasserre_level_2 import P, PP
 
+def get_benchmark_params() -> dict:
+    """
+    This function loads benchmark parameters from JSON.
+
+    :return: benchmark parameter dictionary exactly as stored in JSON
+    """
+    config_path = os.environ.get("BENCHMARK_CONFIG_FILE")
+
+    if config_path is None:
+        config_path = Path(__file__).resolve().parent / "benchmark_config.json"
+    else:
+        config_path = Path(config_path)
+
+    with config_path.open("r", encoding="utf-8") as config_file:
+        params = json.load(config_file)
+    
+    # Allow sdp_seed to be overridden via environment variable SDP_SEED_OVERRIDE
+    if "SDP_SEED_OVERRIDE" in os.environ:
+        params["sdp_seed"] = int(os.environ["SDP_SEED_OVERRIDE"])
+    
+    return params
 
 def idx(i: int, k: int) -> int:
     """
@@ -128,7 +151,7 @@ def get_edges_in_cut(cut, edges):
     """
     edge_count = 0
     edges_in_cut = []
-    print(f'Check the cut: {cut}')
+    print(f'Check the cut: {cut}') if get_benchmark_params().get("debug", False) else None
     for i in range(len(cut)):
         for j in range(len(cut)):
             if i != j and cut[i] != cut[j] and (i, j) in edges:

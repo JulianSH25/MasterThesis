@@ -136,7 +136,13 @@ def get_benchmark_params() -> dict:
 
     :return: benchmark parameter dictionary exactly as stored in JSON
     """
-    config_path = Path(__file__).resolve().parent / "benchmark_config.json"
+    config_path = os.environ.get("BENCHMARK_CONFIG_FILE")
+
+    if config_path is None:
+        config_path = Path(__file__).resolve().parent / "benchmark_config.json"
+    else:
+        config_path = Path(config_path)
+
     with config_path.open("r", encoding="utf-8") as config_file:
         params = json.load(config_file)
     
@@ -158,7 +164,7 @@ def classify_graph(edges):
 
     d = list(deg.values())
 
-    if m == n * (n - 1) // 2:
+    if m == n * (n - 1) // 2 and n != 2:
         return "complete"
     if n >= 3 and all(x == 2 for x in d):
         return "cycle"

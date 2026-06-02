@@ -34,6 +34,7 @@ last_sdp_objective_value = None
 
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
+debug = benchmark_params.get("debug", False)
 
 normalisation_factor = benchmark_params["lasserre_level"]
 
@@ -76,7 +77,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
             raise Warning("A custom initial state was provided for a HAMQAOA circuit. The classical cut from the SDP warm start will not be available for this run, and any benchmark results should be interpreted accordingly, especially when comparing against runs that do use the SDP warm start.")
     
     warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
-    print(f"warm_start_correlations: {warm_start_correlations}")
+    print(f"warm_start_correlations: {warm_start_correlations}") if debug else None
     assert edges is not None and weights is not None and set_of_nodes is not None and n is not None and p is not None # XXX sanity check
     print(f"Edges: {edges}, weights: {weights}, set of nodes: {set_of_nodes}, n: {n} nodes, p: {p} layers, N_bayes: {N_bayes} iterations")
 
@@ -119,7 +120,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
 
     QAOA.initial_state = initial_state # assign circuit parameter: initial statevector for statevector-based energy evaluation and warm-starting; if None, circuit will use equal superposition initial state
     QAOA.classical_WS_cut = classical_cut # assign circuit parameter: classical warm start cut from SDP solution, used for certain Circuit setups (influences rotation angles in QAOA) and for audit comparisons; if None, no classical warm start cut will be used
-    if get_benchmark_params()["debug"]:
+    if debug:
         print(f"Initial state set to: {initial_state}") if initial_state is not None else print("No initial state provided.")
         print(f"Classical warm start cut set to: {classical_cut}") if classical_cut is not None else print("No classical warm start cut provided.")
 
@@ -129,7 +130,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
     elif use_correlations:
         raise RuntimeError("Warm start correlations are required for warm_start_mode or correlation-based initial params, but none were available.")
 
-    print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.") if benchmark_params["debug"] else None
+    print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.") if debug else None
     
     QAOA.self_init_linegraph = self_init_linegraph # assign circuit parameter: whether to use line-graph singlet state preparation
 
@@ -244,7 +245,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb']
 
@@ -366,6 +367,7 @@ if __name__ == "__main__":
         peak_ram_mb = get_peak_ram_mb()
         print(f"Finished QAOA for n={node_count} nodes, m={m} edges at {finished_at} on {processor_name}. Time taken: {elapsed_time:.2f} seconds. Hours: {elapsed_time / 3600:.2f} hours. Peak RAM: {peak_ram_mb} MB.")
         duration[node_count] = elapsed_time
+        _optimal = None
         approx_ratio = None
         approx_ratio_010101 = None
         # BUG illegally classifies single edge line graphs as complete graphs
@@ -374,6 +376,7 @@ if __name__ == "__main__":
             if graph_type == "line":
                 print("Computing line approximation ratio")
                 optimal = return_optimal_line(node_count)
+                _optimal = optimal
                 if optimal is None:
                     print("Missing optimal_results_qaoa.csv; skipping line approximation ratio.")
                 else:
@@ -429,6 +432,7 @@ if __name__ == "__main__":
             'algorithm17_lower_bound_energy': algorithm17_lower_bound_energy / normalisation_factor if lasserre_level == 2 else None,
             'initial_ws_energy_prodStates_step2': initial_energy_prodStates / normalisation_factor,
             'initial_sdp_statevector_energy': initial_sdp_statevector_energy / normalisation_factor,
+            'initial_sdp_statevec_ratio': (initial_sdp_statevector_energy / normalisation_factor) / _optimal if _optimal is not None else None,
             'initial_ws_energy_010101': initial_ws_energy_010101 / normalisation_factor if parameter_settings["compare_with_010101"] else None,
             'QAOA_improvement_over_SDP_statevectorEnergy': results[n] - initial_sdp_statevector_energy if initial_sdp_statevector_energy is not None else None,
             'QAOA_improvement_over_SDP_prodStatesEnergy': results[n] - initial_energy_prodStates if initial_energy_prodStates is not None else None,

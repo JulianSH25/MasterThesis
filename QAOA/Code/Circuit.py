@@ -146,7 +146,7 @@ class QAOACircuit(QuantumCircuit):
                 self.qc.rx(2 * beta, range(self.n))
                 self.qc.rz(2 * beta, range(self.n)) # NOTE experimental
                 self.qc.ry(2 * beta, range(self.n)) # NOTE experimental
-                print(f"Layer {layer}: Added Cost and Mixer unitaries with gamma={gamma} and beta={beta}")
+                print(f"Layer {layer}: Added Cost and Mixer unitaries with gamma={gamma} and beta={beta}") if self.debug else None
                 print(".rz and .ry mixer terms added in addition to classical .rx mixer") # TODO remove print if rz, ry not used!
         elif self.circuit_type == 'hamqaoa':
             for layer in range(self.p):
@@ -201,7 +201,7 @@ class QAOACircuit(QuantumCircuit):
 
                 x = strength * np.pi * (c_ij - 3.0) / 6.0
 
-                print(f"Applying warm start correlation {c_ij} on edge ({i}, {j}) with rotation angle {x:.4f} radians")
+                print(f"Applying warm start correlation {c_ij} on edge ({i}, {j}) with rotation angle {x:.4f} radians") if self.debug else None
 
                 # Applying correlation weighted gates
                 self.qc.rxx(-2*x, i, j)
@@ -472,7 +472,7 @@ class QAOACircuit(QuantumCircuit):
         # Compute and store the initial energy of the warm-start statevector for later comparison [applicable only in modes 'standard' and 'amplified' where this vector is used as initial qc state]
         statevec = Statevector.from_instruction(self.qc)
         self.initial_ws_energy = self.compute_energy_from_statevector(statevec)
-        print(f"Initial state energy for {label}: {self.initial_ws_energy}")
+        print(f"Initial state energy for {label}: {self.initial_ws_energy}") if self.debug else None
 
     def _resolve_warm_start_mode(self) -> str:
         # NOTE Helper method [getter] with validation
@@ -496,6 +496,7 @@ class QAOACircuit(QuantumCircuit):
     def _print_circuit(self, circuit = None, name_addition = "", print_to_log = False) -> None:
         # TODO move and rename
         # NOTE This method is used for logging and debugging purposes to visualize the quantum circuit. It can print the circuit to the console and/or save it as an SVG file depending on the configuration 
+        assert self.debug
         try:
             circuit = circuit if circuit is not None else self.qc
             #print("Quantum circuit build:")

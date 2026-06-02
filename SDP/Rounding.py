@@ -260,14 +260,14 @@ def round_sdp_with_cholesky(M, parameters: dict, seed = None, debugging: bool = 
             cuts.append(y[0])
         else:
             cuts.append(map_product_state_to_cut(state))
+        if debugging:
+            print(f"r_{i}: {r_i}")
+            print(f"Product state qubit {i}: {state}")
 
-        print(f"r_{i}: {r_i}")
-        print(f"Product state qubit {i}: {state}")
+            print(f"Diagonal entries of product state {i}: {np.real(np.diag(state))}")
 
-        print(f"Diagonal entries of product state {i}: {np.real(np.diag(state))}")
-
-    print(f"y_scalar: {y_scalar}")
     if debugging:
+        print(f"y_scalar: {y_scalar}")
         print(f"Overall Product State: {product_state}")
 
     return cuts, states, bloch_vectors
