@@ -203,6 +203,9 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
     if sdp_objective_value is not None or lasserre_level == 2:
         sdp_result = sdp_result or {}
         sdp_result["rounded_solution_energy"] = float(energy)
+        if lasserre_level == 1:
+            sdp_result["actual_energy"] = None
+            sdp_result["lower_bound_energy"] = None
         if sdp_objective_value is not None:
             sdp_result["sdp_objective_value"] = float(sdp_objective_value)
             sdp_result["sdp_objective_value_normalized"] = float(sdp_objective_value)
@@ -215,7 +218,10 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
     print(f"{edge_count} in cut out of a total of {len(edges)} edges")
 
     if sdp_result is not None:
-        SDP_Solver_.GP_rounding_energy = sdp_result["actual_energy"]
+        if "actual_energy" in sdp_result:
+            SDP_Solver_.GP_rounding_energy = sdp_result["actual_energy"]
+        elif "rounded_solution_energy" in sdp_result:
+            SDP_Solver_.GP_rounding_energy = sdp_result["rounded_solution_energy"]
 
     return energy, M_optimal, states, cuts, sdp_result
 
