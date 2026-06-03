@@ -16,10 +16,11 @@ mkdir -p Results/logs
 config_source_file="Code/benchmark_config.json"
 
 run_timestamp=$(date +"%Y%m%d_%H%M%S")
+run_tag="${run_timestamp}_pid$$"
 config_snapshot_dir="Results/config_snapshots"
 mkdir -p "$config_snapshot_dir"
 
-config_file="${config_snapshot_dir}/benchmark_config_${run_timestamp}_$$.json"
+config_file="${config_snapshot_dir}/benchmark_config_${run_tag}.json"
 cp "$config_source_file" "$config_file"
 
 echo "Using benchmark config snapshot: ${config_file}"
@@ -82,7 +83,7 @@ if [[ -z "${python_bin}" ]]; then
 fi
 
 # Shared timestamp for all jobs launched by this script run.
-log_subdir="Results/logs/${optimiser}/${run_timestamp}"
+log_subdir="Results/logs/${optimiser}/${run_tag}"
 mkdir -p "$log_subdir"
 status_subdir="${log_subdir}/status"
 mkdir -p "$status_subdir"
@@ -230,26 +231,6 @@ if [[ "$easiest_first" == "true" ]]; then
 else
     sort -nr "$jobs_file" -o "$jobs_file"
 fi
-
-# Master repeat loop
-for (( repeat_idx=1; repeat_idx<=num_repeats; repeat_idx++ )); do
-    echo ""
-    echo "===================="
-    echo "Repeat run: ${repeat_idx}/${num_repeats}"
-    echo "===================="
-    echo ""
-    
-    # Reset stop_launching flag for each repeat
-    stop_launching=0
-    
-    # Compute derived seed for this repeat (if sdp_seed is configured in config)
-    configured_sdp_seed=$(jq -r '.sdp_seed // empty' "$config_file")
-    derived_sdp_seed=""
-    if [[ -n "$configured_sdp_seed" ]]; then
-        seed_increment_per_repeat=1000000
-        derived_sdp_seed=$(( configured_sdp_seed + (repeat_idx - 1) * seed_increment_per_repeat ))
-        echo "Derived SDP seed for repeat ${repeat_idx}: ${derived_sdp_seed} (base: ${configured_sdp_seed}, increment: ${seed_increment_per_repeat})"
-    fi
 
 # -----------------------------
 # Helper: track launched PIDs directly
@@ -403,6 +384,8 @@ build_run_key() {
             n) value="$n" ;;
             m) value="$m" ;;
             p) value="$p" ;;
+            repeat_idx) value="$repeat_idx" ;;
+            sdp_seed) value="$derived_sdp_seed" ;;
             precision/iterations) value="$iterations" ;;  # IMPORTANT: match whitelist exactly
             parameter_vector) value="$parameter_vector" ;;
             singlet_injection) value="$singlet_injection" ;;
@@ -433,12 +416,31 @@ build_run_key() {
 
 # -----------------------------
 # Launch jobs
+# Repetition order:
+#   one benchmark setting -> all repeats -> next benchmark setting
 # -----------------------------
-    while read -r score iterations p n; do
-        if (( stop_launching )); then
-            echo "Stopping further job launches because the timeout streak limit was reached."
-            break
+while read -r score iterations p n; do
+    if (( stop_launching )); then
+        echo "Stopping further job launches because the timeout streak limit was reached."
+        break
+    fi
+
+    for (( repeat_idx=1; repeat_idx<=num_repeats; repeat_idx++ )); do
+        echo ""
+        echo "===================="
+        echo "Benchmark setting: n=${n}, p=${p}, iterations=${iterations}"
+        echo "Repeat run: ${repeat_idx}/${num_repeats}"
+        echo "===================="
+        echo ""
+
+        configured_sdp_seed=$(jq -r '.sdp_seed // empty' "$config_file")
+        derived_sdp_seed=""
+        if [[ -n "$configured_sdp_seed" ]]; then
+            seed_increment_per_repeat=1000000
+            derived_sdp_seed=$(( configured_sdp_seed + (repeat_idx - 1) * seed_increment_per_repeat ))
+            echo "Derived SDP seed for repeat ${repeat_idx}: ${derived_sdp_seed} (base: ${configured_sdp_seed}, increment: ${seed_increment_per_repeat})"
         fi
+
         while true; do
             maybe_reduce_parallel_cap
             maybe_increase_parallel_cap
@@ -450,85 +452,92 @@ build_run_key() {
 
             timeout_streak=$(current_timeout_streak)
             timeout_streak=${timeout_streak:-0}
-        if (( timeout_streak >= timeout_streak_limit )); then
-            echo "Timeout streak limit reached (${timeout_streak}/${timeout_streak_limit}). Stopping further job launches."
-            stop_launching=1
-            break 2
+
+            if (( timeout_streak >= timeout_streak_limit )); then
+                echo "Timeout streak limit reached (${timeout_streak}/${timeout_streak_limit}). Stopping further job launches."
+                stop_launching=1
+                break 3
+            fi
+
+            echo "Queue check: current_jobs=${current_jobs}, allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_pids=${#running_pids[@]}, free_ram_mb=$(available_ram_mb)"
+
+            if (( current_jobs < ram_limited_parallel )); then
+                break
+            fi
+
+            sleep ${ram_recovery_sample_interval_seconds}
+        done
+
+        run_key=$(build_run_key "$n" "$p" "$iterations")
+
+        if [[ "$rerun_exclude_finished_instances" == "true" ]]; then
+            if [[ -n "${completed_map[$run_key]:-}" ]]; then
+                echo "Skipping already completed job: n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}"
+                continue
+            fi
         fi
 
-        echo "Queue check: current_jobs=${current_jobs}, allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_pids=${#running_pids[@]}, free_ram_mb=$(available_ram_mb)"
-
-        if (( current_jobs < ram_limited_parallel )); then
-            break
+        seed_label="noseed"
+        if [[ -n "${derived_sdp_seed}" ]]; then
+            seed_label="seed${derived_sdp_seed}"
         fi
 
-        sleep ${ram_recovery_sample_interval_seconds}
+        log_file="${log_subdir}/${run_tag}_n${n}_p${p}_it${iterations}_rep${repeat_idx}_${seed_label}.log"
+        status_file="${status_subdir}/${run_tag}_n${n}_p${p}_it${iterations}_rep${repeat_idx}_${seed_label}.status"
+
+        echo "Starting job: n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}, seed=${derived_sdp_seed:-none}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_jobs=$(count_running_jobs)"
+
+        cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} Results/logs/${optimiser}/qaoa_results_${optimiser}_${run_tag}"
+        if (( use_background_mode )); then
+            cmd="taskpolicy -c background ${cmd}"
+        fi
+        if [[ -n "$timeout_cmd" ]]; then
+            cmd="${timeout_cmd} ${cmd}"
+        fi
+
+        nohup zsh -c "
+            export OMP_NUM_THREADS=${blas_threads}
+            export OPENBLAS_NUM_THREADS=${blas_threads}
+            export MKL_NUM_THREADS=${blas_threads}
+            export NUMEXPR_NUM_THREADS=${blas_threads}
+            export BENCHMARK_CONFIG_FILE=\"${config_file}\"
+            export BENCHMARK_REPEAT_IDX=\"${repeat_idx}\"
+            if [[ -n \"${derived_sdp_seed}\" ]]; then
+                export SDP_SEED_OVERRIDE=${derived_sdp_seed}
+            fi
+            nice -n ${nice_value} ${cmd}
+            exit_code=\$?
+            timed_out=0
+            if [[ -n \"${timeout_cmd}\" ]] && (( exit_code == 124 )); then
+                timed_out=1
+            fi
+            {
+                echo \"finished_at=\$(date +'%Y-%m-%d %H:%M:%S')\"
+                echo \"exit_code=\${exit_code}\"
+                echo \"timed_out=\${timed_out}\"
+                echo \"n=${n}\"
+                echo \"p=${p}\"
+                echo \"iterations=${iterations}\"
+                echo \"repeat_idx=${repeat_idx}\"
+                echo \"sdp_seed=${derived_sdp_seed}\"
+            } > \"${status_file}\"
+            exit \${exit_code}
+        " > "${log_file}" 2>&1 &
+
+        launched_pid=$!
+        if [[ -n "${launched_pid:-}" ]] && kill -0 "$launched_pid" 2>/dev/null; then
+            running_pids+=("$launched_pid")
+            echo "Launched PID: ${launched_pid}; current_parallel_cap=${current_parallel_cap}"
+        else
+            echo "Warning: failed to register launched job for n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}. Continuing with remaining jobs."
+            maybe_reduce_parallel_cap
+        fi
     done
-
-    run_key=$(build_run_key "$n" "$p" "$iterations")
-
-    if [[ "$rerun_exclude_finished_instances" == "true" ]]; then
-        if [[ -n "${completed_map[$run_key]:-}" ]]; then
-            echo "Skipping already completed job: n=${n}, p=${p}, iterations=${iterations}"
-            continue
-        fi
-    fi
-
-    log_file="${log_subdir}/${run_timestamp}_n${n}_p${p}_it${iterations}.log"
-
-    echo "Starting job: n=${n}, p=${p}, iterations=${iterations}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_jobs=$(count_running_jobs)"
-
-    status_file="${status_subdir}/${run_timestamp}_n${n}_p${p}_it${iterations}.status"
-    cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} Results/logs/${optimiser}/qaoa_results_${optimiser}_${run_timestamp}"
-    if (( use_background_mode )); then
-        cmd="taskpolicy -c background ${cmd}"
-    fi
-    if [[ -n "$timeout_cmd" ]]; then
-        cmd="${timeout_cmd} ${cmd}"
-    fi
-
-    nohup zsh -c "
-        export OMP_NUM_THREADS=${blas_threads}
-        export OPENBLAS_NUM_THREADS=${blas_threads}
-        export MKL_NUM_THREADS=${blas_threads}
-        export NUMEXPR_NUM_THREADS=${blas_threads}
-        export BENCHMARK_CONFIG_FILE="${config_file}"
-        if [[ -n \"${derived_sdp_seed}\" ]]; then
-            export SDP_SEED_OVERRIDE=${derived_sdp_seed}
-        fi
-        nice -n ${nice_value} ${cmd}
-        exit_code=\$?
-        timed_out=0
-        if [[ -n \"${timeout_cmd}\" ]] && (( exit_code == 124 )); then
-            timed_out=1
-        fi
-        {
-            echo \"finished_at=\$(date +'%Y-%m-%d %H:%M:%S')\"
-            echo \"exit_code=\${exit_code}\"
-            echo \"timed_out=\${timed_out}\"
-            echo \"n=${n}\"
-            echo \"p=${p}\"
-            echo \"iterations=${iterations}\"
-        } > \"${status_file}\"
-        exit \${exit_code}
-    " > "${log_file}" 2>&1 &
-
-    launched_pid=$!
-    if [[ -n "${launched_pid:-}" ]] && kill -0 "$launched_pid" 2>/dev/null; then
-        running_pids+=("$launched_pid")
-        echo "Launched PID: ${launched_pid}; current_parallel_cap=${current_parallel_cap}"
-    else
-        echo "Warning: failed to register launched job for n=${n}, p=${p}, iterations=${iterations}. Continuing with remaining jobs."
-        maybe_reduce_parallel_cap
-    fi
-    done < "$jobs_file"
-
-    echo "Completed jobs for repeat run: ${repeat_idx}/${num_repeats}"
-    echo ""
-done
+done < "$jobs_file"
 
 rm -f "$jobs_file"
 
-echo "All repeat runs submitted (total repeats: ${num_repeats})."
+echo "All jobs submitted. Repeats per setting: ${num_repeats}."
 echo "Benchmark configuration from ${config_file}:"$'\n'"${benchmark_config_dump}"
+echo "Run tag: ${run_tag}"
 echo "Detected chip: ${chip_name:-unknown}; physical_cores: ${physical_cores}; logical_cores: ${logical_cores}; blas_threads: ${blas_threads}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; ram_recovery_samples_required: ${ram_recovery_samples_required}; ram_recovery_sample_interval_seconds: ${ram_recovery_sample_interval_seconds}; timeout_streak_limit: ${timeout_streak_limit}; python_bin: ${python_bin}"
