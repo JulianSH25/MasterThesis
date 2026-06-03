@@ -36,6 +36,12 @@ benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
 debug = benchmark_params.get("debug", False)
 
+benchmark_repeat_idx = os.environ.get("BENCHMARK_REPEAT_IDX")
+benchmark_repeat_idx = int(benchmark_repeat_idx) if benchmark_repeat_idx not in (None, "") else None
+
+sdp_seed_override = os.environ.get("SDP_SEED_OVERRIDE")
+sdp_seed_override = int(sdp_seed_override) if sdp_seed_override not in (None, "") else None
+
 normalisation_factor = benchmark_params["lasserre_level"]
 
 optimiser = benchmark_params["optimiser"].lower()
@@ -237,6 +243,8 @@ if __name__ == "__main__":
     logical_cores = get_logical_cores()
     python_version = platform.python_version()
     print(f"Benchmark run ID: {run_id}")
+    print(f"Benchmark repeat index: {benchmark_repeat_idx}")
+    print(f"SDP seed override: {sdp_seed_override}")
     print(f"Processor: {processor_name}")
     print(f"Hostname: {hostname}")
     print(f"Total RAM (GB): {total_ram_gb}")
@@ -261,7 +269,7 @@ if __name__ == "__main__":
     }
 
     # reproducibility columns (may be large) should be last
-    fieldnames.extend(['hog_graph_index', 'edges', 'weights'])
+    fieldnames.extend(['benchmark_repeat_idx', 'sdp_seed', 'hog_graph_index', 'edges', 'weights'])
 
     # XXX TIME: log time taken for initialisation and parameter loading
     time_sections["initialisation"] = time.time() - time_section
@@ -451,6 +459,8 @@ if __name__ == "__main__":
             'logical_cores': logical_cores,
             'python_version': python_version,
             'peak_ram_mb': peak_ram_mb,
+            'benchmark_repeat_idx': benchmark_repeat_idx,
+            'sdp_seed': sdp_seed_override,
             'hog_graph_index': n if graph_generation_type == "hog" else None
         }
 
