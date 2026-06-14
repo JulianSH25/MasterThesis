@@ -21,6 +21,7 @@ QAOA/benchmark_config.json
 !QAOA/Code/run_configurations/*
 *.lic
 *.csv
+!QAOA/Code/optimal_results/*
 
 # Distribution / packaging
 .Python
