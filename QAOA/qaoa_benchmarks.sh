@@ -68,6 +68,7 @@ if [[ "$rerun_exclude_finished_instances" == "true" && -f "$completed_file" ]]; 
     done < "$completed_file"
 fi
 
+optimiser=$(jq -r '.optimiser' "$config_file")
 if [[ "${optimiser:l}" == "exact" ]]; then
     iterations_list=(0)
     depth_list=(0)
@@ -79,7 +80,7 @@ n_start=$(jq -r '.n_start' "$config_file")
 n_end=$(jq -r '.n_end' "$config_file")
 time_limit_seconds=$(jq -r '.time_limit' "$config_file") # 3 hours
 timeout_streak_limit=$(jq -r '.failed_instance_termination_thrsh' "$config_file")
-optimiser=$(jq -r '.optimiser' "$config_file")
+
 num_repeats=$(jq -r '.num_repeats // 1' "$config_file")
 
 parameter_vector=$(jq -c '.parameter_vector' "$config_file")
