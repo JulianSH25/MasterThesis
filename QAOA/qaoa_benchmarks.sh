@@ -2,6 +2,9 @@
 
 set -u
 
+echo "Launcher PID: $$"
+echo "Started at: $(date +'%Y-%m-%d %H:%M:%S')"
+
 AWK_BIN=$(command -v awk 2>/dev/null || echo /usr/bin/awk)
 if [[ ! -x "$AWK_BIN" ]]; then
     echo "Error: awk is required but was not found in PATH or at /usr/bin/awk."
@@ -65,8 +68,13 @@ if [[ "$rerun_exclude_finished_instances" == "true" && -f "$completed_file" ]]; 
     done < "$completed_file"
 fi
 
-iterations_list=($(jq -r '.iterations_list[]' "$config_file"))
-depth_list=($(jq -r '.depth_list[]' "$config_file"))
+if [[ "${optimiser:l}" == "exact" ]]; then
+    iterations_list=(0)
+    depth_list=(0)
+else
+    iterations_list=($(jq -r '.iterations_list[]' "$config_file"))
+    depth_list=($(jq -r '.depth_list[]' "$config_file"))
+fi
 n_start=$(jq -r '.n_start' "$config_file")
 n_end=$(jq -r '.n_end' "$config_file")
 time_limit_seconds=$(jq -r '.time_limit' "$config_file") # 3 hours
