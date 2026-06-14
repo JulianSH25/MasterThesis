@@ -178,50 +178,149 @@ def classify_graph(edges):
         return "line"
     return None
 
+def canonical_edge_weight_strings(edges: list, weights: list | None) -> tuple[str, str]:
+    """
+    Canonical representation of an undirected weighted graph.
+    Makes matching independent of edge order and endpoint orientation.
+    Example: (0, 1) and (1, 0) become identical.
+    """
+
+    if weights is None:
+        weights = [1.0] * len(edges)
+
+    canonical_items = sorted(
+        (tuple(sorted((int(u), int(v)))), float(w))
+        for (u, v), w in zip(edges, weights)
+    )
+    canonical_edges = [edge for edge, _ in canonical_items]
+    canonical_weights = [weight for _, weight in canonical_items]
+    return str(canonical_edges), str(canonical_weights)
+
 def log_exact_result(energy: float, n: int, m: int, edges: list, weights: list, graph_type: str) -> None:
-    """Log exact solver result to optimal_results_misc.csv with metadata."""
+    """Log exact solver result to optimal_results_misc.csv unless already present."""
     csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+
     fieldnames = ["energy", "n", "m", "edges", "weights", "graph_type"]
+
+    existing_energy = get_exact_result_from_misc(edges, weights, raise_if_missing=False)
+    if existing_energy is not None:
+        print(f"Exact result already logged for this instance; skipping duplicate. Existing energy: {existing_energy}")
+        return
+
+    edges_str, weights_str = canonical_edge_weight_strings(edges, weights)
+
     row = {
         "energy": energy,
         "n": n,
         "m": m,
-        "edges": str(edges),
-        "weights": str(weights),
+        "edges": edges_str,
+        "weights": weights_str,
         "graph_type": graph_type,
     }
-    
+
     write_header = not csv_path.exists() or csv_path.stat().st_size == 0
+
     with csv_path.open("a", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         if write_header:
             writer.writeheader()
         writer.writerow(row)
 
-def get_exact_result_from_misc(edges: list, weights: list) -> float | None:
-    """Look up exact result from optimal_results_misc.csv by matching edges and weights.
-    
-    :param edges: edge list to match
-    :param weights: weight list to match
-    :return: exact energy if found, None otherwise
-    """
+def get_exact_result_from_misc(
+    edges: list,
+    weights: list,
+    raise_if_missing: bool = True
+) -> float | None:
+    """Look up exact result from optimal_results_misc.csv by canonical edges and weights."""
     csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
+
     if not csv_path.exists():
-        raise FileNotFoundError(f"optimal_results_misc.csv not found at {csv_path}")
-    
-    edges_str = str(edges)
-    weights_str = str(weights)
-    
+        if raise_if_missing:
+            raise FileNotFoundError(f"optimal_results_misc.csv not found at {csv_path}")
+        return None
+
+    edges_str, weights_str = canonical_edge_weight_strings(edges, weights)
+
     try:
-        with csv_path.open("r") as csvfile:
+        with csv_path.open("r", newline="") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                if row.get("edges") == edges_str and row.get("weights") == weights_str:
+                row_edges = row.get("edges")
+                row_weights = row.get("weights")
+
+                # Preferred new canonical format.
+                if row_edges == edges_str and row_weights == weights_str:
                     return float(row["energy"])
+
+                # Backward compatibility for old non-canonical rows.
+                try:
+                    old_edges = ast.literal_eval(row_edges)
+                    old_weights = ast.literal_eval(row_weights)
+                    old_edges_str, old_weights_str = canonical_edge_weight_strings(old_edges, old_weights)
+
+                    if old_edges_str == edges_str and old_weights_str == weights_str:
+                        return float(row["energy"])
+                except Exception:
+                    pass
+
     except Exception as e:
         print(f"Error reading optimal_results_misc.csv: {e}")
-    
+
     return None
+
+def deduplicate_exact_results_misc() -> None:
+    """
+    Remove duplicate graph entries from optimal_results_misc.csv in place.
+
+    Keeps the first occurrence of each canonical (edges, weights) pair.
+    Rewrites legacy edge/weight rows into canonical form.
+    """
+    csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
+
+    if not csv_path.exists():
+        print(f"No exact-results file found at {csv_path}; nothing to deduplicate.")
+        return
+
+    fieldnames = ["energy", "n", "m", "edges", "weights", "graph_type"]
+    unique_rows = []
+    seen_keys: set[tuple[str, str]] = set()
+    removed_count = 0
+
+    with csv_path.open("r", newline="") as csvfile:
+        reader = csv.DictReader(csvfile)
+
+        for row in reader:
+            try:
+                parsed_edges = ast.literal_eval(row["edges"])
+                parsed_weights = ast.literal_eval(row["weights"])
+                edges_str, weights_str = canonical_edge_weight_strings(parsed_edges, parsed_weights)
+            except Exception:
+                edges_str = row.get("edges", "")
+                weights_str = row.get("weights", "")
+
+            key = (edges_str, weights_str)
+
+            if key in seen_keys:
+                removed_count += 1
+                continue
+
+            seen_keys.add(key)
+            unique_rows.append({
+                "energy": row.get("energy"),
+                "n": row.get("n"),
+                "m": row.get("m"),
+                "edges": edges_str,
+                "weights": weights_str,
+                "graph_type": row.get("graph_type"),
+            })
+
+    with csv_path.open("w", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(unique_rows)
+
+    print(f"Deduplicated {csv_path}: kept {len(unique_rows)} rows, removed {removed_count} duplicates.")
 
 def read_graphs_as_edge_lists(path: str | None = None) -> list[list[tuple[int, int]]]:
     # Used to decompose "House of Graphs" adjacency lists and format into edge lists
