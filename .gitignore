@@ -17,6 +17,7 @@ QAOA/benchmark_config.json
 *.so
 
 *.txt
+!QAOA/Code/HOG_graphs/*
 *.lic
 *.csv
 
