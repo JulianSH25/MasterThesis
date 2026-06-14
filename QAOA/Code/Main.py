@@ -19,7 +19,7 @@ from Circuit import QAOACircuit
 from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search, optimise_adam, optimise_exact
 from Utils import classify_graph, get_benchmark_params
 from Utils import get_processor_name, get_total_ram_gb, get_physical_cores, get_logical_cores, get_peak_ram_mb
-from Utils import get_exact_result_from_misc
+from Utils import get_exact_result_from_misc, is_triangle_free, is_3_regular
 from WarmStart import get_warm_start_state, extract_correlations
 from InstanceGenerator import instance_generator
 
@@ -279,7 +279,7 @@ if __name__ == "__main__":
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
                        'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'full duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
-                       'python_version', 'peak_ram_mb']
+                       'python_version', 'peak_ram_mb', 'Instance_is_triangle_free', 'Instance_is_3_regular']
 
     # start from base_fieldnames and insert scalar params next; reproducibility columns appended last
     fieldnames = list(base_fieldnames)
@@ -487,7 +487,9 @@ if __name__ == "__main__":
             'peak_ram_mb': peak_ram_mb,
             'benchmark_repeat_idx': benchmark_repeat_idx,
             'sdp_seed': sdp_seed_override,
-            'hog_graph_index': n if graph_generation_type == "hog" else None
+            'hog_graph_index': n if graph_generation_type == "hog" else None,
+            'Instance_is_triangle_free': is_triangle_free(edges),
+            'Instance_is_3_regular': is_3_regular(edges)
         }
 
         # include edges and weights (weights only meaningful when benchmark flagged as weighted)

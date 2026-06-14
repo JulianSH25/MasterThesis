@@ -304,3 +304,58 @@ def get_peak_ram_mb():
     except Exception:
         return None
 
+
+"""The below graph type verification methods are intended for logging purposes only, to assure that the benchmarking instance was indeed of a desired type)"""
+def is_triangle_free(edge_list: list[tuple[int, int]]) -> bool:
+    """
+    Return True iff the undirected graph described by edge_list is triangle-free.
+
+    Self-loops are treated as invalid and therefore return False.
+    Parallel edges are ignored for the triangle check, since they do not create
+    triangles in a simple-graph sense.
+    """
+    adjacency: dict[int, set[int]] = {}
+
+    for u, v in edge_list:
+        if u == v:
+            return False
+        adjacency.setdefault(u, set()).add(v)
+        adjacency.setdefault(v, set()).add(u)
+
+    for u in adjacency:
+        neighbours = list(adjacency[u])
+        for i, v in enumerate(neighbours):
+            for w in neighbours[i + 1:]:
+                if w in adjacency[v]:
+                    return False
+
+    return True
+
+
+def is_3_regular(edge_list: list[tuple[int, int]]) -> bool:
+    """
+    Return True iff the undirected graph described by edge_list is 3-regular.
+
+    The graph is interpreted as a simple undirected graph. Self-loops and
+    parallel edges are treated as invalid and therefore return False.
+    """
+    adjacency: dict[int, set[int]] = {}
+    seen_edges: set[tuple[int, int]] = set()
+
+    for u, v in edge_list:
+        if u == v:
+            return False
+
+        edge = tuple(sorted((u, v)))
+        if edge in seen_edges:
+            return False
+        seen_edges.add(edge)
+
+        adjacency.setdefault(u, set()).add(v)
+        adjacency.setdefault(v, set()).add(u)
+
+    if not adjacency:
+        return False
+
+    return all(len(neighbours) == 3 for neighbours in adjacency.values())
+
