@@ -18,9 +18,9 @@ else:
     from .Lasserre_level_2 import build_pauli_basis_level_2, multiply_pauli_strings, P, PP
 
 if __package__ in (None, ""):
-    from Utilities import idx
+    from Utilities import idx, get_benchmark_params
 else:
-    from .Utilities import idx
+    from .Utilities import idx, get_benchmark_params
 
 Bit = Literal[0, 1]
 
@@ -33,6 +33,7 @@ class SDP_Solver_():
 
     def __init__(self, lasserre_level):
         self.lasserre_level = lasserre_level
+        self.debug = get_benchmark_params().get("debug", False)
 
     def SDP_setup_level_2(self, edges, weights, n_vertices, parameters: tuple, debug: bool = False):
 
@@ -348,8 +349,8 @@ class SDP_Solver_():
             #for s in {product_states[i], product_states[j]}: assert np.isclose(np.trace(s), 1.0, atol=1e-8)
             p = np.kron(product_states[i], product_states[j])
             assert np.isclose(np.trace(p), 1.0, atol=1e-8)
-            print(f"Hamiltonian equals product state? {H_ij == p}")
-            print(f"Hamiltonian: {H_ij}, product state: {p}")
+            print(f"Hamiltonian equals product state? {H_ij == p}") if self.debug else None
+            print(f"Hamiltonian: {H_ij}, product state: {p}") if self.debug else None
             energy += np.trace(H_ij @ p).real
 
         return float(energy)
