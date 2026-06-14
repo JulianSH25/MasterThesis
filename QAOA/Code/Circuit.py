@@ -56,30 +56,31 @@ class QAOACircuit(QuantumCircuit):
         self.params = None
         self.cost_operator: SparsePauliOp | None = None
         benchm_params = get_benchmark_params()
-        self.start_index = benchm_params['start_index_singlet']
-        self.warm_start_flag = bool(benchm_params.get("warm_start", False))
-        self.warm_start_mode = str(benchm_params.get("warm_start_mode", "standard")).lower()
-        self.warm_start_corr_strength = float(benchm_params.get("warm_start_corr_strength", 1.0))
-        self.warm_start_corr_repeats = int(benchm_params.get("warm_start_corr_repeats", 1))
-        self.debug = benchm_params['debug']
-        self.log_qc_svg = benchm_params['save_circuit_svg']
+        self.start_index = benchm_params.get('start_index_singlet')
+        self.warm_start_flag = bool(benchm_params.get("warm_start") or False)
+        self.warm_start_mode = str(benchm_params.get("warm_start_mode") or "standard").lower()
+        self.warm_start_corr_strength = float(benchm_params.get("warm_start_corr_strength") or 1.0)
+        self.warm_start_corr_repeats = int(benchm_params.get("warm_start_corr_repeats") or 1)
+        self.debug = bool(benchm_params.get('debug') or False)
+        self.log_qc_svg = bool(benchm_params.get('save_circuit_svg') or False)
         self.debug_path = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else None
         self.debug_run_counter = 0
         self.debug_previous_result: float | None = None
         self.parameter_log_path: Path | None = None # NOTE for debugging only
         self.initial_ws_energy = None
-        self.lasserre_level = int(benchm_params.get("lasserre_level"))
+        raw_lasserre_level = benchm_params.get("lasserre_level")
+        self.lasserre_level = int(raw_lasserre_level) if raw_lasserre_level is not None else None
 
         print(f"Solving for uuid: {self.uid}")
 
-        circuit_type = get_benchmark_params()['circuit_type']
+        circuit_type = str(benchm_params.get('circuit_type') or '').lower()
         if circuit_type == 'standard':
             self.no_param_types = 2
             self.param_ranges = [(0, 2*pi), (0, pi)]
         elif circuit_type == 'hamqaoa':
             self.no_param_types = 4
             self.param_ranges = [(-pi, pi) for _ in range(self.no_param_types)]
-        elif 'no_param_types' in benchm_params:
+        elif benchm_params.get('no_param_types') is not None:
             self.no_param_types = int(benchm_params['no_param_types'])
 
     """SECTION 1: Circuit Building"""
@@ -120,6 +121,8 @@ class QAOACircuit(QuantumCircuit):
             self.qc.h(range(self.n))
             print("No warm start: Default initial state is equal superposition")
 
+        if self.params is None:
+            self.params = [1, 1, 1]
         a, b, c = self.params
         if self.circuit_type == 'standard':
             print("Building standard QAOA circuit with 2 parameter types (γ and β)")
@@ -171,7 +174,7 @@ class QAOACircuit(QuantumCircuit):
                     self.qc.rz(cut_values[i] * 2*d, i) # Gate 4 of HAMQAOA layer: Z rotation with parameter d and classical warm-start cut value as rotation direction
         else:
             raise ValueError(f"Unsupported circuit type: {self.circuit_type} in build_qaoa_maxcut_circuit()")
-        
+
         if add_measurements:
             self.qc.measure(range(self.n), range(self.n))
 
@@ -182,7 +185,7 @@ class QAOACircuit(QuantumCircuit):
             self._print_circuit(name_addition=f"initial_({self.debug_run_counter})", print_to_log=True)
 
         return self.qc, self.qaoa_parameters
-    
+
     def _apply_warm_start_correlations_with_strength(self, strength: float = 1.0, repeats: int = 1) -> None:
         # NOTE Helper for apply_warm_start()
         """
@@ -193,7 +196,7 @@ class QAOACircuit(QuantumCircuit):
         repeats = max(1, int(repeats))
         for _ in range(repeats):
             for (i, j) in self.edges:
-                c_ij = self.warm_start_correlations[(i, j)] 
+                c_ij = self.warm_start_correlations[(i, j)]
                 c_ij = float(np.clip(c_ij, -3.0, 3.0))
                 """CORE STEP ⤴: the weighting parameter c_ij is the correlation extracted from the SDP solution for edge (i, j), which is then transformed into a rotation angle x for the entangling gates. 
                 The transformation maps the correlation range [-3, 3] to a rotation range of approximately [-pi, pi], with the strength parameter allowing for amplification or attenuation of the correlations as needed."""
@@ -209,14 +212,14 @@ class QAOACircuit(QuantumCircuit):
                 self.qc.rzz(-2*x, i, j)
 
     def apply_warm_start(self) -> None:
-        """This method applies the warm start to the quantum circuit based on the provided initial state and correlations, following the specified warm start mode. 
+        """This method applies the warm start to the quantum circuit based on the provided initial state and correlations, following the specified warm start mode.
         It handles different scenarios for initializing the circuit and applying correlation-based gates, allowing for flexible warm start configurations."""
         warm_mode = self._resolve_warm_start_mode() # Validate and resolve the warm start mode to determine how to apply the warm start to the circuit
         # 'standard' mode uses the initial state directly, 'amplified' mode applies correlation-based gates on top of the initial state, and 'entangled' mode starts from an equal superposition and applies correlation-based gates to induce entanglement.
         corr_strength, corr_repeats = self._resolve_correlation_settings(warm_mode) # Determine the strength and number of repetitions for applying correlation-based gates based on the warm start mode and configuration parameters
 
         ###
-        if self.initial_state is not None and self.self_init_linegraph: # XXX Sanity check 
+        if self.initial_state is not None and self.self_init_linegraph: # XXX Sanity check
             raise ValueError(
                 "Cannot use both an initial statevector and self-initializing line graph (singlets ws) warm start simultaneously"
             )
@@ -275,7 +278,8 @@ class QAOACircuit(QuantumCircuit):
         This operator is reused across all objective evaluations and avoids
         repeated per-edge density-matrix/partial-trace work.
         """
-        assert self.params is not None
+        if self.params is None:
+            self.params = [1, 1, 1]
         assert self.edges is not None
         assert self.weights is not None
 
@@ -334,7 +338,7 @@ class QAOACircuit(QuantumCircuit):
             self.debug_previous_result = total_energy
 
             return result.get_counts(), total_energy
-        
+
     def bind_circuit_parameters(self,parameters: list[np.ndarray]) -> None:
         """
         This method binds numeric values to a parameterized QAOA circuit.
@@ -382,9 +386,9 @@ class QAOACircuit(QuantumCircuit):
 
 
 
-        
+
     """Static methods/helpers that do not require class access:"""
-        
+
     # 1st option to compute energy from two-qubit marginals; this is the more general method that can be used for both statevector and measurement result inputs, as long as the appropriate two-qubit marginals are provided in the form of reduced density matrices for each edge.
     @staticmethod
     def qaoa_compute_energy(product_states, edges, weights=None, params = None, lasserre_level: int | None = None) -> float | Any:
@@ -398,7 +402,8 @@ class QAOACircuit(QuantumCircuit):
         :return: complex energy expectation value for the full edge Hamiltonian
         """
         # H_map = np.zeros((len(edges), len(edges)), dtype=complex)
-        assert params is not None # BUG do not declare None above
+        if params is None:
+            params = [1, 1, 1]
         weights = weights if weights is not None else np.ones(len(edges))
 
         a, b, c = params
