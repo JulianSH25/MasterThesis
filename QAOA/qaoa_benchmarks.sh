@@ -58,7 +58,11 @@ echo "Using benchmark config snapshot: ${config_file}"
 
 rerun_exclude_finished_instances=$(jq -r '.rerun_exclude_finished_instances // false' "$config_file")
 whitelist_file="runkey_whitelist.json"
-whitelist=($(jq -r '.whitelist[]' "$whitelist_file"))
+if [[ -f "$whitelist_file" ]]; then
+    whitelist=($(jq -r '.whitelist[]' "$whitelist_file"))
+else
+    whitelist=(n m p repeat_idx sdp_seed precision/iterations parameter_vector singlet_injection warm_start init_QAOAparams_close_to_zero use_correlations_as_initial_params compare_with_010101 start_index_singlet circuit_type graph_generation_type weighted hog_graph_index)
+fi
 completed_file="completed_runs.txt"
 typeset -A completed_map
 
@@ -84,36 +88,61 @@ timeout_streak_limit=$(jq -r '.failed_instance_termination_thrsh' "$config_file"
 num_repeats=$(jq -r '.num_repeats // 1' "$config_file")
 
 parameter_vector=$(jq -c '.parameter_vector' "$config_file")
-singlet_injection=$(jq -r '.singlet_injection' "$config_file")
-warm_start=$(jq -r '.warm_start' "$config_file")
-warm_start_correlations=$(jq -r '.warm_start_correlations' "$config_file")
-init_QAOAparams_close_to_zero=$(jq -r '.init_QAOAparams_close_to_zero' "$config_file")
-use_correlations_as_initial_params=$(jq -r '.use_correlations_as_initial_params' "$config_file")
-compare_with_010101=$(jq -r '.compare_with_010101' "$config_file")
-start_index_singlet=$(jq -r '.start_index_singlet' "$config_file")
+singlet_injection=$(jq -r '.singlet_injection // false' "$config_file")
+warm_start=$(jq -r '.warm_start // false' "$config_file")
+warm_start_correlations=$(jq -r '.warm_start_correlations // empty' "$config_file")
+init_QAOAparams_close_to_zero=$(jq -r '.init_QAOAparams_close_to_zero // false' "$config_file")
+use_correlations_as_initial_params=$(jq -r '.use_correlations_as_initial_params // false' "$config_file")
+compare_with_010101=$(jq -r '.compare_with_010101 // false' "$config_file")
+start_index_singlet=$(jq -r '.start_index_singlet // empty' "$config_file")
 circuit_type=$(jq -r '.circuit_type // empty' "$config_file")
 graph_generation_type=$(jq -r '.graph_generation_type // empty' "$config_file")
-weighted=$(jq -r '.weighted' "$config_file")
+weighted=$(jq -r '.weighted // false' "$config_file")
 relative_graph_adjList_path=$(jq -r '.relative_graph_adjList_path // empty' "$config_file")
 
-if [[ "${graph_generation_type:l}" == "hog" ]]; then
-    relative_graph_adjList_path=$(jq -r '.relative_graph_adjList_path' "$config_file")
-    hog_graph_path="Code/${relative_graph_adjList_path}"
+# Insert count_hog_graphs function and HOG block here
+count_hog_graphs() {
+    local path="$1"
+    "$AWK_BIN" '
+        BEGIN { count = 0; in_block = 0 }
+        /^[[:space:]]*$/ { in_block = 0; next }
+        {
+            if (!in_block) {
+                count += 1
+                in_block = 1
+            }
+        }
+        END { print count }
+    ' "$path"
+}
 
-    if [[ ! -f "$hog_graph_path" ]]; then
-        echo "HOG graph file not found: $hog_graph_path" >&2
+# If the HOG circuit is selected, n is interpreted as a graph index into the
+# configured adjacency-list file. Determine the valid index range once before
+# constructing the job list.
+if [[ "${graph_generation_type:l}" == "hog" ]]; then
+    if [[ -z "$relative_graph_adjList_path" ]]; then
+        echo "Error: relative_graph_adjList_path must be set for circuit_type=HOG."
         exit 1
     fi
 
-    hog_graph_count=$(grep -cve '^\s*$' "$hog_graph_path")
-    if (( hog_graph_count <= 0 )); then
-        echo "HOG graph file contains no graph instances: $hog_graph_path" >&2
+    hog_graph_path="Code/$relative_graph_adjList_path"
+
+    if [[ ! -f "$hog_graph_path" ]]; then
+        echo "Error: HOG adjacency-list file not found: $hog_graph_path"
+        exit 1
+    fi
+
+    hog_graph_count=$(count_hog_graphs "$hog_graph_path")
+
+    if [[ -z "$hog_graph_count" || "$hog_graph_count" == "0" ]]; then
+        echo "Error: no HOG graphs found in $hog_graph_path."
         exit 1
     fi
 
     n_start=0
     n_end=$((hog_graph_count - 1))
-    echo "Detected HOG benchmark with ${hog_graph_count} graph instances. Using n_start=${n_start}, n_end=${n_end}."
+
+    echo "HOG circuit detected. Using graph indices n=${n_start}..${n_end} from ${hog_graph_path}."
 else
     if [[ -z "$n_start_raw" || -z "$n_end_raw" ]]; then
         echo "n_start and n_end must be set for graph_generation_type=${graph_generation_type}." >&2
@@ -223,49 +252,7 @@ available_ram_mb() {
     echo $(( bytes / 1024 / 1024 ))
 }
 
-count_hog_graphs() {
-    local path="$1"
-    "$AWK_BIN" '
-        BEGIN { count = 0; in_block = 0 }
-        /^[[:space:]]*$/ { in_block = 0; next }
-        {
-            if (!in_block) {
-                count += 1
-                in_block = 1
-            }
-        }
-        END { print count }
-    ' "$path"
-}
 
-# If the HOG circuit is selected, n is interpreted as a graph index into the
-# configured adjacency-list file. Determine the valid index range once before
-# constructing the job list.
-if [[ "${graph_generation_type:l}" == "hog" ]]; then
-    if [[ -z "$relative_graph_adjList_path" ]]; then
-        echo "Error: relative_graph_adjList_path must be set for circuit_type=HOG."
-        exit 1
-    fi
-
-    hog_graph_path="Code/$relative_graph_adjList_path"
-
-    if [[ ! -f "$hog_graph_path" ]]; then
-        echo "Error: HOG adjacency-list file not found: $hog_graph_path"
-        exit 1
-    fi
-
-    hog_graph_count=$(count_hog_graphs "$hog_graph_path")
-
-    if [[ -z "$hog_graph_count" || "$hog_graph_count" == "0" ]]; then
-        echo "Error: no HOG graphs found in $hog_graph_path."
-        exit 1
-    fi
-
-    n_start=0
-    n_end=$((hog_graph_count - 1))
-
-    echo "HOG circuit detected. Using graph indices n=${n_start}..${n_end} from ${hog_graph_path}."
-fi
 
 # -----------------------------
 # Pick timeout command
@@ -488,7 +475,7 @@ build_run_key() {
             key_string+="|"
         fi
         key_string+="${key}=${norm_value}"
-        echo "SH: $key_string"
+
     done
 
     # SHA1 like Python
