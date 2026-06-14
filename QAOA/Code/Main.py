@@ -278,7 +278,7 @@ if __name__ == "__main__":
     for n in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
         time_section = time.time()
         # make graph_generation_type check case-insensitive
-        assert isinstance(parameter_settings.get("graph_generation_type"), str), "graph_generation_type must be a string"
+        assert (isinstance(parameter_settings.get("circuit_type"), str) and parameter_settings.get("circuit_type").lower() == "hog") or isinstance(parameter_settings.get("graph_generation_type"), str), "graph_generation_type must be a string unless circuit_type is HOG"
         graph_generation_type = parameter_settings["graph_generation_type"].lower()
         assert graph_generation_type in ("line", "cycle", "complete", "random", "hog")
 
