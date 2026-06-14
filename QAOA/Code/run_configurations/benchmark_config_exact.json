@@ -42,5 +42,5 @@
   "optimiser_debug_iterations": null,
 
   "num_repeats": 100,
-  "relative_graph_adjList_path": "HOG_graphs/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList.txt"
+  "relative_graph_adjList_path": "HOG_graphs/triangleFree_connected_4to15vertices_829instances_AdjacencyList.txt"
 }
