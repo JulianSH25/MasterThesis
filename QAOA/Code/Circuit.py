@@ -41,7 +41,11 @@ class QAOACircuit(QuantumCircuit):
         self.p = p # Circuit depth; number of layers
         self.edges = edges
         self.weights = weights
-        self.circuit_type = get_benchmark_params()['circuit_type'].lower()
+        benchm_params = get_benchmark_params()
+        raw_circuit_type = str(benchm_params.get('circuit_type') or 'standard').lower()
+        # HOG selects the graph source, not a different circuit ansatz.
+        # The corresponding QAOA circuit is still the standard ansatz.
+        self.circuit_type = 'standard' if raw_circuit_type == 'hog' else raw_circuit_type
         self.no_param_types = None
         self.qaoa_parameters: list[np.ndarray[float]] = [] # e.g. [gammas, betas] -> this implementation enables to have more parameters than just fixed gamma and beta
         self.param_ranges: list[tuple] | tuple | None = None
@@ -55,7 +59,6 @@ class QAOACircuit(QuantumCircuit):
         self.self_init_linegraph = False
         self.params = None
         self.cost_operator: SparsePauliOp | None = None
-        benchm_params = get_benchmark_params()
         self.start_index = benchm_params.get('start_index_singlet')
         self.warm_start_flag = bool(benchm_params.get("warm_start") or False)
         self.warm_start_mode = str(benchm_params.get("warm_start_mode") or "standard").lower()
@@ -73,7 +76,7 @@ class QAOACircuit(QuantumCircuit):
 
         print(f"Solving for uuid: {self.uid}")
 
-        circuit_type = str(benchm_params.get('circuit_type') or '').lower()
+        circuit_type = self.circuit_type
         if circuit_type == 'standard':
             self.no_param_types = 2
             self.param_ranges = [(0, 2*pi), (0, pi)]
