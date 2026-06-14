@@ -8,12 +8,40 @@ if [[ ! -x "$AWK_BIN" ]]; then
     exit 1
 fi
 
+if ! command -v jq >/dev/null 2>&1; then
+    echo "Error: jq is required but was not found in PATH."
+    exit 1
+fi
+
 mkdir -p Results/logs
 
 # -----------------------------
 # Parameter settings
 # -----------------------------
-config_source_file="Code/benchmark_config.json"
+# Usage:
+#   ./qaoa_benchmarks.sh benchmark_config_exact.json
+#   ./qaoa_benchmarks.sh Code/benchmark_config_exact.json
+if (( $# != 1 )); then
+    echo "Usage: $0 <config-file>"
+    echo ""
+    echo "Examples:"
+    echo "  $0 benchmark_config_exact.json"
+    echo "  $0 Code/benchmark_config_exact.json"
+    exit 1
+fi
+
+config_arg="$1"
+
+if [[ "$config_arg" == */* ]]; then
+    config_source_file="$config_arg"
+else
+    config_source_file="Code/$config_arg"
+fi
+
+if [[ ! -f "$config_source_file" ]]; then
+    echo "Error: config file not found: $config_source_file"
+    exit 1
+fi
 
 run_timestamp=$(date +"%Y%m%d_%H%M%S")
 run_tag="${run_timestamp}_pid$$"
@@ -54,7 +82,8 @@ init_QAOAparams_close_to_zero=$(jq -r '.init_QAOAparams_close_to_zero' "$config_
 use_correlations_as_initial_params=$(jq -r '.use_correlations_as_initial_params' "$config_file")
 compare_with_010101=$(jq -r '.compare_with_010101' "$config_file")
 start_index_singlet=$(jq -r '.start_index_singlet' "$config_file")
-graph_generation_type=$(jq -r '.graph_generation_type' "$config_file")
+circuit_type=$(jq -r '.circuit_type // empty' "$config_file")
+graph_generation_type=$(jq -r '.graph_generation_type // empty' "$config_file")
 weighted=$(jq -r '.weighted' "$config_file")
 relative_graph_adjList_path=$(jq -r '.relative_graph_adjList_path // empty' "$config_file")
 
@@ -66,10 +95,6 @@ fi
 
 mkdir -p Results/logs/${optimiser}
 
-if ! command -v jq >/dev/null 2>&1; then
-    echo "Error: jq is required but was not found in PATH."
-    exit 1
-fi
 
 benchmark_config_dump=$(jq -r 'to_entries[] | "  \(.key): \(.value|tojson)"' "$config_file")
 
@@ -176,6 +201,35 @@ count_hog_graphs() {
     ' "$path"
 }
 
+# If the HOG circuit is selected, n is interpreted as a graph index into the
+# configured adjacency-list file. Determine the valid index range once before
+# constructing the job list.
+if [[ "${circuit_type:l}" == "hog" ]]; then
+    if [[ -z "$relative_graph_adjList_path" ]]; then
+        echo "Error: relative_graph_adjList_path must be set for circuit_type=HOG."
+        exit 1
+    fi
+
+    hog_graph_path="Code/$relative_graph_adjList_path"
+
+    if [[ ! -f "$hog_graph_path" ]]; then
+        echo "Error: HOG adjacency-list file not found: $hog_graph_path"
+        exit 1
+    fi
+
+    hog_graph_count=$(count_hog_graphs "$hog_graph_path")
+
+    if [[ -z "$hog_graph_count" || "$hog_graph_count" == "0" ]]; then
+        echo "Error: no HOG graphs found in $hog_graph_path."
+        exit 1
+    fi
+
+    n_start=0
+    n_end=$((hog_graph_count - 1))
+
+    echo "HOG circuit detected. Using graph indices n=${n_start}..${n_end} from ${hog_graph_path}."
+fi
+
 # -----------------------------
 # Pick timeout command
 # -----------------------------
@@ -201,22 +255,6 @@ jobs_file="$(mktemp)"
 
 for iterations in "${iterations_list[@]}"; do
     for p in "${depth_list[@]}"; do
-        if [[ "$graph_generation_type" == "HOG" ]]; then
-            if [[ -z "Code/$relative_graph_adjList_path" ]]; then
-                echo "Error: relative_graph_adjList_path must be set for graph_generation_type=HOG."
-                exit 1
-            fi
-
-            hog_graph_count=$(count_hog_graphs "Code/$relative_graph_adjList_path")
-            if [[ -z "$hog_graph_count" || "$hog_graph_count" == "0" ]]; then
-                echo "Error: no HOG graphs found in Code/$relative_graph_adjList_path."
-                exit 1
-            fi
-
-            n_start=0
-            n_end=$((hog_graph_count - 1))
-        fi
-
         for (( n=n_start; n<=n_end; n++ )); do
             score=$(( n * p * p * iterations ))
             echo "${score} ${iterations} ${p} ${n}" >> "$jobs_file"
@@ -359,11 +397,16 @@ normalize() {
 
 compute_m() {
     local n="$1"
+
+    if [[ "${circuit_type:l}" == "hog" ]]; then
+        echo "n/a"
+        return
+    fi
+
     case "$graph_generation_type" in
         line) echo $((n - 1)) ;;
         cycle) echo "$n" ;;
         complete) echo $((n * (n - 1) / 2)) ;;
-        HOG) echo "n/a" ;;
         *) echo "0" ;;
     esac
 }
@@ -395,6 +438,7 @@ build_run_key() {
             use_correlations_as_initial_params) value="$use_correlations_as_initial_params" ;;
             compare_with_010101) value="$compare_with_010101" ;;
             start_index_singlet) value="$start_index_singlet" ;;
+            circuit_type) value="$circuit_type" ;;
             graph_generation_type) value="$graph_generation_type" ;;
             weighted) value="$weighted" ;;
             hog_graph_index) value="$n" ;;

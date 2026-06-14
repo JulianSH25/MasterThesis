@@ -130,26 +130,32 @@ def build_qaoa_warm_start_state(states: list[np.ndarray]):
     if debug: print(f"Size of normalised warm-start statevector: {return_vec.shape}, norm: {np.linalg.norm(return_vec)}") #XXX
     return return_vec
 
+
+
 def get_benchmark_params() -> dict:
     """
-    This function loads benchmark parameters from JSON.
+    This function loads benchmark parameters from the JSON config snapshot
+    passed by the benchmark shell script via BENCHMARK_CONFIG_FILE.
 
-    :return: benchmark parameter dictionary exactly as stored in JSON
+    :return: benchmark parameter dictionary exactly as stored in JSON,
+             except that sdp_seed may be overridden by SDP_SEED_OVERRIDE
     """
-    config_path = os.environ.get("BENCHMARK_CONFIG_FILE")
+    config_path_env = os.environ.get("BENCHMARK_CONFIG_FILE")
 
-    if config_path is None:
-        config_path = Path(__file__).resolve().parent / "benchmark_config.json"
-    else:
-        config_path = Path(config_path)
+    if not config_path_env:
+        raise RuntimeError(
+            "BENCHMARK_CONFIG_FILE is not set. "
+            "Run Main.py through qaoa_benchmarks.sh with an explicit config file."
+        )
+
+    config_path = Path(config_path_env).expanduser().resolve()
 
     with config_path.open("r", encoding="utf-8") as config_file:
         params = json.load(config_file)
-    
-    # Allow sdp_seed to be overridden via environment variable SDP_SEED_OVERRIDE
+
     if "SDP_SEED_OVERRIDE" in os.environ:
         params["sdp_seed"] = int(os.environ["SDP_SEED_OVERRIDE"])
-    
+
     return params
 
 def classify_graph(edges):
@@ -217,9 +223,11 @@ def get_exact_result_from_misc(edges: list, weights: list) -> float | None:
     
     return None
 
-def read_graphs_as_edge_lists(path: str = get_benchmark_params()["relative_graph_adjList_path"]) -> list[list[tuple[int, int]]]:
+def read_graphs_as_edge_lists(path: str | None = None) -> list[list[tuple[int, int]]]:
     # Used to decompose "House of Graphs" adjacency lists and format into edge lists
     graphs = []
+    if path is None:
+        path = get_benchmark_params()["relative_graph_adjList_path"]
 
     path_obj = Path(path)
     if not path_obj.is_absolute():
