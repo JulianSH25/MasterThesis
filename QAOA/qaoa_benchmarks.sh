@@ -76,8 +76,8 @@ else
     iterations_list=($(jq -r '.iterations_list[]' "$config_file"))
     depth_list=($(jq -r '.depth_list[]' "$config_file"))
 fi
-n_start=$(jq -r '.n_start' "$config_file")
-n_end=$(jq -r '.n_end' "$config_file")
+n_start_raw=$(jq -r '.n_start // empty' "$config_file")
+n_end_raw=$(jq -r '.n_end // empty' "$config_file")
 time_limit_seconds=$(jq -r '.time_limit' "$config_file") # 3 hours
 timeout_streak_limit=$(jq -r '.failed_instance_termination_thrsh' "$config_file")
 
@@ -95,6 +95,34 @@ circuit_type=$(jq -r '.circuit_type // empty' "$config_file")
 graph_generation_type=$(jq -r '.graph_generation_type // empty' "$config_file")
 weighted=$(jq -r '.weighted' "$config_file")
 relative_graph_adjList_path=$(jq -r '.relative_graph_adjList_path // empty' "$config_file")
+
+if [[ "${graph_generation_type:l}" == "hog" ]]; then
+    relative_graph_adjList_path=$(jq -r '.relative_graph_adjList_path' "$config_file")
+    hog_graph_path="Code/${relative_graph_adjList_path}"
+
+    if [[ ! -f "$hog_graph_path" ]]; then
+        echo "HOG graph file not found: $hog_graph_path" >&2
+        exit 1
+    fi
+
+    hog_graph_count=$(grep -cve '^\s*$' "$hog_graph_path")
+    if (( hog_graph_count <= 0 )); then
+        echo "HOG graph file contains no graph instances: $hog_graph_path" >&2
+        exit 1
+    fi
+
+    n_start=0
+    n_end=$((hog_graph_count - 1))
+    echo "Detected HOG benchmark with ${hog_graph_count} graph instances. Using n_start=${n_start}, n_end=${n_end}."
+else
+    if [[ -z "$n_start_raw" || -z "$n_end_raw" ]]; then
+        echo "n_start and n_end must be set for graph_generation_type=${graph_generation_type}." >&2
+        exit 1
+    fi
+
+    n_start="$n_start_raw"
+    n_end="$n_end_raw"
+fi
 
 cpu_util_threshold=$(jq -r '.cpu_util_threshold // 85' "$config_file")
 use_cpu_limit=0
@@ -213,7 +241,7 @@ count_hog_graphs() {
 # If the HOG circuit is selected, n is interpreted as a graph index into the
 # configured adjacency-list file. Determine the valid index range once before
 # constructing the job list.
-if [[ "${circuit_type:l}" == "hog" ]]; then
+if [[ "${graph_generation_type:l}" == "hog" ]]; then
     if [[ -z "$relative_graph_adjList_path" ]]; then
         echo "Error: relative_graph_adjList_path must be set for circuit_type=HOG."
         exit 1
@@ -407,7 +435,7 @@ normalize() {
 compute_m() {
     local n="$1"
 
-    if [[ "${circuit_type:l}" == "hog" ]]; then
+    if [[ "${graph_generation_type:l}" == "hog" ]]; then
         echo "n/a"
         return
     fi
