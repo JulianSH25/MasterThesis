@@ -42,13 +42,34 @@ benchmark_repeat_idx = int(benchmark_repeat_idx) if benchmark_repeat_idx not in 
 sdp_seed_override = os.environ.get("SDP_SEED_OVERRIDE")
 sdp_seed_override = int(sdp_seed_override) if sdp_seed_override not in (None, "") else None
 
-normalisation_factor = benchmark_params["lasserre_level"]
-
 optimiser = benchmark_params["optimiser"].lower()
+normalisation_factor = benchmark_params["lasserre_level"] if optimiser != "exact" else 1
 
 
 def _optimal_results_path(filename: str) -> Path:
     return Path(__file__).resolve().parent / "optimal_results" / filename
+
+
+# --- Utility functions for config handling ---
+def config_bool(params: dict, key: str, default: bool = False) -> bool:
+    value = params.get(key)
+    return default if value is None else bool(value)
+
+
+def is_hog_config(params: dict) -> bool:
+    circuit_type = params.get("circuit_type")
+    return isinstance(circuit_type, str) and circuit_type.lower() == "hog"
+
+
+def resolve_graph_generation_type(params: dict) -> str:
+    if is_hog_config(params):
+        return "hog"
+
+    graph_generation_type = params.get("graph_generation_type")
+    assert isinstance(graph_generation_type, str), "graph_generation_type must be a string unless circuit_type is HOG"
+    graph_generation_type = graph_generation_type.lower()
+    assert graph_generation_type in ("line", "cycle", "complete", "random", "hog")
+    return graph_generation_type
 
 def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_init_linegraph=False, edges=None,
     weights=None, __initial_state__=None, fixed_initial_point=None, return_initial_point=False, graph_generation_type: str = "unknown") -> tuple[float | Literal[0] | None, Any | None, float | None, float | Any | None, float | None] | tuple[float | Literal[0] | None, float | None, float | Any | None, float | None]:
@@ -79,9 +100,9 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
     (initial_state, product_states, classical_cut), moment_matrix, warm_start_result = (get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else ((None, None, None), None, None))
     if __initial_state__ is not None:
         initial_state = __initial_state__
-        if benchmark_params.get("circuit_type", "").lower() == "hamqaoa":
+        if str(benchmark_params.get("circuit_type") or "").lower() == "hamqaoa":
             raise Warning("A custom initial state was provided for a HAMQAOA circuit. The classical cut from the SDP warm start will not be available for this run, and any benchmark results should be interpreted accordingly, especially when comparing against runs that do use the SDP warm start.")
-    
+
     warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
     print(f"warm_start_correlations: {warm_start_correlations}") if debug else None
     assert edges is not None and weights is not None and set_of_nodes is not None and n is not None and p is not None # XXX sanity check
@@ -89,10 +110,9 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
 
     QAOA = QAOACircuit(n=n, p=p, edges=edges, weights=weights) # Create QAOA circuit instance with specified parameters
 
-    benchmark_params: dict = get_benchmark_params()
-    QAOA.params = benchmark_params["parameter_vector"]
-    warm_start_mode = str(benchmark_params.get("warm_start_mode", "standard")).lower()
-    energy_audit = benchmark_params.get("debug", False)
+    QAOA.params = [1, 1, 1] if optimiser == "exact" and benchmark_params.get("parameter_vector") is None else benchmark_params["parameter_vector"]
+    warm_start_mode = str(benchmark_params.get("warm_start_mode") or "standard").lower()
+    energy_audit = config_bool(benchmark_params, "debug")
 
     initial_energy_prodStates = None
     initial_sdp_statevector_energy = None
@@ -130,14 +150,17 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
         print(f"Initial state set to: {initial_state}") if initial_state is not None else print("No initial state provided.")
         print(f"Classical warm start cut set to: {classical_cut}") if classical_cut is not None else print("No classical warm start cut provided.")
 
-    use_correlations = init_initial_state and (warm_start_mode in {"amplified", "entangled"}or bool(benchmark_params.get("use_correlations_as_initial_params", False)))
+    use_correlations = init_initial_state and (
+        warm_start_mode in {"amplified", "entangled"}
+        or config_bool(benchmark_params, "use_correlations_as_initial_params")
+    )
     if warm_start_correlations is not None and use_correlations:
         QAOA.warm_start_correlations = warm_start_correlations # assign circuit parameter: assign warm start correlations which can then be used for warm start initialisation or as initial parameters
     elif use_correlations:
         raise RuntimeError("Warm start correlations are required for warm_start_mode or correlation-based initial params, but none were available.")
 
     print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.") if debug else None
-    
+
     QAOA.self_init_linegraph = self_init_linegraph # assign circuit parameter: whether to use line-graph singlet state preparation
 
     """[1] Construct the QAOA circuit"""
@@ -154,7 +177,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
         BO = BayesianOptimiser()
         minimum_energy = BO.bayesian_optimisation(QAOA=QAOA, N_bayes=N_bayes, no_layers=p)
     elif optimiser == "cobyla":
-        correlations=warm_start_correlations if benchmark_params["use_correlations_as_initial_params"] else None
+        correlations=warm_start_correlations if config_bool(benchmark_params, "use_correlations_as_initial_params") else None
         returned_energy = optimise_cobyla(QAOA=QAOA, no_layers=p, max_iter=N_bayes, correlations=correlations, x0=fixed_initial_point)
         minimum_energy = -returned_energy.fun
         used_initial_point = getattr(returned_energy, "initial_point", None)
@@ -214,13 +237,14 @@ if __name__ == "__main__":
     global_starttime = time.time()
     time_section = time.time()
     time_sections = {}
-    lasserre_level = get_benchmark_params().get("lasserre_level")
+    lasserre_level = benchmark_params.get("lasserre_level")
     print(f"Starting QAOA benchmark with global start time: {global_starttime}")
 
-    # Load benchmark parameters from json
-    parameter_settings = get_benchmark_params()
-    singlet_injection = parameter_settings["singlet_injection"]
-    warm_start = parameter_settings["warm_start"]
+    # Use the already loaded benchmark parameters.
+    parameter_settings = benchmark_params
+    singlet_injection = config_bool(parameter_settings, "singlet_injection")
+    warm_start = config_bool(parameter_settings, "warm_start")
+    compare_with_010101 = config_bool(parameter_settings, "compare_with_010101")
     assert not (singlet_injection and warm_start), "Singlet injection and warm start cannot be used simultaneously, as they both modify the initial state preparation. Please choose one of the two options for a valid benchmark configuration."
     print(f"Benchmark parameters: {parameter_settings}, Running QAOA with equal superposition")
     # Initialise some variables to store results and metadata about the benchmark run.
@@ -229,11 +253,11 @@ if __name__ == "__main__":
     duration = {}
     precision = float(sys.argv[1])
     p = int(sys.argv[2])
-    
+
     # Keep one shared CSV file and append safely across parallel runs.
     debug_csv_path = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else f"qaoa_results_{optimiser}"
     csv_filename = f"{debug_csv_path}.csv"
-    
+
     # Generate unique hash ID for this benchmark run
     run_id = str(uuid.uuid4())[:8]
     processor_name = get_processor_name()
@@ -277,20 +301,17 @@ if __name__ == "__main__":
 
     for n in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
         time_section = time.time()
-        # make graph_generation_type check case-insensitive
-        assert isinstance(parameter_settings.get("graph_generation_type"), str), "graph_generation_type must be a string"
-        graph_generation_type = parameter_settings["graph_generation_type"].lower()
-        assert graph_generation_type in ("line", "cycle", "complete", "random", "hog")
+        graph_generation_type = resolve_graph_generation_type(parameter_settings)
 
         # Determine whether instances are considered weighted in this benchmark
-        weighted_flag = bool(parameter_settings.get("weighted", False))
+        weighted_flag = config_bool(parameter_settings, "weighted")
 
         # Delegate all instance generation (including HOG) to instance_generator
         edges, weights = instance_generator(
             type=graph_generation_type,
             n=n,
             weighted=weighted_flag,
-            random_weights=bool(parameter_settings.get("random_weights", False)),
+            random_weights=config_bool(parameter_settings, "random_weights"),
         )
         m = len(edges)
         node_count = len({i for edge in edges for i in edge})
@@ -303,7 +324,7 @@ if __name__ == "__main__":
         print(f"Running QAOA for n={node_count} nodes, m={len(edges)} edges...; Max iterations: {int(precision)}")
         # XXX Time
         time_section = time.time()
- 
+
         results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy, warm_start_result = main(
             p=p,
             N_bayes=int(precision),
@@ -342,7 +363,8 @@ if __name__ == "__main__":
         print(f"QAOA optimisation for n={n} took {time_sections[f'qaoa_optimisation_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")
 
 
-        if parameter_settings["compare_with_010101"]:
+        initial_ws_energy_010101 = None
+        if compare_with_010101:
             # XXX Time
             time_section = time.time()
 
@@ -365,7 +387,7 @@ if __name__ == "__main__":
             )
             # XXX Time
             time_sections[f"qaoa_optimisation_010101_n_{n}"] = time.time() - time_section
-            print(f"QAOA optimisation for 010101 state at n={n} took {time_sections[f'qaoa_optimisation_010101_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")  
+            print(f"QAOA optimisation for 010101 state at n={n} took {time_sections[f'qaoa_optimisation_010101_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")
 
         elapsed_time = time.time() - start_time
         # XXX Time
@@ -389,28 +411,30 @@ if __name__ == "__main__":
                     print("Missing optimal_results_qaoa.csv; skipping line approximation ratio.")
                 else:
                     approx_ratio = (results[n] / normalisation_factor) / optimal
-                    approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal if parameter_settings["compare_with_010101"] else None
+                    approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal if compare_with_010101 else None
             elif graph_type == "cycle":
                 print("Computing cycle approximation ratio")
                 optimal = return_optimal_cycle(node_count)
+                _optimal = optimal
                 if optimal is None:
                     print("Missing optimal_results_qaoa_circle.csv; skipping cycle approximation ratio.")
                 else:
                     approx_ratio = (results[n] / normalisation_factor) / optimal
-                    approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal if parameter_settings["compare_with_010101"] else None
+                    approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal if compare_with_010101 else None
             elif graph_type == "complete":
                 print("Computing complete graph approximation ratio")
                 optimal = return_optimal_fully_connected(node_count)
+                _optimal = optimal
                 if optimal is None:
                     print("Missing optimal_results_qaoa_complete.csv; skipping complete approximation ratio.")
                 else:
                     approx_ratio = (results[n] / normalisation_factor) / optimal
-                    approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal if parameter_settings["compare_with_010101"] else None
+                    approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal if compare_with_010101 else None
             else:
                 print("Unknown graph type for approximation ratio calculation; checking misc CSV.")
         except Exception as e:
             print(f"Error during approximation ratio calculation: {e}. Checking misc CSV as fallback.")
-        
+
         optimal_result = None
         # Fallback: check misc CSV for matching edges and weights
         if approx_ratio is None:
@@ -420,7 +444,8 @@ if __name__ == "__main__":
             if optimal_from_misc is not None:
                 print(f"Found matching exact result in misc CSV: {optimal_from_misc}")
                 approx_ratio = (results[n] / normalisation_factor) / optimal_from_misc
-                approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal_from_misc if parameter_settings["compare_with_010101"] else None
+                approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal_from_misc if compare_with_010101 else None
+                _optimal = optimal_from_misc
             else:
                 print("No matching result found in misc CSV; skipping approx ratio computation.")
 
@@ -432,24 +457,24 @@ if __name__ == "__main__":
             'precision/iterations': precision,
             'singlet_injection': singlet_injection,
             'warm_start': warm_start,
-            'parameter_vector': str(parameter_settings["parameter_vector"]),
+            'parameter_vector': str(parameter_settings.get("parameter_vector")),
             'optimal_result': optimal_result,
             'sdp_objective_value_step1': sdp_objective_value,
-            'sdp_objective_value_king_normalized_step1': sdp_objective_value_normalized / normalisation_factor,
-            'algorithm17_actual_energy': algorithm17_actual_energy / normalisation_factor if lasserre_level == 2 else None,
-            'algorithm17_lower_bound_energy': algorithm17_lower_bound_energy / normalisation_factor if lasserre_level == 2 else None,
-            'initial_ws_energy_prodStates_step2': initial_energy_prodStates / normalisation_factor,
-            'initial_sdp_statevector_energy': initial_sdp_statevector_energy / normalisation_factor,
-            'initial_sdp_statevec_ratio': (initial_sdp_statevector_energy / normalisation_factor) / _optimal if _optimal is not None else None,
-            'initial_ws_energy_010101': initial_ws_energy_010101 / normalisation_factor if parameter_settings["compare_with_010101"] else None,
+            'sdp_objective_value_king_normalized_step1': sdp_objective_value_normalized / normalisation_factor if sdp_objective_value_normalized is not None else None,
+            'algorithm17_actual_energy': algorithm17_actual_energy / normalisation_factor if lasserre_level == 2 and algorithm17_actual_energy is not None else None,
+            'algorithm17_lower_bound_energy': algorithm17_lower_bound_energy / normalisation_factor if lasserre_level == 2 and algorithm17_lower_bound_energy is not None else None,
+            'initial_ws_energy_prodStates_step2': initial_energy_prodStates / normalisation_factor if initial_energy_prodStates is not None else None,
+            'initial_sdp_statevector_energy': initial_sdp_statevector_energy / normalisation_factor if initial_sdp_statevector_energy is not None else None,
+            'initial_sdp_statevec_ratio': (initial_sdp_statevector_energy / normalisation_factor) / _optimal if _optimal is not None and initial_sdp_statevector_energy is not None else None,
+            'initial_ws_energy_010101': initial_ws_energy_010101 / normalisation_factor if compare_with_010101 and initial_ws_energy_010101 is not None else None,
             'QAOA_improvement_over_SDP_statevectorEnergy': results[n] - initial_sdp_statevector_energy if initial_sdp_statevector_energy is not None else None,
             'QAOA_improvement_over_SDP_prodStatesEnergy': results[n] - initial_energy_prodStates if initial_energy_prodStates is not None else None,
             'result': results[n] / normalisation_factor,
-            'result_010101': results_010101[n] / normalisation_factor if parameter_settings["compare_with_010101"] else None,
+            'result_010101': results_010101[n] / normalisation_factor if compare_with_010101 else None,
             'approx_ratio': approx_ratio,
             'approx_ratio_010101': approx_ratio_010101,
-            'diff. approx. ratio': round(approx_ratio, 6) - round(approx_ratio_010101, 6) if parameter_settings["compare_with_010101"] else None,
-            'sdp ws greater': round(approx_ratio, 6) >= round(approx_ratio_010101, 6) if parameter_settings["compare_with_010101"] else None,
+            'diff. approx. ratio': round(approx_ratio, 6) - round(approx_ratio_010101, 6) if compare_with_010101 and approx_ratio is not None and approx_ratio_010101 is not None else None,
+            'sdp ws greater': round(approx_ratio, 6) >= round(approx_ratio_010101, 6) if compare_with_010101 and approx_ratio is not None and approx_ratio_010101 is not None else None,
             'duration_seconds': elapsed_time,
             'full duration_seconds': time.time() - global_starttime,
             'finished_at': finished_at,
