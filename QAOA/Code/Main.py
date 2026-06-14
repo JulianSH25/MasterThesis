@@ -56,17 +56,9 @@ def config_bool(params: dict, key: str, default: bool = False) -> bool:
     return default if value is None else bool(value)
 
 
-def is_hog_config(params: dict) -> bool:
-    circuit_type = params.get("circuit_type")
-    return isinstance(circuit_type, str) and circuit_type.lower() == "hog"
-
-
 def resolve_graph_generation_type(params: dict) -> str:
-    if is_hog_config(params):
-        return "hog"
-
     graph_generation_type = params.get("graph_generation_type")
-    assert isinstance(graph_generation_type, str), "graph_generation_type must be a string unless circuit_type is HOG"
+    assert isinstance(graph_generation_type, str), "graph_generation_type must be a string"
     graph_generation_type = graph_generation_type.lower()
     assert graph_generation_type in ("line", "cycle", "complete", "random", "hog")
     return graph_generation_type
