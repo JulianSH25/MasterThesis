@@ -23,6 +23,7 @@ from Utils import get_processor_name, get_total_ram_gb, get_physical_cores, get_
 from Utils import get_exact_result_from_misc, is_triangle_free, is_3_regular
 from WarmStart import get_warm_start_state, extract_correlations
 from InstanceGenerator import instance_generator
+from benchmark_utils import _current_graph_index_from_argv, _graph_index_already_failed
 
 if __package__ in (None, ""):
     project_root = Path(__file__).resolve().parents[1]
@@ -190,6 +191,13 @@ def get_or_create_cached_warm_start(edges: list[tuple[int, int]], weights: list[
     global warm_start_cache_stats
 
     cache_path_raw = os.environ.get("WARM_START_CACHE_PATH")
+    current_graph_index = _current_graph_index_from_argv()
+    if _graph_index_already_failed(cache_path_raw, current_graph_index):
+        print(
+            f"Warm-start for graph/index {current_graph_index} was already marked as failed. "
+            "Exiting early before SDP construction/solve."
+        )
+        raise RuntimeError("WARM START GENERATION FAILED EARLIER FOR THIS INSTANCE - ABORTING")
     expected_metadata = _expected_warm_start_metadata(edges, weights, n_vertices)
     warm_start_cache_stats = {
         "cache_path": cache_path_raw,
