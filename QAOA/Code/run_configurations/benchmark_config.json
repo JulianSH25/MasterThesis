@@ -29,7 +29,7 @@
   "use_correlations_as_initial_params": false,
 
   "time_limit": 10800,
-  "failed_instance_termination_thrsh": 10,
+  "failed_instance_termination_thrsh": null,
 
   "graph_generation_type": "hog",
   "weighted": false,
