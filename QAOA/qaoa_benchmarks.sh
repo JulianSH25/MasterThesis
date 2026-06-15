@@ -83,7 +83,17 @@ fi
 n_start_raw=$(jq -r '.n_start // empty' "$config_file")
 n_end_raw=$(jq -r '.n_end // empty' "$config_file")
 time_limit_seconds=$(jq -r '.time_limit' "$config_file") # 3 hours
-timeout_streak_limit=$(jq -r '.failed_instance_termination_thrsh' "$config_file")
+timeout_streak_limit_raw=$(jq -r '.failed_instance_termination_thrsh // empty' "$config_file")
+timeout_streak_limit_enabled=1
+if [[ -z "$timeout_streak_limit_raw" || "$timeout_streak_limit_raw" == "null" ]]; then
+    timeout_streak_limit_enabled=0
+    timeout_streak_limit=0
+else
+    timeout_streak_limit="$timeout_streak_limit_raw"
+    if (( timeout_streak_limit <= 0 )); then
+        timeout_streak_limit_enabled=0
+    fi
+fi
 
 num_repeats=$(jq -r '.num_repeats // 1' "$config_file")
 
@@ -566,7 +576,7 @@ while read -r score n; do
                     timeout_streak=$(current_timeout_streak)
                     timeout_streak=${timeout_streak:-0}
 
-                    if (( timeout_streak >= timeout_streak_limit )); then
+                    if (( timeout_streak_limit_enabled && timeout_streak >= timeout_streak_limit )); then
                         echo "Timeout streak limit reached (${timeout_streak}/${timeout_streak_limit}). Stopping further job launches."
                         stop_launching=1
                         break 3
@@ -690,4 +700,4 @@ rm -f "$jobs_file"
 echo "All jobs finished/submitted. Repeats per instance: ${num_repeats}."
 echo "Benchmark configuration from ${config_file}:"$'\n'"${benchmark_config_dump}"
 echo "Run tag: ${run_tag}"
-echo "Detected chip: ${chip_name:-unknown}; physical_cores: ${physical_cores}; logical_cores: ${logical_cores}; blas_threads: ${blas_threads}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; ram_recovery_samples_required: ${ram_recovery_samples_required}; ram_recovery_sample_interval_seconds: ${ram_recovery_sample_interval_seconds}; timeout_streak_limit: ${timeout_streak_limit}; python_bin: ${python_bin}"
+echo "Detected chip: ${chip_name:-unknown}; physical_cores: ${physical_cores}; logical_cores: ${logical_cores}; blas_threads: ${blas_threads}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; ram_recovery_samples_required: ${ram_recovery_samples_required}; ram_recovery_sample_interval_seconds: ${ram_recovery_sample_interval_seconds}; timeout_streak_limit: ${timeout_streak_limit}; timeout_streak_limit_enabled: ${timeout_streak_limit_enabled}; python_bin: ${python_bin}"
