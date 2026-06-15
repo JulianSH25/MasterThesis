@@ -227,7 +227,8 @@ def get_or_create_cached_warm_start(edges: list[tuple[int, int]], weights: list[
                 "error": repr(exc),
             })
             failed_path.write_text(json.dumps(failed_payload, indent=2), encoding="utf-8")
-        print(f"Warm-start generation failed: {exc}")
+            print(f"Warm-start failure metadata written to: {failed_path}")
+        print(f"Warm-start generation failed during Python execution: {exc!r}")
         raise
 
     compute_time_seconds = time.time() - compute_start

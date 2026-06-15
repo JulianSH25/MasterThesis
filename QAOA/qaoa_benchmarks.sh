@@ -192,6 +192,103 @@ mkdir -p "$status_subdir"
 warm_start_cache_subdir="${log_subdir}/warm_start_cache"
 mkdir -p "$warm_start_cache_subdir"
 
+failed_subdir="${log_subdir}/failed_warm_starts"
+mkdir -p "$failed_subdir"
+failed_warm_start_csv="${failed_subdir}/failed_warm_starts_${run_tag}.csv"
+failed_warm_start_adjlist="${failed_subdir}/failed_warm_starts_${run_tag}.adjlist"
+
+if [[ ! -f "$failed_warm_start_csv" ]]; then
+    echo "run_tag,failed_at,n,p,iterations,repeat_idx,sdp_seed,exit_code,reason,warm_start_cache_path,log_file,status_file,graph_generation_type,adjacency_list_file" > "$failed_warm_start_csv"
+fi
+
+typeset -A failed_adjlist_written=()
+csv_escape() {
+    local value="$1"
+    value=${value//\"/\"\"}
+    echo "\"${value}\""
+}
+
+append_hog_graph_block_to_failed_adjlist() {
+    local graph_index="$1"
+    local graph_key="hog_${graph_index}"
+
+    if [[ -n "${failed_adjlist_written[$graph_key]:-}" ]]; then
+        return
+    fi
+
+    if [[ "${graph_generation_type:l}" != "hog" ]]; then
+        return
+    fi
+
+    if [[ -z "${hog_graph_path:-}" || ! -f "$hog_graph_path" ]]; then
+        return
+    fi
+
+    "$AWK_BIN" -v target="$graph_index" '
+        BEGIN { count = -1; in_block = 0; printed = 0 }
+        /^[[:space:]]*$/ {
+            if (in_block && count == target) {
+                print ""
+                printed = 1
+                exit
+            }
+            in_block = 0
+            next
+        }
+        {
+            if (!in_block) {
+                count += 1
+                in_block = 1
+            }
+            if (count == target) {
+                print $0
+            }
+        }
+        END {
+            if (in_block && count == target && !printed) {
+                print ""
+            }
+        }
+    ' "$hog_graph_path" >> "$failed_warm_start_adjlist"
+
+    failed_adjlist_written[$graph_key]=1
+}
+
+log_failed_warm_start() {
+    local n_value="$1"
+    local p_value="$2"
+    local iterations_value="$3"
+    local repeat_idx_value="$4"
+    local sdp_seed_value="$5"
+    local exit_code_value="$6"
+    local reason_value="$7"
+    local warm_start_cache_path_value="$8"
+    local log_file_value="$9"
+    local status_file_value="${10}"
+
+    local failed_at
+    failed_at=$(date +'%Y-%m-%d %H:%M:%S')
+
+    {
+        csv_escape "$run_tag"; printf ","
+        csv_escape "$failed_at"; printf ","
+        csv_escape "$n_value"; printf ","
+        csv_escape "$p_value"; printf ","
+        csv_escape "$iterations_value"; printf ","
+        csv_escape "$repeat_idx_value"; printf ","
+        csv_escape "$sdp_seed_value"; printf ","
+        csv_escape "$exit_code_value"; printf ","
+        csv_escape "$reason_value"; printf ","
+        csv_escape "$warm_start_cache_path_value"; printf ","
+        csv_escape "$log_file_value"; printf ","
+        csv_escape "$status_file_value"; printf ","
+        csv_escape "$graph_generation_type"; printf ","
+        csv_escape "$failed_warm_start_adjlist"; printf "\n"
+    } >> "$failed_warm_start_csv"
+
+    append_hog_graph_block_to_failed_adjlist "$n_value"
+}
+
 echo "Benchmark configuration from ${config_file}:"
 echo "${benchmark_config_dump}"
 
@@ -671,11 +768,13 @@ while read -r score n; do
 
                 if (( job_exit_code == 42 )); then
                     warm_start_failed=1
+                    log_failed_warm_start "$n" "$p" "$iterations" "$repeat_idx" "${derived_sdp_seed:-}" "$job_exit_code" "python_warm_start_generation_failed" "$warm_start_cache_path" "$log_file" "$status_file"
                     echo "Warm-start generation failed for n=${n}, repeat=${repeat_idx}, seed=${derived_sdp_seed:-none}. Skipping remaining p/iteration settings for this graph+seed."
                 elif (( job_exit_code != 0 )); then
                     echo "Job exited with non-zero code ${job_exit_code} for n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}."
                     if [[ -n "${warm_start_cache_path}" && ! -f "${warm_start_cache_path}" ]]; then
                         warm_start_failed=1
+                        log_failed_warm_start "$n" "$p" "$iterations" "$repeat_idx" "${derived_sdp_seed:-}" "$job_exit_code" "warm_start_cache_missing_after_nonzero_exit" "$warm_start_cache_path" "$log_file" "$status_file"
                         echo "Warm-start cache was not created. Treating this as warm-start failure and skipping remaining p/iteration settings for this graph+seed."
                     else
                         echo "Continuing with remaining jobs."
@@ -700,4 +799,6 @@ rm -f "$jobs_file"
 echo "All jobs finished/submitted. Repeats per instance: ${num_repeats}."
 echo "Benchmark configuration from ${config_file}:"$'\n'"${benchmark_config_dump}"
 echo "Run tag: ${run_tag}"
+echo "Failed warm-start CSV: ${failed_warm_start_csv}"
+echo "Failed warm-start adjacency-list retry file: ${failed_warm_start_adjlist}"
 echo "Detected chip: ${chip_name:-unknown}; physical_cores: ${physical_cores}; logical_cores: ${logical_cores}; blas_threads: ${blas_threads}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; ram_recovery_samples_required: ${ram_recovery_samples_required}; ram_recovery_sample_interval_seconds: ${ram_recovery_sample_interval_seconds}; timeout_streak_limit: ${timeout_streak_limit}; timeout_streak_limit_enabled: ${timeout_streak_limit_enabled}; python_bin: ${python_bin}"
