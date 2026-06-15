@@ -10,6 +10,7 @@ from datetime import datetime
 import numpy as np
 import sys
 from pathlib import Path
+import json
 import pandas as pan
 from numpy.f2py.auxfuncs import throw_error
 from qiskit.quantum_info import Statevector
@@ -31,6 +32,15 @@ if __package__ in (None, ""):
 
 precision = None
 last_sdp_objective_value = None
+
+warm_start_cache_stats: dict[str, Any] = {
+    "cache_path": None,
+    "cache_used": False,
+    "compute_time_seconds": None,
+    "load_time_seconds": 0.0,
+    "save_time_seconds": 0.0,
+    "effective_time_seconds": None,
+}
 
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
@@ -63,6 +73,188 @@ def resolve_graph_generation_type(params: dict) -> str:
     assert graph_generation_type in ("line", "cycle", "complete", "random", "hog")
     return graph_generation_type
 
+
+# --- Warm start cache helpers ---
+def _normalise_edges_for_hash(edges: list[tuple[int, int]], weights: list[float]) -> list[tuple[int, int, float]]:
+    normalised = []
+    for (i, j), weight in zip(edges, weights):
+        a, b = sorted((int(i), int(j)))
+        normalised.append((a, b, float(weight)))
+    return sorted(normalised)
+
+
+def _graph_hash(edges: list[tuple[int, int]], weights: list[float]) -> str:
+    payload = json.dumps(_normalise_edges_for_hash(edges, weights), sort_keys=True)
+    import hashlib
+    return hashlib.sha1(payload.encode("utf-8")).hexdigest()[:16]
+
+
+def _expected_warm_start_metadata(edges: list[tuple[int, int]], weights: list[float], n_vertices: int) -> dict[str, Any]:
+    return {
+        "graph_hash": _graph_hash(edges, weights),
+        "n_vertices": int(n_vertices),
+        "n_edges": int(len(edges)),
+        "sdp_seed": sdp_seed_override,
+        "lasserre_level": benchmark_params.get("lasserre_level"),
+        "initial_solver_level_M": benchmark_params.get("initial_solver_level_M"),
+        "warm_start_mode": str(benchmark_params.get("warm_start_mode") or "standard").lower(),
+    }
+
+
+def _metadata_matches(found: dict[str, Any], expected: dict[str, Any]) -> bool:
+    for key, expected_value in expected.items():
+        if found.get(key) != expected_value:
+            return False
+    return True
+
+
+# --- JSON sanitisation and warm start mode helpers ---
+def _json_sanitise(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {str(key): _json_sanitise(val) for key, val in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_sanitise(val) for val in value]
+    if isinstance(value, np.ndarray):
+        return _json_sanitise(value.tolist())
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, complex):
+        return {"real": value.real, "imag": value.imag}
+    return value
+
+
+def _warm_start_mode_needs_moment_matrix() -> bool:
+    warm_start_mode = str(benchmark_params.get("warm_start_mode") or "standard").lower()
+    return (
+        warm_start_mode in {"amplified", "entangled"}
+        or config_bool(benchmark_params, "use_correlations_as_initial_params")
+    )
+
+
+def _save_warm_start_cache(
+    cache_path: Path,
+    metadata: dict[str, Any],
+    initial_state: Any,
+    product_states: Any,
+    classical_cut: Any,
+    moment_matrix: Any,
+    warm_start_result: Any,
+    compute_time_seconds: float,
+    store_moment_matrix: bool,
+) -> float:
+    save_start = time.time()
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = cache_path.with_name(cache_path.name + ".tmp")
+    payload_metadata = dict(metadata)
+    payload_metadata["warm_start_compute_time_seconds"] = float(compute_time_seconds)
+    payload_metadata["created_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    with open(tmp_path, "wb") as file:
+        np.savez(
+            file,
+            metadata=json.dumps(payload_metadata),
+            initial_state=np.asarray(initial_state, dtype=complex) if initial_state is not None else np.array([], dtype=complex),
+            has_initial_state=np.array(initial_state is not None),
+            product_states=np.asarray(product_states, dtype=complex) if product_states is not None else np.array([], dtype=complex),
+            has_product_states=np.array(product_states is not None),
+            classical_cut=np.asarray(classical_cut) if classical_cut is not None else np.array([]),
+            has_classical_cut=np.array(classical_cut is not None),
+            moment_matrix=np.asarray(moment_matrix) if store_moment_matrix and moment_matrix is not None else np.array([]),
+            has_moment_matrix=np.array(store_moment_matrix and moment_matrix is not None),
+            warm_start_result_json=json.dumps(_json_sanitise(warm_start_result or {})),
+        )
+    tmp_path.replace(cache_path)
+    return time.time() - save_start
+
+
+def _load_warm_start_cache(cache_path: Path, expected_metadata: dict[str, Any]):
+    load_start = time.time()
+    with np.load(cache_path, allow_pickle=False) as data:
+        metadata = json.loads(str(data["metadata"]))
+        if not _metadata_matches(metadata, expected_metadata):
+            raise ValueError(
+                f"Warm-start cache metadata mismatch for {cache_path}. "
+                f"Expected {expected_metadata}, found {metadata}."
+            )
+        initial_state = data["initial_state"] if bool(data["has_initial_state"]) else None
+        product_states = data["product_states"] if bool(data["has_product_states"]) else None
+        classical_cut = data["classical_cut"] if bool(data["has_classical_cut"]) else None
+        moment_matrix = data["moment_matrix"] if bool(data["has_moment_matrix"]) else None
+        warm_start_result = json.loads(str(data["warm_start_result_json"]))
+        compute_time_seconds = metadata.get("warm_start_compute_time_seconds")
+    load_time_seconds = time.time() - load_start
+    return (initial_state, product_states, classical_cut), moment_matrix, warm_start_result, compute_time_seconds, load_time_seconds
+
+
+def get_or_create_cached_warm_start(edges: list[tuple[int, int]], weights: list[float], n_vertices: int):
+    global warm_start_cache_stats
+
+    cache_path_raw = os.environ.get("WARM_START_CACHE_PATH")
+    expected_metadata = _expected_warm_start_metadata(edges, weights, n_vertices)
+    warm_start_cache_stats = {
+        "cache_path": cache_path_raw,
+        "cache_used": False,
+        "compute_time_seconds": None,
+        "load_time_seconds": 0.0,
+        "save_time_seconds": 0.0,
+        "effective_time_seconds": None,
+    }
+
+    if cache_path_raw:
+        cache_path = Path(cache_path_raw)
+        if cache_path.exists():
+            print(f"Warm-start cache: loading {cache_path}")
+            warm_start_data, moment_matrix, warm_start_result, compute_time_seconds, load_time_seconds = _load_warm_start_cache(cache_path, expected_metadata)
+            warm_start_cache_stats.update({
+                "cache_used": True,
+                "compute_time_seconds": compute_time_seconds,
+                "load_time_seconds": load_time_seconds,
+                "effective_time_seconds": compute_time_seconds,
+            })
+            print(f"Warm-start cache: loaded in {load_time_seconds:.4f} seconds; effective compute time={compute_time_seconds}")
+            return warm_start_data, moment_matrix, warm_start_result
+
+    compute_start = time.time()
+    try:
+        warm_start_data, moment_matrix, warm_start_result = get_warm_start_state((edges, weights), n_vertices)
+    except Exception as exc:
+        if cache_path_raw:
+            failed_path = Path(cache_path_raw + ".failed")
+            failed_path.parent.mkdir(parents=True, exist_ok=True)
+            failed_payload = dict(expected_metadata)
+            failed_payload.update({
+                "failed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "error": repr(exc),
+            })
+            failed_path.write_text(json.dumps(failed_payload, indent=2), encoding="utf-8")
+        print(f"Warm-start generation failed: {exc}")
+        raise
+
+    compute_time_seconds = time.time() - compute_start
+    warm_start_cache_stats.update({
+        "cache_used": False,
+        "compute_time_seconds": compute_time_seconds,
+        "effective_time_seconds": compute_time_seconds,
+    })
+
+    if cache_path_raw:
+        cache_path = Path(cache_path_raw)
+        save_time_seconds = _save_warm_start_cache(
+            cache_path=cache_path,
+            metadata=expected_metadata,
+            initial_state=warm_start_data[0],
+            product_states=warm_start_data[1],
+            classical_cut=warm_start_data[2],
+            moment_matrix=moment_matrix,
+            warm_start_result=warm_start_result,
+            compute_time_seconds=compute_time_seconds,
+            store_moment_matrix=_warm_start_mode_needs_moment_matrix(),
+        )
+        warm_start_cache_stats["save_time_seconds"] = save_time_seconds
+        print(f"Warm-start cache: saved {cache_path} in {save_time_seconds:.4f} seconds")
+
+    return warm_start_data, moment_matrix, warm_start_result
+
 def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_init_linegraph=False, edges=None,
     weights=None, __initial_state__=None, fixed_initial_point=None, return_initial_point=False, graph_generation_type: str = "unknown") -> tuple[float | Literal[0] | None, Any | None, float | None, float | Any | None, float | None] | tuple[float | Literal[0] | None, float | None, float | Any | None, float | None]:
     global last_sdp_objective_value
@@ -89,13 +281,25 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
 
     assert not (init_initial_state and __initial_state__), "Cannot provide both init_initial_state=True and a custom __initial_state__. Please choose one of the two options for a valid benchmark configuration."
 
-    (initial_state, product_states, classical_cut), moment_matrix, warm_start_result = (get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else ((None, None, None), None, None))
+    try:
+        (initial_state, product_states, classical_cut), moment_matrix, warm_start_result = (
+            get_or_create_cached_warm_start(edges, weights, n)
+            if init_initial_state and not __initial_state__
+            else ((None, None, None), None, None)
+        )
+    except Exception:
+        raise RuntimeError("WARM_START_GENERATION_FAILED")
     if __initial_state__ is not None:
         initial_state = __initial_state__
         if str(benchmark_params.get("circuit_type") or "").lower() == "hamqaoa":
             raise Warning("A custom initial state was provided for a HAMQAOA circuit. The classical cut from the SDP warm start will not be available for this run, and any benchmark results should be interpreted accordingly, especially when comparing against runs that do use the SDP warm start.")
 
     warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
+    if warm_start_correlations is None and _warm_start_mode_needs_moment_matrix():
+        raise RuntimeError(
+            "Warm-start correlations are required for this configuration, but the cached warm start did not contain a moment matrix. "
+            "Delete the cache and rerun, or use warm_start_mode='standard'."
+        )
     print(f"warm_start_correlations: {warm_start_correlations}") if debug else None
     assert edges is not None and weights is not None and set_of_nodes is not None and n is not None and p is not None # XXX sanity check
     print(f"Edges: {edges}, weights: {weights}, set of nodes: {set_of_nodes}, n: {n} nodes, p: {p} layers, N_bayes: {N_bayes} iterations")
@@ -269,7 +473,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'full duration_seconds', 'finished_at',
+                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'duration_seconds_excluding_warm_start_cache_io', 'warm_start_cache_used', 'warm_start_compute_time_seconds', 'warm_start_load_time_seconds', 'warm_start_save_time_seconds', 'warm_start_effective_time_seconds', 'warm_start_cache_path', 'full duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb', 'Instance_is_triangle_free', 'Instance_is_3_regular']
 
@@ -317,16 +521,22 @@ if __name__ == "__main__":
         # XXX Time
         time_section = time.time()
 
-        results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy, warm_start_result = main(
-            p=p,
-            N_bayes=int(precision),
-            self_init_linegraph=singlet_injection,
-            init_initial_state=warm_start,
-            edges=edges,
-            weights=weights,
-            return_initial_point=True,
-            graph_generation_type=graph_generation_type
-        )
+        try:
+            results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy, warm_start_result = main(
+                p=p,
+                N_bayes=int(precision),
+                self_init_linegraph=singlet_injection,
+                init_initial_state=warm_start,
+                edges=edges,
+                weights=weights,
+                return_initial_point=True,
+                graph_generation_type=graph_generation_type
+            )
+        except RuntimeError as exc:
+            if str(exc) == "WARM_START_GENERATION_FAILED":
+                print("Warm-start generation failed; exiting with code 42 so the launcher can skip dependent depth/iteration settings.")
+                sys.exit(42)
+            raise
         sdp_objective_value = (
             warm_start_result.get("sdp_objective_value")
             if warm_start_result is not None
@@ -382,6 +592,15 @@ if __name__ == "__main__":
             print(f"QAOA optimisation for 010101 state at n={n} took {time_sections[f'qaoa_optimisation_010101_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")
 
         elapsed_time = time.time() - start_time
+        warm_start_load_time = float(warm_start_cache_stats.get("load_time_seconds") or 0.0)
+        warm_start_save_time = float(warm_start_cache_stats.get("save_time_seconds") or 0.0)
+        warm_start_effective_time = warm_start_cache_stats.get("effective_time_seconds")
+        qaoa_optimisation_time = time_sections.get(f"qaoa_optimisation_n_{n}", elapsed_time)
+        duration_seconds_excluding_warm_start_cache_io = elapsed_time - warm_start_load_time - warm_start_save_time
+        if warm_start_cache_stats.get("cache_used") and warm_start_effective_time is not None:
+            duration_seconds_excluding_warm_start_cache_io = (
+                qaoa_optimisation_time - warm_start_load_time + float(warm_start_effective_time)
+            )
         # XXX Time
         time_section = time.time()
 
@@ -468,6 +687,13 @@ if __name__ == "__main__":
             'diff. approx. ratio': round(approx_ratio, 6) - round(approx_ratio_010101, 6) if compare_with_010101 and approx_ratio is not None and approx_ratio_010101 is not None else None,
             'sdp ws greater': round(approx_ratio, 6) >= round(approx_ratio_010101, 6) if compare_with_010101 and approx_ratio is not None and approx_ratio_010101 is not None else None,
             'duration_seconds': elapsed_time,
+            'duration_seconds_excluding_warm_start_cache_io': duration_seconds_excluding_warm_start_cache_io,
+            'warm_start_cache_used': bool(warm_start_cache_stats.get("cache_used")),
+            'warm_start_compute_time_seconds': warm_start_cache_stats.get("compute_time_seconds"),
+            'warm_start_load_time_seconds': warm_start_cache_stats.get("load_time_seconds"),
+            'warm_start_save_time_seconds': warm_start_cache_stats.get("save_time_seconds"),
+            'warm_start_effective_time_seconds': warm_start_cache_stats.get("effective_time_seconds"),
+            'warm_start_cache_path': warm_start_cache_stats.get("cache_path"),
             'full duration_seconds': time.time() - global_starttime,
             'finished_at': finished_at,
             'processor': processor_name,

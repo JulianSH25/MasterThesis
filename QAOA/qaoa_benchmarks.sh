@@ -179,6 +179,9 @@ mkdir -p "$log_subdir"
 status_subdir="${log_subdir}/status"
 mkdir -p "$status_subdir"
 
+warm_start_cache_subdir="${log_subdir}/warm_start_cache"
+mkdir -p "$warm_start_cache_subdir"
+
 echo "Benchmark configuration from ${config_file}:"
 echo "${benchmark_config_dump}"
 
@@ -271,19 +274,20 @@ if (( time_limit_seconds > 0 )); then
 fi
 
 # -----------------------------
-# Build and sort jobs
+# Build and sort instance jobs
 # Columns:
-# score iterations p m
+# score n
+#
+# Warm starts are reusable across depth/iteration settings for the same
+# graph instance and SDP seed. Therefore the launcher groups execution by
+# instance -> repeat/seed -> p/iterations instead of launching one fully
+# independent job per p first.
 # -----------------------------
 jobs_file="$(mktemp)"
 
-for iterations in "${iterations_list[@]}"; do
-    for p in "${depth_list[@]}"; do
-        for (( n=n_start; n<=n_end; n++ )); do
-            score=$(( n * p * p * iterations ))
-            echo "${score} ${iterations} ${p} ${n}" >> "$jobs_file"
-        done
-    done
+for (( n=n_start; n<=n_end; n++ )); do
+    score=$(( n + 1 ))
+    echo "${score} ${n}" >> "$jobs_file"
 done
 
 easiest_first=$(jq -r '.easiest_first // false' "$config_file")
@@ -293,6 +297,25 @@ if [[ "$easiest_first" == "true" ]]; then
 else
     sort -nr "$jobs_file" -o "$jobs_file"
 fi
+build_warm_start_cache_path() {
+    local n="$1"
+    local repeat_idx_value="$2"
+    local sdp_seed_value="$3"
+
+    local seed_label="noseed"
+    if [[ -n "$sdp_seed_value" ]]; then
+        seed_label="seed${sdp_seed_value}"
+    fi
+
+    local mode
+    local level
+    local initial_m
+    mode=$(jq -r '.warm_start_mode // "standard"' "$config_file")
+    level=$(jq -r '.lasserre_level // "NA"' "$config_file")
+    initial_m=$(jq -r '.initial_solver_level_M // "NA"' "$config_file")
+
+    echo "${warm_start_cache_subdir}/${run_tag}_n${n}_rep${repeat_idx_value}_${seed_label}_L${level}_M${initial_m}_${mode}.npz"
+}
 
 # -----------------------------
 # Helper: track launched PIDs directly
@@ -485,22 +508,16 @@ build_run_key() {
 # -----------------------------
 # Launch jobs
 # Repetition order:
-#   one benchmark setting -> all repeats -> next benchmark setting
+#   one graph instance -> one repeat/seed -> all p/iteration settings sharing
+#   the same temporary warm-start cache -> next repeat/seed.
 # -----------------------------
-while read -r score iterations p n; do
+while read -r score n; do
     if (( stop_launching )); then
         echo "Stopping further job launches because the timeout streak limit was reached."
         break
     fi
 
     for (( repeat_idx=1; repeat_idx<=num_repeats; repeat_idx++ )); do
-        echo ""
-        echo "===================="
-        echo "Benchmark setting: n=${n}, p=${p}, iterations=${iterations}"
-        echo "Repeat run: ${repeat_idx}/${num_repeats}"
-        echo "===================="
-        echo ""
-
         configured_sdp_seed=$(jq -r '.sdp_seed // empty' "$config_file")
         derived_sdp_seed=""
         if [[ -n "$configured_sdp_seed" ]]; then
@@ -509,40 +526,11 @@ while read -r score iterations p n; do
             echo "Derived SDP seed for repeat ${repeat_idx}: ${derived_sdp_seed} (base: ${configured_sdp_seed}, increment: ${seed_increment_per_repeat})"
         fi
 
-        while true; do
-            maybe_reduce_parallel_cap
-            maybe_increase_parallel_cap
-            ram_limited_parallel=$(allowed_parallel_jobs)
-            ram_limited_parallel=${ram_limited_parallel:-0}
-
-            current_jobs=$(count_running_jobs)
-            current_jobs=${current_jobs:-0}
-
-            timeout_streak=$(current_timeout_streak)
-            timeout_streak=${timeout_streak:-0}
-
-            if (( timeout_streak >= timeout_streak_limit )); then
-                echo "Timeout streak limit reached (${timeout_streak}/${timeout_streak_limit}). Stopping further job launches."
-                stop_launching=1
-                break 3
-            fi
-
-            echo "Queue check: current_jobs=${current_jobs}, allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_pids=${#running_pids[@]}, free_ram_mb=$(available_ram_mb)"
-
-            if (( current_jobs < ram_limited_parallel )); then
-                break
-            fi
-
-            sleep ${ram_recovery_sample_interval_seconds}
-        done
-
-        run_key=$(build_run_key "$n" "$p" "$iterations")
-
-        if [[ "$rerun_exclude_finished_instances" == "true" ]]; then
-            if [[ -n "${completed_map[$run_key]:-}" ]]; then
-                echo "Skipping already completed job: n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}"
-                continue
-            fi
+        warm_start_cache_path=""
+        if [[ "${warm_start:l}" == "true" ]]; then
+            warm_start_cache_path=$(build_warm_start_cache_path "$n" "$repeat_idx" "$derived_sdp_seed")
+            rm -f "$warm_start_cache_path" "${warm_start_cache_path}.tmp" "${warm_start_cache_path}.failed"
+            echo "Warm-start cache for n=${n}, repeat=${repeat_idx}, seed=${derived_sdp_seed:-none}: ${warm_start_cache_path}"
         fi
 
         seed_label="noseed"
@@ -550,62 +538,156 @@ while read -r score iterations p n; do
             seed_label="seed${derived_sdp_seed}"
         fi
 
-        log_file="${log_subdir}/${run_tag}_n${n}_p${p}_it${iterations}_rep${repeat_idx}_${seed_label}.log"
-        status_file="${status_subdir}/${run_tag}_n${n}_p${p}_it${iterations}_rep${repeat_idx}_${seed_label}.status"
+        warm_start_failed=0
 
-        echo "Starting job: n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}, seed=${derived_sdp_seed:-none}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_jobs=$(count_running_jobs)"
+        for iterations in "${iterations_list[@]}"; do
+            for p in "${depth_list[@]}"; do
+                if (( warm_start_failed )); then
+                    echo "Skipping n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx} because warm-start generation failed for this graph+seed."
+                    continue
+                fi
 
-        cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} Results/logs/${optimiser}/qaoa_results_${optimiser}_${run_tag}"
-        if (( use_background_mode )); then
-            cmd="taskpolicy -c background ${cmd}"
+                echo ""
+                echo "===================="
+                echo "Benchmark setting: n=${n}, p=${p}, iterations=${iterations}"
+                echo "Repeat run: ${repeat_idx}/${num_repeats}"
+                echo "===================="
+                echo ""
+
+                while true; do
+                    maybe_reduce_parallel_cap
+                    maybe_increase_parallel_cap
+                    ram_limited_parallel=$(allowed_parallel_jobs)
+                    ram_limited_parallel=${ram_limited_parallel:-0}
+
+                    current_jobs=$(count_running_jobs)
+                    current_jobs=${current_jobs:-0}
+
+                    timeout_streak=$(current_timeout_streak)
+                    timeout_streak=${timeout_streak:-0}
+
+                    if (( timeout_streak >= timeout_streak_limit )); then
+                        echo "Timeout streak limit reached (${timeout_streak}/${timeout_streak_limit}). Stopping further job launches."
+                        stop_launching=1
+                        break 3
+                    fi
+
+                    echo "Queue check: current_jobs=${current_jobs}, allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_pids=${#running_pids[@]}, free_ram_mb=$(available_ram_mb)"
+
+                    if (( current_jobs < ram_limited_parallel )); then
+                        break
+                    fi
+
+                    sleep ${ram_recovery_sample_interval_seconds}
+                done
+
+                run_key=$(build_run_key "$n" "$p" "$iterations")
+
+                if [[ "$rerun_exclude_finished_instances" == "true" ]]; then
+                    if [[ -n "${completed_map[$run_key]:-}" ]]; then
+                        echo "Skipping already completed job: n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}"
+                        continue
+                    fi
+                fi
+
+                log_file="${log_subdir}/${run_tag}_n${n}_p${p}_it${iterations}_rep${repeat_idx}_${seed_label}.log"
+                status_file="${status_subdir}/${run_tag}_n${n}_p${p}_it${iterations}_rep${repeat_idx}_${seed_label}.status"
+
+                echo "Starting job: n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}, seed=${derived_sdp_seed:-none}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_jobs=$(count_running_jobs)"
+
+                cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} Results/logs/${optimiser}/qaoa_results_${optimiser}_${run_tag}"
+                if (( use_background_mode )); then
+                    cmd="taskpolicy -c background ${cmd}"
+                fi
+                if [[ -n "$timeout_cmd" ]]; then
+                    cmd="${timeout_cmd} ${cmd}"
+                fi
+
+                nohup zsh -c "
+                    export OMP_NUM_THREADS=${blas_threads}
+                    export OPENBLAS_NUM_THREADS=${blas_threads}
+                    export MKL_NUM_THREADS=${blas_threads}
+                    export NUMEXPR_NUM_THREADS=${blas_threads}
+                    export BENCHMARK_CONFIG_FILE=\"${config_file}\"
+                    export BENCHMARK_REPEAT_IDX=\"${repeat_idx}\"
+                    if [[ -n \"${derived_sdp_seed}\" ]]; then
+                        export SDP_SEED_OVERRIDE=${derived_sdp_seed}
+                    fi
+                    if [[ -n \"${warm_start_cache_path}\" ]]; then
+                        export WARM_START_CACHE_PATH=\"${warm_start_cache_path}\"
+                    fi
+                    nice -n ${nice_value} ${cmd}
+                    exit_code=\$?
+                    timed_out=0
+                    warm_start_failed=0
+                    if [[ -n \"${timeout_cmd}\" ]] && (( exit_code == 124 )); then
+                        timed_out=1
+                    fi
+                    if (( exit_code == 42 )); then
+                        warm_start_failed=1
+                    fi
+                    {
+                        echo \"finished_at=\$(date +'%Y-%m-%d %H:%M:%S')\"
+                        echo \"exit_code=\${exit_code}\"
+                        echo \"timed_out=\${timed_out}\"
+                        echo \"warm_start_failed=\${warm_start_failed}\"
+                        echo \"n=${n}\"
+                        echo \"p=${p}\"
+                        echo \"iterations=${iterations}\"
+                        echo \"repeat_idx=${repeat_idx}\"
+                        echo \"sdp_seed=${derived_sdp_seed}\"
+                        echo \"warm_start_cache_path=${warm_start_cache_path}\"
+                    } > \"${status_file}\"
+                    exit \${exit_code}
+                " > "${log_file}" 2>&1 &
+
+                launched_pid=$!
+                if [[ -n "${launched_pid:-}" ]] && kill -0 "$launched_pid" 2>/dev/null; then
+                    running_pids+=("$launched_pid")
+                    echo "Launched PID: ${launched_pid}; current_parallel_cap=${current_parallel_cap}"
+                else
+                    echo "Warning: failed to register launched job for n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}. Continuing with remaining jobs."
+                    maybe_reduce_parallel_cap
+                    continue
+                fi
+
+                # With warm-start cache reuse, dependent p/iteration runs for a graph+seed
+                # must be sequential. Wait for the launched job before proceeding so the
+                # cache is fully created before the next p reads it and so it is not deleted
+                # while a child process still needs it.
+                wait "$launched_pid"
+                job_exit_code=$?
+                refresh_running_pids
+
+                if (( job_exit_code == 42 )); then
+                    warm_start_failed=1
+                    echo "Warm-start generation failed for n=${n}, repeat=${repeat_idx}, seed=${derived_sdp_seed:-none}. Skipping remaining p/iteration settings for this graph+seed."
+                elif (( job_exit_code != 0 )); then
+                    echo "Job exited with non-zero code ${job_exit_code} for n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}."
+                    if [[ -n "${warm_start_cache_path}" && ! -f "${warm_start_cache_path}" ]]; then
+                        warm_start_failed=1
+                        echo "Warm-start cache was not created. Treating this as warm-start failure and skipping remaining p/iteration settings for this graph+seed."
+                    else
+                        echo "Continuing with remaining jobs."
+                    fi
+                fi
+            done
+        done
+
+        if [[ -n "${warm_start_cache_path}" ]]; then
+            rm -f "$warm_start_cache_path" "${warm_start_cache_path}.tmp"
+            echo "Deleted warm-start cache for n=${n}, repeat=${repeat_idx}, seed=${derived_sdp_seed:-none}: ${warm_start_cache_path}"
         fi
-        if [[ -n "$timeout_cmd" ]]; then
-            cmd="${timeout_cmd} ${cmd}"
-        fi
 
-        nohup zsh -c "
-            export OMP_NUM_THREADS=${blas_threads}
-            export OPENBLAS_NUM_THREADS=${blas_threads}
-            export MKL_NUM_THREADS=${blas_threads}
-            export NUMEXPR_NUM_THREADS=${blas_threads}
-            export BENCHMARK_CONFIG_FILE=\"${config_file}\"
-            export BENCHMARK_REPEAT_IDX=\"${repeat_idx}\"
-            if [[ -n \"${derived_sdp_seed}\" ]]; then
-                export SDP_SEED_OVERRIDE=${derived_sdp_seed}
-            fi
-            nice -n ${nice_value} ${cmd}
-            exit_code=\$?
-            timed_out=0
-            if [[ -n \"${timeout_cmd}\" ]] && (( exit_code == 124 )); then
-                timed_out=1
-            fi
-            {
-                echo \"finished_at=\$(date +'%Y-%m-%d %H:%M:%S')\"
-                echo \"exit_code=\${exit_code}\"
-                echo \"timed_out=\${timed_out}\"
-                echo \"n=${n}\"
-                echo \"p=${p}\"
-                echo \"iterations=${iterations}\"
-                echo \"repeat_idx=${repeat_idx}\"
-                echo \"sdp_seed=${derived_sdp_seed}\"
-            } > \"${status_file}\"
-            exit \${exit_code}
-        " > "${log_file}" 2>&1 &
-
-        launched_pid=$!
-        if [[ -n "${launched_pid:-}" ]] && kill -0 "$launched_pid" 2>/dev/null; then
-            running_pids+=("$launched_pid")
-            echo "Launched PID: ${launched_pid}; current_parallel_cap=${current_parallel_cap}"
-        else
-            echo "Warning: failed to register launched job for n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}. Continuing with remaining jobs."
-            maybe_reduce_parallel_cap
+        if (( stop_launching )); then
+            break
         fi
     done
 done < "$jobs_file"
 
 rm -f "$jobs_file"
 
-echo "All jobs submitted. Repeats per setting: ${num_repeats}."
+echo "All jobs finished/submitted. Repeats per instance: ${num_repeats}."
 echo "Benchmark configuration from ${config_file}:"$'\n'"${benchmark_config_dump}"
 echo "Run tag: ${run_tag}"
 echo "Detected chip: ${chip_name:-unknown}; physical_cores: ${physical_cores}; logical_cores: ${logical_cores}; blas_threads: ${blas_threads}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; ram_recovery_samples_required: ${ram_recovery_samples_required}; ram_recovery_sample_interval_seconds: ${ram_recovery_sample_interval_seconds}; timeout_streak_limit: ${timeout_streak_limit}; python_bin: ${python_bin}"
