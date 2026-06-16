@@ -1,3 +1,6 @@
+from pathlib import Path
+import sys
+
 def _failed_graph_index_file_from_cache_path(cache_path_raw: str | None) -> Path | None:
     if not cache_path_raw:
         return None
