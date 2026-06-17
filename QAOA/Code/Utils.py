@@ -7,6 +7,7 @@ import os
 import resource
 import random
 from collections import Counter
+import csv
 
 def set_random_params(p: int, range: tuple[float, float], seed: int | None = None, init_close_to_zero: bool = False):
     """
@@ -100,12 +101,18 @@ def build_qaoa_warm_start_state(states: list[np.ndarray]):
     """
     This function builds a global warm-start statevector from local density matrices.
 
-    :param states: list of local density matrices as returned from the SDP solver, one for each edge in the graph; each state is a 4x4 numpy array representing the two-qubit density matrix for the corresponding edge
+    :param states: list of local density matrices as returned from the SDP solver, one for each edge in the graph; each state is a 2x2 numpy array, representing the respective vertex
     :return: normalised global warm-start statevector
     """
     statevec = np.array([1.0 + 0.0j])
+    if debug := get_benchmark_params().get("debug", False): #XXX
+        print("Building warm-start statevector from local density matrices:")
+        print(f"Number of local states (edges): {len(states)}")
+        print(f"Dimensionality of each local state: {states[0].shape if states else 'N/A'}")
 
     for state in states:
+        if debug: #XXX
+            print(f"Dimensionality of local state: {state.shape}")
         ew, ev = np.linalg.eigh(state)
         idx = np.argmax(ew) # maximum eigenvalue index
         max_ew = float(ew[idx]) # maximum eigenvalue, used to find out how pure the state is
@@ -113,18 +120,43 @@ def build_qaoa_warm_start_state(states: list[np.ndarray]):
 
         if max_ew < 1 - 1e-10: raise ValueError("State is not pure enough for unique ket extraction; maximum Eigenvalue is " + str(max_ew))
         statevec = np.kron(statevec, x)
+    
+    if debug: #XXX
+        print(f"Unnormalised warm-start statevector: {statevec}")
+        print(f"Norm of unnormalised statevector: {np.linalg.norm(statevec)}")
+        print("Finished building warm-start statevector.")
 
-    return statevec / np.linalg.norm(statevec)
+    return_vec = statevec / np.linalg.norm(statevec)
+    if debug: print(f"Size of normalised warm-start statevector: {return_vec.shape}, norm: {np.linalg.norm(return_vec)}") #XXX
+    return return_vec
+
+
 
 def get_benchmark_params() -> dict:
     """
-    This function loads benchmark parameters from JSON.
+    This function loads benchmark parameters from the JSON config snapshot
+    passed by the benchmark shell script via BENCHMARK_CONFIG_FILE.
 
-    :return: benchmark parameter dictionary exactly as stored in JSON
+    :return: benchmark parameter dictionary exactly as stored in JSON,
+             except that sdp_seed may be overridden by SDP_SEED_OVERRIDE
     """
-    config_path = Path(__file__).resolve().parent / "benchmark_config.json"
+    config_path_env = os.environ.get("BENCHMARK_CONFIG_FILE")
+
+    if not config_path_env:
+        raise RuntimeError(
+            "BENCHMARK_CONFIG_FILE is not set. "
+            "Run Main.py through qaoa_benchmarks.sh with an explicit config file."
+        )
+
+    config_path = Path(config_path_env).expanduser().resolve()
+
     with config_path.open("r", encoding="utf-8") as config_file:
-        return json.load(config_file)
+        params = json.load(config_file)
+
+    if "SDP_SEED_OVERRIDE" in os.environ:
+        params["sdp_seed"] = int(os.environ["SDP_SEED_OVERRIDE"])
+
+    return params
 
 def classify_graph(edges):
     verts = {u for e in edges for u in e}
@@ -138,7 +170,7 @@ def classify_graph(edges):
 
     d = list(deg.values())
 
-    if m == n * (n - 1) // 2:
+    if m == n * (n - 1) // 2 and n != 2:
         return "complete"
     if n >= 3 and all(x == 2 for x in d):
         return "cycle"
@@ -146,9 +178,155 @@ def classify_graph(edges):
         return "line"
     return None
 
-def read_graphs_as_edge_lists(path: str = get_benchmark_params()["relative_graph_adjList_path"]) -> list[list[tuple[int, int]]]:
+def canonical_edge_weight_strings(edges: list, weights: list | None) -> tuple[str, str]:
+    """
+    Canonical representation of an undirected weighted graph.
+    Makes matching independent of edge order and endpoint orientation.
+    Example: (0, 1) and (1, 0) become identical.
+    """
+
+    if weights is None:
+        weights = [1.0] * len(edges)
+
+    canonical_items = sorted(
+        (tuple(sorted((int(u), int(v)))), float(w))
+        for (u, v), w in zip(edges, weights)
+    )
+    canonical_edges = [edge for edge, _ in canonical_items]
+    canonical_weights = [weight for _, weight in canonical_items]
+    return str(canonical_edges), str(canonical_weights)
+
+def log_exact_result(energy: float, n: int, m: int, edges: list, weights: list, graph_type: str) -> None:
+    """Log exact solver result to optimal_results_misc.csv unless already present."""
+    csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+
+    fieldnames = ["energy", "n", "m", "edges", "weights", "graph_type"]
+
+    existing_energy = get_exact_result_from_misc(edges, weights, raise_if_missing=False)
+    if existing_energy is not None:
+        print(f"Exact result already logged for this instance; skipping duplicate. Existing energy: {existing_energy}")
+        return
+
+    edges_str, weights_str = canonical_edge_weight_strings(edges, weights)
+
+    row = {
+        "energy": energy,
+        "n": n,
+        "m": m,
+        "edges": edges_str,
+        "weights": weights_str,
+        "graph_type": graph_type,
+    }
+
+    write_header = not csv_path.exists() or csv_path.stat().st_size == 0
+
+    with csv_path.open("a", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        if write_header:
+            writer.writeheader()
+        writer.writerow(row)
+
+def get_exact_result_from_misc(
+    edges: list,
+    weights: list,
+    raise_if_missing: bool = True
+) -> float | None:
+    """Look up exact result from optimal_results_misc.csv by canonical edges and weights."""
+    csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
+
+    if not csv_path.exists():
+        if raise_if_missing:
+            raise FileNotFoundError(f"optimal_results_misc.csv not found at {csv_path}")
+        return None
+
+    edges_str, weights_str = canonical_edge_weight_strings(edges, weights)
+
+    try:
+        with csv_path.open("r", newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                row_edges = row.get("edges")
+                row_weights = row.get("weights")
+
+                # Preferred new canonical format.
+                if row_edges == edges_str and row_weights == weights_str:
+                    return float(row["energy"])
+
+                # Backward compatibility for old non-canonical rows.
+                try:
+                    old_edges = ast.literal_eval(row_edges)
+                    old_weights = ast.literal_eval(row_weights)
+                    old_edges_str, old_weights_str = canonical_edge_weight_strings(old_edges, old_weights)
+
+                    if old_edges_str == edges_str and old_weights_str == weights_str:
+                        return float(row["energy"])
+                except Exception:
+                    pass
+
+    except Exception as e:
+        print(f"Error reading optimal_results_misc.csv: {e}")
+
+    return None
+
+def deduplicate_exact_results_misc() -> None:
+    """
+    Remove duplicate graph entries from optimal_results_misc.csv in place.
+
+    Keeps the first occurrence of each canonical (edges, weights) pair.
+    Rewrites legacy edge/weight rows into canonical form.
+    """
+    csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
+
+    if not csv_path.exists():
+        print(f"No exact-results file found at {csv_path}; nothing to deduplicate.")
+        return
+
+    fieldnames = ["energy", "n", "m", "edges", "weights", "graph_type"]
+    unique_rows = []
+    seen_keys: set[tuple[str, str]] = set()
+    removed_count = 0
+
+    with csv_path.open("r", newline="") as csvfile:
+        reader = csv.DictReader(csvfile)
+
+        for row in reader:
+            try:
+                parsed_edges = ast.literal_eval(row["edges"])
+                parsed_weights = ast.literal_eval(row["weights"])
+                edges_str, weights_str = canonical_edge_weight_strings(parsed_edges, parsed_weights)
+            except Exception:
+                edges_str = row.get("edges", "")
+                weights_str = row.get("weights", "")
+
+            key = (edges_str, weights_str)
+
+            if key in seen_keys:
+                removed_count += 1
+                continue
+
+            seen_keys.add(key)
+            unique_rows.append({
+                "energy": row.get("energy"),
+                "n": row.get("n"),
+                "m": row.get("m"),
+                "edges": edges_str,
+                "weights": weights_str,
+                "graph_type": row.get("graph_type"),
+            })
+
+    with csv_path.open("w", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(unique_rows)
+
+    print(f"Deduplicated {csv_path}: kept {len(unique_rows)} rows, removed {removed_count} duplicates.")
+
+def read_graphs_as_edge_lists(path: str | None = None) -> list[list[tuple[int, int]]]:
     # Used to decompose "House of Graphs" adjacency lists and format into edge lists
     graphs = []
+    if path is None:
+        path = get_benchmark_params()["relative_graph_adjList_path"]
 
     path_obj = Path(path)
     if not path_obj.is_absolute():
@@ -224,4 +402,59 @@ def get_peak_ram_mb():
         return round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 ** 2), 2)
     except Exception:
         return None
+
+
+"""The below graph type verification methods are intended for logging purposes only, to assure that the benchmarking instance was indeed of a desired type)"""
+def is_triangle_free(edge_list: list[tuple[int, int]]) -> bool:
+    """
+    Return True iff the undirected graph described by edge_list is triangle-free.
+
+    Self-loops are treated as invalid and therefore return False.
+    Parallel edges are ignored for the triangle check, since they do not create
+    triangles in a simple-graph sense.
+    """
+    adjacency: dict[int, set[int]] = {}
+
+    for u, v in edge_list:
+        if u == v:
+            return False
+        adjacency.setdefault(u, set()).add(v)
+        adjacency.setdefault(v, set()).add(u)
+
+    for u in adjacency:
+        neighbours = list(adjacency[u])
+        for i, v in enumerate(neighbours):
+            for w in neighbours[i + 1:]:
+                if w in adjacency[v]:
+                    return False
+
+    return True
+
+
+def is_3_regular(edge_list: list[tuple[int, int]]) -> bool:
+    """
+    Return True iff the undirected graph described by edge_list is 3-regular.
+
+    The graph is interpreted as a simple undirected graph. Self-loops and
+    parallel edges are treated as invalid and therefore return False.
+    """
+    adjacency: dict[int, set[int]] = {}
+    seen_edges: set[tuple[int, int]] = set()
+
+    for u, v in edge_list:
+        if u == v:
+            return False
+
+        edge = tuple(sorted((u, v)))
+        if edge in seen_edges:
+            return False
+        seen_edges.add(edge)
+
+        adjacency.setdefault(u, set()).add(v)
+        adjacency.setdefault(v, set()).add(u)
+
+    if not adjacency:
+        return False
+
+    return all(len(neighbours) == 3 for neighbours in adjacency.values())
 

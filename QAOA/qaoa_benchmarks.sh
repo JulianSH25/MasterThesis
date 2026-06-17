@@ -2,9 +2,17 @@
 
 set -u
 
+echo "Launcher PID: $$"
+echo "Started at: $(date +'%Y-%m-%d %H:%M:%S')"
+
 AWK_BIN=$(command -v awk 2>/dev/null || echo /usr/bin/awk)
 if [[ ! -x "$AWK_BIN" ]]; then
     echo "Error: awk is required but was not found in PATH or at /usr/bin/awk."
+    exit 1
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo "Error: jq is required but was not found in PATH."
     exit 1
 fi
 
@@ -13,11 +21,48 @@ mkdir -p Results/logs
 # -----------------------------
 # Parameter settings
 # -----------------------------
-config_file="Code/benchmark_config.json"
+# Usage:
+#   ./qaoa_benchmarks.sh benchmark_config_exact.json
+#   ./qaoa_benchmarks.sh Code/benchmark_config_exact.json
+if (( $# != 1 )); then
+    echo "Usage: $0 <config-file>"
+    echo ""
+    echo "Examples:"
+    echo "  $0 benchmark_config_exact.json"
+    echo "  $0 Code/benchmark_config_exact.json"
+    exit 1
+fi
+
+config_arg="$1"
+
+if [[ "$config_arg" == */* ]]; then
+    config_source_file="$config_arg"
+else
+    config_source_file="Code/$config_arg"
+fi
+
+if [[ ! -f "$config_source_file" ]]; then
+    echo "Error: config file not found: $config_source_file"
+    exit 1
+fi
+
+run_timestamp=$(date +"%Y%m%d_%H%M%S")
+run_tag="${run_timestamp}_pid$$"
+config_snapshot_dir="Results/config_snapshots"
+mkdir -p "$config_snapshot_dir"
+
+config_file="${config_snapshot_dir}/benchmark_config_${run_tag}.json"
+cp "$config_source_file" "$config_file"
+
+echo "Using benchmark config snapshot: ${config_file}"
 
 rerun_exclude_finished_instances=$(jq -r '.rerun_exclude_finished_instances // false' "$config_file")
 whitelist_file="runkey_whitelist.json"
-whitelist=($(jq -r '.whitelist[]' "$whitelist_file"))
+if [[ -f "$whitelist_file" ]]; then
+    whitelist=($(jq -r '.whitelist[]' "$whitelist_file"))
+else
+    whitelist=(n m p repeat_idx sdp_seed precision/iterations parameter_vector singlet_injection warm_start init_QAOAparams_close_to_zero use_correlations_as_initial_params compare_with_010101 start_index_singlet circuit_type graph_generation_type weighted hog_graph_index)
+fi
 completed_file="completed_runs.txt"
 typeset -A completed_map
 
@@ -27,25 +72,96 @@ if [[ "$rerun_exclude_finished_instances" == "true" && -f "$completed_file" ]]; 
     done < "$completed_file"
 fi
 
-iterations_list=($(jq -r '.iterations_list[]' "$config_file"))
-depth_list=($(jq -r '.depth_list[]' "$config_file"))
-n_start=$(jq -r '.n_start' "$config_file")
-n_end=$(jq -r '.n_end' "$config_file")
-time_limit_seconds=$(jq -r '.time_limit' "$config_file") # 3 hours
-timeout_streak_limit=$(jq -r '.failed_instance_termination_thrsh' "$config_file")
 optimiser=$(jq -r '.optimiser' "$config_file")
+if [[ "${optimiser:l}" == "exact" ]]; then
+    iterations_list=(0)
+    depth_list=(0)
+else
+    iterations_list=($(jq -r '.iterations_list[]' "$config_file"))
+    depth_list=($(jq -r '.depth_list[]' "$config_file"))
+fi
+n_start_raw=$(jq -r '.n_start // empty' "$config_file")
+n_end_raw=$(jq -r '.n_end // empty' "$config_file")
+time_limit_seconds=$(jq -r '.time_limit' "$config_file") # 3 hours
+timeout_streak_limit_raw=$(jq -r '.failed_instance_termination_thrsh // empty' "$config_file")
+timeout_streak_limit_enabled=1
+if [[ -z "$timeout_streak_limit_raw" || "$timeout_streak_limit_raw" == "null" ]]; then
+    timeout_streak_limit_enabled=0
+    timeout_streak_limit=0
+else
+    timeout_streak_limit="$timeout_streak_limit_raw"
+    if (( timeout_streak_limit <= 0 )); then
+        timeout_streak_limit_enabled=0
+    fi
+fi
+
+num_repeats=$(jq -r '.num_repeats // 1' "$config_file")
 
 parameter_vector=$(jq -c '.parameter_vector' "$config_file")
-singlet_injection=$(jq -r '.singlet_injection' "$config_file")
-warm_start=$(jq -r '.warm_start' "$config_file")
-warm_start_correlations=$(jq -r '.warm_start_correlations' "$config_file")
-init_QAOAparams_close_to_zero=$(jq -r '.init_QAOAparams_close_to_zero' "$config_file")
-use_correlations_as_initial_params=$(jq -r '.use_correlations_as_initial_params' "$config_file")
-compare_with_010101=$(jq -r '.compare_with_010101' "$config_file")
-start_index_singlet=$(jq -r '.start_index_singlet' "$config_file")
-graph_generation_type=$(jq -r '.graph_generation_type' "$config_file")
-weighted=$(jq -r '.weighted' "$config_file")
+singlet_injection=$(jq -r '.singlet_injection // false' "$config_file")
+warm_start=$(jq -r '.warm_start // false' "$config_file")
+warm_start_correlations=$(jq -r '.warm_start_correlations // empty' "$config_file")
+init_QAOAparams_close_to_zero=$(jq -r '.init_QAOAparams_close_to_zero // false' "$config_file")
+use_correlations_as_initial_params=$(jq -r '.use_correlations_as_initial_params // false' "$config_file")
+compare_with_010101=$(jq -r '.compare_with_010101 // false' "$config_file")
+start_index_singlet=$(jq -r '.start_index_singlet // empty' "$config_file")
+circuit_type=$(jq -r '.circuit_type // empty' "$config_file")
+graph_generation_type=$(jq -r '.graph_generation_type // empty' "$config_file")
+weighted=$(jq -r '.weighted // false' "$config_file")
 relative_graph_adjList_path=$(jq -r '.relative_graph_adjList_path // empty' "$config_file")
+
+# Insert count_hog_graphs function and HOG block here
+count_hog_graphs() {
+    local path="$1"
+    "$AWK_BIN" '
+        BEGIN { count = 0; in_block = 0 }
+        /^[[:space:]]*$/ { in_block = 0; next }
+        {
+            if (!in_block) {
+                count += 1
+                in_block = 1
+            }
+        }
+        END { print count }
+    ' "$path"
+}
+
+# If the HOG circuit is selected, n is interpreted as a graph index into the
+# configured adjacency-list file. Determine the valid index range once before
+# constructing the job list.
+if [[ "${graph_generation_type:l}" == "hog" ]]; then
+    if [[ -z "$relative_graph_adjList_path" ]]; then
+        echo "Error: relative_graph_adjList_path must be set for circuit_type=HOG."
+        exit 1
+    fi
+
+    hog_graph_path="Code/$relative_graph_adjList_path"
+
+    if [[ ! -f "$hog_graph_path" ]]; then
+        echo "Error: HOG adjacency-list file not found: $hog_graph_path"
+        exit 1
+    fi
+
+    hog_graph_count=$(count_hog_graphs "$hog_graph_path")
+
+    if [[ -z "$hog_graph_count" || "$hog_graph_count" == "0" ]]; then
+        echo "Error: no HOG graphs found in $hog_graph_path."
+        exit 1
+    fi
+
+    n_start=0
+    n_end=$((hog_graph_count - 1))
+
+    echo "HOG circuit detected. Using graph indices n=${n_start}..${n_end} from ${hog_graph_path}."
+else
+    if [[ -z "$n_start_raw" || -z "$n_end_raw" ]]; then
+        echo "n_start and n_end must be set for graph_generation_type=${graph_generation_type}." >&2
+        exit 1
+    fi
+
+    n_start="$n_start_raw"
+    n_end="$n_end_raw"
+fi
 
 cpu_util_threshold=$(jq -r '.cpu_util_threshold // 85' "$config_file")
 use_cpu_limit=0
@@ -55,10 +171,6 @@ fi
 
 mkdir -p Results/logs/${optimiser}
 
-if ! command -v jq >/dev/null 2>&1; then
-    echo "Error: jq is required but was not found in PATH."
-    exit 1
-fi
 
 benchmark_config_dump=$(jq -r 'to_entries[] | "  \(.key): \(.value|tojson)"' "$config_file")
 
@@ -72,11 +184,110 @@ if [[ -z "${python_bin}" ]]; then
 fi
 
 # Shared timestamp for all jobs launched by this script run.
-run_timestamp=$(date +"%Y%m%d_%H%M%S")
-log_subdir="Results/logs/${optimiser}/${run_timestamp}"
+log_subdir="Results/logs/${optimiser}/${run_tag}"
 mkdir -p "$log_subdir"
 status_subdir="${log_subdir}/status"
 mkdir -p "$status_subdir"
+
+warm_start_cache_subdir="${log_subdir}/warm_start_cache"
+mkdir -p "$warm_start_cache_subdir"
+
+failed_subdir="${log_subdir}/failed_warm_starts"
+mkdir -p "$failed_subdir"
+failed_warm_start_csv="${failed_subdir}/failed_warm_starts_${run_tag}.csv"
+failed_warm_start_adjlist="${failed_subdir}/failed_warm_starts_${run_tag}.adjlist"
+
+if [[ ! -f "$failed_warm_start_csv" ]]; then
+    echo "run_tag,failed_at,n,p,iterations,repeat_idx,sdp_seed,exit_code,reason,warm_start_cache_path,log_file,status_file,graph_generation_type,adjacency_list_file" > "$failed_warm_start_csv"
+fi
+
+typeset -A failed_adjlist_written=()
+csv_escape() {
+    local value="$1"
+    value=${value//\"/\"\"}
+    echo "\"${value}\""
+}
+
+append_hog_graph_block_to_failed_adjlist() {
+    local graph_index="$1"
+    local graph_key="hog_${graph_index}"
+
+    if [[ -n "${failed_adjlist_written[$graph_key]:-}" ]]; then
+        return
+    fi
+
+    if [[ "${graph_generation_type:l}" != "hog" ]]; then
+        return
+    fi
+
+    if [[ -z "${hog_graph_path:-}" || ! -f "$hog_graph_path" ]]; then
+        return
+    fi
+
+    "$AWK_BIN" -v target="$graph_index" '
+        BEGIN { count = -1; in_block = 0; printed = 0 }
+        /^[[:space:]]*$/ {
+            if (in_block && count == target) {
+                print ""
+                printed = 1
+                exit
+            }
+            in_block = 0
+            next
+        }
+        {
+            if (!in_block) {
+                count += 1
+                in_block = 1
+            }
+            if (count == target) {
+                print $0
+            }
+        }
+        END {
+            if (in_block && count == target && !printed) {
+                print ""
+            }
+        }
+    ' "$hog_graph_path" >> "$failed_warm_start_adjlist"
+
+    failed_adjlist_written[$graph_key]=1
+}
+
+log_failed_warm_start() {
+    local n_value="$1"
+    local p_value="$2"
+    local iterations_value="$3"
+    local repeat_idx_value="$4"
+    local sdp_seed_value="$5"
+    local exit_code_value="$6"
+    local reason_value="$7"
+    local warm_start_cache_path_value="$8"
+    local log_file_value="$9"
+    local status_file_value="${10}"
+
+    local failed_at
+    failed_at=$(date +'%Y-%m-%d %H:%M:%S')
+
+    {
+        csv_escape "$run_tag"; printf ","
+        csv_escape "$failed_at"; printf ","
+        csv_escape "$n_value"; printf ","
+        csv_escape "$p_value"; printf ","
+        csv_escape "$iterations_value"; printf ","
+        csv_escape "$repeat_idx_value"; printf ","
+        csv_escape "$sdp_seed_value"; printf ","
+        csv_escape "$exit_code_value"; printf ","
+        csv_escape "$reason_value"; printf ","
+        csv_escape "$warm_start_cache_path_value"; printf ","
+        csv_escape "$log_file_value"; printf ","
+        csv_escape "$status_file_value"; printf ","
+        csv_escape "$graph_generation_type"; printf ","
+        csv_escape "$failed_warm_start_adjlist"; printf "\n"
+    } >> "$failed_warm_start_csv"
+
+    append_hog_graph_block_to_failed_adjlist "$n_value"
+}
 
 echo "Benchmark configuration from ${config_file}:"
 echo "${benchmark_config_dump}"
@@ -151,20 +362,7 @@ available_ram_mb() {
     echo $(( bytes / 1024 / 1024 ))
 }
 
-count_hog_graphs() {
-    local path="$1"
-    "$AWK_BIN" '
-        BEGIN { count = 0; in_block = 0 }
-        /^[[:space:]]*$/ { in_block = 0; next }
-        {
-            if (!in_block) {
-                count += 1
-                in_block = 1
-            }
-        }
-        END { print count }
-    ' "$path"
-}
+
 
 # -----------------------------
 # Pick timeout command
@@ -183,35 +381,20 @@ if (( time_limit_seconds > 0 )); then
 fi
 
 # -----------------------------
-# Build and sort jobs
+# Build and sort instance jobs
 # Columns:
-# score iterations p m
+# score n
+#
+# Warm starts are reusable across depth/iteration settings for the same
+# graph instance and SDP seed. Therefore the launcher groups execution by
+# instance -> repeat/seed -> p/iterations instead of launching one fully
+# independent job per p first.
 # -----------------------------
 jobs_file="$(mktemp)"
 
-for iterations in "${iterations_list[@]}"; do
-    for p in "${depth_list[@]}"; do
-        if [[ "$graph_generation_type" == "HOG" ]]; then
-            if [[ -z "Code/$relative_graph_adjList_path" ]]; then
-                echo "Error: relative_graph_adjList_path must be set for graph_generation_type=HOG."
-                exit 1
-            fi
-
-            hog_graph_count=$(count_hog_graphs "Code/$relative_graph_adjList_path")
-            if [[ -z "$hog_graph_count" || "$hog_graph_count" == "0" ]]; then
-                echo "Error: no HOG graphs found in Code/$relative_graph_adjList_path."
-                exit 1
-            fi
-
-            n_start=0
-            n_end=$((hog_graph_count - 1))
-        fi
-
-        for (( n=n_start; n<=n_end; n++ )); do
-            score=$(( n * p * p * iterations ))
-            echo "${score} ${iterations} ${p} ${n}" >> "$jobs_file"
-        done
-    done
+for (( n=n_start; n<=n_end; n++ )); do
+    score=$(( n + 1 ))
+    echo "${score} ${n}" >> "$jobs_file"
 done
 
 easiest_first=$(jq -r '.easiest_first // false' "$config_file")
@@ -221,6 +404,25 @@ if [[ "$easiest_first" == "true" ]]; then
 else
     sort -nr "$jobs_file" -o "$jobs_file"
 fi
+build_warm_start_cache_path() {
+    local n="$1"
+    local repeat_idx_value="$2"
+    local sdp_seed_value="$3"
+
+    local seed_label="noseed"
+    if [[ -n "$sdp_seed_value" ]]; then
+        seed_label="seed${sdp_seed_value}"
+    fi
+
+    local mode
+    local level
+    local initial_m
+    mode=$(jq -r '.warm_start_mode // "standard"' "$config_file")
+    level=$(jq -r '.lasserre_level // "NA"' "$config_file")
+    initial_m=$(jq -r '.initial_solver_level_M // "NA"' "$config_file")
+
+    echo "${warm_start_cache_subdir}/${run_tag}_n${n}_rep${repeat_idx_value}_${seed_label}_L${level}_M${initial_m}_${mode}.npz"
+}
 
 # -----------------------------
 # Helper: track launched PIDs directly
@@ -349,11 +551,16 @@ normalize() {
 
 compute_m() {
     local n="$1"
+
+    if [[ "${graph_generation_type:l}" == "hog" ]]; then
+        echo "n/a"
+        return
+    fi
+
     case "$graph_generation_type" in
         line) echo $((n - 1)) ;;
         cycle) echo "$n" ;;
         complete) echo $((n * (n - 1) / 2)) ;;
-        HOG) echo "n/a" ;;
         *) echo "0" ;;
     esac
 }
@@ -374,6 +581,8 @@ build_run_key() {
             n) value="$n" ;;
             m) value="$m" ;;
             p) value="$p" ;;
+            repeat_idx) value="$repeat_idx" ;;
+            sdp_seed) value="$derived_sdp_seed" ;;
             precision/iterations) value="$iterations" ;;  # IMPORTANT: match whitelist exactly
             parameter_vector) value="$parameter_vector" ;;
             singlet_injection) value="$singlet_injection" ;;
@@ -383,6 +592,7 @@ build_run_key() {
             use_correlations_as_initial_params) value="$use_correlations_as_initial_params" ;;
             compare_with_010101) value="$compare_with_010101" ;;
             start_index_singlet) value="$start_index_singlet" ;;
+            circuit_type) value="$circuit_type" ;;
             graph_generation_type) value="$graph_generation_type" ;;
             weighted) value="$weighted" ;;
             hog_graph_index) value="$n" ;;
@@ -395,7 +605,7 @@ build_run_key() {
             key_string+="|"
         fi
         key_string+="${key}=${norm_value}"
-        echo "SH: $key_string"
+
     done
 
     # SHA1 like Python
@@ -404,94 +614,191 @@ build_run_key() {
 
 # -----------------------------
 # Launch jobs
+# Repetition order:
+#   one graph instance -> one repeat/seed -> all p/iteration settings sharing
+#   the same temporary warm-start cache -> next repeat/seed.
 # -----------------------------
-while read -r score iterations p n; do
+while read -r score n; do
     if (( stop_launching )); then
         echo "Stopping further job launches because the timeout streak limit was reached."
         break
     fi
-    while true; do
-        maybe_reduce_parallel_cap
-        maybe_increase_parallel_cap
-        ram_limited_parallel=$(allowed_parallel_jobs)
-        ram_limited_parallel=${ram_limited_parallel:-0}
 
-        current_jobs=$(count_running_jobs)
-        current_jobs=${current_jobs:-0}
-
-        timeout_streak=$(current_timeout_streak)
-        timeout_streak=${timeout_streak:-0}
-        if (( timeout_streak >= timeout_streak_limit )); then
-            echo "Timeout streak limit reached (${timeout_streak}/${timeout_streak_limit}). Stopping further job launches."
-            stop_launching=1
-            break 2
+    for (( repeat_idx=1; repeat_idx<=num_repeats; repeat_idx++ )); do
+        configured_sdp_seed=$(jq -r '.sdp_seed // empty' "$config_file")
+        derived_sdp_seed=""
+        if [[ -n "$configured_sdp_seed" ]]; then
+            seed_increment_per_repeat=1000000
+            derived_sdp_seed=$(( configured_sdp_seed + (repeat_idx - 1) * seed_increment_per_repeat ))
+            echo "Derived SDP seed for repeat ${repeat_idx}: ${derived_sdp_seed} (base: ${configured_sdp_seed}, increment: ${seed_increment_per_repeat})"
         fi
 
-        echo "Queue check: current_jobs=${current_jobs}, allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_pids=${#running_pids[@]}, free_ram_mb=$(available_ram_mb)"
+        warm_start_cache_path=""
+        if [[ "${warm_start:l}" == "true" ]]; then
+            warm_start_cache_path=$(build_warm_start_cache_path "$n" "$repeat_idx" "$derived_sdp_seed")
+            rm -f "$warm_start_cache_path" "${warm_start_cache_path}.tmp" "${warm_start_cache_path}.failed"
+            echo "Warm-start cache for n=${n}, repeat=${repeat_idx}, seed=${derived_sdp_seed:-none}: ${warm_start_cache_path}"
+        fi
 
-        if (( current_jobs < ram_limited_parallel )); then
+        seed_label="noseed"
+        if [[ -n "${derived_sdp_seed}" ]]; then
+            seed_label="seed${derived_sdp_seed}"
+        fi
+
+        warm_start_failed=0
+
+        for iterations in "${iterations_list[@]}"; do
+            for p in "${depth_list[@]}"; do
+                if (( warm_start_failed )); then
+                    echo "Skipping n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx} because warm-start generation failed for this graph+seed."
+                    continue
+                fi
+
+                echo ""
+                echo "===================="
+                echo "Benchmark setting: n=${n}, p=${p}, iterations=${iterations}"
+                echo "Repeat run: ${repeat_idx}/${num_repeats}"
+                echo "===================="
+                echo ""
+
+                while true; do
+                    maybe_reduce_parallel_cap
+                    maybe_increase_parallel_cap
+                    ram_limited_parallel=$(allowed_parallel_jobs)
+                    ram_limited_parallel=${ram_limited_parallel:-0}
+
+                    current_jobs=$(count_running_jobs)
+                    current_jobs=${current_jobs:-0}
+
+                    timeout_streak=$(current_timeout_streak)
+                    timeout_streak=${timeout_streak:-0}
+
+                    if (( timeout_streak_limit_enabled && timeout_streak >= timeout_streak_limit )); then
+                        echo "Timeout streak limit reached (${timeout_streak}/${timeout_streak_limit}). Stopping further job launches."
+                        stop_launching=1
+                        break 3
+                    fi
+
+                    echo "Queue check: current_jobs=${current_jobs}, allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_pids=${#running_pids[@]}, free_ram_mb=$(available_ram_mb)"
+
+                    if (( current_jobs < ram_limited_parallel )); then
+                        break
+                    fi
+
+                    sleep ${ram_recovery_sample_interval_seconds}
+                done
+
+                run_key=$(build_run_key "$n" "$p" "$iterations")
+
+                if [[ "$rerun_exclude_finished_instances" == "true" ]]; then
+                    if [[ -n "${completed_map[$run_key]:-}" ]]; then
+                        echo "Skipping already completed job: n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}"
+                        continue
+                    fi
+                fi
+
+                log_file="${log_subdir}/${run_tag}_n${n}_p${p}_it${iterations}_rep${repeat_idx}_${seed_label}.log"
+                status_file="${status_subdir}/${run_tag}_n${n}_p${p}_it${iterations}_rep${repeat_idx}_${seed_label}.status"
+
+                echo "Starting job: n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}, seed=${derived_sdp_seed:-none}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_jobs=$(count_running_jobs)"
+
+                cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} Results/logs/${optimiser}/qaoa_results_${optimiser}_${run_tag}"
+                if (( use_background_mode )); then
+                    cmd="taskpolicy -c background ${cmd}"
+                fi
+                if [[ -n "$timeout_cmd" ]]; then
+                    cmd="${timeout_cmd} ${cmd}"
+                fi
+
+                nohup zsh -c "
+                    export OMP_NUM_THREADS=${blas_threads}
+                    export OPENBLAS_NUM_THREADS=${blas_threads}
+                    export MKL_NUM_THREADS=${blas_threads}
+                    export NUMEXPR_NUM_THREADS=${blas_threads}
+                    export BENCHMARK_CONFIG_FILE=\"${config_file}\"
+                    export BENCHMARK_REPEAT_IDX=\"${repeat_idx}\"
+                    if [[ -n \"${derived_sdp_seed}\" ]]; then
+                        export SDP_SEED_OVERRIDE=${derived_sdp_seed}
+                    fi
+                    if [[ -n \"${warm_start_cache_path}\" ]]; then
+                        export WARM_START_CACHE_PATH=\"${warm_start_cache_path}\"
+                    fi
+                    nice -n ${nice_value} ${cmd}
+                    exit_code=\$?
+                    timed_out=0
+                    warm_start_failed=0
+                    if [[ -n \"${timeout_cmd}\" ]] && (( exit_code == 124 )); then
+                        timed_out=1
+                    fi
+                    if (( exit_code == 42 )); then
+                        warm_start_failed=1
+                    fi
+                    {
+                        echo \"finished_at=\$(date +'%Y-%m-%d %H:%M:%S')\"
+                        echo \"exit_code=\${exit_code}\"
+                        echo \"timed_out=\${timed_out}\"
+                        echo \"warm_start_failed=\${warm_start_failed}\"
+                        echo \"n=${n}\"
+                        echo \"p=${p}\"
+                        echo \"iterations=${iterations}\"
+                        echo \"repeat_idx=${repeat_idx}\"
+                        echo \"sdp_seed=${derived_sdp_seed}\"
+                        echo \"warm_start_cache_path=${warm_start_cache_path}\"
+                    } > \"${status_file}\"
+                    exit \${exit_code}
+                " > "${log_file}" 2>&1 &
+
+                launched_pid=$!
+                if [[ -n "${launched_pid:-}" ]] && kill -0 "$launched_pid" 2>/dev/null; then
+                    running_pids+=("$launched_pid")
+                    echo "Launched PID: ${launched_pid}; current_parallel_cap=${current_parallel_cap}"
+                else
+                    echo "Warning: failed to register launched job for n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}. Continuing with remaining jobs."
+                    maybe_reduce_parallel_cap
+                    continue
+                fi
+
+                # With warm-start cache reuse, dependent p/iteration runs for a graph+seed
+                # must be sequential. Wait for the launched job before proceeding so the
+                # cache is fully created before the next p reads it and so it is not deleted
+                # while a child process still needs it.
+                wait "$launched_pid"
+                job_exit_code=$?
+                refresh_running_pids
+
+                if (( job_exit_code == 42 )); then
+                    warm_start_failed=1
+                    log_failed_warm_start "$n" "$p" "$iterations" "$repeat_idx" "${derived_sdp_seed:-}" "$job_exit_code" "python_warm_start_generation_failed" "$warm_start_cache_path" "$log_file" "$status_file"
+                    echo "Warm-start generation failed for n=${n}, repeat=${repeat_idx}, seed=${derived_sdp_seed:-none}. Skipping remaining p/iteration settings for this graph+seed."
+                elif (( job_exit_code != 0 )); then
+                    echo "Job exited with non-zero code ${job_exit_code} for n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat_idx}."
+                    if [[ -n "${warm_start_cache_path}" && ! -f "${warm_start_cache_path}" ]]; then
+                        warm_start_failed=1
+                        log_failed_warm_start "$n" "$p" "$iterations" "$repeat_idx" "${derived_sdp_seed:-}" "$job_exit_code" "warm_start_cache_missing_after_nonzero_exit" "$warm_start_cache_path" "$log_file" "$status_file"
+                        echo "Warm-start cache was not created. Treating this as warm-start failure and skipping remaining p/iteration settings for this graph+seed."
+                    else
+                        echo "Continuing with remaining jobs."
+                    fi
+                fi
+            done
+        done
+
+        if [[ -n "${warm_start_cache_path}" ]]; then
+            rm -f "$warm_start_cache_path" "${warm_start_cache_path}.tmp"
+            echo "Deleted warm-start cache for n=${n}, repeat=${repeat_idx}, seed=${derived_sdp_seed:-none}: ${warm_start_cache_path}"
+        fi
+
+        if (( stop_launching )); then
             break
         fi
-
-        sleep ${ram_recovery_sample_interval_seconds}
     done
-
-    run_key=$(build_run_key "$n" "$p" "$iterations")
-
-    if [[ "$rerun_exclude_finished_instances" == "true" ]]; then
-        if [[ -n "${completed_map[$run_key]:-}" ]]; then
-            echo "Skipping already completed job: n=${n}, p=${p}, iterations=${iterations}"
-            continue
-        fi
-    fi
-
-    log_file="${log_subdir}/${run_timestamp}_n${n}_p${p}_it${iterations}.log"
-
-    echo "Starting job: n=${n}, p=${p}, iterations=${iterations}, score=${score}, chip=${chip_name:-unknown}, python_bin=${python_bin}, free_ram_mb=$(available_ram_mb), allowed_parallel=${ram_limited_parallel}, current_parallel_cap=${current_parallel_cap}, healthy_ram_streak=${healthy_ram_streak}/${ram_recovery_samples_required}, tracked_jobs=$(count_running_jobs)"
-
-    status_file="${status_subdir}/${run_timestamp}_n${n}_p${p}_it${iterations}.status"
-    cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} Results/logs/${optimiser}/qaoa_results_${optimiser}_${run_timestamp}"
-    if (( use_background_mode )); then
-        cmd="taskpolicy -c background ${cmd}"
-    fi
-    if [[ -n "$timeout_cmd" ]]; then
-        cmd="${timeout_cmd} ${cmd}"
-    fi
-
-    nohup zsh -c "
-        export OMP_NUM_THREADS=${blas_threads}
-        export OPENBLAS_NUM_THREADS=${blas_threads}
-        export MKL_NUM_THREADS=${blas_threads}
-        export NUMEXPR_NUM_THREADS=${blas_threads}
-        nice -n ${nice_value} ${cmd}
-        exit_code=\$?
-        timed_out=0
-        if [[ -n \"${timeout_cmd}\" ]] && (( exit_code == 124 )); then
-            timed_out=1
-        fi
-        {
-            echo \"finished_at=\$(date +'%Y-%m-%d %H:%M:%S')\"
-            echo \"exit_code=\${exit_code}\"
-            echo \"timed_out=\${timed_out}\"
-            echo \"n=${n}\"
-            echo \"p=${p}\"
-            echo \"iterations=${iterations}\"
-        } > \"${status_file}\"
-        exit \${exit_code}
-    " > "${log_file}" 2>&1 &
-
-    launched_pid=$!
-    if [[ -n "${launched_pid:-}" ]] && kill -0 "$launched_pid" 2>/dev/null; then
-        running_pids+=("$launched_pid")
-        echo "Launched PID: ${launched_pid}; current_parallel_cap=${current_parallel_cap}"
-    else
-        echo "Warning: failed to register launched job for n=${n}, p=${p}, iterations=${iterations}. Continuing with remaining jobs."
-        maybe_reduce_parallel_cap
-    fi
 done < "$jobs_file"
 
 rm -f "$jobs_file"
 
-echo "All jobs submitted."
+echo "All jobs finished/submitted. Repeats per instance: ${num_repeats}."
 echo "Benchmark configuration from ${config_file}:"$'\n'"${benchmark_config_dump}"
-echo "Detected chip: ${chip_name:-unknown}; physical_cores: ${physical_cores}; logical_cores: ${logical_cores}; blas_threads: ${blas_threads}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; ram_recovery_samples_required: ${ram_recovery_samples_required}; ram_recovery_sample_interval_seconds: ${ram_recovery_sample_interval_seconds}; timeout_streak_limit: ${timeout_streak_limit}; python_bin: ${python_bin}"
+echo "Run tag: ${run_tag}"
+echo "Failed warm-start CSV: ${failed_warm_start_csv}"
+echo "Failed warm-start adjacency-list retry file: ${failed_warm_start_adjlist}"
+echo "Detected chip: ${chip_name:-unknown}; physical_cores: ${physical_cores}; logical_cores: ${logical_cores}; blas_threads: ${blas_threads}; background mode: ${use_background_mode}; nice_value: ${nice_value}; max_parallel: ${max_parallel}; current_parallel_cap: ${current_parallel_cap}; use_ram_limit: ${use_ram_limit}; min_free_ram_mb: ${min_free_ram_mb}; ram_recovery_samples_required: ${ram_recovery_samples_required}; ram_recovery_sample_interval_seconds: ${ram_recovery_sample_interval_seconds}; timeout_streak_limit: ${timeout_streak_limit}; timeout_streak_limit_enabled: ${timeout_streak_limit_enabled}; python_bin: ${python_bin}"

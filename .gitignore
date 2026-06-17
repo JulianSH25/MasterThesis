@@ -4,12 +4,14 @@ __pycache__/
 *$py.class
 
 QAOA/logs/*
-QAOA/Results/*
+QAOA/Results/*.log
 QAOA/benchmark_config.json
 
 *.DS_Store
 *.iml
 *.xml
+
+*.out
 
 *.iml
 *.xml
@@ -17,8 +19,12 @@ QAOA/benchmark_config.json
 *.so
 
 *.txt
+!QAOA/Code/HOG_graphs/*
+!QAOA/Code/run_configurations/*
 *.lic
 *.csv
+!QAOA/Code/optimal_results/*
+!QAOA/Results/logs/adam/*
 
 # Distribution / packaging
 .Python

@@ -10,17 +10,20 @@ from datetime import datetime
 import numpy as np
 import sys
 from pathlib import Path
+import json
 import pandas as pan
 from numpy.f2py.auxfuncs import throw_error
 from qiskit.quantum_info import Statevector
 
 # Local imports
 from Circuit import QAOACircuit
-from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search, optimise_adam
+from ParamOptimisation import BayesianOptimiser, optimise_cobyla, grid_search, optimise_adam, optimise_exact
 from Utils import classify_graph, get_benchmark_params
 from Utils import get_processor_name, get_total_ram_gb, get_physical_cores, get_logical_cores, get_peak_ram_mb
+from Utils import get_exact_result_from_misc, is_triangle_free, is_3_regular
 from WarmStart import get_warm_start_state, extract_correlations
 from InstanceGenerator import instance_generator
+from benchmark_utils import _current_graph_index_from_argv, _graph_index_already_failed
 
 if __package__ in (None, ""):
     project_root = Path(__file__).resolve().parents[1]
@@ -29,14 +32,241 @@ if __package__ in (None, ""):
     os.chdir(project_root)
 
 precision = None
+last_sdp_objective_value = None
+
+warm_start_cache_stats: dict[str, Any] = {
+    "cache_path": None,
+    "cache_used": False,
+    "compute_time_seconds": None,
+    "load_time_seconds": 0.0,
+    "save_time_seconds": 0.0,
+    "effective_time_seconds": None,
+}
 
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
+debug = benchmark_params.get("debug", False)
+
+benchmark_repeat_idx = os.environ.get("BENCHMARK_REPEAT_IDX")
+benchmark_repeat_idx = int(benchmark_repeat_idx) if benchmark_repeat_idx not in (None, "") else None
+
+sdp_seed_override = os.environ.get("SDP_SEED_OVERRIDE")
+sdp_seed_override = int(sdp_seed_override) if sdp_seed_override not in (None, "") else None
 
 optimiser = benchmark_params["optimiser"].lower()
+normalisation_factor = benchmark_params["lasserre_level"] if optimiser != "exact" and benchmark_params["warm_start"] else 1
+
+
+def _optimal_results_path(filename: str) -> Path:
+    return Path(__file__).resolve().parent / "optimal_results" / filename
+
+
+# --- Utility functions for config handling ---
+def config_bool(params: dict, key: str, default: bool = False) -> bool:
+    value = params.get(key)
+    return default if value is None else bool(value)
+
+
+def resolve_graph_generation_type(params: dict) -> str:
+    graph_generation_type = params.get("graph_generation_type")
+    assert isinstance(graph_generation_type, str), "graph_generation_type must be a string"
+    graph_generation_type = graph_generation_type.lower()
+    assert graph_generation_type in ("line", "cycle", "complete", "random", "hog")
+    return graph_generation_type
+
+
+# --- Warm start cache helpers ---
+def _normalise_edges_for_hash(edges: list[tuple[int, int]], weights: list[float]) -> list[tuple[int, int, float]]:
+    normalised = []
+    for (i, j), weight in zip(edges, weights):
+        a, b = sorted((int(i), int(j)))
+        normalised.append((a, b, float(weight)))
+    return sorted(normalised)
+
+
+def _graph_hash(edges: list[tuple[int, int]], weights: list[float]) -> str:
+    payload = json.dumps(_normalise_edges_for_hash(edges, weights), sort_keys=True)
+    import hashlib
+    return hashlib.sha1(payload.encode("utf-8")).hexdigest()[:16]
+
+
+def _expected_warm_start_metadata(edges: list[tuple[int, int]], weights: list[float], n_vertices: int) -> dict[str, Any]:
+    return {
+        "graph_hash": _graph_hash(edges, weights),
+        "n_vertices": int(n_vertices),
+        "n_edges": int(len(edges)),
+        "sdp_seed": sdp_seed_override,
+        "lasserre_level": benchmark_params.get("lasserre_level"),
+        "initial_solver_level_M": benchmark_params.get("initial_solver_level_M"),
+        "warm_start_mode": str(benchmark_params.get("warm_start_mode") or "standard").lower(),
+    }
+
+
+def _metadata_matches(found: dict[str, Any], expected: dict[str, Any]) -> bool:
+    for key, expected_value in expected.items():
+        if found.get(key) != expected_value:
+            return False
+    return True
+
+
+# --- JSON sanitisation and warm start mode helpers ---
+def _json_sanitise(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {str(key): _json_sanitise(val) for key, val in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_sanitise(val) for val in value]
+    if isinstance(value, np.ndarray):
+        return _json_sanitise(value.tolist())
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, complex):
+        return {"real": value.real, "imag": value.imag}
+    return value
+
+
+def _warm_start_mode_needs_moment_matrix() -> bool:
+    warm_start_mode = str(benchmark_params.get("warm_start_mode") or "standard").lower()
+    return (
+        warm_start_mode in {"amplified", "entangled"}
+        or config_bool(benchmark_params, "use_correlations_as_initial_params")
+    )
+
+
+def _save_warm_start_cache(
+    cache_path: Path,
+    metadata: dict[str, Any],
+    initial_state: Any,
+    product_states: Any,
+    classical_cut: Any,
+    moment_matrix: Any,
+    warm_start_result: Any,
+    compute_time_seconds: float,
+    store_moment_matrix: bool,
+) -> float:
+    save_start = time.time()
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = cache_path.with_name(cache_path.name + ".tmp")
+    payload_metadata = dict(metadata)
+    payload_metadata["warm_start_compute_time_seconds"] = float(compute_time_seconds)
+    payload_metadata["created_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    with open(tmp_path, "wb") as file:
+        np.savez(
+            file,
+            metadata=json.dumps(payload_metadata),
+            initial_state=np.asarray(initial_state, dtype=complex) if initial_state is not None else np.array([], dtype=complex),
+            has_initial_state=np.array(initial_state is not None),
+            product_states=np.asarray(product_states, dtype=complex) if product_states is not None else np.array([], dtype=complex),
+            has_product_states=np.array(product_states is not None),
+            classical_cut=np.asarray(classical_cut) if classical_cut is not None else np.array([]),
+            has_classical_cut=np.array(classical_cut is not None),
+            moment_matrix=np.asarray(moment_matrix) if store_moment_matrix and moment_matrix is not None else np.array([]),
+            has_moment_matrix=np.array(store_moment_matrix and moment_matrix is not None),
+            warm_start_result_json=json.dumps(_json_sanitise(warm_start_result or {})),
+        )
+    tmp_path.replace(cache_path)
+    return time.time() - save_start
+
+
+def _load_warm_start_cache(cache_path: Path, expected_metadata: dict[str, Any]):
+    load_start = time.time()
+    with np.load(cache_path, allow_pickle=False) as data:
+        metadata = json.loads(str(data["metadata"]))
+        if not _metadata_matches(metadata, expected_metadata):
+            raise ValueError(
+                f"Warm-start cache metadata mismatch for {cache_path}. "
+                f"Expected {expected_metadata}, found {metadata}."
+            )
+        initial_state = data["initial_state"] if bool(data["has_initial_state"]) else None
+        product_states = data["product_states"] if bool(data["has_product_states"]) else None
+        classical_cut = data["classical_cut"] if bool(data["has_classical_cut"]) else None
+        moment_matrix = data["moment_matrix"] if bool(data["has_moment_matrix"]) else None
+        warm_start_result = json.loads(str(data["warm_start_result_json"]))
+        compute_time_seconds = metadata.get("warm_start_compute_time_seconds")
+    load_time_seconds = time.time() - load_start
+    return (initial_state, product_states, classical_cut), moment_matrix, warm_start_result, compute_time_seconds, load_time_seconds
+
+
+def get_or_create_cached_warm_start(edges: list[tuple[int, int]], weights: list[float], n_vertices: int):
+    global warm_start_cache_stats
+
+    cache_path_raw = os.environ.get("WARM_START_CACHE_PATH")
+    current_graph_index = _current_graph_index_from_argv()
+    if _graph_index_already_failed(cache_path_raw, current_graph_index):
+        print(
+            f"Warm-start for graph/index {current_graph_index} was already marked as failed. "
+            "Exiting early before SDP construction/solve."
+        )
+        raise RuntimeError("WARM START GENERATION FAILED EARLIER FOR THIS INSTANCE - ABORTING")
+    expected_metadata = _expected_warm_start_metadata(edges, weights, n_vertices)
+    warm_start_cache_stats = {
+        "cache_path": cache_path_raw,
+        "cache_used": False,
+        "compute_time_seconds": None,
+        "load_time_seconds": 0.0,
+        "save_time_seconds": 0.0,
+        "effective_time_seconds": None,
+    }
+
+    if cache_path_raw:
+        cache_path = Path(cache_path_raw)
+        if cache_path.exists():
+            print(f"Warm-start cache: loading {cache_path}")
+            warm_start_data, moment_matrix, warm_start_result, compute_time_seconds, load_time_seconds = _load_warm_start_cache(cache_path, expected_metadata)
+            warm_start_cache_stats.update({
+                "cache_used": True,
+                "compute_time_seconds": compute_time_seconds,
+                "load_time_seconds": load_time_seconds,
+                "effective_time_seconds": compute_time_seconds,
+            })
+            print(f"Warm-start cache: loaded in {load_time_seconds:.4f} seconds; effective compute time={compute_time_seconds}")
+            return warm_start_data, moment_matrix, warm_start_result
+
+    compute_start = time.time()
+    try:
+        warm_start_data, moment_matrix, warm_start_result = get_warm_start_state((edges, weights), n_vertices)
+    except Exception as exc:
+        if cache_path_raw:
+            failed_path = Path(cache_path_raw + ".failed")
+            failed_path.parent.mkdir(parents=True, exist_ok=True)
+            failed_payload = dict(expected_metadata)
+            failed_payload.update({
+                "failed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "error": repr(exc),
+            })
+            failed_path.write_text(json.dumps(failed_payload, indent=2), encoding="utf-8")
+            print(f"Warm-start failure metadata written to: {failed_path}")
+        print(f"Warm-start generation failed during Python execution: {exc!r}")
+        raise
+
+    compute_time_seconds = time.time() - compute_start
+    warm_start_cache_stats.update({
+        "cache_used": False,
+        "compute_time_seconds": compute_time_seconds,
+        "effective_time_seconds": compute_time_seconds,
+    })
+
+    if cache_path_raw:
+        cache_path = Path(cache_path_raw)
+        save_time_seconds = _save_warm_start_cache(
+            cache_path=cache_path,
+            metadata=expected_metadata,
+            initial_state=warm_start_data[0],
+            product_states=warm_start_data[1],
+            classical_cut=warm_start_data[2],
+            moment_matrix=moment_matrix,
+            warm_start_result=warm_start_result,
+            compute_time_seconds=compute_time_seconds,
+            store_moment_matrix=_warm_start_mode_needs_moment_matrix(),
+        )
+        warm_start_cache_stats["save_time_seconds"] = save_time_seconds
+        print(f"Warm-start cache: saved {cache_path} in {save_time_seconds:.4f} seconds")
+
+    return warm_start_data, moment_matrix, warm_start_result
 
 def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_init_linegraph=False, edges=None,
-    weights=None, __initial_state__=None, fixed_initial_point=None, return_initial_point=False) -> tuple[float | Literal[0] | None, Any | None, float | None, float | Any | None, float | None] | tuple[float | Literal[0] | None, float | None, float | Any | None, float | None]:
+    weights=None, __initial_state__=None, fixed_initial_point=None, return_initial_point=False, graph_generation_type: str = "unknown") -> tuple[float | Literal[0] | None, Any | None, float | None, float | Any | None, float | None] | tuple[float | Literal[0] | None, float | None, float | Any | None, float | None]:
+    global last_sdp_objective_value
     """
     This method builds and optimises a QAOA instance on a line graph.
 
@@ -60,26 +290,43 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
 
     assert not (init_initial_state and __initial_state__), "Cannot provide both init_initial_state=True and a custom __initial_state__. Please choose one of the two options for a valid benchmark configuration."
 
-    (initial_state, product_states, classical_cut), moment_matrix = (get_warm_start_state((edges, weights), n) if init_initial_state and not __initial_state__ else ((None, None, None), None))
+    try:
+        (initial_state, product_states, classical_cut), moment_matrix, warm_start_result = (
+            get_or_create_cached_warm_start(edges, weights, n)
+            if init_initial_state and not __initial_state__
+            else ((None, None, None), None, None)
+        )
+    except Exception:
+        raise RuntimeError("WARM_START_GENERATION_FAILED")
     if __initial_state__ is not None:
         initial_state = __initial_state__
-        if benchmark_params.get("circuit_type", "").lower() == "hamqaoa":
+        if str(benchmark_params.get("circuit_type") or "").lower() == "hamqaoa":
             raise Warning("A custom initial state was provided for a HAMQAOA circuit. The classical cut from the SDP warm start will not be available for this run, and any benchmark results should be interpreted accordingly, especially when comparing against runs that do use the SDP warm start.")
-    
+
     warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
-    print(f"warm_start_correlations: {warm_start_correlations}")
+    if warm_start_correlations is None and _warm_start_mode_needs_moment_matrix():
+        raise RuntimeError(
+            "Warm-start correlations are required for this configuration, but the cached warm start did not contain a moment matrix. "
+            "Delete the cache and rerun, or use warm_start_mode='standard'."
+        )
+    print(f"warm_start_correlations: {warm_start_correlations}") if debug else None
     assert edges is not None and weights is not None and set_of_nodes is not None and n is not None and p is not None # XXX sanity check
     print(f"Edges: {edges}, weights: {weights}, set of nodes: {set_of_nodes}, n: {n} nodes, p: {p} layers, N_bayes: {N_bayes} iterations")
 
     QAOA = QAOACircuit(n=n, p=p, edges=edges, weights=weights) # Create QAOA circuit instance with specified parameters
 
-    benchmark_params: dict = get_benchmark_params()
-    QAOA.params = benchmark_params["parameter_vector"]
-    warm_start_mode = str(benchmark_params.get("warm_start_mode", "standard")).lower()
-    energy_audit = benchmark_params.get("debug", False)
+    QAOA.params = [1, 1, 1] if optimiser == "exact" and benchmark_params.get("parameter_vector") is None else benchmark_params["parameter_vector"]
+    warm_start_mode = str(benchmark_params.get("warm_start_mode") or "standard").lower()
+    energy_audit = config_bool(benchmark_params, "debug")
 
     initial_energy_prodStates = None
-    initial_energy_statevector = None
+    initial_sdp_statevector_energy = None
+    sdp_objective_value = warm_start_result.get("sdp_objective_value") if warm_start_result is not None else None
+    sdp_objective_value_normalized = sdp_objective_value
+    algorithm17_actual_energy = warm_start_result.get("actual_energy") if warm_start_result is not None else None
+    algorithm17_lower_bound_energy = warm_start_result.get("lower_bound_energy") if warm_start_result is not None else None
+    rounded_solution_energy = warm_start_result.get("rounded_solution_energy") if warm_start_result is not None else None
+    last_sdp_objective_value = sdp_objective_value
     if product_states is not None:
         edge_marginals = {
             (i, j): np.kron(product_states[i], product_states[j])
@@ -90,47 +337,53 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
             edges,
             weights,
             params=tuple(QAOA.params),
+            lasserre_level=benchmark_params.get("lasserre_level")
         ).real
         if energy_audit:
             print(f"Initial energy from SDP product states: {initial_energy_prodStates}")
 
     if initial_state is not None and (not init_initial_state or warm_start_mode != "entangled"):
-        initial_energy_statevector = QAOA.compute_energy_from_statevector(
+        initial_sdp_statevector_energy = QAOA.compute_energy_from_statevector(
             Statevector(np.asarray(initial_state, dtype=complex))
         )
         if energy_audit:
-            print(f"Initial energy from warm-start statevector: {initial_energy_statevector}")
+            print(f"Initial energy from warm-start statevector: {initial_sdp_statevector_energy}")
 
     QAOA.initial_state = initial_state # assign circuit parameter: initial statevector for statevector-based energy evaluation and warm-starting; if None, circuit will use equal superposition initial state
     QAOA.classical_WS_cut = classical_cut # assign circuit parameter: classical warm start cut from SDP solution, used for certain Circuit setups (influences rotation angles in QAOA) and for audit comparisons; if None, no classical warm start cut will be used
-    if get_benchmark_params()["debug"]:
+    if debug:
         print(f"Initial state set to: {initial_state}") if initial_state is not None else print("No initial state provided.")
         print(f"Classical warm start cut set to: {classical_cut}") if classical_cut is not None else print("No classical warm start cut provided.")
 
-    use_correlations = init_initial_state and (warm_start_mode in {"amplified", "entangled"}or bool(benchmark_params.get("use_correlations_as_initial_params", False)))
+    use_correlations = init_initial_state and (
+        warm_start_mode in {"amplified", "entangled"}
+        or config_bool(benchmark_params, "use_correlations_as_initial_params")
+    )
     if warm_start_correlations is not None and use_correlations:
         QAOA.warm_start_correlations = warm_start_correlations # assign circuit parameter: assign warm start correlations which can then be used for warm start initialisation or as initial parameters
     elif use_correlations:
         raise RuntimeError("Warm start correlations are required for warm_start_mode or correlation-based initial params, but none were available.")
-
-    print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.") if benchmark_params["debug"] else None
     
+    if debug:
+        print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.")
+
     QAOA.self_init_linegraph = self_init_linegraph # assign circuit parameter: whether to use line-graph singlet state preparation
 
     """[1] Construct the QAOA circuit"""
     QAOA.build_qaoa_maxcut_circuit(add_measurements=False)
 
     initial_ws_energy = QAOA.initial_ws_energy # assign circuit parameter: initial warm-start energy from SDP solution, used for audit comparisons
-    print(f"Energy audit summary: statevector={initial_energy_statevector}, product_states={initial_energy_prodStates}, initial_ws_energy={initial_ws_energy}") if energy_audit else None
+    print(f"Energy audit summary: statevector={initial_sdp_statevector_energy}, product_states={initial_energy_prodStates}, initial_ws_energy={initial_ws_energy}, sdp_objective={sdp_objective_value}, normalized_sdp_objective={sdp_objective_value_normalized}, rounded_solution_energy={rounded_solution_energy}, algorithm17_actual_energy={algorithm17_actual_energy}, algorithm17_lower_bound_energy={algorithm17_lower_bound_energy}") if energy_audit else None
 
     minimum_energy = None
     used_initial_point = None
+    exact_mode = False
     """[2] Start the QAOA evaluation loop with the specified optimiser"""
     if optimiser == "bayesian":
         BO = BayesianOptimiser()
         minimum_energy = BO.bayesian_optimisation(QAOA=QAOA, N_bayes=N_bayes, no_layers=p)
     elif optimiser == "cobyla":
-        correlations=warm_start_correlations if benchmark_params["use_correlations_as_initial_params"] else None
+        correlations=warm_start_correlations if config_bool(benchmark_params, "use_correlations_as_initial_params") else None
         returned_energy = optimise_cobyla(QAOA=QAOA, no_layers=p, max_iter=N_bayes, correlations=correlations, x0=fixed_initial_point)
         minimum_energy = -returned_energy.fun
         used_initial_point = getattr(returned_energy, "initial_point", None)
@@ -140,10 +393,16 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
         used_initial_point = getattr(returned_energy, "initial_point", None)
     elif optimiser == "gridsearch":
         minimum_energy = grid_search(QAOA, p, precision=precision)
+    elif optimiser == "exact":
+        exact_mode = True
+        minimum_energy = optimise_exact(QAOA, graph_generation_type=graph_generation_type)
     else:
         throw_error(f"No valid optimiser specified. Received: {optimiser}.")
 
-    if initial_ws_energy is not None and minimum_energy is not None and minimum_energy < initial_ws_energy:
+    if (not exact_mode
+        and initial_ws_energy is not None
+        and minimum_energy is not None
+        and minimum_energy < initial_ws_energy):
         print(
             "Warm-start fallback: optimiser result was below the SDP warm-start energy; "
             "using the warm-start energy instead."
@@ -158,22 +417,23 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
             used_initial_point,
             initial_ws_energy,
             initial_energy_prodStates,
-            initial_energy_statevector,
+            initial_sdp_statevector_energy,
+            warm_start_result,
         )
-    return minimum_energy, initial_ws_energy, initial_energy_prodStates, initial_energy_statevector
+    return minimum_energy, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy, warm_start_result
 
 def return_optimal_line(n):
-    df = pan.read_csv("optimal_results/optimal_results_qaoa.csv", skipinitialspace=True)
+    df = pan.read_csv(_optimal_results_path("optimal_results_qaoa.csv"), skipinitialspace=True)
     val = df.loc[df["n"] == n, "result"].item()
     return val
 
 def return_optimal_cycle(n):
-    df = pan.read_csv("optimal_results/optimal_results_qaoa_circle.csv", skipinitialspace=True)
+    df = pan.read_csv(_optimal_results_path("optimal_results_qaoa_circle.csv"), skipinitialspace=True)
     val = df.loc[df["n"] == n, "result"].item()
     return val
 
 def return_optimal_fully_connected(n):
-    df = pan.read_csv("optimal_results/optimal_results_qaoa_complete.csv", skipinitialspace=True)
+    df = pan.read_csv(_optimal_results_path("optimal_results_qaoa_complete.csv"), skipinitialspace=True)
     val = df.loc[df["n"] == n, "result"].item()
     return val
 
@@ -183,12 +443,14 @@ if __name__ == "__main__":
     global_starttime = time.time()
     time_section = time.time()
     time_sections = {}
+    lasserre_level = benchmark_params.get("lasserre_level")
     print(f"Starting QAOA benchmark with global start time: {global_starttime}")
 
-    # Load benchmark parameters from json
-    parameter_settings = get_benchmark_params()
-    singlet_injection = parameter_settings["singlet_injection"]
-    warm_start = parameter_settings["warm_start"]
+    # Use the already loaded benchmark parameters.
+    parameter_settings = benchmark_params
+    singlet_injection = config_bool(parameter_settings, "singlet_injection")
+    warm_start = config_bool(parameter_settings, "warm_start")
+    compare_with_010101 = config_bool(parameter_settings, "compare_with_010101")
     assert not (singlet_injection and warm_start), "Singlet injection and warm start cannot be used simultaneously, as they both modify the initial state preparation. Please choose one of the two options for a valid benchmark configuration."
     print(f"Benchmark parameters: {parameter_settings}, Running QAOA with equal superposition")
     # Initialise some variables to store results and metadata about the benchmark run.
@@ -197,11 +459,11 @@ if __name__ == "__main__":
     duration = {}
     precision = float(sys.argv[1])
     p = int(sys.argv[2])
-    
+
     # Keep one shared CSV file and append safely across parallel runs.
     debug_csv_path = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else f"qaoa_results_{optimiser}"
     csv_filename = f"{debug_csv_path}.csv"
-    
+
     # Generate unique hash ID for this benchmark run
     run_id = str(uuid.uuid4())[:8]
     processor_name = get_processor_name()
@@ -211,6 +473,8 @@ if __name__ == "__main__":
     logical_cores = get_logical_cores()
     python_version = platform.python_version()
     print(f"Benchmark run ID: {run_id}")
+    print(f"Benchmark repeat index: {benchmark_repeat_idx}")
+    print(f"SDP seed override: {sdp_seed_override}")
     print(f"Processor: {processor_name}")
     print(f"Hostname: {hostname}")
     print(f"Total RAM (GB): {total_ram_gb}")
@@ -219,9 +483,9 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'initial_ws_energy', 'initial_ws_energy_prodStates', 'initial_energy_statevector', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'finished_at',
+                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'duration_seconds_excluding_warm_start_cache_io', 'warm_start_cache_used', 'warm_start_compute_time_seconds', 'warm_start_load_time_seconds', 'warm_start_save_time_seconds', 'warm_start_effective_time_seconds', 'warm_start_cache_path', 'full duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
-                       'python_version', 'peak_ram_mb']
+                       'python_version', 'peak_ram_mb', 'Instance_is_triangle_free', 'Instance_is_3_regular']
 
     # start from base_fieldnames and insert scalar params next; reproducibility columns appended last
     fieldnames = list(base_fieldnames)
@@ -235,7 +499,7 @@ if __name__ == "__main__":
     }
 
     # reproducibility columns (may be large) should be last
-    fieldnames.extend(['hog_graph_index', 'edges', 'weights'])
+    fieldnames.extend(['benchmark_repeat_idx', 'sdp_seed', 'hog_graph_index', 'edges', 'weights'])
 
     # XXX TIME: log time taken for initialisation and parameter loading
     time_sections["initialisation"] = time.time() - time_section
@@ -243,20 +507,17 @@ if __name__ == "__main__":
 
     for n in range(int(sys.argv[3]), int(sys.argv[4]) + 1):
         time_section = time.time()
-        # make graph_generation_type check case-insensitive
-        assert isinstance(parameter_settings.get("graph_generation_type"), str), "graph_generation_type must be a string"
-        graph_generation_type = parameter_settings["graph_generation_type"].lower()
-        assert graph_generation_type in ("line", "cycle", "complete", "random", "hog")
+        graph_generation_type = resolve_graph_generation_type(parameter_settings)
 
         # Determine whether instances are considered weighted in this benchmark
-        weighted_flag = bool(parameter_settings.get("weighted", False))
+        weighted_flag = config_bool(parameter_settings, "weighted")
 
         # Delegate all instance generation (including HOG) to instance_generator
         edges, weights = instance_generator(
             type=graph_generation_type,
             n=n,
             weighted=weighted_flag,
-            random_weights=bool(parameter_settings.get("random_weights", False)),
+            random_weights=config_bool(parameter_settings, "random_weights"),
         )
         m = len(edges)
         node_count = len({i for edge in edges for i in edge})
@@ -269,22 +530,53 @@ if __name__ == "__main__":
         print(f"Running QAOA for n={node_count} nodes, m={len(edges)} edges...; Max iterations: {int(precision)}")
         # XXX Time
         time_section = time.time()
- 
-        results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates, initial_energy_statevector = main(
-            p=p,
-            N_bayes=int(precision),
-            self_init_linegraph=singlet_injection,
-            init_initial_state=warm_start,
-            edges=edges,
-            weights=weights,
-            return_initial_point=True,
+
+        try:
+            results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy, warm_start_result = main(
+                p=p,
+                N_bayes=int(precision),
+                self_init_linegraph=singlet_injection,
+                init_initial_state=warm_start,
+                edges=edges,
+                weights=weights,
+                return_initial_point=True,
+                graph_generation_type=graph_generation_type
+            )
+        except RuntimeError as exc:
+            if str(exc) == "WARM_START_GENERATION_FAILED":
+                print("Warm-start generation failed; exiting with code 42 so the launcher can skip dependent depth/iteration settings.")
+                sys.exit(42)
+            raise
+        sdp_objective_value = (
+            warm_start_result.get("sdp_objective_value")
+            if warm_start_result is not None
+            else last_sdp_objective_value
+        )
+
+        sdp_objective_value_normalized = (
+            warm_start_result.get("sdp_objective_value_normalized")
+            if warm_start_result is not None
+            else sdp_objective_value
+        )
+
+        algorithm17_actual_energy = (
+            warm_start_result.get("actual_energy")
+            if warm_start_result is not None
+            else None
+        )
+
+        algorithm17_lower_bound_energy = (
+            warm_start_result.get("lower_bound_energy")
+            if warm_start_result is not None
+            else None
         )
         # XXX Time
         time_sections[f"qaoa_optimisation_n_{n}"] = time.time() - time_section
         print(f"QAOA optimisation for n={n} took {time_sections[f'qaoa_optimisation_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")
 
 
-        if parameter_settings["compare_with_010101"]:
+        initial_ws_energy_010101 = None
+        if compare_with_010101:
             # XXX Time
             time_section = time.time()
 
@@ -297,19 +589,28 @@ if __name__ == "__main__":
             initial_state = state
 
             print("Reusing optimiser initial parameters for 010101 comparison run.")
-            results_010101[n], initial_ws_energy_010101, __initial_energy_prodStates, __initial_energy_statevector = main(
+            results_010101[n], initial_ws_energy_010101, __initial_energy_prodStates, __initial_energy_statevector, _ = main(
                 p=p,
                 N_bayes=int(precision),
                 edges=edges,
                 weights=weights,
                 __initial_state__=initial_state,
-                fixed_initial_point=shared_initial_point,
+                fixed_initial_point=shared_initial_point
             )
             # XXX Time
             time_sections[f"qaoa_optimisation_010101_n_{n}"] = time.time() - time_section
-            print(f"QAOA optimisation for 010101 state at n={n} took {time_sections[f'qaoa_optimisation_010101_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")  
+            print(f"QAOA optimisation for 010101 state at n={n} took {time_sections[f'qaoa_optimisation_010101_n_{n}']:.2f} seconds; started at stardate {time_section} and finished at stardate {time.time()}")
 
         elapsed_time = time.time() - start_time
+        warm_start_load_time = float(warm_start_cache_stats.get("load_time_seconds") or 0.0)
+        warm_start_save_time = float(warm_start_cache_stats.get("save_time_seconds") or 0.0)
+        warm_start_effective_time = warm_start_cache_stats.get("effective_time_seconds")
+        qaoa_optimisation_time = time_sections.get(f"qaoa_optimisation_n_{n}", elapsed_time)
+        duration_seconds_excluding_warm_start_cache_io = elapsed_time - warm_start_load_time - warm_start_save_time
+        if warm_start_cache_stats.get("cache_used") and warm_start_effective_time is not None:
+            duration_seconds_excluding_warm_start_cache_io = (
+                qaoa_optimisation_time - warm_start_load_time + float(warm_start_effective_time)
+            )
         # XXX Time
         time_section = time.time()
 
@@ -317,6 +618,7 @@ if __name__ == "__main__":
         peak_ram_mb = get_peak_ram_mb()
         print(f"Finished QAOA for n={node_count} nodes, m={m} edges at {finished_at} on {processor_name}. Time taken: {elapsed_time:.2f} seconds. Hours: {elapsed_time / 3600:.2f} hours. Peak RAM: {peak_ram_mb} MB.")
         duration[node_count] = elapsed_time
+        _optimal = None
         approx_ratio = None
         approx_ratio_010101 = None
         # BUG illegally classifies single edge line graphs as complete graphs
@@ -325,31 +627,48 @@ if __name__ == "__main__":
             if graph_type == "line":
                 print("Computing line approximation ratio")
                 optimal = return_optimal_line(node_count)
+                _optimal = optimal
                 if optimal is None:
                     print("Missing optimal_results_qaoa.csv; skipping line approximation ratio.")
                 else:
-                    approx_ratio = results[n] / optimal
-                    approx_ratio_010101 = results_010101[n] / optimal if parameter_settings["compare_with_010101"] else None
+                    approx_ratio = (results[n] / normalisation_factor) / optimal
+                    approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal if compare_with_010101 else None
             elif graph_type == "cycle":
                 print("Computing cycle approximation ratio")
                 optimal = return_optimal_cycle(node_count)
+                _optimal = optimal
                 if optimal is None:
                     print("Missing optimal_results_qaoa_circle.csv; skipping cycle approximation ratio.")
                 else:
-                    approx_ratio = results[n] / optimal
-                    approx_ratio_010101 = results_010101[n] / optimal if parameter_settings["compare_with_010101"] else None
+                    approx_ratio = (results[n] / normalisation_factor) / optimal
+                    approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal if compare_with_010101 else None
             elif graph_type == "complete":
                 print("Computing complete graph approximation ratio")
                 optimal = return_optimal_fully_connected(node_count)
+                _optimal = optimal
                 if optimal is None:
                     print("Missing optimal_results_qaoa_complete.csv; skipping complete approximation ratio.")
                 else:
-                    approx_ratio = results[n] / optimal
-                    approx_ratio_010101 = results_010101[n] / optimal if parameter_settings["compare_with_010101"] else None
+                    approx_ratio = (results[n] / normalisation_factor) / optimal
+                    approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal if compare_with_010101 else None
             else:
-                print("Unknown graph type for approximation ratio calculation; skipping approx ratio computation.")
+                print("Unknown graph type for approximation ratio calculation; checking misc CSV.")
         except Exception as e:
-            print(f"Error during approximation ratio calculation: {e}. Skipping approx ratio computation for n={n}.")
+            print(f"Error during approximation ratio calculation: {e}. Checking misc CSV as fallback.")
+
+        optimal_result = None
+        # Fallback: check misc CSV for matching edges and weights
+        if approx_ratio is None:
+            print(f"Checking optimal_results_misc.csv for matching edges and weights...")
+            optimal_from_misc = get_exact_result_from_misc(edges, weights)
+            optimal_result = optimal_from_misc
+            if optimal_from_misc is not None:
+                print(f"Found matching exact result in misc CSV: {optimal_from_misc}")
+                approx_ratio = (results[n] / normalisation_factor) / optimal_from_misc
+                approx_ratio_010101 = (results_010101[n] / normalisation_factor) / optimal_from_misc if compare_with_010101 else None
+                _optimal = optimal_from_misc
+            else:
+                print("No matching result found in misc CSV; skipping approx ratio computation.")
 
         row = {
             'run_id': run_id,
@@ -359,20 +678,33 @@ if __name__ == "__main__":
             'precision/iterations': precision,
             'singlet_injection': singlet_injection,
             'warm_start': warm_start,
-            'parameter_vector': str(parameter_settings["parameter_vector"]),
-            'initial_ws_energy': initial_ws_energy,
-            'initial_ws_energy_prodStates': initial_energy_prodStates,
-            'initial_energy_statevector': initial_energy_statevector,
-            'initial_ws_energy_010101': initial_ws_energy_010101 if parameter_settings["compare_with_010101"] else None,
-            'QAOA_improvement_over_SDP': results[n] - initial_energy_statevector if initial_energy_statevector is not None else None,
+            'parameter_vector': str(parameter_settings.get("parameter_vector")),
+            'optimal_result': optimal_result,
+            'sdp_objective_value_step1': sdp_objective_value,
+            'sdp_objective_value_king_normalized_step1': sdp_objective_value_normalized / normalisation_factor if sdp_objective_value_normalized is not None else None,
+            'algorithm17_actual_energy': algorithm17_actual_energy / normalisation_factor if lasserre_level == 2 and algorithm17_actual_energy is not None else None,
+            'algorithm17_lower_bound_energy': algorithm17_lower_bound_energy / normalisation_factor if lasserre_level == 2 and algorithm17_lower_bound_energy is not None else None,
+            'initial_ws_energy_prodStates_step2': initial_energy_prodStates / normalisation_factor if initial_energy_prodStates is not None else None,
+            'initial_sdp_statevector_energy': initial_sdp_statevector_energy / normalisation_factor if initial_sdp_statevector_energy is not None else None,
+            'initial_sdp_statevec_ratio': (initial_sdp_statevector_energy / normalisation_factor) / _optimal if _optimal is not None and initial_sdp_statevector_energy is not None else None,
+            'initial_ws_energy_010101': initial_ws_energy_010101 / normalisation_factor if compare_with_010101 and initial_ws_energy_010101 is not None else None,
+            'QAOA_improvement_over_SDP_statevectorEnergy': results[n] - initial_sdp_statevector_energy if initial_sdp_statevector_energy is not None else None,
             'QAOA_improvement_over_SDP_prodStatesEnergy': results[n] - initial_energy_prodStates if initial_energy_prodStates is not None else None,
-            'result': results[n],
-            'result_010101': results_010101[n] if parameter_settings["compare_with_010101"] else None,
+            'result': results[n] / normalisation_factor,
+            'result_010101': results_010101[n] / normalisation_factor if compare_with_010101 else None,
             'approx_ratio': approx_ratio,
             'approx_ratio_010101': approx_ratio_010101,
-            'diff. approx. ratio': round(approx_ratio, 6) - round(approx_ratio_010101, 6) if parameter_settings["compare_with_010101"] else None,
-            'sdp ws greater': round(approx_ratio, 6) >= round(approx_ratio_010101, 6) if parameter_settings["compare_with_010101"] else None,
+            'diff. approx. ratio': round(approx_ratio, 6) - round(approx_ratio_010101, 6) if compare_with_010101 and approx_ratio is not None and approx_ratio_010101 is not None else None,
+            'sdp ws greater': round(approx_ratio, 6) >= round(approx_ratio_010101, 6) if compare_with_010101 and approx_ratio is not None and approx_ratio_010101 is not None else None,
             'duration_seconds': elapsed_time,
+            'duration_seconds_excluding_warm_start_cache_io': duration_seconds_excluding_warm_start_cache_io,
+            'warm_start_cache_used': bool(warm_start_cache_stats.get("cache_used")),
+            'warm_start_compute_time_seconds': warm_start_cache_stats.get("compute_time_seconds"),
+            'warm_start_load_time_seconds': warm_start_cache_stats.get("load_time_seconds"),
+            'warm_start_save_time_seconds': warm_start_cache_stats.get("save_time_seconds"),
+            'warm_start_effective_time_seconds': warm_start_cache_stats.get("effective_time_seconds"),
+            'warm_start_cache_path': warm_start_cache_stats.get("cache_path"),
+            'full duration_seconds': time.time() - global_starttime,
             'finished_at': finished_at,
             'processor': processor_name,
             'hostname': hostname,
@@ -381,7 +713,11 @@ if __name__ == "__main__":
             'logical_cores': logical_cores,
             'python_version': python_version,
             'peak_ram_mb': peak_ram_mb,
-            'hog_graph_index': n if graph_generation_type == "hog" else None
+            'benchmark_repeat_idx': benchmark_repeat_idx,
+            'sdp_seed': sdp_seed_override,
+            'hog_graph_index': n if graph_generation_type == "hog" else None,
+            'Instance_is_triangle_free': is_triangle_free(edges),
+            'Instance_is_3_regular': is_3_regular(edges)
         }
 
         # include edges and weights (weights only meaningful when benchmark flagged as weighted)

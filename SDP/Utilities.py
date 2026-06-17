@@ -1,8 +1,41 @@
 import random
 from datetime import datetime
 import csv
+import os
+from pathlib import Path
 import json
+import numpy as np
 
+if __package__ in (None, ""):
+    from Lasserre_level_2 import P, PP
+else:
+    from .Lasserre_level_2 import P, PP
+
+def get_benchmark_params() -> dict:
+    """
+    This function loads benchmark parameters from the JSON config snapshot
+    passed by the benchmark shell script via BENCHMARK_CONFIG_FILE.
+
+    :return: benchmark parameter dictionary exactly as stored in JSON,
+             except that sdp_seed may be overridden by SDP_SEED_OVERRIDE
+    """
+    config_path_env = os.environ.get("BENCHMARK_CONFIG_FILE")
+
+    if not config_path_env:
+        raise RuntimeError(
+            "BENCHMARK_CONFIG_FILE is not set. "
+            "Run Main.py through qaoa_benchmarks.sh with an explicit config file."
+        )
+
+    config_path = Path(config_path_env).expanduser().resolve()
+
+    with config_path.open("r", encoding="utf-8") as config_file:
+        params = json.load(config_file)
+
+    if "SDP_SEED_OVERRIDE" in os.environ:
+        params["sdp_seed"] = int(os.environ["SDP_SEED_OVERRIDE"])
+
+    return params
 
 def idx(i: int, k: int) -> int:
     """
@@ -18,6 +51,23 @@ def idx(i: int, k: int) -> int:
     # k: 0->X, 1->Y, 2->Z
     return 3 * i + k
     #return i * k
+
+def extract_level1_submatrix_from_level2(M_level2, pidx, n_vertices):
+    """
+    Extract the 3n x 3n level-1 Pauli submatrix from a level-2 Lasserre moment matrix.
+
+    The output ordering matches idx(i, k) = 3*i + k:
+        X_0, Y_0, Z_0, X_1, Y_1, Z_1, ...
+    """
+    level1_indices = []
+
+    for i in range(n_vertices):
+        for k in range(3):
+            level1_indices.append(pidx[P(i, k)])
+
+    M_level1 = M_level2[np.ix_(level1_indices, level1_indices)]
+
+    return M_level1
 
 def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
     """
@@ -105,7 +155,7 @@ def get_edges_in_cut(cut, edges):
     """
     edge_count = 0
     edges_in_cut = []
-    print(f'Check the cut: {cut}')
+    print(f'Check the cut: {cut}') if get_benchmark_params().get("debug", False) else None
     for i in range(len(cut)):
         for j in range(len(cut)):
             if i != j and cut[i] != cut[j] and (i, j) in edges:
