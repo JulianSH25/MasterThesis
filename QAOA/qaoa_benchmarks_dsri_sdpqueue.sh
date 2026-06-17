@@ -21,14 +21,6 @@ if ! command -v jq >/dev/null 2>&1; then
     exit 1
 fi
 
-if command -v sha1sum >/dev/null 2>&1; then
-    SHA1_CMD="sha1sum"
-elif command -v shasum >/dev/null 2>&1; then
-    SHA1_CMD="shasum"
-else
-    echo "Error: sha1sum or shasum is required but was not found."
-    exit 1
-fi
 
 if (( $# != 1 )); then
     echo "Usage: $0 <config-file>"
@@ -171,7 +163,7 @@ hog_graph_hash_for_index() {
                 print $0
             }
         }
-    ' "$path" | $SHA1_CMD | "$AWK_BIN" '{print $1}'
+    ' "$path" | "$python_bin" -c 'import hashlib, sys; print(hashlib.sha1(sys.stdin.buffer.read()).hexdigest())'
 }
 
 if [[ "${graph_generation_type:l}" == "hog" ]]; then
@@ -308,7 +300,18 @@ safe_name() {
 
 file_hash_short() {
     local file="$1"
-    $SHA1_CMD "$file" | "$AWK_BIN" '{print substr($1,1,8)}'
+    "$python_bin" - "$file" <<'PYHASH'
+import hashlib
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+h = hashlib.sha1()
+with path.open("rb") as f:
+    for chunk in iter(lambda: f.read(1024 * 1024), b""):
+        h.update(chunk)
+print(h.hexdigest()[:8])
+PYHASH
 }
 
 sha1_file_short() {
@@ -351,7 +354,7 @@ build_persistent_warm_start_cache_path() {
         cache_dataset_dir="${warm_start_cache_dir}/${graph_generation_type}"
         mkdir -p "$cache_dataset_dir"
 
-        graph_hash=$(echo "${graph_generation_type}_${weighted}_${n}" | $SHA1_CMD | "$AWK_BIN" '{print $1}')
+        graph_hash=$(echo "${graph_generation_type}_${weighted}_${n}" | "$python_bin" -c 'import hashlib, sys; print(hashlib.sha1(sys.stdin.buffer.read()).hexdigest())')
         graph_label="${graph_generation_type}_n${n}_${graph_hash[1,12]}"
     fi
 
@@ -515,7 +518,7 @@ build_run_key() {
         key_string+="${key}=${norm_value}"
     done
 
-    echo -n "$key_string" | $SHA1_CMD | "$AWK_BIN" '{print $1}'
+    echo -n "$key_string" | "$python_bin" -c 'import hashlib, sys; print(hashlib.sha1(sys.stdin.buffer.read()).hexdigest())'
 }
 
 # -----------------------------

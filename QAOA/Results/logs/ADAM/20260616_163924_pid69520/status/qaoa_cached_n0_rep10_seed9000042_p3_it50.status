@@ -1,0 +1,13 @@
+finished_at=2026-06-16 17:35:55
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=qaoa_cached
+key=n0_rep10_seed9000042_p3_it50
+n=0
+p=3
+iterations=50
+repeat_idx=10
+sdp_seed=9000042
+warm_start_cache_path=Results/warm_start_cache/hog_idx000000__seed9000042_L2_M2_standard.npz
+threads=2
