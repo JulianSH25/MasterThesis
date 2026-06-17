@@ -1,0 +1,13 @@
+finished_at=2026-06-16 16:45:24
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=sdp_producer
+key=n0_rep3_seed2000042
+n=0
+p=1
+iterations=50
+repeat_idx=3
+sdp_seed=2000042
+warm_start_cache_path=Results/warm_start_cache/hog_idx000000__seed2000042_L2_M2_standard.npz
+threads=1

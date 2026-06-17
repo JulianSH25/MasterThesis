@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 QAOA/logs/*
-QAOA/Results/*
+QAOA/Results/*.log
 QAOA/benchmark_config.json
 
 *.DS_Store
@@ -24,6 +24,7 @@ QAOA/benchmark_config.json
 *.lic
 *.csv
 !QAOA/Code/optimal_results/*
+!QAOA/Results/logs/adam/*
 
 # Distribution / packaging
 .Python
