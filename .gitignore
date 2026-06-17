@@ -11,6 +11,8 @@ QAOA/benchmark_config.json
 *.iml
 *.xml
 
+*.out
+
 *.iml
 *.xml
 # C extensions

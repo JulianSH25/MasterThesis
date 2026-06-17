@@ -381,6 +381,8 @@ Example command:
 
     sudo nohup zsh qaoa_benchmarks.sh run_configurations/benchmark_config_exact.json > Results/logs/launcher_$(date +'%Y%m%d_%H%M%S').log 2>&1 &
 
+    sudo nohup zsh qaoa_benchmarks.sh run_configurations/benchmark_config.json > Results/logs/launcher_$(date +'%Y%m%d_%H%M%S').log 2>&1 &
+
 Run in sequence:
 
     Run first: sudo -v
