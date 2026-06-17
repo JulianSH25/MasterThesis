@@ -7,7 +7,21 @@ echo "Started at: $(date +'%Y-%m-%d %H:%M:%S')"
 echo "Host: $(hostname)"
 echo "Working directory: $(pwd)"
 
-export MOSEKLM_LICENSE_FILE="${MOSEKLM_LICENSE_FILE:-/home/coder/project/MasterThesis/mosek.lic}"
+if [[ -z "${MOSEKLM_LICENSE_FILE:-}" ]]; then
+    if [[ -f "../mosek.lic" ]]; then
+        export MOSEKLM_LICENSE_FILE="$(cd .. && pwd)/mosek.lic"
+    elif [[ -f "$HOME/MasterThesis/mosek.lic" ]]; then
+        export MOSEKLM_LICENSE_FILE="$HOME/MasterThesis/mosek.lic"
+    elif [[ -f "/home/coder/project/MasterThesis/mosek.lic" ]]; then
+        export MOSEKLM_LICENSE_FILE="/home/coder/project/MasterThesis/mosek.lic"
+    else
+        echo "Warning: MOSEKLM_LICENSE_FILE is not set and no mosek.lic was found."
+    fi
+fi
+
+if [[ -n "${MOSEKLM_LICENSE_FILE:-}" ]]; then
+    echo "Using MOSEK license path: $MOSEKLM_LICENSE_FILE"
+fi
 
 AWK_BIN=$(command -v awk 2>/dev/null || echo /usr/bin/awk)
 if [[ ! -x "$AWK_BIN" ]]; then
