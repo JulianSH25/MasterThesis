@@ -311,6 +311,21 @@ file_hash_short() {
     $SHA1_CMD "$file" | "$AWK_BIN" '{print substr($1,1,8)}'
 }
 
+sha1_file_short() {
+    local file="$1"
+
+    if command -v sha1sum >/dev/null 2>&1; then
+        sha1sum "$file" | "$AWK_BIN" '{print substr($1, 1, 8)}'
+    elif command -v shasum >/dev/null 2>&1; then
+        shasum -a 1 "$file" | "$AWK_BIN" '{print substr($1, 1, 8)}'
+    elif command -v openssl >/dev/null 2>&1; then
+        openssl dgst -sha1 "$file" | "$AWK_BIN" '{print substr($NF, 1, 8)}'
+    else
+        echo "Error: need sha1sum, shasum, or openssl for hashing." >&2
+        exit 1
+    fi
+}
+
 build_persistent_warm_start_cache_path() {
     local n="$1"
     local repeat_idx_value="$2"
