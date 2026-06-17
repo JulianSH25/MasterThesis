@@ -54,7 +54,7 @@ sdp_seed_override = os.environ.get("SDP_SEED_OVERRIDE")
 sdp_seed_override = int(sdp_seed_override) if sdp_seed_override not in (None, "") else None
 
 optimiser = benchmark_params["optimiser"].lower()
-normalisation_factor = benchmark_params["lasserre_level"] if optimiser != "exact" else 1
+normalisation_factor = benchmark_params["lasserre_level"] if optimiser != "exact" and benchmark_params["warm_start"] else 1
 
 
 def _optimal_results_path(filename: str) -> Path:
@@ -363,8 +363,9 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
         QAOA.warm_start_correlations = warm_start_correlations # assign circuit parameter: assign warm start correlations which can then be used for warm start initialisation or as initial parameters
     elif use_correlations:
         raise RuntimeError("Warm start correlations are required for warm_start_mode or correlation-based initial params, but none were available.")
-
-    print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.") if debug else None
+    
+    if debug:
+        print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.")
 
     QAOA.self_init_linegraph = self_init_linegraph # assign circuit parameter: whether to use line-graph singlet state preparation
 
