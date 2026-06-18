@@ -39,12 +39,6 @@
   "debug": false,
   "save_circuit_svg": false,
   "rerun_exclude_finished_instances": true,
-<<<<<<< HEAD
-  "completed_result_csv_paths": [
-    "Results/logs/adam/qaoa_results_adam_20260617_172309_pid3959588.csv"
-  ],
-=======
->>>>>>> refs/remotes/origin/main
   "warm_start_cache_producer_only": false,
   "qaoa_only_from_existing_warm_start_cache": true,
   "optimiser_debug_iterations": null,
