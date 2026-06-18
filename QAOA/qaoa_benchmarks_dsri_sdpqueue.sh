@@ -450,7 +450,6 @@ if [[ "$rerun_exclude_finished_instances" == "true" && -f "$completed_file" ]]; 
 fi
 
 typeset -A completed_csv_map
-completed_csv_map=()
 completed_result_csv_key_file=""
 build_completed_instance_key() {
     local n="$1"
@@ -621,8 +620,10 @@ for missing in missing_files:
 PYCHECKDONE
 
     if [[ -s "$csv_key_file" ]]; then
-        while read -r line; do
-            completed_csv_map["$line"]=1
+        while IFS= read -r line; do
+            if [[ -n "$line" ]]; then
+                completed_csv_map[$line]=1
+            fi
         done < "$csv_key_file"
     fi
 }
@@ -1169,7 +1170,7 @@ launch_qaoa_key() {
         return 0
     fi
 
-    if [[ "$rerun_exclude_finished_instances" == "true" && -n "${completed_csv_map[$completed_instance_key]:-}" ]]; then
+    if [[ "$rerun_exclude_finished_instances" == "true" && -n "${completed_csv_map[$completed_instance_key]-}" ]]; then
         echo "Skipping already completed QAOA job via completed_result_csv_paths: n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat}, seed=${seed:-none}"
         return 0
     fi
