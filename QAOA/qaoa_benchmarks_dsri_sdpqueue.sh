@@ -449,6 +449,183 @@ if [[ "$rerun_exclude_finished_instances" == "true" && -f "$completed_file" ]]; 
     done < "$completed_file"
 fi
 
+typeset -A completed_csv_map=()
+completed_result_csv_key_file=""
+build_completed_instance_key() {
+    local n="$1"
+    local p="$2"
+    local iterations="$3"
+    local repeat_value="$4"
+    local seed_value="$5"
+
+    echo "graph_generation_type=${graph_generation_type}|weighted=${weighted}|relative_graph_adjList_path=${relative_graph_adjList_path}|warm_start=${warm_start}|warm_start_mode=${warm_start_mode}|lasserre_level=${lasserre_level}|initial_solver_level_M=${initial_solver_level_M}|hog_graph_index=${n}|repeat_idx=${repeat_value}|sdp_seed=${seed_value}|p=${p}|iterations=${iterations}"
+}
+
+load_completed_result_csv_paths() {
+    local csv_key_file
+    csv_key_file="$(mktemp)"
+    completed_result_csv_key_file="$csv_key_file"
+
+    "$python_bin" - "$config_file" "$csv_key_file" <<'PYCHECKDONE'
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+config_path = Path(sys.argv[1])
+out_path = Path(sys.argv[2])
+config = json.loads(config_path.read_text())
+
+csv_paths = config.get("completed_result_csv_paths") or []
+if isinstance(csv_paths, str):
+    csv_paths = [csv_paths]
+
+base_dir = Path.cwd()
+
+current_graph_generation_type = str(config.get("graph_generation_type", ""))
+current_weighted = str(bool(config.get("weighted", False))).lower()
+current_relative_graph_adjlist_path = str(config.get("relative_graph_adjList_path", ""))
+current_warm_start = str(bool(config.get("warm_start", False))).lower()
+current_warm_start_mode = str(config.get("warm_start_mode", ""))
+current_lasserre_level = str(config.get("lasserre_level", ""))
+current_initial_solver_level_m = str(config.get("initial_solver_level_M", ""))
+current_sdp_seed = config.get("sdp_seed", None)
+seed_increment_per_repeat = 1_000_000
+
+def scalar_to_string(value):
+    if value is None:
+        return ""
+    try:
+        if pd.isna(value):
+            return ""
+    except Exception:
+        pass
+    if isinstance(value, float) and value.is_integer():
+        return str(int(value))
+    if isinstance(value, bool):
+        return str(value).lower()
+    text = str(value).strip()
+    if text.endswith(".0"):
+        try:
+            return str(int(float(text)))
+        except Exception:
+            return text
+    return text
+
+def bool_column_to_string(value):
+    text = scalar_to_string(value).lower()
+    if text in {"true", "1", "1.0", "yes"}:
+        return "true"
+    if text in {"false", "0", "0.0", "no"}:
+        return "false"
+    return text
+
+def row_value(row, *names):
+    for name in names:
+        if name in row.index:
+            value = row[name]
+            try:
+                if pd.isna(value):
+                    continue
+            except Exception:
+                pass
+            return value
+    return None
+
+def config_match(row):
+    checks = []
+
+    if "graph_generation_type" in row.index:
+        checks.append(scalar_to_string(row["graph_generation_type"]) == current_graph_generation_type)
+    if "weighted" in row.index:
+        checks.append(bool_column_to_string(row["weighted"]) == current_weighted)
+    if "relative_graph_adjList_path" in row.index:
+        checks.append(scalar_to_string(row["relative_graph_adjList_path"]) == current_relative_graph_adjlist_path)
+    if "warm_start" in row.index:
+        checks.append(bool_column_to_string(row["warm_start"]) == current_warm_start)
+    if "warm_start_mode" in row.index:
+        checks.append(scalar_to_string(row["warm_start_mode"]) == current_warm_start_mode)
+    if "lasserre_level" in row.index:
+        checks.append(scalar_to_string(row["lasserre_level"]) == current_lasserre_level)
+    if "initial_solver_level_M" in row.index:
+        checks.append(scalar_to_string(row["initial_solver_level_M"]) == current_initial_solver_level_m)
+
+    # If none of these metadata columns exist, do not trust this CSV for skipping.
+    return bool(checks) and all(checks)
+
+keys = set()
+used_rows = 0
+skipped_rows = 0
+missing_required_rows = 0
+missing_files = []
+
+for raw_path in csv_paths:
+    path = Path(raw_path).expanduser()
+    if not path.is_absolute():
+        path = base_dir / path
+
+    if not path.exists():
+        missing_files.append(str(path))
+        continue
+
+    df = pd.read_csv(path)
+    for _, row in df.iterrows():
+        if not config_match(row):
+            skipped_rows += 1
+            continue
+
+        hog_graph_index = row_value(row, "hog_graph_index", "n")
+        repeat_idx = row_value(row, "benchmark_repeat_idx", "repeat_idx")
+        p = row_value(row, "p")
+        iterations = row_value(row, "precision/iterations", "iterations")
+
+        if hog_graph_index is None or repeat_idx is None or p is None or iterations is None:
+            missing_required_rows += 1
+            continue
+
+        seed = row_value(row, "sdp_seed", "sdp_seed.1")
+        if seed is None and current_sdp_seed is not None:
+            try:
+                seed = int(current_sdp_seed) + (int(float(repeat_idx)) - 1) * seed_increment_per_repeat
+            except Exception:
+                seed = ""
+
+        key = "|".join([
+            f"graph_generation_type={current_graph_generation_type}",
+            f"weighted={current_weighted}",
+            f"relative_graph_adjList_path={current_relative_graph_adjlist_path}",
+            f"warm_start={current_warm_start}",
+            f"warm_start_mode={current_warm_start_mode}",
+            f"lasserre_level={current_lasserre_level}",
+            f"initial_solver_level_M={current_initial_solver_level_m}",
+            f"hog_graph_index={scalar_to_string(hog_graph_index)}",
+            f"repeat_idx={scalar_to_string(repeat_idx)}",
+            f"sdp_seed={scalar_to_string(seed)}",
+            f"p={scalar_to_string(p)}",
+            f"iterations={scalar_to_string(iterations)}",
+        ])
+        keys.add(key)
+        used_rows += 1
+
+out_path.write_text("\n".join(sorted(keys)) + ("\n" if keys else ""))
+
+print(f"completed_result_csv_paths configured: {len(csv_paths)}")
+print(f"completed_result_csv matched rows: {used_rows}")
+print(f"completed_result_csv unique completed keys: {len(keys)}")
+print(f"completed_result_csv skipped non-matching rows: {skipped_rows}")
+print(f"completed_result_csv rows missing required columns: {missing_required_rows}")
+for missing in missing_files:
+    print(f"Warning: completed result CSV not found: {missing}")
+PYCHECKDONE
+
+    if [[ -s "$csv_key_file" ]]; then
+        while read -r line; do
+            completed_csv_map["$line"]=1
+        done < "$csv_key_file"
+    fi
+}
+
 normalize() {
     local v="$1"
 
@@ -584,6 +761,11 @@ build_run_key() {
 
     echo -n "$key_string" | "$python_bin" -c 'import hashlib, sys; print(hashlib.sha1(sys.stdin.buffer.read()).hexdigest())'
 }
+
+# Load completed result CSV keys if enabled
+if [[ "$rerun_exclude_finished_instances" == "true" ]]; then
+    load_completed_result_csv_paths
+fi
 
 # -----------------------------
 # Queues and PID metadata
@@ -979,9 +1161,15 @@ launch_qaoa_key() {
     repeat_idx="$repeat"
     derived_sdp_seed="$seed"
     run_key=$(build_run_key "$n" "$p" "$iterations")
+    completed_instance_key=$(build_completed_instance_key "$n" "$p" "$iterations" "$repeat" "$seed")
 
     if [[ "$rerun_exclude_finished_instances" == "true" && -n "${completed_map[$run_key]:-}" ]]; then
-        echo "Skipping already completed QAOA job: n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat}"
+        echo "Skipping already completed QAOA job via completed_runs.txt: n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat}"
+        return 0
+    fi
+
+    if [[ "$rerun_exclude_finished_instances" == "true" && -n "${completed_csv_map[$completed_instance_key]:-}" ]]; then
+        echo "Skipping already completed QAOA job via completed_result_csv_paths: n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat}, seed=${seed:-none}"
         return 0
     fi
 
@@ -1167,6 +1355,8 @@ echo "  warm_start_cache_max_file_mb: ${warm_start_cache_max_file_mb}"
 echo "  warm_start_cache_max_total_gb: ${warm_start_cache_max_total_gb}"
 echo "  warm_start_cache_producer_only: ${warm_start_cache_producer_only}"
 echo "  qaoa_only_from_existing_warm_start_cache: ${qaoa_only_from_existing_warm_start_cache}"
+echo "  completed_runs_txt_entries: ${#completed_map[@]}"
+echo "  completed_result_csv_entries: ${#completed_csv_map[@]}"
 echo "  nominal_thread_budget: ${nominal_thread_budget}"
 echo "  slurm_job_id: ${slurm_job_id:-none}"
 echo "  slurm_node_list: ${slurm_node_list:-none}"
