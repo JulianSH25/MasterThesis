@@ -1,0 +1,47 @@
+Starting QAOA benchmark with global start time: 1781746748.5744846
+Benchmark parameters: {'optimiser': 'adam', 'optimiser_use_heuristic': True, 'heuristic_optimiser_iterations': 2, 'heuristic_optimiser_sampleSize': 1000, 'circuit_type': 'hamqaoa', 'parameter_vector': [1, 1, 1], 'iterations_list': [50], 'learning_rate_adam': 0.05, 'depth_list': [1, 3, 5], 'n_start': 15, 'n_end': None, 'singlet_injection': False, 'start_index_singlet': None, 'warm_start': True, 'warm_start_mode': 'standard', 'lasserre_level': 2, 'initial_solver_level_M': 2, 'sdp_seed': 3000042, 'warm_start_corr_strength': None, 'warm_start_corr_repeats': None, 'compare_with_010101': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': None, 'graph_generation_type': 'hog', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': None, 'debug': False, 'save_circuit_svg': False, 'rerun_exclude_finished_instances': False, 'optimiser_debug_iterations': None, 'num_repeats': 10, 'relative_graph_adjList_path': 'HOG_graphs/triangleFree_connected_4to8vertices_176instances_AdjacencyList.txt', 'persistent_warm_start_cache': True, 'warm_start_cache_dir': 'Results/warm_start_cache', 'warm_start_cache_max_file_mb': 512, 'warm_start_cache_max_total_gb': 60, 'sdp_max_parallel': 5, 'qaoa_max_parallel': 8, 'sdp_threads': 1, 'qaoa_threads': 4, 'sdp_memory_limit_total_gb': 80, 'sdp_memory_limit_single_gb': 80, 'sdp_memory_poll_seconds': 5, 'sdp_max_retries': 3, 'queue_poll_interval_seconds': 5}, Running QAOA with equal superposition
+Benchmark run ID: 4d6caacc
+Benchmark repeat index: 4
+SDP seed override: 3000042
+Processor: x86_64
+Hostname: dacsgpu0001
+Total RAM (GB): None
+Physical cores: 64
+Logical cores: 64
+Python version: 3.11.15
+Initialisation time: 0.02 seconds; started at stardate {'initialisation': 0.015666961669921875} and finished at stardate1781746748.5901635
+Loaded HOG graph index 35 with 8 edges.
+Instance generation for n=35 took 0.00 seconds; started at stardate 1781746748.5901697 and finished at stardate 1781746748.5926838
+Running QAOA for n=8 nodes, m=8 edges...; Max iterations: 50
+Warm-start: starting SDP solve for n_vertices=8
+Warm-start: using configured sdp_seed=3000042
+Rounding...
+Setting seed to 3000042
+n_vertices: 8 for n = 24
+Using seed 3000042 to generate random matrix for x.
+Energy of rounded cut/product state: 7.531694338178714
+Algorithm 17 lower-bound energy: 6.306401529818034
+Algorithm 17 actual entangled-state energy: 8.269294914555438
+SDP objective value: 10.794320827579941
+6 in cut out of a total of 8 edges
+Warm-start: SDP solve + rounding finished in 1967.66 seconds
+Warm-start: using level-2 Algorithm 17 entangled statevector with shape (256,)
+Warm-start cache: saved Results/warm_start_cache/triangleFree_connected_4to8vertices_176instances_AdjacencyList__filehash_279b7452/hog_idx000035_ea8cdc999e38_seed3000042_L2_M2_standard.npz in 0.0062 seconds
+Edges: [(2, 7), (2, 6), (0, 7), (4, 6), (1, 5), (4, 5), (3, 7), (3, 6)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6, 7}, n: 8 nodes, p: 1 layers, N_bayes: 50 iterations
+Solving for uuid: 64728710
+Initial state injected as warm start
+Running ADAM optimization with a single iteration (no debug loop)
+6.013362536302569
+QAOA optimisation for n=35 took 2034.53 seconds; started at stardate 1781746748.5926876 and finished at stardate 1781748783.1260068
+Finished QAOA for n=8 nodes, m=8 edges at 2026-06-18 04:13:03 on x86_64. Time taken: 2034.53 seconds. Hours: 0.57 hours. Peak RAM: 29.74 MB.
+Unknown graph type for approximation ratio calculation; checking misc CSV.
+Checking optimal_results_misc.csv for matching edges and weights...
+Found matching exact result in misc CSV: 5.386389750692065
+CSV writing for n=35 took 0.00 seconds; started at stardate 1781748783.1260133 and finished at stardate 1781748783.129132
+results: {35: 6.013362536302569}
+durations: {8: 2034.5333232879639}
+Results saved to: Results/logs/adam/qaoa_results_adam_20260617_173540_pid708337.csv
+Global end time: 1781748783.129141
+Finalisation time: 0.00 seconds; started at stardate 1781748783.1291351 and finished at stardate 1781748783.1291435
+Sum of all section times: 2034.55 seconds
+run_id: 4d6caacc
