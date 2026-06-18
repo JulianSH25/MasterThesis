@@ -99,10 +99,48 @@ queue_poll_interval_seconds=$(jq -r '.queue_poll_interval_seconds // 5' "$config
 sdp_threads=$(jq -r '.sdp_threads // 1' "$config_file")
 qaoa_threads=$(jq -r '.qaoa_threads // 2' "$config_file")
 
+# -----------------------------
+# Slurm resource awareness
+# -----------------------------
+slurm_job_id="${SLURM_JOB_ID:-}"
+slurm_job_name="${SLURM_JOB_NAME:-}"
+slurm_node_list="${SLURM_JOB_NODELIST:-}"
+slurm_cpus_per_task="${SLURM_CPUS_PER_TASK:-}"
+slurm_mem_per_node_mb="${SLURM_MEM_PER_NODE:-}"
+
+nominal_thread_budget=$(( sdp_max_parallel * sdp_threads + qaoa_max_parallel * qaoa_threads ))
+
+if [[ -n "$slurm_job_id" ]]; then
+    echo "Running inside Slurm job: ${slurm_job_id} (${slurm_job_name:-unknown})"
+    echo "Slurm node list: ${slurm_node_list:-unknown}"
+    echo "Slurm CPUs per task: ${slurm_cpus_per_task:-unknown}"
+    echo "Nominal launcher thread budget: ${nominal_thread_budget}"
+
+    if [[ -n "$slurm_cpus_per_task" && "$slurm_cpus_per_task" != "0" ]]; then
+        if (( nominal_thread_budget > slurm_cpus_per_task )); then
+            echo "Error: nominal launcher thread budget (${nominal_thread_budget}) exceeds SLURM_CPUS_PER_TASK (${slurm_cpus_per_task})."
+            echo "Adjust sdp_max_parallel, qaoa_max_parallel, sdp_threads, qaoa_threads, or request more CPUs in the Slurm file."
+            exit 1
+        fi
+    fi
+else
+    echo "Warning: not running inside a Slurm allocation. Heavy runs should be submitted with sbatch, not run on the login node."
+fi
+
 sdp_memory_limit_total_gb=$(jq -r '.sdp_memory_limit_total_gb // 80' "$config_file")
 sdp_memory_limit_single_gb=$(jq -r '.sdp_memory_limit_single_gb // 80' "$config_file")
 sdp_memory_poll_seconds=$(jq -r '.sdp_memory_poll_seconds // 5' "$config_file")
 sdp_max_retries=$(jq -r '.sdp_max_retries // 3' "$config_file")
+
+if [[ -n "$slurm_mem_per_node_mb" && "$slurm_mem_per_node_mb" != "0" ]]; then
+    slurm_mem_per_node_gb=$(( slurm_mem_per_node_mb / 1024 ))
+    echo "Slurm memory per node: ${slurm_mem_per_node_mb} MB (~${slurm_mem_per_node_gb} GB)"
+    if (( sdp_memory_limit_total_gb > slurm_mem_per_node_gb )); then
+        echo "Error: sdp_memory_limit_total_gb (${sdp_memory_limit_total_gb} GB) exceeds requested Slurm memory (~${slurm_mem_per_node_gb} GB)."
+        echo "Adjust sdp_memory_limit_total_gb or request more memory in the Slurm file."
+        exit 1
+    fi
+fi
 
 persistent_warm_start_cache=$(jq -r '.persistent_warm_start_cache // true' "$config_file")
 warm_start_cache_dir=$(jq -r '.warm_start_cache_dir // "Results/warm_start_cache"' "$config_file")
@@ -117,6 +155,18 @@ compare_with_010101=$(jq -r '.compare_with_010101 // false' "$config_file")
 start_index_singlet=$(jq -r '.start_index_singlet // empty' "$config_file")
 circuit_type=$(jq -r '.circuit_type // empty' "$config_file")
 rerun_exclude_finished_instances=$(jq -r '.rerun_exclude_finished_instances // false' "$config_file")
+warm_start_cache_producer_only=$(jq -r '.warm_start_cache_producer_only // false' "$config_file")
+qaoa_only_from_existing_warm_start_cache=$(jq -r '.qaoa_only_from_existing_warm_start_cache // false' "$config_file")
+
+if [[ "$warm_start_cache_producer_only" == "true" && "$qaoa_only_from_existing_warm_start_cache" == "true" ]]; then
+    echo "Error: warm_start_cache_producer_only and qaoa_only_from_existing_warm_start_cache cannot both be true."
+    exit 1
+fi
+
+if [[ "$qaoa_only_from_existing_warm_start_cache" == "true" && "${warm_start:l}" != "true" ]]; then
+    echo "Error: qaoa_only_from_existing_warm_start_cache=true requires warm_start=true."
+    exit 1
+fi
 
 main_file="Code/Main.py"
 python_bin=$(command -v python || true)
@@ -591,7 +641,11 @@ refresh_running_arrays() {
                     if [[ "$exit_code" == "0" && -f "${sdp_cache[$key]}" ]]; then
                         echo "SDP producer finished successfully for key=${key}; cache=${sdp_cache[$key]}"
                         enforce_cache_limits "${sdp_cache[$key]}"
-                        enqueue_qaoa_for_sdp_key "$key"
+                        if [[ "$warm_start_cache_producer_only" == "true" ]]; then
+                            echo "warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=${key}."
+                        else
+                            enqueue_qaoa_for_sdp_key "$key"
+                        fi
                     elif [[ "$exit_code" == "137" || "$exit_code" == "143" ]]; then
                         # Killed by our memory guard. Already requeued there.
                         echo "SDP producer ended after kill/requeue for key=${key}, exit_code=${exit_code}"
@@ -767,8 +821,10 @@ enqueue_qaoa_for_sdp_key() {
 
     for iterations in "${iterations_list[@]}"; do
         for p in "${depth_list[@]}"; do
-            # The producer already ran this pair and should have written its QAOA result.
-            if [[ "$p" == "$producer_p" && "$iterations" == "$producer_iterations" ]]; then
+            # In combined mode, the SDP producer also ran this pair and should have written its QAOA result.
+            # In qaoa_only_from_existing_warm_start_cache mode, include all depth/iteration pairs because
+            # the cache may have been produced by an SDP-only run that deliberately skipped QAOA.
+            if [[ "$qaoa_only_from_existing_warm_start_cache" != "true" && "$p" == "$producer_p" && "$iterations" == "$producer_iterations" ]]; then
                 echo "Skipping QAOA enqueue for producer pair: key=${key}, p=${p}, iterations=${iterations}"
                 continue
             fi
@@ -799,7 +855,11 @@ launch_sdp_key() {
 
     if [[ -f "$cache" ]]; then
         echo "Cache already exists for SDP key=${key}: ${cache}"
-        enqueue_qaoa_for_sdp_key "$key"
+        if [[ "$warm_start_cache_producer_only" == "true" ]]; then
+            echo "warm_start_cache_producer_only=true; cache already exists, nothing else to do for key=${key}."
+        else
+            enqueue_qaoa_for_sdp_key "$key"
+        fi
         return 0
     fi
 
@@ -842,6 +902,10 @@ launch_sdp_key() {
         fi
 
         export WARM_START_CACHE_PATH=\"${cache}\"
+
+        if [[ \"${warm_start_cache_producer_only}\" == \"true\" ]]; then
+            export WARM_START_CACHE_PRODUCER_ONLY=1
+        fi
 
         ${cmd}
         exit_code=\$?
@@ -1041,10 +1105,27 @@ while read -r score n; do
             sdp_producer_iterations[$sdp_key]="$producer_iterations"
 
             if [[ -f "$cache_path" ]]; then
-                echo "Existing cache found for ${sdp_key}; enqueueing QAOA directly."
-                enqueue_qaoa_for_sdp_key "$sdp_key"
+                if [[ "$warm_start_cache_producer_only" == "true" ]]; then
+                    echo "Existing cache found for ${sdp_key}; warm_start_cache_producer_only=true, so no QAOA is enqueued."
+                else
+                    echo "Existing cache found for ${sdp_key}; enqueueing QAOA directly."
+                    enqueue_qaoa_for_sdp_key "$sdp_key"
+                fi
             else
-                pending_sdp_keys+=("$sdp_key")
+                if [[ "$qaoa_only_from_existing_warm_start_cache" == "true" ]]; then
+                    echo "Missing cache for ${sdp_key}; qaoa_only_from_existing_warm_start_cache=true, so SDP producer is not enqueued: ${cache_path}"
+                    log_failed_warm_start_row \
+                        "$n" \
+                        "$repeat_idx" \
+                        "${derived_sdp_seed:-}" \
+                        "missing_cache" \
+                        "qaoa_only_missing_warm_start_cache" \
+                        "$cache_path" \
+                        "" \
+                        ""
+                else
+                    pending_sdp_keys+=("$sdp_key")
+                fi
             fi
         else
             for iterations in "${iterations_list[@]}"; do
@@ -1084,6 +1165,13 @@ echo "  qaoa_threads: ${qaoa_threads}"
 echo "  warm_start_cache_dir: ${warm_start_cache_dir}"
 echo "  warm_start_cache_max_file_mb: ${warm_start_cache_max_file_mb}"
 echo "  warm_start_cache_max_total_gb: ${warm_start_cache_max_total_gb}"
+echo "  warm_start_cache_producer_only: ${warm_start_cache_producer_only}"
+echo "  qaoa_only_from_existing_warm_start_cache: ${qaoa_only_from_existing_warm_start_cache}"
+echo "  nominal_thread_budget: ${nominal_thread_budget}"
+echo "  slurm_job_id: ${slurm_job_id:-none}"
+echo "  slurm_node_list: ${slurm_node_list:-none}"
+echo "  slurm_cpus_per_task: ${slurm_cpus_per_task:-none}"
+echo "  slurm_mem_per_node_mb: ${slurm_mem_per_node_mb:-none}"
 echo "  python_bin: ${python_bin}"
 echo "  MOSEKLM_LICENSE_FILE: ${MOSEKLM_LICENSE_FILE}"
 echo ""

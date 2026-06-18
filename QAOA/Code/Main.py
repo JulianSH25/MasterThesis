@@ -298,6 +298,9 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
         )
     except Exception:
         raise RuntimeError("WARM_START_GENERATION_FAILED")
+    if init_initial_state and os.environ.get("WARM_START_CACHE_PRODUCER_ONLY", "").lower() in {"1", "true", "yes"}:
+        print("WARM_START_CACHE_PRODUCER_ONLY is set; warm-start cache has been produced/loaded. Exiting before QAOA optimisation.")
+        sys.exit(0)
     if __initial_state__ is not None:
         initial_state = __initial_state__
         if str(benchmark_params.get("circuit_type") or "").lower() == "hamqaoa":

@@ -39,7 +39,7 @@
   "debug": false,
   "save_circuit_svg": false,
   "rerun_exclude_finished_instances": true,
-  "warm_start_cache_producer_only": false,
+  "warm_start_cache_producer_only": true,
   "qaoa_only_from_existing_warm_start_cache": false,
   "optimiser_debug_iterations": null,
 
@@ -51,11 +51,11 @@
   "warm_start_cache_max_file_mb": 512,
   "warm_start_cache_max_total_gb": 60,
 
-  "sdp_max_parallel": 4,
-  "qaoa_max_parallel": 7,
+  "sdp_max_parallel": 5,
+  "qaoa_max_parallel": 0,
 
   "sdp_threads": 1,
-  "qaoa_threads": 4,
+  "qaoa_threads": 1,
 
   "sdp_memory_limit_total_gb": 110,
   "sdp_memory_limit_single_gb": 80,
