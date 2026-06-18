@@ -1,0 +1,11 @@
+{
+  "graph_hash": "2feb5af6449c0fd5",
+  "n_vertices": 8,
+  "n_edges": 10,
+  "sdp_seed": 2000042,
+  "lasserre_level": 1,
+  "initial_solver_level_M": 1,
+  "warm_start_mode": "standard",
+  "failed_at": "2026-06-17 17:35:38",
+  "error": "RuntimeError(\"MOSEK solver failed with error: rescode.err_missing_license_file(1008): License cannot be located. The default search path is ':/home/coder/project/MasterThesis/mosek.lic:'.\\n. Please ensure MOSEK is installed and licensed for optimal performance. Falling back to SCS, which may be slower and less accurate.\")"
+}
