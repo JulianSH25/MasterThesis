@@ -449,7 +449,8 @@ if [[ "$rerun_exclude_finished_instances" == "true" && -f "$completed_file" ]]; 
     done < "$completed_file"
 fi
 
-typeset -A completed_csv_map=()
+typeset -A completed_csv_map
+completed_csv_map=()
 completed_result_csv_key_file=""
 build_completed_instance_key() {
     local n="$1"
@@ -1142,7 +1143,7 @@ launch_sdp_key() {
 
 launch_qaoa_key() {
     local key="$1"
-    local n p iterations repeat seed cache role seed_label log_file status_file cmd pid run_key
+    local n p iterations repeat seed cache role seed_label log_file status_file cmd pid run_key completed_instance_key
 
     n="${qaoa_n[$key]}"
     p="${qaoa_p[$key]}"
