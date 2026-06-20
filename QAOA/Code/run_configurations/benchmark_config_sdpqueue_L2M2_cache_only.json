@@ -10,7 +10,7 @@
   "learning_rate_adam": 0.05,
   "depth_list": [1, 3, 5],
 
-  "n_start": 47,
+  "n_start": 80,
   "n_end": null,
 
   "singlet_injection": false,
@@ -51,14 +51,14 @@
   "warm_start_cache_max_file_mb": 512,
   "warm_start_cache_max_total_gb": 60,
 
-  "sdp_max_parallel": 5,
+  "sdp_max_parallel": 30,
   "qaoa_max_parallel": 0,
 
   "sdp_threads": 1,
   "qaoa_threads": 1,
 
-  "sdp_memory_limit_total_gb": 110,
-  "sdp_memory_limit_single_gb": 80,
+  "sdp_memory_limit_total_gb": 450,
+  "sdp_memory_limit_single_gb": 100,
   "sdp_memory_poll_seconds": 5,
   "sdp_max_retries": 3,
 
