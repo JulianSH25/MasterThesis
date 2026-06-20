@@ -1,0 +1,17 @@
+{
+  "whitelist": [
+    "n",
+    "m",
+    "p",
+    "precision/iterations",
+    "parameter_vector",
+    "singlet_injection",
+    "warm_start",
+    "init_QAOAparams_close_to_zero",
+    "use_correlations_as_initial_params",
+    "compare_with_010101",
+    "start_index_singlet",
+    "graph_generation_type",
+    "weighted"
+  ]
+}

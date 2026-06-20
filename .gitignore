@@ -3,12 +3,28 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+QAOA/logs/*
+QAOA/Results/*.log
+QAOA/benchmark_config.json
+
+*.DS_Store
+*.iml
+*.xml
+
+*.out
+
+*.iml
+*.xml
 # C extensions
 *.so
 
 *.txt
+!QAOA/Code/HOG_graphs/*
+!QAOA/Code/run_configurations/*
 *.lic
 *.csv
+!QAOA/Code/optimal_results/*
+!QAOA/Results/logs/adam/*
 
 # Distribution / packaging
 .Python
