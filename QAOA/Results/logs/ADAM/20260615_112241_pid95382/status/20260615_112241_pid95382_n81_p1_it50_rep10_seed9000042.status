@@ -1,0 +1,10 @@
+finished_at=2026-06-15 15:23:44
+exit_code=1
+timed_out=0
+warm_start_failed=0
+n=81
+p=1
+iterations=50
+repeat_idx=10
+sdp_seed=9000042
+warm_start_cache_path=Results/logs/adam/20260615_112241_pid95382/warm_start_cache/20260615_112241_pid95382_n81_rep10_seed9000042_L1_M1_standard.npz
