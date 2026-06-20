@@ -1,0 +1,10 @@
+finished_at=2026-06-17 08:35:41
+exit_code=0
+timed_out=0
+warm_start_failed=0
+n=6
+p=5
+iterations=50
+repeat_idx=9
+sdp_seed=8000042
+warm_start_cache_path=
