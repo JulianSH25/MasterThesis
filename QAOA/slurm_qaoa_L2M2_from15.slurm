@@ -6,11 +6,10 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=36
+#SBATCH --cpus-per-task=32
 #SBATCH --mem=48G
 #SBATCH --partition=research
 #SBATCH --account=research
-#SBATCH --nodelist=dacsvm-cpunode01.fse-cslab.nl
 
 set -euo pipefail
 
