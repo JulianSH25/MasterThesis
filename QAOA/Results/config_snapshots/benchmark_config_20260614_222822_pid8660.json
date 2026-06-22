@@ -1,0 +1,46 @@
+{
+  "optimiser": "adam",
+  "optimiser_use_heuristic": true,
+  "heuristic_optimiser_iterations": 2,
+  "heuristic_optimiser_sampleSize": 1000,
+
+  "circuit_type": "hamqaoa",
+  "parameter_vector": [1, 1, 1],
+  "iterations_list": [50],
+  "learning_rate_adam": 0.05,
+  "depth_list": [1, 2, 3, 4, 5],
+
+  "n_start": null,
+  "n_end": null,
+
+  "singlet_injection": false,
+  "start_index_singlet": null,
+
+  "warm_start": true,
+  "warm_start_mode": "standard",
+  "lasserre_level": 1,
+  "initial_solver_level_M": 1,
+  "sdp_seed": 42,
+
+  "warm_start_corr_strength": null,
+  "warm_start_corr_repeats": null,
+  "compare_with_010101": false,
+  "init_QAOAparams_close_to_zero": false,
+  "use_correlations_as_initial_params": false,
+
+  "time_limit": 10800,
+  "failed_instance_termination_thrsh": 10,
+
+  "graph_generation_type": "hog",
+  "weighted": false,
+  "easiest_first": true,
+
+  "cpu_util_threshold": 90,
+  "debug": false,
+  "save_circuit_svg": false,
+  "rerun_exclude_finished_instances": false,
+  "optimiser_debug_iterations": null,
+
+  "num_repeats": 10,
+  "relative_graph_adjList_path": "HOG_graphs/triangleFree_connected_4to15vertices_829instances_AdjacencyList.txt"
+}
