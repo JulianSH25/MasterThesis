@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=qaoa_sdp_cache
+#SBATCH --job-name=sdp_3_15_3reg_triangleFree_L1M1
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --time=7-00:00:00
@@ -22,4 +22,4 @@ conda activate masterthesis
 
 export MOSEKLM_LICENSE_FILE="$HOME/MasterThesis/mosek.lic"
 
-zsh qaoa_benchmarks_dsri_sdpqueue.sh Code/run_configurations/benchmark_config_triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList_L2M1.json
+zsh qaoa_benchmarks_dsri_sdpqueue.sh Code/run_configurations/benchmark_config_triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList_L1M1.json

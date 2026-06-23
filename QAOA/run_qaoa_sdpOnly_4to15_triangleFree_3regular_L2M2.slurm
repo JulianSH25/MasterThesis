@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=qaoa_sdp_cache
+#SBATCH --job-name=sdp_3_15_3reg_triangleFree_L2M2
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --time=7-00:00:00
