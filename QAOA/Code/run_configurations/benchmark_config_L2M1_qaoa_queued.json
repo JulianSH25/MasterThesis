@@ -11,7 +11,7 @@
   "depth_list": [1, 3, 5],
 
   "n_start": null,
-  "n_end": null,
+  "n_end": 60,
 
   "singlet_injection": false,
   "start_index_singlet": null,
@@ -54,7 +54,7 @@
   "warm_start_cache_max_total_gb": 60,
 
   "sdp_max_parallel": 0,
-  "qaoa_max_parallel": 32,
+  "qaoa_max_parallel": 26,
 
   "sdp_threads": 1,
   "qaoa_threads": 1,
