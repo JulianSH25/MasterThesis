@@ -1,0 +1,13 @@
+finished_at=2026-06-23 11:23:57
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=qaoa_no_warmstart
+key=n159_rep4_p3_it50
+n=159
+p=3
+iterations=50
+repeat_idx=4
+sdp_seed=
+warm_start_cache_path=
+threads=1

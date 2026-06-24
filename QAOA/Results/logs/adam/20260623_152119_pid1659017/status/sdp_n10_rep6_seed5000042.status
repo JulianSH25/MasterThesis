@@ -1,0 +1,13 @@
+finished_at=2026-06-23 15:26:10
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=sdp_producer
+key=n10_rep6_seed5000042
+n=10
+p=1
+iterations=50
+repeat_idx=6
+sdp_seed=5000042
+warm_start_cache_path=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed5000042_L1_M1_standard.npz
+threads=1
