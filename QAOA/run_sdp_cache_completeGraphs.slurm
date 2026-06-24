@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=qaoa_L2M1_cache_rerun
+#SBATCH --job-name=qaoa_L1M1_cache_rerun
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --time=1-00:00:00
@@ -22,4 +22,4 @@ conda activate masterthesis
 
 export MOSEKLM_LICENSE_FILE="$HOME/MasterThesis/mosek.lic"
 
-zsh qaoa_benchmarks_dsri_sdpqueue.sh Code/run_configurations/benchmark_config_L2M2_complete.json
+zsh qaoa_benchmarks_dsri_sdpqueue.sh Code/run_configurations/benchmark_config_L1M1_complete.json
