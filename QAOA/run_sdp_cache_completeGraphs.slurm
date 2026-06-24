@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=qaoa_L2M2_cache_complete
+#SBATCH --job-name=qaoa_L1M1_cache_complete
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --time=1-00:00:00
