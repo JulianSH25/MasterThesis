@@ -44,14 +44,13 @@
   "optimiser_debug_iterations": null,
 
   "num_repeats": 10,
-  "relative_graph_adjList_path": "HOG_graphs/triangleFree_connected_4to8vertices_176instances_AdjacencyList.txt",
 
   "persistent_warm_start_cache": true,
   "warm_start_cache_dir": "Results/warm_start_cache/complete_graphs",
   "warm_start_cache_max_file_mb": 512,
   "warm_start_cache_max_total_gb": 60,
 
-  "sdp_max_parallel": 30,
+  "sdp_max_parallel": 23,
   "qaoa_max_parallel": 0,
 
   "sdp_threads": 1,
