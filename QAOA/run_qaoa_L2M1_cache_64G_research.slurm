@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=qaoa_L2M1_cache_speedup_helper
+#SBATCH --job-name=qaoa_L2M1_cache_rerun
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --time=3-00:00:00
