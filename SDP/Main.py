@@ -105,30 +105,44 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
     """
     Run a single SDP solve and rounding flow.
 
-    For level 1:
-        solve 3n x 3n GP/Lasserre1 SDP and round directly.
+    The two level arguments have separate responsibilities:
+        - initial_solver_level_M selects the SDP relaxation that is solved.
+        - lasserre_level selects the downstream rounding pipeline.
 
-    For level 2:
-        solve full Lasserre2 SDP,
-        extract the 3n x 3n level-1 submatrix,
-        then run the existing GP rounding on that submatrix.
+    Supported combinations:
+        - L1M1: solve the 3n x 3n level-1 SDP and run GP rounding.
+        - L2M1: solve the 3n x 3n level-1 SDP and heuristically run
+          Algorithm 17 using its correlations.
+        - L2M2: solve the full level-2 SDP, run GP rounding on its extracted
+          level-1 submatrix, and run Algorithm 17 using the full matrix.
 
     This function runs the SDP solve and rounding flow without benchmark persistence.
 
     :param instance: tuple (edges, weights) describing the graph
     :param n_vertices: number of vertices in the graph instance
+    :param lasserre_level: downstream rounding level (1 for GP, 2 for Algorithm 17)
     :param params: SDP Hamiltonian coefficients as a, b, c bits
-    :param initial_solver_level_M: for lasserre_level=2, select whether the downstream warm-start / Algorithm 17 pipeline uses the full level-2 King matrix (2) or the reduced 3n GP-GW matrix (1)
+    :param initial_solver_level_M: SDP relaxation to solve (1 for the 3n level-1
+        matrix, 2 for the full level-2 King matrix)
     :param seed: optional seed for seeded rounding and Algorithm 17 sampling
-    :return: tuple (edge_count, edges_in_cut, cuts, M_optimal, states)
+    :return: tuple (energy, M_optimal, states, cuts, sdp_result)
     """
     solver_sdp = SDP_Solver_(lasserre_level=lasserre_level)
     edges, weights = instance
 
+    if lasserre_level not in (1, 2):
+        raise ValueError(f"Unsupported Lasserre level: {lasserre_level}")
+
     if initial_solver_level_M not in (1, 2):
         raise ValueError(f"Unsupported initial_solver_level_M: {initial_solver_level_M}")
 
-    if lasserre_level == 1:
+    if lasserre_level == 1 and initial_solver_level_M != 1:
+        raise ValueError(
+            "Unsupported combination L1M2: level-1 rounding requires "
+            "initial_solver_level_M=1."
+        )
+
+    if initial_solver_level_M == 1:
         M_optimal = solver_sdp.QMC_SDP_solver_antiFerro(
             edges,
             weights,
@@ -141,7 +155,7 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
         basis = None
         pidx = None
 
-    elif lasserre_level == 2:
+    else:
         M_level2_full, basis, pidx = solver_sdp.QMC_SDP_solver_antiFerro_level_2(
             edges,
             weights,
@@ -150,25 +164,12 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
             debug=debug,
         )
 
-        if initial_solver_level_M == 1:
-            M_optimal = extract_level1_submatrix_from_level2(
-                M_level2=M_level2_full,
-                pidx=pidx,
-                n_vertices=n_vertices,
-            )
-            M_for_rounding = M_optimal
-            basis = None
-            pidx = None
-        else:
-            M_optimal = M_level2_full
-            M_for_rounding = extract_level1_submatrix_from_level2(
-                M_level2=M_level2_full,
-                pidx=pidx,
-                n_vertices=n_vertices,
-            )
-
-    else:
-        raise ValueError(f"Unsupported Lasserre level: {lasserre_level}")
+        M_optimal = M_level2_full
+        M_for_rounding = extract_level1_submatrix_from_level2(
+            M_level2=M_level2_full,
+            pidx=pidx,
+            n_vertices=n_vertices,
+        )
 
     print("Rounding...")
     cuts, states, bloch_vectors = round_sdp_with_cholesky(M_for_rounding, parameters=params, seed=seed)
