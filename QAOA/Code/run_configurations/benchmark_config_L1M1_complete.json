@@ -50,7 +50,7 @@
   "warm_start_cache_max_file_mb": 512,
   "warm_start_cache_max_total_gb": 60,
 
-  "sdp_max_parallel": 30,
+  "sdp_max_parallel": 20,
   "qaoa_max_parallel": 0,
 
   "sdp_threads": 1,

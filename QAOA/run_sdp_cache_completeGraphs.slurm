@@ -6,7 +6,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=22
 #SBATCH --mem=48G
 #SBATCH --partition=research
 #SBATCH --account=research
@@ -22,4 +22,4 @@ conda activate masterthesis
 
 export MOSEKLM_LICENSE_FILE="$HOME/MasterThesis/mosek.lic"
 
-zsh qaoa_benchmarks_dsri_sdpqueue.sh Code/run_configurations/benchmark_config_qaoaFromCache_complete.json
+zsh qaoa_benchmarks_dsri_sdpqueue.sh Code/run_configurations/benchmark_config_L1M1_complete.json
