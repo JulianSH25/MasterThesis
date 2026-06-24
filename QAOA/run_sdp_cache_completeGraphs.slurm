@@ -7,7 +7,7 @@
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=22
-#SBATCH --mem=48G
+#SBATCH --mem=512G
 #SBATCH --partition=research
 #SBATCH --account=research
 
