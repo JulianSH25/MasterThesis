@@ -1,0 +1,13 @@
+finished_at=2026-06-25 02:33:30
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=qaoa_cached
+key=n10_rep4_seed3000042_p1_it50
+n=10
+p=1
+iterations=50
+repeat_idx=4
+sdp_seed=3000042
+warm_start_cache_path=Results/warm_start_cache/complete_graphs/complete/complete_n10_7c437acf7629_seed3000042_L1_M1_standard.npz
+threads=1
