@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=qaoa_L2M2_from15
+#SBATCH --job-name=qaoa_L2M2_3regular_upTo15
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --time=3-00:00:00
@@ -22,4 +22,4 @@ conda activate masterthesis
 
 export MOSEKLM_LICENSE_FILE="$HOME/MasterThesis/mosek.lic"
 
-zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/benchmark_config_L2M2_qaoa_from15.json
+zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/benchmark_config_triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList_L2M2.json
