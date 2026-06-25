@@ -1,15 +1,16 @@
 #!/bin/bash
-#SBATCH --job-name=qaoa_L2M2_from15
+#SBATCH --job-name=qaoa_L2M2_from15_rerun_fast
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --time=3-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=32
-#SBATCH --mem=48G
+#SBATCH --cpus-per-task=22
+#SBATCH --mem=32G
 #SBATCH --partition=research
 #SBATCH --account=research
+#SBATCH --nodelist=dacsvm-cpunode01.fse-cslab.nl
 
 set -euo pipefail
 

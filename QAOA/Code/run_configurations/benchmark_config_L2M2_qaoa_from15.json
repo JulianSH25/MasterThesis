@@ -10,8 +10,8 @@
   "learning_rate_adam": 0.05,
   "depth_list": [1, 3, 5],
 
-  "n_start": 131,
-  "n_end": null,
+  "n_start": 101,
+  "n_end": 130,
 
   "singlet_injection": false,
   "start_index_singlet": null,
@@ -57,7 +57,7 @@
   "warm_start_cache_max_total_gb": 60,
 
   "sdp_max_parallel": 0,
-  "qaoa_max_parallel": 32,
+  "qaoa_max_parallel": 21,
 
   "sdp_threads": 1,
   "qaoa_threads": 1,

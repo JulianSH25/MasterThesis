@@ -18,7 +18,7 @@
 
   "warm_start": true,
   "warm_start_mode": "standard",
-  "lasserre_level": 1,
+  "lasserre_level": 2,
   "initial_solver_level_M": 1,
   "sdp_seed": 42,
 
