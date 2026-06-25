@@ -20,7 +20,7 @@
   "warm_start_mode": "standard",
   "lasserre_level": 2,
   "initial_solver_level_M": 2,
-  "sdp_seed": 42,
+  "sdp_seed": null,
 
   "warm_start_corr_strength": null,
   "warm_start_corr_repeats": null,
@@ -43,7 +43,7 @@
   "qaoa_only_from_existing_warm_start_cache": false,
   "optimiser_debug_iterations": null,
 
-  "num_repeats": 10,
+  "num_repeats": 1,
   "relative_graph_adjList_path": "HOG_graphs/random_graphs_8to15vertices_1094instances_20260625_144734_AdjacencyList.txt",
 
   "persistent_warm_start_cache": true,
