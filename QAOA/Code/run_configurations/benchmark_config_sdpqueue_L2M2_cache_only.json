@@ -10,8 +10,8 @@
   "learning_rate_adam": 0.05,
   "depth_list": [1, 3, 5],
 
-  "n_start": null,
-  "n_end": 78,
+  "n_start": 79,
+  "n_end": null,
 
   "singlet_injection": false,
   "start_index_singlet": null,
