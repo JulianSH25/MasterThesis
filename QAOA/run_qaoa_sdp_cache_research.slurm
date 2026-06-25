@@ -22,4 +22,4 @@ conda activate masterthesis
 
 export MOSEKLM_LICENSE_FILE="$HOME/MasterThesis/mosek.lic"
 
-zsh qaoa_benchmarks_dsri_sdpqueue.sh Code/run_configurations/benchmark_config_sdpqueue_L2M2_cache_only
+zsh qaoa_benchmarks_dsri_sdpqueue.sh Code/run_configurations/benchmark_config_sdpqueue_L2M2_cache_only.json
