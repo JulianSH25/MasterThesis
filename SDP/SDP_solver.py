@@ -225,7 +225,47 @@ class SDP_Solver_():
         )
 
         try:
-            problem.solve(solver=cp.MOSEK, verbose=debug)
+            sdp_solver_mode = get_benchmark_params().get("sdp_solver_mode", "mosek")
+
+            if sdp_solver_mode is None:
+                print("Warning: 'sdp_solver_mode' not specified in benchmark parameters. Defaulting to 'mosek'.", flush=True)
+                sdp_solver_mode = "mosek"
+
+            sdp_solver_mode = str(sdp_solver_mode).lower()
+
+            if sdp_solver_mode == "clarabel":
+                print("Using CLARABEL solver for SDP.", flush=True)
+                problem.solve(solver=cp.CLARABEL, verbose=debug)
+
+            elif sdp_solver_mode == "scs":
+                params_benchmark = get_benchmark_params()
+
+                if "sdp_scs_eps" not in params_benchmark:
+                    raise ValueError("sdp_solver_mode='scs' requires config parameter 'sdp_scs_eps'.")
+
+                if "sdp_scs_max_iters" not in params_benchmark:
+                    raise ValueError("sdp_solver_mode='scs' requires config parameter 'sdp_scs_max_iters'.")
+
+                sdp_scs_eps = float(params_benchmark["sdp_scs_eps"])
+                sdp_scs_max_iters = int(params_benchmark["sdp_scs_max_iters"])
+
+                print(f"Using SCS solver for SDP with eps={sdp_scs_eps}, max_iters={sdp_scs_max_iters}.", flush=True)
+                problem.solve(
+                    solver=cp.SCS,
+                    verbose=debug,
+                    eps=sdp_scs_eps,
+                    max_iters=sdp_scs_max_iters,
+                )
+
+            elif sdp_solver_mode == "mosek":
+                print("Using MOSEK solver for SDP.", flush=True)
+                problem.solve(solver=cp.MOSEK, verbose=debug)
+
+            else:
+                raise ValueError(
+                    f"Unknown sdp_solver_mode={sdp_solver_mode!r}. "
+                    "Use 'mosek', 'clarabel', or 'scs'."
+                )
         except Exception as e:
             print(f"Warning: MOSEK solver not available: {e};", flush=True)
             #problem.solve(solver=cp.SCS, verbose=debug)
