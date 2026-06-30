@@ -10,8 +10,9 @@
   "learning_rate_adam": null,
   "depth_list": null,
 
-  "n_start": null,
-  "n_end": null,
+  "n_start": 0,
+  "n_end": 77,
+  "graph_generation_type": "hog",
 
   "singlet_injection": null,
   "start_index_singlet": null,
@@ -31,16 +32,15 @@
   "time_limit": 10800,
   "failed_instance_termination_thrsh": 10,
 
-  "graph_generation_type": null,
   "weighted": false,
   "easiest_first": true,
 
-  "cpu_util_threshold": 90,
+  "cpu_util_threshold": null,
   "debug": false,
   "save_circuit_svg": false,
   "rerun_exclude_finished_instances": false,
   "optimiser_debug_iterations": null,
 
   "num_repeats": 1,
-  "relative_graph_adjList_path": "HOG_graphs/random_graphs_8to15vertices_1094instances_20260625_144734_AdjacencyList.txt"
+  "relative_graph_adjList_path": "HOG_graphs/random_graphs_8to14vertices_78instances_20260625_143415_AdjacencyList.txt"
 }

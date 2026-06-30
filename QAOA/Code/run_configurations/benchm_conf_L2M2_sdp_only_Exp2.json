@@ -22,6 +22,10 @@
   "initial_solver_level_M": 2,
   "sdp_seed": null,
 
+  "sdp_solver_mode": "scs",
+  "sdp_scs_eps": 0.001,
+  "sdp_scs_max_iters": 20000,
+
   "warm_start_corr_strength": null,
   "warm_start_corr_repeats": null,
   "compare_with_010101": false,
@@ -47,18 +51,18 @@
   "relative_graph_adjList_path": "HOG_graphs/random_graphs_8to14vertices_78instances_20260625_143415_AdjacencyList.txt",
 
   "persistent_warm_start_cache": true,
-  "warm_start_cache_dir": "Results/warm_start_cache/fast_test",
+  "warm_start_cache_dir": "Results/warm_start_cache/fast_test_scs_mosek",
   "warm_start_cache_max_file_mb": 512,
   "warm_start_cache_max_total_gb": 60,
 
-  "sdp_max_parallel": 16,
+  "sdp_max_parallel": 32,
   "qaoa_max_parallel": 0,
 
   "sdp_threads": 1,
   "qaoa_threads": 1,
 
-  "sdp_memory_limit_total_gb": 250,
-  "sdp_memory_limit_single_gb": 100,
+  "sdp_memory_limit_total_gb": 350,
+  "sdp_memory_limit_single_gb": 350,
   "sdp_memory_poll_seconds": 5,
   "sdp_max_retries": 3,
 
