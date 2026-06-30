@@ -10,8 +10,8 @@
   "learning_rate_adam": 0.05,
   "depth_list": [1, 3, 5],
 
-  "n_start": null,
-  "n_end": null,
+  "n_start": 11,
+  "n_end": 20,
 
   "singlet_injection": false,
   "start_index_singlet": null,
@@ -35,7 +35,7 @@
   "time_limit": null,
   "failed_instance_termination_thrsh": null,
 
-  "graph_generation_type": "hog",
+  "graph_generation_type": "complete",
   "weighted": false,
   "easiest_first": true,
 
