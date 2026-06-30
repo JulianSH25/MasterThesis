@@ -266,6 +266,14 @@ class SDP_Solver_():
                     f"Unknown sdp_solver_mode={sdp_solver_mode!r}. "
                     "Use 'mosek', 'clarabel', or 'scs'."
                 )
+            print(f"SDP solver status: {problem.status}")
+
+            stats = getattr(problem, "solver_stats", None)
+            if stats is not None:
+                print(f"SDP solver name: {getattr(stats, 'solver_name', None)}")
+                print(f"SDP solver iterations: {getattr(stats, 'num_iters', None)}")
+                print(f"SDP solve time: {getattr(stats, 'solve_time', None)}")
+                print(f"SDP extra stats: {getattr(stats, 'extra_stats', None)}")
         except Exception as e:
             print(f"Warning: MOSEK solver not available: {e};", flush=True)
             #problem.solve(solver=cp.SCS, verbose=debug)
