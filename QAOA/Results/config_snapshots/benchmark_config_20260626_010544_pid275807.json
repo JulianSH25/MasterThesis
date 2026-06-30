@@ -1,0 +1,66 @@
+{
+  "optimiser": "adam",
+  "optimiser_use_heuristic": true,
+  "heuristic_optimiser_iterations": 2,
+  "heuristic_optimiser_sampleSize": 1000,
+
+  "circuit_type": "hamqaoa",
+  "parameter_vector": [1, 1, 1],
+  "iterations_list": [50],
+  "learning_rate_adam": 0.05,
+  "depth_list": [1, 3, 5],
+
+  "n_start": 700,
+  "n_end": null,
+
+  "singlet_injection": false,
+  "start_index_singlet": null,
+
+  "warm_start": true,
+  "warm_start_mode": "standard",
+  "lasserre_level": 2,
+  "initial_solver_level_M": 2,
+  "sdp_seed": null,
+
+  "warm_start_corr_strength": null,
+  "warm_start_corr_repeats": null,
+  "compare_with_010101": false,
+  "init_QAOAparams_close_to_zero": false,
+  "use_correlations_as_initial_params": false,
+
+  "time_limit": 10800,
+  "failed_instance_termination_thrsh": null,
+
+  "graph_generation_type": "hog",
+  "weighted": false,
+  "easiest_first": true,
+
+  "cpu_util_threshold": null,
+  "debug": false,
+  "save_circuit_svg": false,
+  "rerun_exclude_finished_instances": true,
+  "warm_start_cache_producer_only": true,
+  "qaoa_only_from_existing_warm_start_cache": false,
+  "optimiser_debug_iterations": null,
+
+  "num_repeats": 1,
+  "relative_graph_adjList_path": "HOG_graphs/random_graphs_8to15vertices_1094instances_20260625_144734_AdjacencyList.txt",
+
+  "persistent_warm_start_cache": true,
+  "warm_start_cache_dir": "Results/warm_start_cache/fast_test",
+  "warm_start_cache_max_file_mb": 512,
+  "warm_start_cache_max_total_gb": 60,
+
+  "sdp_max_parallel": 16,
+  "qaoa_max_parallel": 0,
+
+  "sdp_threads": 1,
+  "qaoa_threads": 1,
+
+  "sdp_memory_limit_total_gb": 250,
+  "sdp_memory_limit_single_gb": 100,
+  "sdp_memory_poll_seconds": 5,
+  "sdp_max_retries": 3,
+
+  "queue_poll_interval_seconds": 5
+}
