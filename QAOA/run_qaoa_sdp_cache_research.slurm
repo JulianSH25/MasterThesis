@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=qaoa_sdp_cache
+#SBATCH --job-name=qaoa_sdp_cache_rerun_suspiscious
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
-#SBATCH --time=7-00:00:00
+#SBATCH --time=1-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=18
-#SBATCH --mem=300GB
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=251GB
 #SBATCH --partition=research
 #SBATCH --account=research
 
