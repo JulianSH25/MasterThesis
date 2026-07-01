@@ -1,0 +1,7 @@
+section,duration_seconds
+initialisation,0.02
+instance_generation_n_172,0.0
+qaoa_optimisation_n_172,415.78
+csv_writing_n_172,0.02
+finalisation,0.0
+total_time,415.82

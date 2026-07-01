@@ -1,0 +1,13 @@
+finished_at=2026-06-26 15:21:11
+exit_code=124
+timed_out=1
+warm_start_failed=0
+role=sdp_producer
+key=n15_rep5_seed4000042
+n=15
+p=1
+iterations=50
+repeat_idx=5
+sdp_seed=4000042
+warm_start_cache_path=Results/warm_start_cache/line_graphs/line/line_n15_5ef5b2b0d425_seed4000042_L2_M2_standard.npz
+threads=1

@@ -1,0 +1,13 @@
+finished_at=2026-06-26 10:06:14
+exit_code=124
+timed_out=1
+warm_start_failed=0
+role=sdp_producer
+key=n741_rep1_seednone
+n=741
+p=1
+iterations=50
+repeat_idx=1
+sdp_seed=
+warm_start_cache_path=Results/warm_start_cache/fast_test/random_graphs_8to15vertices_1094instances_20260625_144734_AdjacencyList__filehash_a0cb3063/hog_idx000741_2a3e7db2635a_noseed_L2_M2_standard.npz
+threads=1

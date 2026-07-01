@@ -1,0 +1,2247 @@
+Launcher PID: 1463067
+Started at: 2026-06-26 13:42:58
+Host: dacsgpu0003
+Working directory: /home/i6408800/MasterThesis/QAOA
+Using MOSEK license path: /home/i6408800/MasterThesis/mosek.lic
+Using benchmark config snapshot: Results/config_snapshots/benchmark_config_20260626_134258_pid1463067.json
+Running inside Slurm job: 5631 (exact)
+Slurm node list: dacsgpu0003.fse-cslab.nl
+Slurm CPUs per task: 19
+Nominal launcher thread budget: 19
+Slurm memory per node: 102400 MB (~100 GB)
+HOG index range: n=0..1015 out of 1016 graphs.
+Benchmark configuration from Results/config_snapshots/benchmark_config_20260626_134258_pid1463067.json:
+  optimiser: "exact"
+  optimiser_use_heuristic: null
+  heuristic_optimiser_iterations: null
+  heuristic_optimiser_sampleSize: null
+  circuit_type: "HOG"
+  parameter_vector: null
+  iterations_list: null
+  learning_rate_adam: null
+  depth_list: null
+  n_start: 0
+  n_end: 1015
+  graph_generation_type: "hog"
+  singlet_injection: null
+  start_index_singlet: null
+  warm_start: null
+  warm_start_mode: null
+  lasserre_level: null
+  initial_solver_level_M: null
+  sdp_seed: null
+  warm_start_corr_strength: null
+  warm_start_corr_repeats: null
+  warm_start_correlations: null
+  compare_with_010101: null
+  init_QAOAparams_close_to_zero: null
+  use_correlations_as_initial_params: null
+  time_limit: 10800
+  failed_instance_termination_thrsh: 10
+  weighted: false
+  easiest_first: true
+  cpu_util_threshold: null
+  debug: false
+  save_circuit_svg: false
+  rerun_exclude_finished_instances: false
+  optimiser_debug_iterations: null
+  num_repeats: 1
+  relative_graph_adjList_path: "HOG_graphs/random_graphs_8to15vertices_1094instances_20260625_144734_AdjacencyList.txt"
+
+DSRI SDP/QAOA queue launcher settings:
+  warm_start: false
+  pending_sdp_initial: 0
+  pending_qaoa_initial: 1016
+  sdp_max_parallel: 3
+  qaoa_max_parallel: 8
+  sdp_memory_limit_total_gb: 80
+  sdp_memory_limit_single_gb: 80
+  sdp_max_retries: 3
+  sdp_threads: 1
+  qaoa_threads: 2
+  warm_start_cache_dir: Results/warm_start_cache
+  warm_start_cache_max_file_mb: 512
+  warm_start_cache_max_total_gb: 60
+  warm_start_cache_producer_only: false
+  qaoa_only_from_existing_warm_start_cache: false
+  completed_runs_txt_entries: 0
+  completed_result_csv_entries: 0
+  nominal_thread_budget: 19
+  slurm_job_id: 5631
+  slurm_node_list: dacsgpu0003.fse-cslab.nl
+  slurm_cpus_per_task: 19
+  slurm_mem_per_node_mb: 102400
+  python_bin: /home/i6408800/miniforge3/envs/masterthesis/bin/python
+  MOSEKLM_LICENSE_FILE: /home/i6408800/MasterThesis/mosek.lic
+
+Launching QAOA key=n0_rep1_p0_it0, n=0, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1463210, key=n0_rep1_p0_it0
+Launching QAOA key=n1_rep1_p0_it0, n=1, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1463292, key=n1_rep1_p0_it0
+Launching QAOA key=n2_rep1_p0_it0, n=2, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1463374, key=n2_rep1_p0_it0
+Launching QAOA key=n3_rep1_p0_it0, n=3, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1463456, key=n3_rep1_p0_it0
+Launching QAOA key=n4_rep1_p0_it0, n=4, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1463546, key=n4_rep1_p0_it0
+Launching QAOA key=n5_rep1_p0_it0, n=5, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1463632, key=n5_rep1_p0_it0
+Launching QAOA key=n6_rep1_p0_it0, n=6, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1463718, key=n6_rep1_p0_it0
+Launching QAOA key=n7_rep1_p0_it0, n=7, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1463800, key=n7_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=1008, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n8_rep1_p0_it0, n=8, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1464255, key=n8_rep1_p0_it0
+Launching QAOA key=n9_rep1_p0_it0, n=9, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1464337, key=n9_rep1_p0_it0
+Launching QAOA key=n10_rep1_p0_it0, n=10, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1464419, key=n10_rep1_p0_it0
+Launching QAOA key=n11_rep1_p0_it0, n=11, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1464501, key=n11_rep1_p0_it0
+Launching QAOA key=n12_rep1_p0_it0, n=12, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1464583, key=n12_rep1_p0_it0
+Launching QAOA key=n13_rep1_p0_it0, n=13, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1464665, key=n13_rep1_p0_it0
+Launching QAOA key=n14_rep1_p0_it0, n=14, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1464747, key=n14_rep1_p0_it0
+Launching QAOA key=n15_rep1_p0_it0, n=15, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1464829, key=n15_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=1000, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n16_rep1_p0_it0, n=16, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1465163, key=n16_rep1_p0_it0
+Launching QAOA key=n17_rep1_p0_it0, n=17, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1465249, key=n17_rep1_p0_it0
+Launching QAOA key=n18_rep1_p0_it0, n=18, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1465335, key=n18_rep1_p0_it0
+Launching QAOA key=n19_rep1_p0_it0, n=19, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1465421, key=n19_rep1_p0_it0
+Launching QAOA key=n20_rep1_p0_it0, n=20, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1465507, key=n20_rep1_p0_it0
+Launching QAOA key=n21_rep1_p0_it0, n=21, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1465589, key=n21_rep1_p0_it0
+Launching QAOA key=n22_rep1_p0_it0, n=22, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1465675, key=n22_rep1_p0_it0
+Launching QAOA key=n23_rep1_p0_it0, n=23, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1465761, key=n23_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=992, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n24_rep1_p0_it0, n=24, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1466198, key=n24_rep1_p0_it0
+Launching QAOA key=n25_rep1_p0_it0, n=25, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1466280, key=n25_rep1_p0_it0
+Launching QAOA key=n26_rep1_p0_it0, n=26, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1466362, key=n26_rep1_p0_it0
+Launching QAOA key=n27_rep1_p0_it0, n=27, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1466444, key=n27_rep1_p0_it0
+Launching QAOA key=n28_rep1_p0_it0, n=28, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1466526, key=n28_rep1_p0_it0
+Launching QAOA key=n29_rep1_p0_it0, n=29, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1466608, key=n29_rep1_p0_it0
+Launching QAOA key=n30_rep1_p0_it0, n=30, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1466690, key=n30_rep1_p0_it0
+Launching QAOA key=n31_rep1_p0_it0, n=31, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1466772, key=n31_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=984, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n32_rep1_p0_it0, n=32, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1467088, key=n32_rep1_p0_it0
+Launching QAOA key=n33_rep1_p0_it0, n=33, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1467170, key=n33_rep1_p0_it0
+Launching QAOA key=n34_rep1_p0_it0, n=34, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1467254, key=n34_rep1_p0_it0
+Launching QAOA key=n35_rep1_p0_it0, n=35, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1467338, key=n35_rep1_p0_it0
+Launching QAOA key=n36_rep1_p0_it0, n=36, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1467424, key=n36_rep1_p0_it0
+Launching QAOA key=n37_rep1_p0_it0, n=37, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1467510, key=n37_rep1_p0_it0
+Launching QAOA key=n38_rep1_p0_it0, n=38, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1467596, key=n38_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=977, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n39_rep1_p0_it0, n=39, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1468037, key=n39_rep1_p0_it0
+Launching QAOA key=n40_rep1_p0_it0, n=40, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1468119, key=n40_rep1_p0_it0
+Launching QAOA key=n41_rep1_p0_it0, n=41, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1468201, key=n41_rep1_p0_it0
+Launching QAOA key=n42_rep1_p0_it0, n=42, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1468283, key=n42_rep1_p0_it0
+Launching QAOA key=n43_rep1_p0_it0, n=43, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1468365, key=n43_rep1_p0_it0
+Launching QAOA key=n44_rep1_p0_it0, n=44, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1468447, key=n44_rep1_p0_it0
+Launching QAOA key=n45_rep1_p0_it0, n=45, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1468529, key=n45_rep1_p0_it0
+Launching QAOA key=n46_rep1_p0_it0, n=46, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1468611, key=n46_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=969, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n47_rep1_p0_it0, n=47, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1468915, key=n47_rep1_p0_it0
+Launching QAOA key=n48_rep1_p0_it0, n=48, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1468997, key=n48_rep1_p0_it0
+Launching QAOA key=n49_rep1_p0_it0, n=49, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1469079, key=n49_rep1_p0_it0
+Launching QAOA key=n50_rep1_p0_it0, n=50, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1469161, key=n50_rep1_p0_it0
+Launching QAOA key=n51_rep1_p0_it0, n=51, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1469243, key=n51_rep1_p0_it0
+Launching QAOA key=n52_rep1_p0_it0, n=52, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1469329, key=n52_rep1_p0_it0
+Launching QAOA key=n53_rep1_p0_it0, n=53, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1469415, key=n53_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=962, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n54_rep1_p0_it0, n=54, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1469870, key=n54_rep1_p0_it0
+Launching QAOA key=n55_rep1_p0_it0, n=55, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1469952, key=n55_rep1_p0_it0
+Launching QAOA key=n56_rep1_p0_it0, n=56, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1470034, key=n56_rep1_p0_it0
+Launching QAOA key=n57_rep1_p0_it0, n=57, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1470116, key=n57_rep1_p0_it0
+Launching QAOA key=n58_rep1_p0_it0, n=58, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1470198, key=n58_rep1_p0_it0
+Launching QAOA key=n59_rep1_p0_it0, n=59, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1470280, key=n59_rep1_p0_it0
+Launching QAOA key=n60_rep1_p0_it0, n=60, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1470362, key=n60_rep1_p0_it0
+Launching QAOA key=n61_rep1_p0_it0, n=61, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1470444, key=n61_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=954, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n62_rep1_p0_it0, n=62, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1470790, key=n62_rep1_p0_it0
+Launching QAOA key=n63_rep1_p0_it0, n=63, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1470872, key=n63_rep1_p0_it0
+Launching QAOA key=n64_rep1_p0_it0, n=64, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1470962, key=n64_rep1_p0_it0
+Launching QAOA key=n65_rep1_p0_it0, n=65, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1471051, key=n65_rep1_p0_it0
+Launching QAOA key=n66_rep1_p0_it0, n=66, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1471139, key=n66_rep1_p0_it0
+Launching QAOA key=n67_rep1_p0_it0, n=67, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1471225, key=n67_rep1_p0_it0
+Launching QAOA key=n68_rep1_p0_it0, n=68, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1471311, key=n68_rep1_p0_it0
+Launching QAOA key=n69_rep1_p0_it0, n=69, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1471397, key=n69_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=946, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n70_rep1_p0_it0, n=70, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1471811, key=n70_rep1_p0_it0
+Launching QAOA key=n71_rep1_p0_it0, n=71, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1471893, key=n71_rep1_p0_it0
+Launching QAOA key=n72_rep1_p0_it0, n=72, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1471975, key=n72_rep1_p0_it0
+Launching QAOA key=n73_rep1_p0_it0, n=73, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1472057, key=n73_rep1_p0_it0
+Launching QAOA key=n74_rep1_p0_it0, n=74, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1472139, key=n74_rep1_p0_it0
+Launching QAOA key=n75_rep1_p0_it0, n=75, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1472221, key=n75_rep1_p0_it0
+Launching QAOA key=n76_rep1_p0_it0, n=76, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1472303, key=n76_rep1_p0_it0
+Launching QAOA key=n77_rep1_p0_it0, n=77, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1472385, key=n77_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=938, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n78_rep1_p0_it0, n=78, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1472821, key=n78_rep1_p0_it0
+Launching QAOA key=n79_rep1_p0_it0, n=79, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1472907, key=n79_rep1_p0_it0
+Launching QAOA key=n80_rep1_p0_it0, n=80, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1472989, key=n80_rep1_p0_it0
+Launching QAOA key=n81_rep1_p0_it0, n=81, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1473071, key=n81_rep1_p0_it0
+Launching QAOA key=n82_rep1_p0_it0, n=82, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1473153, key=n82_rep1_p0_it0
+Launching QAOA key=n83_rep1_p0_it0, n=83, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1473235, key=n83_rep1_p0_it0
+Launching QAOA key=n84_rep1_p0_it0, n=84, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1473317, key=n84_rep1_p0_it0
+Launching QAOA key=n85_rep1_p0_it0, n=85, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1473403, key=n85_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=930, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n86_rep1_p0_it0, n=86, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1473757, key=n86_rep1_p0_it0
+Launching QAOA key=n87_rep1_p0_it0, n=87, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1473839, key=n87_rep1_p0_it0
+Launching QAOA key=n88_rep1_p0_it0, n=88, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1473921, key=n88_rep1_p0_it0
+Launching QAOA key=n89_rep1_p0_it0, n=89, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1474003, key=n89_rep1_p0_it0
+Launching QAOA key=n90_rep1_p0_it0, n=90, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1474085, key=n90_rep1_p0_it0
+Launching QAOA key=n91_rep1_p0_it0, n=91, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1474167, key=n91_rep1_p0_it0
+Launching QAOA key=n92_rep1_p0_it0, n=92, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1474249, key=n92_rep1_p0_it0
+Launching QAOA key=n93_rep1_p0_it0, n=93, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1474331, key=n93_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=922, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n94_rep1_p0_it0, n=94, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1474771, key=n94_rep1_p0_it0
+Launching QAOA key=n95_rep1_p0_it0, n=95, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1474853, key=n95_rep1_p0_it0
+Launching QAOA key=n96_rep1_p0_it0, n=96, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1474935, key=n96_rep1_p0_it0
+Launching QAOA key=n97_rep1_p0_it0, n=97, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1475017, key=n97_rep1_p0_it0
+Launching QAOA key=n98_rep1_p0_it0, n=98, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1475102, key=n98_rep1_p0_it0
+Launching QAOA key=n99_rep1_p0_it0, n=99, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1475189, key=n99_rep1_p0_it0
+Launching QAOA key=n100_rep1_p0_it0, n=100, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1475275, key=n100_rep1_p0_it0
+Launching QAOA key=n101_rep1_p0_it0, n=101, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1475361, key=n101_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=914, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n102_rep1_p0_it0, n=102, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1475698, key=n102_rep1_p0_it0
+Launching QAOA key=n103_rep1_p0_it0, n=103, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1475780, key=n103_rep1_p0_it0
+Launching QAOA key=n104_rep1_p0_it0, n=104, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1475862, key=n104_rep1_p0_it0
+Launching QAOA key=n105_rep1_p0_it0, n=105, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1475944, key=n105_rep1_p0_it0
+Launching QAOA key=n106_rep1_p0_it0, n=106, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1476026, key=n106_rep1_p0_it0
+Launching QAOA key=n107_rep1_p0_it0, n=107, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1476108, key=n107_rep1_p0_it0
+Launching QAOA key=n108_rep1_p0_it0, n=108, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1476195, key=n108_rep1_p0_it0
+Launching QAOA key=n109_rep1_p0_it0, n=109, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1476281, key=n109_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=906, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n110_rep1_p0_it0, n=110, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1476768, key=n110_rep1_p0_it0
+Launching QAOA key=n111_rep1_p0_it0, n=111, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1476850, key=n111_rep1_p0_it0
+Launching QAOA key=n112_rep1_p0_it0, n=112, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1476932, key=n112_rep1_p0_it0
+Launching QAOA key=n113_rep1_p0_it0, n=113, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1477014, key=n113_rep1_p0_it0
+Launching QAOA key=n114_rep1_p0_it0, n=114, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1477096, key=n114_rep1_p0_it0
+Launching QAOA key=n115_rep1_p0_it0, n=115, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1477178, key=n115_rep1_p0_it0
+Launching QAOA key=n116_rep1_p0_it0, n=116, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1477260, key=n116_rep1_p0_it0
+Launching QAOA key=n117_rep1_p0_it0, n=117, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1477342, key=n117_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=898, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n118_rep1_p0_it0, n=118, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1477697, key=n118_rep1_p0_it0
+Launching QAOA key=n119_rep1_p0_it0, n=119, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1477787, key=n119_rep1_p0_it0
+Launching QAOA key=n120_rep1_p0_it0, n=120, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1477874, key=n120_rep1_p0_it0
+Launching QAOA key=n121_rep1_p0_it0, n=121, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1477960, key=n121_rep1_p0_it0
+Launching QAOA key=n122_rep1_p0_it0, n=122, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1478042, key=n122_rep1_p0_it0
+Launching QAOA key=n123_rep1_p0_it0, n=123, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1478124, key=n123_rep1_p0_it0
+Launching QAOA key=n124_rep1_p0_it0, n=124, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1478206, key=n124_rep1_p0_it0
+Launching QAOA key=n125_rep1_p0_it0, n=125, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1478293, key=n125_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=890, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n126_rep1_p0_it0, n=126, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1478660, key=n126_rep1_p0_it0
+Launching QAOA key=n127_rep1_p0_it0, n=127, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1478742, key=n127_rep1_p0_it0
+Launching QAOA key=n128_rep1_p0_it0, n=128, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1478824, key=n128_rep1_p0_it0
+Launching QAOA key=n129_rep1_p0_it0, n=129, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1478906, key=n129_rep1_p0_it0
+Launching QAOA key=n130_rep1_p0_it0, n=130, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1478988, key=n130_rep1_p0_it0
+Launching QAOA key=n131_rep1_p0_it0, n=131, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1479070, key=n131_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=884, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n132_rep1_p0_it0, n=132, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1479412, key=n132_rep1_p0_it0
+Launching QAOA key=n133_rep1_p0_it0, n=133, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1479498, key=n133_rep1_p0_it0
+Launching QAOA key=n134_rep1_p0_it0, n=134, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1479589, key=n134_rep1_p0_it0
+Launching QAOA key=n135_rep1_p0_it0, n=135, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1479675, key=n135_rep1_p0_it0
+Launching QAOA key=n136_rep1_p0_it0, n=136, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1479761, key=n136_rep1_p0_it0
+Launching QAOA key=n137_rep1_p0_it0, n=137, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1479852, key=n137_rep1_p0_it0
+Launching QAOA key=n138_rep1_p0_it0, n=138, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1479938, key=n138_rep1_p0_it0
+Launching QAOA key=n139_rep1_p0_it0, n=139, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1480024, key=n139_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=876, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n140_rep1_p0_it0, n=140, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1480438, key=n140_rep1_p0_it0
+Launching QAOA key=n141_rep1_p0_it0, n=141, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1480520, key=n141_rep1_p0_it0
+Launching QAOA key=n142_rep1_p0_it0, n=142, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1480602, key=n142_rep1_p0_it0
+Launching QAOA key=n143_rep1_p0_it0, n=143, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1480684, key=n143_rep1_p0_it0
+Launching QAOA key=n144_rep1_p0_it0, n=144, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1480766, key=n144_rep1_p0_it0
+Launching QAOA key=n145_rep1_p0_it0, n=145, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1480848, key=n145_rep1_p0_it0
+Launching QAOA key=n146_rep1_p0_it0, n=146, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1480930, key=n146_rep1_p0_it0
+Launching QAOA key=n147_rep1_p0_it0, n=147, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1481012, key=n147_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=868, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n148_rep1_p0_it0, n=148, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1481371, key=n148_rep1_p0_it0
+Launching QAOA key=n149_rep1_p0_it0, n=149, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1481461, key=n149_rep1_p0_it0
+Launching QAOA key=n150_rep1_p0_it0, n=150, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1481551, key=n150_rep1_p0_it0
+Launching QAOA key=n151_rep1_p0_it0, n=151, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1481641, key=n151_rep1_p0_it0
+Launching QAOA key=n152_rep1_p0_it0, n=152, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1481727, key=n152_rep1_p0_it0
+Launching QAOA key=n153_rep1_p0_it0, n=153, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1481813, key=n153_rep1_p0_it0
+Launching QAOA key=n154_rep1_p0_it0, n=154, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1481899, key=n154_rep1_p0_it0
+Launching QAOA key=n155_rep1_p0_it0, n=155, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1481981, key=n155_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=860, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n156_rep1_p0_it0, n=156, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1482379, key=n156_rep1_p0_it0
+Launching QAOA key=n157_rep1_p0_it0, n=157, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1482461, key=n157_rep1_p0_it0
+Launching QAOA key=n158_rep1_p0_it0, n=158, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1482543, key=n158_rep1_p0_it0
+Launching QAOA key=n159_rep1_p0_it0, n=159, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1482625, key=n159_rep1_p0_it0
+Launching QAOA key=n160_rep1_p0_it0, n=160, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1482707, key=n160_rep1_p0_it0
+Launching QAOA key=n161_rep1_p0_it0, n=161, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1482789, key=n161_rep1_p0_it0
+Launching QAOA key=n162_rep1_p0_it0, n=162, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1482871, key=n162_rep1_p0_it0
+Launching QAOA key=n163_rep1_p0_it0, n=163, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1482953, key=n163_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=852, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n164_rep1_p0_it0, n=164, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1483368, key=n164_rep1_p0_it0
+Launching QAOA key=n165_rep1_p0_it0, n=165, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1483458, key=n165_rep1_p0_it0
+Launching QAOA key=n166_rep1_p0_it0, n=166, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1483544, key=n166_rep1_p0_it0
+Launching QAOA key=n167_rep1_p0_it0, n=167, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1483626, key=n167_rep1_p0_it0
+Launching QAOA key=n168_rep1_p0_it0, n=168, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1483717, key=n168_rep1_p0_it0
+Launching QAOA key=n169_rep1_p0_it0, n=169, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1483803, key=n169_rep1_p0_it0
+Launching QAOA key=n170_rep1_p0_it0, n=170, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1483889, key=n170_rep1_p0_it0
+Launching QAOA key=n171_rep1_p0_it0, n=171, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1483972, key=n171_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=844, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n172_rep1_p0_it0, n=172, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1484379, key=n172_rep1_p0_it0
+Launching QAOA key=n173_rep1_p0_it0, n=173, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1484461, key=n173_rep1_p0_it0
+Launching QAOA key=n174_rep1_p0_it0, n=174, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1484543, key=n174_rep1_p0_it0
+Launching QAOA key=n175_rep1_p0_it0, n=175, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1484625, key=n175_rep1_p0_it0
+Launching QAOA key=n176_rep1_p0_it0, n=176, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1484707, key=n176_rep1_p0_it0
+Launching QAOA key=n177_rep1_p0_it0, n=177, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1484789, key=n177_rep1_p0_it0
+Launching QAOA key=n178_rep1_p0_it0, n=178, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1484871, key=n178_rep1_p0_it0
+Launching QAOA key=n179_rep1_p0_it0, n=179, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1484953, key=n179_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=836, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n180_rep1_p0_it0, n=180, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1485437, key=n180_rep1_p0_it0
+Launching QAOA key=n181_rep1_p0_it0, n=181, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1485519, key=n181_rep1_p0_it0
+Launching QAOA key=n182_rep1_p0_it0, n=182, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1485601, key=n182_rep1_p0_it0
+Launching QAOA key=n183_rep1_p0_it0, n=183, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1485683, key=n183_rep1_p0_it0
+Launching QAOA key=n184_rep1_p0_it0, n=184, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1485768, key=n184_rep1_p0_it0
+Launching QAOA key=n185_rep1_p0_it0, n=185, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1485855, key=n185_rep1_p0_it0
+Launching QAOA key=n186_rep1_p0_it0, n=186, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1485940, key=n186_rep1_p0_it0
+Launching QAOA key=n187_rep1_p0_it0, n=187, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1486023, key=n187_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=828, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n188_rep1_p0_it0, n=188, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1486338, key=n188_rep1_p0_it0
+Launching QAOA key=n189_rep1_p0_it0, n=189, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1486428, key=n189_rep1_p0_it0
+Launching QAOA key=n190_rep1_p0_it0, n=190, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1486514, key=n190_rep1_p0_it0
+Launching QAOA key=n191_rep1_p0_it0, n=191, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1486604, key=n191_rep1_p0_it0
+Launching QAOA key=n192_rep1_p0_it0, n=192, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1486694, key=n192_rep1_p0_it0
+Launching QAOA key=n193_rep1_p0_it0, n=193, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1486780, key=n193_rep1_p0_it0
+Launching QAOA key=n194_rep1_p0_it0, n=194, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1486870, key=n194_rep1_p0_it0
+Launching QAOA key=n195_rep1_p0_it0, n=195, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1486956, key=n195_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=820, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n196_rep1_p0_it0, n=196, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1487391, key=n196_rep1_p0_it0
+Launching QAOA key=n197_rep1_p0_it0, n=197, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1487473, key=n197_rep1_p0_it0
+Launching QAOA key=n198_rep1_p0_it0, n=198, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1487555, key=n198_rep1_p0_it0
+Launching QAOA key=n199_rep1_p0_it0, n=199, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1487637, key=n199_rep1_p0_it0
+Launching QAOA key=n200_rep1_p0_it0, n=200, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1487719, key=n200_rep1_p0_it0
+Launching QAOA key=n201_rep1_p0_it0, n=201, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1487801, key=n201_rep1_p0_it0
+Launching QAOA key=n202_rep1_p0_it0, n=202, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1487883, key=n202_rep1_p0_it0
+Launching QAOA key=n203_rep1_p0_it0, n=203, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1487965, key=n203_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=812, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n204_rep1_p0_it0, n=204, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1488357, key=n204_rep1_p0_it0
+Launching QAOA key=n205_rep1_p0_it0, n=205, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1488443, key=n205_rep1_p0_it0
+Launching QAOA key=n206_rep1_p0_it0, n=206, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1488533, key=n206_rep1_p0_it0
+Launching QAOA key=n207_rep1_p0_it0, n=207, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1488623, key=n207_rep1_p0_it0
+Launching QAOA key=n208_rep1_p0_it0, n=208, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1488709, key=n208_rep1_p0_it0
+Launching QAOA key=n209_rep1_p0_it0, n=209, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1488799, key=n209_rep1_p0_it0
+Launching QAOA key=n210_rep1_p0_it0, n=210, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1488890, key=n210_rep1_p0_it0
+Launching QAOA key=n211_rep1_p0_it0, n=211, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1488980, key=n211_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=804, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n212_rep1_p0_it0, n=212, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1489333, key=n212_rep1_p0_it0
+Launching QAOA key=n213_rep1_p0_it0, n=213, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1489415, key=n213_rep1_p0_it0
+Launching QAOA key=n214_rep1_p0_it0, n=214, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1489497, key=n214_rep1_p0_it0
+Launching QAOA key=n215_rep1_p0_it0, n=215, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1489579, key=n215_rep1_p0_it0
+Launching QAOA key=n216_rep1_p0_it0, n=216, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1489661, key=n216_rep1_p0_it0
+Launching QAOA key=n217_rep1_p0_it0, n=217, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1489743, key=n217_rep1_p0_it0
+Launching QAOA key=n218_rep1_p0_it0, n=218, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1489825, key=n218_rep1_p0_it0
+Launching QAOA key=n219_rep1_p0_it0, n=219, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1489912, key=n219_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=796, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n220_rep1_p0_it0, n=220, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1490403, key=n220_rep1_p0_it0
+Launching QAOA key=n221_rep1_p0_it0, n=221, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1490485, key=n221_rep1_p0_it0
+Launching QAOA key=n222_rep1_p0_it0, n=222, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1490567, key=n222_rep1_p0_it0
+Launching QAOA key=n223_rep1_p0_it0, n=223, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1490649, key=n223_rep1_p0_it0
+Launching QAOA key=n224_rep1_p0_it0, n=224, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1490731, key=n224_rep1_p0_it0
+Launching QAOA key=n225_rep1_p0_it0, n=225, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1490814, key=n225_rep1_p0_it0
+Launching QAOA key=n226_rep1_p0_it0, n=226, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1490896, key=n226_rep1_p0_it0
+Launching QAOA key=n227_rep1_p0_it0, n=227, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1490978, key=n227_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=788, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n228_rep1_p0_it0, n=228, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1491312, key=n228_rep1_p0_it0
+Launching QAOA key=n229_rep1_p0_it0, n=229, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1491394, key=n229_rep1_p0_it0
+Launching QAOA key=n230_rep1_p0_it0, n=230, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1491476, key=n230_rep1_p0_it0
+Launching QAOA key=n231_rep1_p0_it0, n=231, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1491562, key=n231_rep1_p0_it0
+Launching QAOA key=n232_rep1_p0_it0, n=232, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1491648, key=n232_rep1_p0_it0
+Launching QAOA key=n233_rep1_p0_it0, n=233, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1491734, key=n233_rep1_p0_it0
+Launching QAOA key=n234_rep1_p0_it0, n=234, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1491820, key=n234_rep1_p0_it0
+Launching QAOA key=n235_rep1_p0_it0, n=235, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1491906, key=n235_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=780, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n236_rep1_p0_it0, n=236, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1492345, key=n236_rep1_p0_it0
+Launching QAOA key=n237_rep1_p0_it0, n=237, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1492427, key=n237_rep1_p0_it0
+Launching QAOA key=n238_rep1_p0_it0, n=238, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1492509, key=n238_rep1_p0_it0
+Launching QAOA key=n239_rep1_p0_it0, n=239, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1492591, key=n239_rep1_p0_it0
+Launching QAOA key=n240_rep1_p0_it0, n=240, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1492673, key=n240_rep1_p0_it0
+Launching QAOA key=n241_rep1_p0_it0, n=241, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1492755, key=n241_rep1_p0_it0
+Launching QAOA key=n242_rep1_p0_it0, n=242, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1492837, key=n242_rep1_p0_it0
+Launching QAOA key=n243_rep1_p0_it0, n=243, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1492919, key=n243_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=772, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n244_rep1_p0_it0, n=244, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1493298, key=n244_rep1_p0_it0
+Launching QAOA key=n245_rep1_p0_it0, n=245, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1493388, key=n245_rep1_p0_it0
+Launching QAOA key=n246_rep1_p0_it0, n=246, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1493474, key=n246_rep1_p0_it0
+Launching QAOA key=n247_rep1_p0_it0, n=247, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1493556, key=n247_rep1_p0_it0
+Launching QAOA key=n248_rep1_p0_it0, n=248, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1493638, key=n248_rep1_p0_it0
+Launching QAOA key=n249_rep1_p0_it0, n=249, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1493720, key=n249_rep1_p0_it0
+Launching QAOA key=n250_rep1_p0_it0, n=250, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1493806, key=n250_rep1_p0_it0
+Launching QAOA key=n251_rep1_p0_it0, n=251, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1493888, key=n251_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=764, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n252_rep1_p0_it0, n=252, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1494290, key=n252_rep1_p0_it0
+Launching QAOA key=n253_rep1_p0_it0, n=253, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1494372, key=n253_rep1_p0_it0
+Launching QAOA key=n254_rep1_p0_it0, n=254, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1494454, key=n254_rep1_p0_it0
+Launching QAOA key=n255_rep1_p0_it0, n=255, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1494536, key=n255_rep1_p0_it0
+Launching QAOA key=n256_rep1_p0_it0, n=256, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1494618, key=n256_rep1_p0_it0
+Launching QAOA key=n257_rep1_p0_it0, n=257, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1494700, key=n257_rep1_p0_it0
+Launching QAOA key=n258_rep1_p0_it0, n=258, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1494782, key=n258_rep1_p0_it0
+Launching QAOA key=n259_rep1_p0_it0, n=259, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1494864, key=n259_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=756, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n260_rep1_p0_it0, n=260, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1495316, key=n260_rep1_p0_it0
+Launching QAOA key=n261_rep1_p0_it0, n=261, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1495402, key=n261_rep1_p0_it0
+Launching QAOA key=n262_rep1_p0_it0, n=262, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1495492, key=n262_rep1_p0_it0
+Launching QAOA key=n263_rep1_p0_it0, n=263, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1495574, key=n263_rep1_p0_it0
+Launching QAOA key=n264_rep1_p0_it0, n=264, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1495656, key=n264_rep1_p0_it0
+Launching QAOA key=n265_rep1_p0_it0, n=265, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1495738, key=n265_rep1_p0_it0
+Launching QAOA key=n266_rep1_p0_it0, n=266, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1495820, key=n266_rep1_p0_it0
+Launching QAOA key=n267_rep1_p0_it0, n=267, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1495908, key=n267_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=748, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n268_rep1_p0_it0, n=268, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1496260, key=n268_rep1_p0_it0
+Launching QAOA key=n269_rep1_p0_it0, n=269, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1496350, key=n269_rep1_p0_it0
+Launching QAOA key=n270_rep1_p0_it0, n=270, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1496436, key=n270_rep1_p0_it0
+Launching QAOA key=n271_rep1_p0_it0, n=271, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1496524, key=n271_rep1_p0_it0
+Launching QAOA key=n272_rep1_p0_it0, n=272, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1496609, key=n272_rep1_p0_it0
+Launching QAOA key=n273_rep1_p0_it0, n=273, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1496698, key=n273_rep1_p0_it0
+Launching QAOA key=n274_rep1_p0_it0, n=274, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1496783, key=n274_rep1_p0_it0
+Launching QAOA key=n275_rep1_p0_it0, n=275, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1496870, key=n275_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=740, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n276_rep1_p0_it0, n=276, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1497301, key=n276_rep1_p0_it0
+Launching QAOA key=n277_rep1_p0_it0, n=277, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1497383, key=n277_rep1_p0_it0
+Launching QAOA key=n278_rep1_p0_it0, n=278, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1497465, key=n278_rep1_p0_it0
+Launching QAOA key=n279_rep1_p0_it0, n=279, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1497547, key=n279_rep1_p0_it0
+Launching QAOA key=n280_rep1_p0_it0, n=280, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1497629, key=n280_rep1_p0_it0
+Launching QAOA key=n281_rep1_p0_it0, n=281, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1497711, key=n281_rep1_p0_it0
+Launching QAOA key=n282_rep1_p0_it0, n=282, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1497793, key=n282_rep1_p0_it0
+Launching QAOA key=n283_rep1_p0_it0, n=283, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1497875, key=n283_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=732, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n284_rep1_p0_it0, n=284, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1498271, key=n284_rep1_p0_it0
+Launching QAOA key=n285_rep1_p0_it0, n=285, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1498357, key=n285_rep1_p0_it0
+Launching QAOA key=n286_rep1_p0_it0, n=286, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1498439, key=n286_rep1_p0_it0
+Launching QAOA key=n287_rep1_p0_it0, n=287, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1498521, key=n287_rep1_p0_it0
+Launching QAOA key=n288_rep1_p0_it0, n=288, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1498607, key=n288_rep1_p0_it0
+Launching QAOA key=n289_rep1_p0_it0, n=289, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1498693, key=n289_rep1_p0_it0
+Launching QAOA key=n290_rep1_p0_it0, n=290, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1498781, key=n290_rep1_p0_it0
+Launching QAOA key=n291_rep1_p0_it0, n=291, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1498869, key=n291_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=724, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n292_rep1_p0_it0, n=292, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1499243, key=n292_rep1_p0_it0
+Launching QAOA key=n293_rep1_p0_it0, n=293, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1499325, key=n293_rep1_p0_it0
+Launching QAOA key=n294_rep1_p0_it0, n=294, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1499407, key=n294_rep1_p0_it0
+Launching QAOA key=n295_rep1_p0_it0, n=295, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1499489, key=n295_rep1_p0_it0
+Launching QAOA key=n296_rep1_p0_it0, n=296, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1499571, key=n296_rep1_p0_it0
+Launching QAOA key=n297_rep1_p0_it0, n=297, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1499653, key=n297_rep1_p0_it0
+Launching QAOA key=n298_rep1_p0_it0, n=298, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1499735, key=n298_rep1_p0_it0
+Launching QAOA key=n299_rep1_p0_it0, n=299, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1499817, key=n299_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=716, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n300_rep1_p0_it0, n=300, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1500280, key=n300_rep1_p0_it0
+Launching QAOA key=n301_rep1_p0_it0, n=301, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1500367, key=n301_rep1_p0_it0
+Launching QAOA key=n302_rep1_p0_it0, n=302, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1500456, key=n302_rep1_p0_it0
+Launching QAOA key=n303_rep1_p0_it0, n=303, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1500542, key=n303_rep1_p0_it0
+Launching QAOA key=n304_rep1_p0_it0, n=304, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1500629, key=n304_rep1_p0_it0
+Launching QAOA key=n305_rep1_p0_it0, n=305, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1500718, key=n305_rep1_p0_it0
+Launching QAOA key=n306_rep1_p0_it0, n=306, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1500804, key=n306_rep1_p0_it0
+Launching QAOA key=n307_rep1_p0_it0, n=307, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1500889, key=n307_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=708, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n308_rep1_p0_it0, n=308, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1501166, key=n308_rep1_p0_it0
+Launching QAOA key=n309_rep1_p0_it0, n=309, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1501248, key=n309_rep1_p0_it0
+Launching QAOA key=n310_rep1_p0_it0, n=310, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1501330, key=n310_rep1_p0_it0
+Launching QAOA key=n311_rep1_p0_it0, n=311, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1501412, key=n311_rep1_p0_it0
+Launching QAOA key=n312_rep1_p0_it0, n=312, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1501498, key=n312_rep1_p0_it0
+Launching QAOA key=n313_rep1_p0_it0, n=313, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1501584, key=n313_rep1_p0_it0
+Launching QAOA key=n314_rep1_p0_it0, n=314, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1501670, key=n314_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=701, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n315_rep1_p0_it0, n=315, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1502149, key=n315_rep1_p0_it0
+Launching QAOA key=n316_rep1_p0_it0, n=316, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1502231, key=n316_rep1_p0_it0
+Launching QAOA key=n317_rep1_p0_it0, n=317, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1502313, key=n317_rep1_p0_it0
+Launching QAOA key=n318_rep1_p0_it0, n=318, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1502395, key=n318_rep1_p0_it0
+Launching QAOA key=n319_rep1_p0_it0, n=319, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1502477, key=n319_rep1_p0_it0
+Launching QAOA key=n320_rep1_p0_it0, n=320, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1502559, key=n320_rep1_p0_it0
+Launching QAOA key=n321_rep1_p0_it0, n=321, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1502641, key=n321_rep1_p0_it0
+Launching QAOA key=n322_rep1_p0_it0, n=322, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1502723, key=n322_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=693, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n323_rep1_p0_it0, n=323, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1503082, key=n323_rep1_p0_it0
+Launching QAOA key=n324_rep1_p0_it0, n=324, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1503168, key=n324_rep1_p0_it0
+Launching QAOA key=n325_rep1_p0_it0, n=325, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1503257, key=n325_rep1_p0_it0
+Launching QAOA key=n326_rep1_p0_it0, n=326, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1503343, key=n326_rep1_p0_it0
+Launching QAOA key=n327_rep1_p0_it0, n=327, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1503431, key=n327_rep1_p0_it0
+Launching QAOA key=n328_rep1_p0_it0, n=328, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1503517, key=n328_rep1_p0_it0
+Launching QAOA key=n329_rep1_p0_it0, n=329, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1503603, key=n329_rep1_p0_it0
+Launching QAOA key=n330_rep1_p0_it0, n=330, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1503693, key=n330_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=685, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n331_rep1_p0_it0, n=331, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1504091, key=n331_rep1_p0_it0
+Launching QAOA key=n332_rep1_p0_it0, n=332, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1504173, key=n332_rep1_p0_it0
+Launching QAOA key=n333_rep1_p0_it0, n=333, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1504255, key=n333_rep1_p0_it0
+Launching QAOA key=n334_rep1_p0_it0, n=334, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1504337, key=n334_rep1_p0_it0
+Launching QAOA key=n335_rep1_p0_it0, n=335, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1504419, key=n335_rep1_p0_it0
+Launching QAOA key=n336_rep1_p0_it0, n=336, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1504501, key=n336_rep1_p0_it0
+Launching QAOA key=n337_rep1_p0_it0, n=337, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1504583, key=n337_rep1_p0_it0
+Launching QAOA key=n338_rep1_p0_it0, n=338, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1504665, key=n338_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=677, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n339_rep1_p0_it0, n=339, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1505129, key=n339_rep1_p0_it0
+Launching QAOA key=n340_rep1_p0_it0, n=340, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1505215, key=n340_rep1_p0_it0
+Launching QAOA key=n341_rep1_p0_it0, n=341, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1505305, key=n341_rep1_p0_it0
+Launching QAOA key=n342_rep1_p0_it0, n=342, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1505391, key=n342_rep1_p0_it0
+Launching QAOA key=n343_rep1_p0_it0, n=343, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1505473, key=n343_rep1_p0_it0
+Launching QAOA key=n344_rep1_p0_it0, n=344, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1505555, key=n344_rep1_p0_it0
+Launching QAOA key=n345_rep1_p0_it0, n=345, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1505637, key=n345_rep1_p0_it0
+Launching QAOA key=n346_rep1_p0_it0, n=346, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1505719, key=n346_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=669, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n347_rep1_p0_it0, n=347, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1506036, key=n347_rep1_p0_it0
+Launching QAOA key=n348_rep1_p0_it0, n=348, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1506118, key=n348_rep1_p0_it0
+Launching QAOA key=n349_rep1_p0_it0, n=349, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1506205, key=n349_rep1_p0_it0
+Launching QAOA key=n350_rep1_p0_it0, n=350, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1506291, key=n350_rep1_p0_it0
+Launching QAOA key=n351_rep1_p0_it0, n=351, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1506377, key=n351_rep1_p0_it0
+Launching QAOA key=n352_rep1_p0_it0, n=352, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1506463, key=n352_rep1_p0_it0
+Launching QAOA key=n353_rep1_p0_it0, n=353, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1506549, key=n353_rep1_p0_it0
+Launching QAOA key=n354_rep1_p0_it0, n=354, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1506636, key=n354_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=661, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n355_rep1_p0_it0, n=355, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1507107, key=n355_rep1_p0_it0
+Launching QAOA key=n356_rep1_p0_it0, n=356, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1507189, key=n356_rep1_p0_it0
+Launching QAOA key=n357_rep1_p0_it0, n=357, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1507271, key=n357_rep1_p0_it0
+Launching QAOA key=n358_rep1_p0_it0, n=358, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1507353, key=n358_rep1_p0_it0
+Launching QAOA key=n359_rep1_p0_it0, n=359, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1507435, key=n359_rep1_p0_it0
+Launching QAOA key=n360_rep1_p0_it0, n=360, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1507517, key=n360_rep1_p0_it0
+Launching QAOA key=n361_rep1_p0_it0, n=361, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1507599, key=n361_rep1_p0_it0
+Launching QAOA key=n362_rep1_p0_it0, n=362, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1507681, key=n362_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=653, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n363_rep1_p0_it0, n=363, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1508108, key=n363_rep1_p0_it0
+Launching QAOA key=n364_rep1_p0_it0, n=364, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1508195, key=n364_rep1_p0_it0
+Launching QAOA key=n365_rep1_p0_it0, n=365, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1508285, key=n365_rep1_p0_it0
+Launching QAOA key=n366_rep1_p0_it0, n=366, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1508371, key=n366_rep1_p0_it0
+Launching QAOA key=n367_rep1_p0_it0, n=367, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1508457, key=n367_rep1_p0_it0
+Launching QAOA key=n368_rep1_p0_it0, n=368, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1508547, key=n368_rep1_p0_it0
+Launching QAOA key=n369_rep1_p0_it0, n=369, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1508633, key=n369_rep1_p0_it0
+Launching QAOA key=n370_rep1_p0_it0, n=370, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1508721, key=n370_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=645, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n371_rep1_p0_it0, n=371, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1509048, key=n371_rep1_p0_it0
+Launching QAOA key=n372_rep1_p0_it0, n=372, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1509130, key=n372_rep1_p0_it0
+Launching QAOA key=n373_rep1_p0_it0, n=373, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1509212, key=n373_rep1_p0_it0
+Launching QAOA key=n374_rep1_p0_it0, n=374, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1509294, key=n374_rep1_p0_it0
+Launching QAOA key=n375_rep1_p0_it0, n=375, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1509376, key=n375_rep1_p0_it0
+Launching QAOA key=n376_rep1_p0_it0, n=376, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1509458, key=n376_rep1_p0_it0
+Launching QAOA key=n377_rep1_p0_it0, n=377, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1509545, key=n377_rep1_p0_it0
+Launching QAOA key=n378_rep1_p0_it0, n=378, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1509631, key=n378_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=637, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n379_rep1_p0_it0, n=379, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1510100, key=n379_rep1_p0_it0
+Launching QAOA key=n380_rep1_p0_it0, n=380, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1510186, key=n380_rep1_p0_it0
+Launching QAOA key=n381_rep1_p0_it0, n=381, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1510272, key=n381_rep1_p0_it0
+Launching QAOA key=n382_rep1_p0_it0, n=382, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1510357, key=n382_rep1_p0_it0
+Launching QAOA key=n383_rep1_p0_it0, n=383, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1510444, key=n383_rep1_p0_it0
+Launching QAOA key=n384_rep1_p0_it0, n=384, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1510529, key=n384_rep1_p0_it0
+Launching QAOA key=n385_rep1_p0_it0, n=385, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1510612, key=n385_rep1_p0_it0
+Launching QAOA key=n386_rep1_p0_it0, n=386, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1510694, key=n386_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=629, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n387_rep1_p0_it0, n=387, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1510950, key=n387_rep1_p0_it0
+Launching QAOA key=n388_rep1_p0_it0, n=388, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1511032, key=n388_rep1_p0_it0
+Launching QAOA key=n389_rep1_p0_it0, n=389, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1511114, key=n389_rep1_p0_it0
+Launching QAOA key=n390_rep1_p0_it0, n=390, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1511196, key=n390_rep1_p0_it0
+Launching QAOA key=n391_rep1_p0_it0, n=391, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1511282, key=n391_rep1_p0_it0
+Launching QAOA key=n392_rep1_p0_it0, n=392, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1511364, key=n392_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=623, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n393_rep1_p0_it0, n=393, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1511791, key=n393_rep1_p0_it0
+Launching QAOA key=n394_rep1_p0_it0, n=394, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1511878, key=n394_rep1_p0_it0
+Launching QAOA key=n395_rep1_p0_it0, n=395, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1511967, key=n395_rep1_p0_it0
+Launching QAOA key=n396_rep1_p0_it0, n=396, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1512050, key=n396_rep1_p0_it0
+Launching QAOA key=n397_rep1_p0_it0, n=397, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1512139, key=n397_rep1_p0_it0
+Launching QAOA key=n398_rep1_p0_it0, n=398, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1512225, key=n398_rep1_p0_it0
+Launching QAOA key=n399_rep1_p0_it0, n=399, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1512311, key=n399_rep1_p0_it0
+Launching QAOA key=n400_rep1_p0_it0, n=400, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1512397, key=n400_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=615, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n401_rep1_p0_it0, n=401, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1512719, key=n401_rep1_p0_it0
+Launching QAOA key=n402_rep1_p0_it0, n=402, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1512801, key=n402_rep1_p0_it0
+Launching QAOA key=n403_rep1_p0_it0, n=403, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1512883, key=n403_rep1_p0_it0
+Launching QAOA key=n404_rep1_p0_it0, n=404, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1512965, key=n404_rep1_p0_it0
+Launching QAOA key=n405_rep1_p0_it0, n=405, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1513047, key=n405_rep1_p0_it0
+Launching QAOA key=n406_rep1_p0_it0, n=406, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1513134, key=n406_rep1_p0_it0
+Launching QAOA key=n407_rep1_p0_it0, n=407, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1513220, key=n407_rep1_p0_it0
+Launching QAOA key=n408_rep1_p0_it0, n=408, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1513305, key=n408_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=607, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n409_rep1_p0_it0, n=409, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1513757, key=n409_rep1_p0_it0
+Launching QAOA key=n410_rep1_p0_it0, n=410, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1513844, key=n410_rep1_p0_it0
+Launching QAOA key=n411_rep1_p0_it0, n=411, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1513930, key=n411_rep1_p0_it0
+Launching QAOA key=n412_rep1_p0_it0, n=412, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1514016, key=n412_rep1_p0_it0
+Launching QAOA key=n413_rep1_p0_it0, n=413, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1514102, key=n413_rep1_p0_it0
+Launching QAOA key=n414_rep1_p0_it0, n=414, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1514188, key=n414_rep1_p0_it0
+Launching QAOA key=n415_rep1_p0_it0, n=415, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1514274, key=n415_rep1_p0_it0
+Launching QAOA key=n416_rep1_p0_it0, n=416, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1514360, key=n416_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=599, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n417_rep1_p0_it0, n=417, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1514663, key=n417_rep1_p0_it0
+Launching QAOA key=n418_rep1_p0_it0, n=418, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1514750, key=n418_rep1_p0_it0
+Launching QAOA key=n419_rep1_p0_it0, n=419, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1514836, key=n419_rep1_p0_it0
+Launching QAOA key=n420_rep1_p0_it0, n=420, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1514922, key=n420_rep1_p0_it0
+Launching QAOA key=n421_rep1_p0_it0, n=421, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1515008, key=n421_rep1_p0_it0
+Launching QAOA key=n422_rep1_p0_it0, n=422, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1515090, key=n422_rep1_p0_it0
+Launching QAOA key=n423_rep1_p0_it0, n=423, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1515177, key=n423_rep1_p0_it0
+Launching QAOA key=n424_rep1_p0_it0, n=424, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1515263, key=n424_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=591, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n425_rep1_p0_it0, n=425, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1515735, key=n425_rep1_p0_it0
+Launching QAOA key=n426_rep1_p0_it0, n=426, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1515817, key=n426_rep1_p0_it0
+Launching QAOA key=n427_rep1_p0_it0, n=427, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1515899, key=n427_rep1_p0_it0
+Launching QAOA key=n428_rep1_p0_it0, n=428, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1515984, key=n428_rep1_p0_it0
+Launching QAOA key=n429_rep1_p0_it0, n=429, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1516067, key=n429_rep1_p0_it0
+Launching QAOA key=n430_rep1_p0_it0, n=430, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1516149, key=n430_rep1_p0_it0
+Launching QAOA key=n431_rep1_p0_it0, n=431, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1516231, key=n431_rep1_p0_it0
+Launching QAOA key=n432_rep1_p0_it0, n=432, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1516313, key=n432_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=583, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n433_rep1_p0_it0, n=433, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1516623, key=n433_rep1_p0_it0
+Launching QAOA key=n434_rep1_p0_it0, n=434, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1516710, key=n434_rep1_p0_it0
+Launching QAOA key=n435_rep1_p0_it0, n=435, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1516799, key=n435_rep1_p0_it0
+Launching QAOA key=n436_rep1_p0_it0, n=436, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1516885, key=n436_rep1_p0_it0
+Launching QAOA key=n437_rep1_p0_it0, n=437, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1516967, key=n437_rep1_p0_it0
+Launching QAOA key=n438_rep1_p0_it0, n=438, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1517049, key=n438_rep1_p0_it0
+Launching QAOA key=n439_rep1_p0_it0, n=439, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1517131, key=n439_rep1_p0_it0
+Launching QAOA key=n440_rep1_p0_it0, n=440, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1517213, key=n440_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=575, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n441_rep1_p0_it0, n=441, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1517677, key=n441_rep1_p0_it0
+Launching QAOA key=n442_rep1_p0_it0, n=442, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1517759, key=n442_rep1_p0_it0
+Launching QAOA key=n443_rep1_p0_it0, n=443, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1517841, key=n443_rep1_p0_it0
+Launching QAOA key=n444_rep1_p0_it0, n=444, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1517923, key=n444_rep1_p0_it0
+Launching QAOA key=n445_rep1_p0_it0, n=445, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1518009, key=n445_rep1_p0_it0
+Launching QAOA key=n446_rep1_p0_it0, n=446, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1518091, key=n446_rep1_p0_it0
+Launching QAOA key=n447_rep1_p0_it0, n=447, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1518173, key=n447_rep1_p0_it0
+Launching QAOA key=n448_rep1_p0_it0, n=448, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1518255, key=n448_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=567, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n449_rep1_p0_it0, n=449, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1518577, key=n449_rep1_p0_it0
+Launching QAOA key=n450_rep1_p0_it0, n=450, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1518663, key=n450_rep1_p0_it0
+Launching QAOA key=n451_rep1_p0_it0, n=451, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1518753, key=n451_rep1_p0_it0
+Launching QAOA key=n452_rep1_p0_it0, n=452, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1518839, key=n452_rep1_p0_it0
+Launching QAOA key=n453_rep1_p0_it0, n=453, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1518929, key=n453_rep1_p0_it0
+Launching QAOA key=n454_rep1_p0_it0, n=454, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1519015, key=n454_rep1_p0_it0
+Launching QAOA key=n455_rep1_p0_it0, n=455, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1519097, key=n455_rep1_p0_it0
+Launching QAOA key=n456_rep1_p0_it0, n=456, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1519187, key=n456_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=559, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n457_rep1_p0_it0, n=457, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1519622, key=n457_rep1_p0_it0
+Launching QAOA key=n458_rep1_p0_it0, n=458, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1519704, key=n458_rep1_p0_it0
+Launching QAOA key=n459_rep1_p0_it0, n=459, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1519786, key=n459_rep1_p0_it0
+Launching QAOA key=n460_rep1_p0_it0, n=460, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1519868, key=n460_rep1_p0_it0
+Launching QAOA key=n461_rep1_p0_it0, n=461, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1519950, key=n461_rep1_p0_it0
+Launching QAOA key=n462_rep1_p0_it0, n=462, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1520032, key=n462_rep1_p0_it0
+Launching QAOA key=n463_rep1_p0_it0, n=463, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1520114, key=n463_rep1_p0_it0
+Launching QAOA key=n464_rep1_p0_it0, n=464, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1520196, key=n464_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=551, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n465_rep1_p0_it0, n=465, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1520567, key=n465_rep1_p0_it0
+Launching QAOA key=n466_rep1_p0_it0, n=466, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1520649, key=n466_rep1_p0_it0
+Launching QAOA key=n467_rep1_p0_it0, n=467, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1520739, key=n467_rep1_p0_it0
+Launching QAOA key=n468_rep1_p0_it0, n=468, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1520829, key=n468_rep1_p0_it0
+Launching QAOA key=n469_rep1_p0_it0, n=469, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1520919, key=n469_rep1_p0_it0
+Launching QAOA key=n470_rep1_p0_it0, n=470, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1521001, key=n470_rep1_p0_it0
+Launching QAOA key=n471_rep1_p0_it0, n=471, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1521091, key=n471_rep1_p0_it0
+Launching QAOA key=n472_rep1_p0_it0, n=472, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1521181, key=n472_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=543, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n473_rep1_p0_it0, n=473, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1521563, key=n473_rep1_p0_it0
+Launching QAOA key=n474_rep1_p0_it0, n=474, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1521646, key=n474_rep1_p0_it0
+Launching QAOA key=n475_rep1_p0_it0, n=475, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1521728, key=n475_rep1_p0_it0
+Launching QAOA key=n476_rep1_p0_it0, n=476, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1521810, key=n476_rep1_p0_it0
+Launching QAOA key=n477_rep1_p0_it0, n=477, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1521892, key=n477_rep1_p0_it0
+Launching QAOA key=n478_rep1_p0_it0, n=478, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1521974, key=n478_rep1_p0_it0
+Launching QAOA key=n479_rep1_p0_it0, n=479, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1522056, key=n479_rep1_p0_it0
+Launching QAOA key=n480_rep1_p0_it0, n=480, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1522138, key=n480_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=535, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n481_rep1_p0_it0, n=481, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1522504, key=n481_rep1_p0_it0
+Launching QAOA key=n482_rep1_p0_it0, n=482, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1522586, key=n482_rep1_p0_it0
+Launching QAOA key=n483_rep1_p0_it0, n=483, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1522668, key=n483_rep1_p0_it0
+Launching QAOA key=n484_rep1_p0_it0, n=484, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1522750, key=n484_rep1_p0_it0
+Launching QAOA key=n485_rep1_p0_it0, n=485, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1522836, key=n485_rep1_p0_it0
+Launching QAOA key=n486_rep1_p0_it0, n=486, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1522922, key=n486_rep1_p0_it0
+Launching QAOA key=n487_rep1_p0_it0, n=487, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1523007, key=n487_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=528, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n488_rep1_p0_it0, n=488, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1523399, key=n488_rep1_p0_it0
+Launching QAOA key=n489_rep1_p0_it0, n=489, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1523481, key=n489_rep1_p0_it0
+Launching QAOA key=n490_rep1_p0_it0, n=490, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1523563, key=n490_rep1_p0_it0
+Launching QAOA key=n491_rep1_p0_it0, n=491, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1523645, key=n491_rep1_p0_it0
+Launching QAOA key=n492_rep1_p0_it0, n=492, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1523727, key=n492_rep1_p0_it0
+Launching QAOA key=n493_rep1_p0_it0, n=493, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1523809, key=n493_rep1_p0_it0
+Launching QAOA key=n494_rep1_p0_it0, n=494, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1523891, key=n494_rep1_p0_it0
+Launching QAOA key=n495_rep1_p0_it0, n=495, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1523973, key=n495_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=520, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n496_rep1_p0_it0, n=496, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1524348, key=n496_rep1_p0_it0
+Launching QAOA key=n497_rep1_p0_it0, n=497, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1524434, key=n497_rep1_p0_it0
+Launching QAOA key=n498_rep1_p0_it0, n=498, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1524520, key=n498_rep1_p0_it0
+Launching QAOA key=n499_rep1_p0_it0, n=499, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1524610, key=n499_rep1_p0_it0
+Launching QAOA key=n500_rep1_p0_it0, n=500, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1524692, key=n500_rep1_p0_it0
+Launching QAOA key=n501_rep1_p0_it0, n=501, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1524778, key=n501_rep1_p0_it0
+Launching QAOA key=n502_rep1_p0_it0, n=502, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1524864, key=n502_rep1_p0_it0
+Launching QAOA key=n503_rep1_p0_it0, n=503, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1524950, key=n503_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=512, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n504_rep1_p0_it0, n=504, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1525341, key=n504_rep1_p0_it0
+Launching QAOA key=n505_rep1_p0_it0, n=505, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1525423, key=n505_rep1_p0_it0
+Launching QAOA key=n506_rep1_p0_it0, n=506, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1525505, key=n506_rep1_p0_it0
+Launching QAOA key=n507_rep1_p0_it0, n=507, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1525587, key=n507_rep1_p0_it0
+Launching QAOA key=n508_rep1_p0_it0, n=508, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1525669, key=n508_rep1_p0_it0
+Launching QAOA key=n509_rep1_p0_it0, n=509, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1525751, key=n509_rep1_p0_it0
+Launching QAOA key=n510_rep1_p0_it0, n=510, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1525833, key=n510_rep1_p0_it0
+Launching QAOA key=n511_rep1_p0_it0, n=511, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1525915, key=n511_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=504, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n512_rep1_p0_it0, n=512, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1526359, key=n512_rep1_p0_it0
+Launching QAOA key=n513_rep1_p0_it0, n=513, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1526441, key=n513_rep1_p0_it0
+Launching QAOA key=n514_rep1_p0_it0, n=514, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1526523, key=n514_rep1_p0_it0
+Launching QAOA key=n515_rep1_p0_it0, n=515, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1526609, key=n515_rep1_p0_it0
+Launching QAOA key=n516_rep1_p0_it0, n=516, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1526691, key=n516_rep1_p0_it0
+Launching QAOA key=n517_rep1_p0_it0, n=517, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1526777, key=n517_rep1_p0_it0
+Launching QAOA key=n518_rep1_p0_it0, n=518, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1526863, key=n518_rep1_p0_it0
+Launching QAOA key=n519_rep1_p0_it0, n=519, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1526949, key=n519_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=496, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n520_rep1_p0_it0, n=520, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1527286, key=n520_rep1_p0_it0
+Launching QAOA key=n521_rep1_p0_it0, n=521, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1527368, key=n521_rep1_p0_it0
+Launching QAOA key=n522_rep1_p0_it0, n=522, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1527450, key=n522_rep1_p0_it0
+Launching QAOA key=n523_rep1_p0_it0, n=523, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1527532, key=n523_rep1_p0_it0
+Launching QAOA key=n524_rep1_p0_it0, n=524, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1527614, key=n524_rep1_p0_it0
+Launching QAOA key=n525_rep1_p0_it0, n=525, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1527696, key=n525_rep1_p0_it0
+Launching QAOA key=n526_rep1_p0_it0, n=526, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1527778, key=n526_rep1_p0_it0
+Launching QAOA key=n527_rep1_p0_it0, n=527, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1527860, key=n527_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=488, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n528_rep1_p0_it0, n=528, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1528317, key=n528_rep1_p0_it0
+Launching QAOA key=n529_rep1_p0_it0, n=529, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1528399, key=n529_rep1_p0_it0
+Launching QAOA key=n530_rep1_p0_it0, n=530, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1528481, key=n530_rep1_p0_it0
+Launching QAOA key=n531_rep1_p0_it0, n=531, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1528567, key=n531_rep1_p0_it0
+Launching QAOA key=n532_rep1_p0_it0, n=532, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1528653, key=n532_rep1_p0_it0
+Launching QAOA key=n533_rep1_p0_it0, n=533, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1528739, key=n533_rep1_p0_it0
+Launching QAOA key=n534_rep1_p0_it0, n=534, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1528826, key=n534_rep1_p0_it0
+Launching QAOA key=n535_rep1_p0_it0, n=535, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1528911, key=n535_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=480, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n536_rep1_p0_it0, n=536, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1529228, key=n536_rep1_p0_it0
+Launching QAOA key=n537_rep1_p0_it0, n=537, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1529310, key=n537_rep1_p0_it0
+Launching QAOA key=n538_rep1_p0_it0, n=538, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1529392, key=n538_rep1_p0_it0
+Launching QAOA key=n539_rep1_p0_it0, n=539, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1529474, key=n539_rep1_p0_it0
+Launching QAOA key=n540_rep1_p0_it0, n=540, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1529561, key=n540_rep1_p0_it0
+Launching QAOA key=n541_rep1_p0_it0, n=541, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1529647, key=n541_rep1_p0_it0
+Launching QAOA key=n542_rep1_p0_it0, n=542, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1529733, key=n542_rep1_p0_it0
+Launching QAOA key=n543_rep1_p0_it0, n=543, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1529819, key=n543_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=472, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n544_rep1_p0_it0, n=544, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1530254, key=n544_rep1_p0_it0
+Launching QAOA key=n545_rep1_p0_it0, n=545, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1530336, key=n545_rep1_p0_it0
+Launching QAOA key=n546_rep1_p0_it0, n=546, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1530418, key=n546_rep1_p0_it0
+Launching QAOA key=n547_rep1_p0_it0, n=547, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1530504, key=n547_rep1_p0_it0
+Launching QAOA key=n548_rep1_p0_it0, n=548, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1530586, key=n548_rep1_p0_it0
+Launching QAOA key=n549_rep1_p0_it0, n=549, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1530672, key=n549_rep1_p0_it0
+Launching QAOA key=n550_rep1_p0_it0, n=550, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1530757, key=n550_rep1_p0_it0
+Launching QAOA key=n551_rep1_p0_it0, n=551, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1530844, key=n551_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=464, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n552_rep1_p0_it0, n=552, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1531169, key=n552_rep1_p0_it0
+Launching QAOA key=n553_rep1_p0_it0, n=553, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1531251, key=n553_rep1_p0_it0
+Launching QAOA key=n554_rep1_p0_it0, n=554, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1531333, key=n554_rep1_p0_it0
+Launching QAOA key=n555_rep1_p0_it0, n=555, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1531415, key=n555_rep1_p0_it0
+Launching QAOA key=n556_rep1_p0_it0, n=556, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1531497, key=n556_rep1_p0_it0
+Launching QAOA key=n557_rep1_p0_it0, n=557, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1531579, key=n557_rep1_p0_it0
+Launching QAOA key=n558_rep1_p0_it0, n=558, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1531661, key=n558_rep1_p0_it0
+Launching QAOA key=n559_rep1_p0_it0, n=559, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1531743, key=n559_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=456, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n560_rep1_p0_it0, n=560, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1532151, key=n560_rep1_p0_it0
+Launching QAOA key=n561_rep1_p0_it0, n=561, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1532237, key=n561_rep1_p0_it0
+Launching QAOA key=n562_rep1_p0_it0, n=562, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1532323, key=n562_rep1_p0_it0
+Launching QAOA key=n563_rep1_p0_it0, n=563, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1532405, key=n563_rep1_p0_it0
+Launching QAOA key=n564_rep1_p0_it0, n=564, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1532491, key=n564_rep1_p0_it0
+Launching QAOA key=n565_rep1_p0_it0, n=565, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1532573, key=n565_rep1_p0_it0
+Launching QAOA key=n566_rep1_p0_it0, n=566, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1532659, key=n566_rep1_p0_it0
+Launching QAOA key=n567_rep1_p0_it0, n=567, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1532745, key=n567_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=448, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n568_rep1_p0_it0, n=568, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1533112, key=n568_rep1_p0_it0
+Launching QAOA key=n569_rep1_p0_it0, n=569, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1533194, key=n569_rep1_p0_it0
+Launching QAOA key=n570_rep1_p0_it0, n=570, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1533276, key=n570_rep1_p0_it0
+Launching QAOA key=n571_rep1_p0_it0, n=571, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1533358, key=n571_rep1_p0_it0
+Launching QAOA key=n572_rep1_p0_it0, n=572, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1533440, key=n572_rep1_p0_it0
+Launching QAOA key=n573_rep1_p0_it0, n=573, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1533522, key=n573_rep1_p0_it0
+Launching QAOA key=n574_rep1_p0_it0, n=574, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1533604, key=n574_rep1_p0_it0
+Launching QAOA key=n575_rep1_p0_it0, n=575, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1533686, key=n575_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=440, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n576_rep1_p0_it0, n=576, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1534139, key=n576_rep1_p0_it0
+Launching QAOA key=n577_rep1_p0_it0, n=577, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1534225, key=n577_rep1_p0_it0
+Launching QAOA key=n578_rep1_p0_it0, n=578, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1534313, key=n578_rep1_p0_it0
+Launching QAOA key=n579_rep1_p0_it0, n=579, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1534401, key=n579_rep1_p0_it0
+Launching QAOA key=n580_rep1_p0_it0, n=580, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1534487, key=n580_rep1_p0_it0
+Launching QAOA key=n581_rep1_p0_it0, n=581, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1534572, key=n581_rep1_p0_it0
+Launching QAOA key=n582_rep1_p0_it0, n=582, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1534659, key=n582_rep1_p0_it0
+Launching QAOA key=n583_rep1_p0_it0, n=583, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1534746, key=n583_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=432, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n584_rep1_p0_it0, n=584, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1535107, key=n584_rep1_p0_it0
+Launching QAOA key=n585_rep1_p0_it0, n=585, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1535189, key=n585_rep1_p0_it0
+Launching QAOA key=n586_rep1_p0_it0, n=586, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1535271, key=n586_rep1_p0_it0
+Launching QAOA key=n587_rep1_p0_it0, n=587, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1535353, key=n587_rep1_p0_it0
+Launching QAOA key=n588_rep1_p0_it0, n=588, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1535435, key=n588_rep1_p0_it0
+Launching QAOA key=n589_rep1_p0_it0, n=589, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1535517, key=n589_rep1_p0_it0
+Launching QAOA key=n590_rep1_p0_it0, n=590, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1535599, key=n590_rep1_p0_it0
+Launching QAOA key=n591_rep1_p0_it0, n=591, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1535681, key=n591_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=424, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n592_rep1_p0_it0, n=592, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1536049, key=n592_rep1_p0_it0
+Launching QAOA key=n593_rep1_p0_it0, n=593, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1536135, key=n593_rep1_p0_it0
+Launching QAOA key=n594_rep1_p0_it0, n=594, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1536221, key=n594_rep1_p0_it0
+Launching QAOA key=n595_rep1_p0_it0, n=595, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1536307, key=n595_rep1_p0_it0
+Launching QAOA key=n596_rep1_p0_it0, n=596, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1536393, key=n596_rep1_p0_it0
+Launching QAOA key=n597_rep1_p0_it0, n=597, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1536483, key=n597_rep1_p0_it0
+Launching QAOA key=n598_rep1_p0_it0, n=598, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1536569, key=n598_rep1_p0_it0
+Launching QAOA key=n599_rep1_p0_it0, n=599, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1536655, key=n599_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=416, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n600_rep1_p0_it0, n=600, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1537053, key=n600_rep1_p0_it0
+Launching QAOA key=n601_rep1_p0_it0, n=601, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1537135, key=n601_rep1_p0_it0
+Launching QAOA key=n602_rep1_p0_it0, n=602, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1537217, key=n602_rep1_p0_it0
+Launching QAOA key=n603_rep1_p0_it0, n=603, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1537299, key=n603_rep1_p0_it0
+Launching QAOA key=n604_rep1_p0_it0, n=604, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1537381, key=n604_rep1_p0_it0
+Launching QAOA key=n605_rep1_p0_it0, n=605, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1537463, key=n605_rep1_p0_it0
+Launching QAOA key=n606_rep1_p0_it0, n=606, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1537545, key=n606_rep1_p0_it0
+Launching QAOA key=n607_rep1_p0_it0, n=607, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1537627, key=n607_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=408, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n608_rep1_p0_it0, n=608, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1537994, key=n608_rep1_p0_it0
+Launching QAOA key=n609_rep1_p0_it0, n=609, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1538080, key=n609_rep1_p0_it0
+Launching QAOA key=n610_rep1_p0_it0, n=610, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1538166, key=n610_rep1_p0_it0
+Launching QAOA key=n611_rep1_p0_it0, n=611, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1538252, key=n611_rep1_p0_it0
+Launching QAOA key=n612_rep1_p0_it0, n=612, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1538338, key=n612_rep1_p0_it0
+Launching QAOA key=n613_rep1_p0_it0, n=613, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1538428, key=n613_rep1_p0_it0
+Launching QAOA key=n614_rep1_p0_it0, n=614, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1538514, key=n614_rep1_p0_it0
+Launching QAOA key=n615_rep1_p0_it0, n=615, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1538600, key=n615_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=400, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n616_rep1_p0_it0, n=616, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1538994, key=n616_rep1_p0_it0
+Launching QAOA key=n617_rep1_p0_it0, n=617, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1539076, key=n617_rep1_p0_it0
+Launching QAOA key=n618_rep1_p0_it0, n=618, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1539158, key=n618_rep1_p0_it0
+Launching QAOA key=n619_rep1_p0_it0, n=619, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1539240, key=n619_rep1_p0_it0
+Launching QAOA key=n620_rep1_p0_it0, n=620, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1539322, key=n620_rep1_p0_it0
+Launching QAOA key=n621_rep1_p0_it0, n=621, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1539404, key=n621_rep1_p0_it0
+Launching QAOA key=n622_rep1_p0_it0, n=622, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1539486, key=n622_rep1_p0_it0
+Launching QAOA key=n623_rep1_p0_it0, n=623, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1539568, key=n623_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=392, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n624_rep1_p0_it0, n=624, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1540025, key=n624_rep1_p0_it0
+Launching QAOA key=n625_rep1_p0_it0, n=625, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1540111, key=n625_rep1_p0_it0
+Launching QAOA key=n626_rep1_p0_it0, n=626, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1540199, key=n626_rep1_p0_it0
+Launching QAOA key=n627_rep1_p0_it0, n=627, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1540287, key=n627_rep1_p0_it0
+Launching QAOA key=n628_rep1_p0_it0, n=628, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1540373, key=n628_rep1_p0_it0
+Launching QAOA key=n629_rep1_p0_it0, n=629, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1540459, key=n629_rep1_p0_it0
+Launching QAOA key=n630_rep1_p0_it0, n=630, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1540546, key=n630_rep1_p0_it0
+Launching QAOA key=n631_rep1_p0_it0, n=631, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1540631, key=n631_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=384, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n632_rep1_p0_it0, n=632, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1540936, key=n632_rep1_p0_it0
+Launching QAOA key=n633_rep1_p0_it0, n=633, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1541018, key=n633_rep1_p0_it0
+Launching QAOA key=n634_rep1_p0_it0, n=634, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1541104, key=n634_rep1_p0_it0
+Launching QAOA key=n635_rep1_p0_it0, n=635, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1541187, key=n635_rep1_p0_it0
+Launching QAOA key=n636_rep1_p0_it0, n=636, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1541273, key=n636_rep1_p0_it0
+Launching QAOA key=n637_rep1_p0_it0, n=637, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1541355, key=n637_rep1_p0_it0
+Launching QAOA key=n638_rep1_p0_it0, n=638, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1541437, key=n638_rep1_p0_it0
+Launching QAOA key=n639_rep1_p0_it0, n=639, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1541523, key=n639_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=376, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n640_rep1_p0_it0, n=640, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1541966, key=n640_rep1_p0_it0
+Launching QAOA key=n641_rep1_p0_it0, n=641, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1542052, key=n641_rep1_p0_it0
+Launching QAOA key=n642_rep1_p0_it0, n=642, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1542138, key=n642_rep1_p0_it0
+Launching QAOA key=n643_rep1_p0_it0, n=643, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1542224, key=n643_rep1_p0_it0
+Launching QAOA key=n644_rep1_p0_it0, n=644, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1542310, key=n644_rep1_p0_it0
+Launching QAOA key=n645_rep1_p0_it0, n=645, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1542396, key=n645_rep1_p0_it0
+Launching QAOA key=n646_rep1_p0_it0, n=646, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1542486, key=n646_rep1_p0_it0
+Launching QAOA key=n647_rep1_p0_it0, n=647, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1542572, key=n647_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=368, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n648_rep1_p0_it0, n=648, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1542877, key=n648_rep1_p0_it0
+Launching QAOA key=n649_rep1_p0_it0, n=649, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1542959, key=n649_rep1_p0_it0
+Launching QAOA key=n650_rep1_p0_it0, n=650, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1543046, key=n650_rep1_p0_it0
+Launching QAOA key=n651_rep1_p0_it0, n=651, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1543133, key=n651_rep1_p0_it0
+Launching QAOA key=n652_rep1_p0_it0, n=652, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1543222, key=n652_rep1_p0_it0
+Launching QAOA key=n653_rep1_p0_it0, n=653, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1543304, key=n653_rep1_p0_it0
+Launching QAOA key=n654_rep1_p0_it0, n=654, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1543394, key=n654_rep1_p0_it0
+Launching QAOA key=n655_rep1_p0_it0, n=655, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1543480, key=n655_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=360, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n656_rep1_p0_it0, n=656, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1543948, key=n656_rep1_p0_it0
+Launching QAOA key=n657_rep1_p0_it0, n=657, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1544030, key=n657_rep1_p0_it0
+Launching QAOA key=n658_rep1_p0_it0, n=658, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1544112, key=n658_rep1_p0_it0
+Launching QAOA key=n659_rep1_p0_it0, n=659, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1544194, key=n659_rep1_p0_it0
+Launching QAOA key=n660_rep1_p0_it0, n=660, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1544276, key=n660_rep1_p0_it0
+Launching QAOA key=n661_rep1_p0_it0, n=661, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1544358, key=n661_rep1_p0_it0
+Launching QAOA key=n662_rep1_p0_it0, n=662, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1544440, key=n662_rep1_p0_it0
+Launching QAOA key=n663_rep1_p0_it0, n=663, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1544522, key=n663_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=352, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n664_rep1_p0_it0, n=664, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1544816, key=n664_rep1_p0_it0
+Launching QAOA key=n665_rep1_p0_it0, n=665, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1544902, key=n665_rep1_p0_it0
+Launching QAOA key=n666_rep1_p0_it0, n=666, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1544988, key=n666_rep1_p0_it0
+Launching QAOA key=n667_rep1_p0_it0, n=667, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1545074, key=n667_rep1_p0_it0
+Launching QAOA key=n668_rep1_p0_it0, n=668, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1545160, key=n668_rep1_p0_it0
+Launching QAOA key=n669_rep1_p0_it0, n=669, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1545250, key=n669_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=346, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n670_rep1_p0_it0, n=670, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1545673, key=n670_rep1_p0_it0
+Launching QAOA key=n671_rep1_p0_it0, n=671, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1545755, key=n671_rep1_p0_it0
+Launching QAOA key=n672_rep1_p0_it0, n=672, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1545837, key=n672_rep1_p0_it0
+Launching QAOA key=n673_rep1_p0_it0, n=673, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1545919, key=n673_rep1_p0_it0
+Launching QAOA key=n674_rep1_p0_it0, n=674, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1546001, key=n674_rep1_p0_it0
+Launching QAOA key=n675_rep1_p0_it0, n=675, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1546083, key=n675_rep1_p0_it0
+Launching QAOA key=n676_rep1_p0_it0, n=676, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1546165, key=n676_rep1_p0_it0
+Launching QAOA key=n677_rep1_p0_it0, n=677, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1546247, key=n677_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=338, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n678_rep1_p0_it0, n=678, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1546609, key=n678_rep1_p0_it0
+Launching QAOA key=n679_rep1_p0_it0, n=679, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1546691, key=n679_rep1_p0_it0
+Launching QAOA key=n680_rep1_p0_it0, n=680, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1546778, key=n680_rep1_p0_it0
+Launching QAOA key=n681_rep1_p0_it0, n=681, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1546864, key=n681_rep1_p0_it0
+Launching QAOA key=n682_rep1_p0_it0, n=682, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1546946, key=n682_rep1_p0_it0
+Launching QAOA key=n683_rep1_p0_it0, n=683, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1547028, key=n683_rep1_p0_it0
+Launching QAOA key=n684_rep1_p0_it0, n=684, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1547114, key=n684_rep1_p0_it0
+Launching QAOA key=n685_rep1_p0_it0, n=685, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1547200, key=n685_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=330, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n686_rep1_p0_it0, n=686, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1547618, key=n686_rep1_p0_it0
+Launching QAOA key=n687_rep1_p0_it0, n=687, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1547700, key=n687_rep1_p0_it0
+Launching QAOA key=n688_rep1_p0_it0, n=688, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1547782, key=n688_rep1_p0_it0
+Launching QAOA key=n689_rep1_p0_it0, n=689, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1547865, key=n689_rep1_p0_it0
+Launching QAOA key=n690_rep1_p0_it0, n=690, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1547947, key=n690_rep1_p0_it0
+Launching QAOA key=n691_rep1_p0_it0, n=691, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1548029, key=n691_rep1_p0_it0
+Launching QAOA key=n692_rep1_p0_it0, n=692, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1548111, key=n692_rep1_p0_it0
+Launching QAOA key=n693_rep1_p0_it0, n=693, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1548193, key=n693_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=322, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n694_rep1_p0_it0, n=694, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1548560, key=n694_rep1_p0_it0
+Launching QAOA key=n695_rep1_p0_it0, n=695, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1548646, key=n695_rep1_p0_it0
+Launching QAOA key=n696_rep1_p0_it0, n=696, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1548732, key=n696_rep1_p0_it0
+Launching QAOA key=n697_rep1_p0_it0, n=697, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1548822, key=n697_rep1_p0_it0
+Launching QAOA key=n698_rep1_p0_it0, n=698, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1548908, key=n698_rep1_p0_it0
+Launching QAOA key=n699_rep1_p0_it0, n=699, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1548994, key=n699_rep1_p0_it0
+Launching QAOA key=n700_rep1_p0_it0, n=700, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1549080, key=n700_rep1_p0_it0
+Launching QAOA key=n701_rep1_p0_it0, n=701, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1549166, key=n701_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=314, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n702_rep1_p0_it0, n=702, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1549560, key=n702_rep1_p0_it0
+Launching QAOA key=n703_rep1_p0_it0, n=703, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1549642, key=n703_rep1_p0_it0
+Launching QAOA key=n704_rep1_p0_it0, n=704, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1549724, key=n704_rep1_p0_it0
+Launching QAOA key=n705_rep1_p0_it0, n=705, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1549806, key=n705_rep1_p0_it0
+Launching QAOA key=n706_rep1_p0_it0, n=706, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1549888, key=n706_rep1_p0_it0
+Launching QAOA key=n707_rep1_p0_it0, n=707, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1549970, key=n707_rep1_p0_it0
+Launching QAOA key=n708_rep1_p0_it0, n=708, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1550052, key=n708_rep1_p0_it0
+Launching QAOA key=n709_rep1_p0_it0, n=709, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1550134, key=n709_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=306, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n710_rep1_p0_it0, n=710, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1550530, key=n710_rep1_p0_it0
+Launching QAOA key=n711_rep1_p0_it0, n=711, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1550615, key=n711_rep1_p0_it0
+Launching QAOA key=n712_rep1_p0_it0, n=712, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1550702, key=n712_rep1_p0_it0
+Launching QAOA key=n713_rep1_p0_it0, n=713, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1550788, key=n713_rep1_p0_it0
+Launching QAOA key=n714_rep1_p0_it0, n=714, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1550874, key=n714_rep1_p0_it0
+Launching QAOA key=n715_rep1_p0_it0, n=715, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1550960, key=n715_rep1_p0_it0
+Launching QAOA key=n716_rep1_p0_it0, n=716, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1551042, key=n716_rep1_p0_it0
+Launching QAOA key=n717_rep1_p0_it0, n=717, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1551129, key=n717_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=298, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n718_rep1_p0_it0, n=718, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1551502, key=n718_rep1_p0_it0
+Launching QAOA key=n719_rep1_p0_it0, n=719, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1551584, key=n719_rep1_p0_it0
+Launching QAOA key=n720_rep1_p0_it0, n=720, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1551666, key=n720_rep1_p0_it0
+Launching QAOA key=n721_rep1_p0_it0, n=721, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1551748, key=n721_rep1_p0_it0
+Launching QAOA key=n722_rep1_p0_it0, n=722, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1551830, key=n722_rep1_p0_it0
+Launching QAOA key=n723_rep1_p0_it0, n=723, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1551912, key=n723_rep1_p0_it0
+Launching QAOA key=n724_rep1_p0_it0, n=724, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1551994, key=n724_rep1_p0_it0
+Launching QAOA key=n725_rep1_p0_it0, n=725, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1552076, key=n725_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=290, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n726_rep1_p0_it0, n=726, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1552464, key=n726_rep1_p0_it0
+Launching QAOA key=n727_rep1_p0_it0, n=727, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1552554, key=n727_rep1_p0_it0
+Launching QAOA key=n728_rep1_p0_it0, n=728, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1552640, key=n728_rep1_p0_it0
+Launching QAOA key=n729_rep1_p0_it0, n=729, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1552726, key=n729_rep1_p0_it0
+Launching QAOA key=n730_rep1_p0_it0, n=730, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1552812, key=n730_rep1_p0_it0
+Launching QAOA key=n731_rep1_p0_it0, n=731, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1552898, key=n731_rep1_p0_it0
+Launching QAOA key=n732_rep1_p0_it0, n=732, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1552984, key=n732_rep1_p0_it0
+Launching QAOA key=n733_rep1_p0_it0, n=733, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1553066, key=n733_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=282, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n734_rep1_p0_it0, n=734, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1553444, key=n734_rep1_p0_it0
+Launching QAOA key=n735_rep1_p0_it0, n=735, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1553526, key=n735_rep1_p0_it0
+Launching QAOA key=n736_rep1_p0_it0, n=736, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1553608, key=n736_rep1_p0_it0
+Launching QAOA key=n737_rep1_p0_it0, n=737, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1553690, key=n737_rep1_p0_it0
+Launching QAOA key=n738_rep1_p0_it0, n=738, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1553772, key=n738_rep1_p0_it0
+Launching QAOA key=n739_rep1_p0_it0, n=739, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1553854, key=n739_rep1_p0_it0
+Launching QAOA key=n740_rep1_p0_it0, n=740, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1553938, key=n740_rep1_p0_it0
+Launching QAOA key=n741_rep1_p0_it0, n=741, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1554020, key=n741_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=274, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n742_rep1_p0_it0, n=742, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1554403, key=n742_rep1_p0_it0
+Launching QAOA key=n743_rep1_p0_it0, n=743, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1554489, key=n743_rep1_p0_it0
+Launching QAOA key=n744_rep1_p0_it0, n=744, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1554575, key=n744_rep1_p0_it0
+Launching QAOA key=n745_rep1_p0_it0, n=745, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1554661, key=n745_rep1_p0_it0
+Launching QAOA key=n746_rep1_p0_it0, n=746, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1554747, key=n746_rep1_p0_it0
+Launching QAOA key=n747_rep1_p0_it0, n=747, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1554833, key=n747_rep1_p0_it0
+Launching QAOA key=n748_rep1_p0_it0, n=748, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1554919, key=n748_rep1_p0_it0
+Launching QAOA key=n749_rep1_p0_it0, n=749, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1555005, key=n749_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=266, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n750_rep1_p0_it0, n=750, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1555388, key=n750_rep1_p0_it0
+Launching QAOA key=n751_rep1_p0_it0, n=751, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1555470, key=n751_rep1_p0_it0
+Launching QAOA key=n752_rep1_p0_it0, n=752, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1555552, key=n752_rep1_p0_it0
+Launching QAOA key=n753_rep1_p0_it0, n=753, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1555634, key=n753_rep1_p0_it0
+Launching QAOA key=n754_rep1_p0_it0, n=754, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1555716, key=n754_rep1_p0_it0
+Launching QAOA key=n755_rep1_p0_it0, n=755, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1555798, key=n755_rep1_p0_it0
+Launching QAOA key=n756_rep1_p0_it0, n=756, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1555880, key=n756_rep1_p0_it0
+Launching QAOA key=n757_rep1_p0_it0, n=757, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1555962, key=n757_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=258, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n758_rep1_p0_it0, n=758, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1556337, key=n758_rep1_p0_it0
+Launching QAOA key=n759_rep1_p0_it0, n=759, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1556423, key=n759_rep1_p0_it0
+Launching QAOA key=n760_rep1_p0_it0, n=760, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1556509, key=n760_rep1_p0_it0
+Launching QAOA key=n761_rep1_p0_it0, n=761, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1556595, key=n761_rep1_p0_it0
+Launching QAOA key=n762_rep1_p0_it0, n=762, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1556681, key=n762_rep1_p0_it0
+Launching QAOA key=n763_rep1_p0_it0, n=763, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1556767, key=n763_rep1_p0_it0
+Launching QAOA key=n764_rep1_p0_it0, n=764, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1556855, key=n764_rep1_p0_it0
+Launching QAOA key=n765_rep1_p0_it0, n=765, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1556942, key=n765_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=250, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n766_rep1_p0_it0, n=766, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1557329, key=n766_rep1_p0_it0
+Launching QAOA key=n767_rep1_p0_it0, n=767, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1557411, key=n767_rep1_p0_it0
+Launching QAOA key=n768_rep1_p0_it0, n=768, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1557493, key=n768_rep1_p0_it0
+Launching QAOA key=n769_rep1_p0_it0, n=769, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1557575, key=n769_rep1_p0_it0
+Launching QAOA key=n770_rep1_p0_it0, n=770, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1557657, key=n770_rep1_p0_it0
+Launching QAOA key=n771_rep1_p0_it0, n=771, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1557739, key=n771_rep1_p0_it0
+Launching QAOA key=n772_rep1_p0_it0, n=772, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1557821, key=n772_rep1_p0_it0
+Launching QAOA key=n773_rep1_p0_it0, n=773, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1557903, key=n773_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=242, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n774_rep1_p0_it0, n=774, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1558326, key=n774_rep1_p0_it0
+Launching QAOA key=n775_rep1_p0_it0, n=775, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1558408, key=n775_rep1_p0_it0
+Launching QAOA key=n776_rep1_p0_it0, n=776, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1558490, key=n776_rep1_p0_it0
+Launching QAOA key=n777_rep1_p0_it0, n=777, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1558572, key=n777_rep1_p0_it0
+Launching QAOA key=n778_rep1_p0_it0, n=778, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1558654, key=n778_rep1_p0_it0
+Launching QAOA key=n779_rep1_p0_it0, n=779, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1558740, key=n779_rep1_p0_it0
+Launching QAOA key=n780_rep1_p0_it0, n=780, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1558827, key=n780_rep1_p0_it0
+Launching QAOA key=n781_rep1_p0_it0, n=781, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1558913, key=n781_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=234, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n782_rep1_p0_it0, n=782, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1559274, key=n782_rep1_p0_it0
+Launching QAOA key=n783_rep1_p0_it0, n=783, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1559356, key=n783_rep1_p0_it0
+Launching QAOA key=n784_rep1_p0_it0, n=784, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1559438, key=n784_rep1_p0_it0
+Launching QAOA key=n785_rep1_p0_it0, n=785, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1559520, key=n785_rep1_p0_it0
+Launching QAOA key=n786_rep1_p0_it0, n=786, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1559602, key=n786_rep1_p0_it0
+Launching QAOA key=n787_rep1_p0_it0, n=787, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1559684, key=n787_rep1_p0_it0
+Launching QAOA key=n788_rep1_p0_it0, n=788, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1559766, key=n788_rep1_p0_it0
+Launching QAOA key=n789_rep1_p0_it0, n=789, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1559848, key=n789_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=226, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n790_rep1_p0_it0, n=790, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1560285, key=n790_rep1_p0_it0
+Launching QAOA key=n791_rep1_p0_it0, n=791, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1560367, key=n791_rep1_p0_it0
+Launching QAOA key=n792_rep1_p0_it0, n=792, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1560453, key=n792_rep1_p0_it0
+Launching QAOA key=n793_rep1_p0_it0, n=793, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1560539, key=n793_rep1_p0_it0
+Launching QAOA key=n794_rep1_p0_it0, n=794, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1560625, key=n794_rep1_p0_it0
+Launching QAOA key=n795_rep1_p0_it0, n=795, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1560707, key=n795_rep1_p0_it0
+Launching QAOA key=n796_rep1_p0_it0, n=796, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1560789, key=n796_rep1_p0_it0
+Launching QAOA key=n797_rep1_p0_it0, n=797, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1560871, key=n797_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=218, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n798_rep1_p0_it0, n=798, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1561217, key=n798_rep1_p0_it0
+Launching QAOA key=n799_rep1_p0_it0, n=799, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1561299, key=n799_rep1_p0_it0
+Launching QAOA key=n800_rep1_p0_it0, n=800, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1561381, key=n800_rep1_p0_it0
+Launching QAOA key=n801_rep1_p0_it0, n=801, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1561463, key=n801_rep1_p0_it0
+Launching QAOA key=n802_rep1_p0_it0, n=802, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1561545, key=n802_rep1_p0_it0
+Launching QAOA key=n803_rep1_p0_it0, n=803, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1561627, key=n803_rep1_p0_it0
+Launching QAOA key=n804_rep1_p0_it0, n=804, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1561709, key=n804_rep1_p0_it0
+Launching QAOA key=n805_rep1_p0_it0, n=805, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1561791, key=n805_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=210, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n806_rep1_p0_it0, n=806, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1562264, key=n806_rep1_p0_it0
+Launching QAOA key=n807_rep1_p0_it0, n=807, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1562346, key=n807_rep1_p0_it0
+Launching QAOA key=n808_rep1_p0_it0, n=808, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1562428, key=n808_rep1_p0_it0
+Launching QAOA key=n809_rep1_p0_it0, n=809, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1562510, key=n809_rep1_p0_it0
+Launching QAOA key=n810_rep1_p0_it0, n=810, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1562596, key=n810_rep1_p0_it0
+Launching QAOA key=n811_rep1_p0_it0, n=811, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1562682, key=n811_rep1_p0_it0
+Launching QAOA key=n812_rep1_p0_it0, n=812, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1562768, key=n812_rep1_p0_it0
+Launching QAOA key=n813_rep1_p0_it0, n=813, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1562854, key=n813_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=202, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n814_rep1_p0_it0, n=814, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1563159, key=n814_rep1_p0_it0
+Launching QAOA key=n815_rep1_p0_it0, n=815, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1563241, key=n815_rep1_p0_it0
+Launching QAOA key=n816_rep1_p0_it0, n=816, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1563323, key=n816_rep1_p0_it0
+Launching QAOA key=n817_rep1_p0_it0, n=817, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1563405, key=n817_rep1_p0_it0
+Launching QAOA key=n818_rep1_p0_it0, n=818, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1563496, key=n818_rep1_p0_it0
+Launching QAOA key=n819_rep1_p0_it0, n=819, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1563582, key=n819_rep1_p0_it0
+Launching QAOA key=n820_rep1_p0_it0, n=820, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1563668, key=n820_rep1_p0_it0
+Launching QAOA key=n821_rep1_p0_it0, n=821, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1563758, key=n821_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=194, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n822_rep1_p0_it0, n=822, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1564229, key=n822_rep1_p0_it0
+Launching QAOA key=n823_rep1_p0_it0, n=823, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1564311, key=n823_rep1_p0_it0
+Launching QAOA key=n824_rep1_p0_it0, n=824, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1564393, key=n824_rep1_p0_it0
+Launching QAOA key=n825_rep1_p0_it0, n=825, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1564475, key=n825_rep1_p0_it0
+Launching QAOA key=n826_rep1_p0_it0, n=826, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1564557, key=n826_rep1_p0_it0
+Launching QAOA key=n827_rep1_p0_it0, n=827, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1564639, key=n827_rep1_p0_it0
+Launching QAOA key=n828_rep1_p0_it0, n=828, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1564721, key=n828_rep1_p0_it0
+Launching QAOA key=n829_rep1_p0_it0, n=829, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1564803, key=n829_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=186, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n830_rep1_p0_it0, n=830, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1565167, key=n830_rep1_p0_it0
+Launching QAOA key=n831_rep1_p0_it0, n=831, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1565254, key=n831_rep1_p0_it0
+Launching QAOA key=n832_rep1_p0_it0, n=832, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1565343, key=n832_rep1_p0_it0
+Launching QAOA key=n833_rep1_p0_it0, n=833, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1565430, key=n833_rep1_p0_it0
+Launching QAOA key=n834_rep1_p0_it0, n=834, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1565520, key=n834_rep1_p0_it0
+Launching QAOA key=n835_rep1_p0_it0, n=835, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1565606, key=n835_rep1_p0_it0
+Launching QAOA key=n836_rep1_p0_it0, n=836, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1565692, key=n836_rep1_p0_it0
+Launching QAOA key=n837_rep1_p0_it0, n=837, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1565778, key=n837_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=178, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n838_rep1_p0_it0, n=838, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1566173, key=n838_rep1_p0_it0
+Launching QAOA key=n839_rep1_p0_it0, n=839, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1566255, key=n839_rep1_p0_it0
+Launching QAOA key=n840_rep1_p0_it0, n=840, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1566337, key=n840_rep1_p0_it0
+Launching QAOA key=n841_rep1_p0_it0, n=841, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1566419, key=n841_rep1_p0_it0
+Launching QAOA key=n842_rep1_p0_it0, n=842, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1566501, key=n842_rep1_p0_it0
+Launching QAOA key=n843_rep1_p0_it0, n=843, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1566583, key=n843_rep1_p0_it0
+Launching QAOA key=n844_rep1_p0_it0, n=844, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1566665, key=n844_rep1_p0_it0
+Launching QAOA key=n845_rep1_p0_it0, n=845, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1566747, key=n845_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=170, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n846_rep1_p0_it0, n=846, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1567081, key=n846_rep1_p0_it0
+Launching QAOA key=n847_rep1_p0_it0, n=847, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1567170, key=n847_rep1_p0_it0
+Launching QAOA key=n848_rep1_p0_it0, n=848, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1567257, key=n848_rep1_p0_it0
+Launching QAOA key=n849_rep1_p0_it0, n=849, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1567348, key=n849_rep1_p0_it0
+Launching QAOA key=n850_rep1_p0_it0, n=850, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1567434, key=n850_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=165, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n851_rep1_p0_it0, n=851, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1567791, key=n851_rep1_p0_it0
+Launching QAOA key=n852_rep1_p0_it0, n=852, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1567873, key=n852_rep1_p0_it0
+Launching QAOA key=n853_rep1_p0_it0, n=853, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1567955, key=n853_rep1_p0_it0
+Launching QAOA key=n854_rep1_p0_it0, n=854, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1568037, key=n854_rep1_p0_it0
+Launching QAOA key=n855_rep1_p0_it0, n=855, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1568119, key=n855_rep1_p0_it0
+Launching QAOA key=n856_rep1_p0_it0, n=856, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1568201, key=n856_rep1_p0_it0
+Launching QAOA key=n857_rep1_p0_it0, n=857, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1568283, key=n857_rep1_p0_it0
+Launching QAOA key=n858_rep1_p0_it0, n=858, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1568365, key=n858_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=157, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n859_rep1_p0_it0, n=859, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1568830, key=n859_rep1_p0_it0
+Launching QAOA key=n860_rep1_p0_it0, n=860, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1568912, key=n860_rep1_p0_it0
+Launching QAOA key=n861_rep1_p0_it0, n=861, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1568994, key=n861_rep1_p0_it0
+Launching QAOA key=n862_rep1_p0_it0, n=862, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1569076, key=n862_rep1_p0_it0
+Launching QAOA key=n863_rep1_p0_it0, n=863, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1569166, key=n863_rep1_p0_it0
+Launching QAOA key=n864_rep1_p0_it0, n=864, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1569256, key=n864_rep1_p0_it0
+Launching QAOA key=n865_rep1_p0_it0, n=865, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1569342, key=n865_rep1_p0_it0
+Launching QAOA key=n866_rep1_p0_it0, n=866, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1569432, key=n866_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=149, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n867_rep1_p0_it0, n=867, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1569737, key=n867_rep1_p0_it0
+Launching QAOA key=n868_rep1_p0_it0, n=868, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1569824, key=n868_rep1_p0_it0
+Launching QAOA key=n869_rep1_p0_it0, n=869, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1569910, key=n869_rep1_p0_it0
+Launching QAOA key=n870_rep1_p0_it0, n=870, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1569996, key=n870_rep1_p0_it0
+Launching QAOA key=n871_rep1_p0_it0, n=871, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1570086, key=n871_rep1_p0_it0
+Launching QAOA key=n872_rep1_p0_it0, n=872, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1570176, key=n872_rep1_p0_it0
+Launching QAOA key=n873_rep1_p0_it0, n=873, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1570266, key=n873_rep1_p0_it0
+Launching QAOA key=n874_rep1_p0_it0, n=874, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1570352, key=n874_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=141, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n875_rep1_p0_it0, n=875, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1570808, key=n875_rep1_p0_it0
+Launching QAOA key=n876_rep1_p0_it0, n=876, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1570890, key=n876_rep1_p0_it0
+Launching QAOA key=n877_rep1_p0_it0, n=877, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1570972, key=n877_rep1_p0_it0
+Launching QAOA key=n878_rep1_p0_it0, n=878, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1571054, key=n878_rep1_p0_it0
+Launching QAOA key=n879_rep1_p0_it0, n=879, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1571136, key=n879_rep1_p0_it0
+Launching QAOA key=n880_rep1_p0_it0, n=880, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1571218, key=n880_rep1_p0_it0
+Launching QAOA key=n881_rep1_p0_it0, n=881, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1571301, key=n881_rep1_p0_it0
+Launching QAOA key=n882_rep1_p0_it0, n=882, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1571383, key=n882_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=133, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n883_rep1_p0_it0, n=883, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1571802, key=n883_rep1_p0_it0
+Launching QAOA key=n884_rep1_p0_it0, n=884, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1571884, key=n884_rep1_p0_it0
+Launching QAOA key=n885_rep1_p0_it0, n=885, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1571970, key=n885_rep1_p0_it0
+Launching QAOA key=n886_rep1_p0_it0, n=886, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1572056, key=n886_rep1_p0_it0
+Launching QAOA key=n887_rep1_p0_it0, n=887, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1572149, key=n887_rep1_p0_it0
+Launching QAOA key=n888_rep1_p0_it0, n=888, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1572240, key=n888_rep1_p0_it0
+Launching QAOA key=n889_rep1_p0_it0, n=889, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1572327, key=n889_rep1_p0_it0
+Launching QAOA key=n890_rep1_p0_it0, n=890, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1572417, key=n890_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=125, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n891_rep1_p0_it0, n=891, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1572751, key=n891_rep1_p0_it0
+Launching QAOA key=n892_rep1_p0_it0, n=892, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1572833, key=n892_rep1_p0_it0
+Launching QAOA key=n893_rep1_p0_it0, n=893, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1572915, key=n893_rep1_p0_it0
+Launching QAOA key=n894_rep1_p0_it0, n=894, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1572997, key=n894_rep1_p0_it0
+Launching QAOA key=n895_rep1_p0_it0, n=895, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1573079, key=n895_rep1_p0_it0
+Launching QAOA key=n896_rep1_p0_it0, n=896, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1573161, key=n896_rep1_p0_it0
+Launching QAOA key=n897_rep1_p0_it0, n=897, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1573248, key=n897_rep1_p0_it0
+Launching QAOA key=n898_rep1_p0_it0, n=898, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1573334, key=n898_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=117, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n899_rep1_p0_it0, n=899, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1573793, key=n899_rep1_p0_it0
+Launching QAOA key=n900_rep1_p0_it0, n=900, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1573879, key=n900_rep1_p0_it0
+Launching QAOA key=n901_rep1_p0_it0, n=901, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1573965, key=n901_rep1_p0_it0
+Launching QAOA key=n902_rep1_p0_it0, n=902, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1574051, key=n902_rep1_p0_it0
+Launching QAOA key=n903_rep1_p0_it0, n=903, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1574137, key=n903_rep1_p0_it0
+Launching QAOA key=n904_rep1_p0_it0, n=904, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1574219, key=n904_rep1_p0_it0
+Launching QAOA key=n905_rep1_p0_it0, n=905, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1574309, key=n905_rep1_p0_it0
+Launching QAOA key=n906_rep1_p0_it0, n=906, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1574394, key=n906_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=109, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n907_rep1_p0_it0, n=907, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1574701, key=n907_rep1_p0_it0
+Launching QAOA key=n908_rep1_p0_it0, n=908, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1574783, key=n908_rep1_p0_it0
+Launching QAOA key=n909_rep1_p0_it0, n=909, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1574865, key=n909_rep1_p0_it0
+Launching QAOA key=n910_rep1_p0_it0, n=910, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1574947, key=n910_rep1_p0_it0
+Launching QAOA key=n911_rep1_p0_it0, n=911, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1575029, key=n911_rep1_p0_it0
+Launching QAOA key=n912_rep1_p0_it0, n=912, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1575115, key=n912_rep1_p0_it0
+Launching QAOA key=n913_rep1_p0_it0, n=913, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1575197, key=n913_rep1_p0_it0
+Launching QAOA key=n914_rep1_p0_it0, n=914, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1575279, key=n914_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=101, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n915_rep1_p0_it0, n=915, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1575759, key=n915_rep1_p0_it0
+Launching QAOA key=n916_rep1_p0_it0, n=916, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1575844, key=n916_rep1_p0_it0
+Launching QAOA key=n917_rep1_p0_it0, n=917, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1575927, key=n917_rep1_p0_it0
+Launching QAOA key=n918_rep1_p0_it0, n=918, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1576009, key=n918_rep1_p0_it0
+Launching QAOA key=n919_rep1_p0_it0, n=919, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1576091, key=n919_rep1_p0_it0
+Launching QAOA key=n920_rep1_p0_it0, n=920, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1576173, key=n920_rep1_p0_it0
+Launching QAOA key=n921_rep1_p0_it0, n=921, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1576255, key=n921_rep1_p0_it0
+Launching QAOA key=n922_rep1_p0_it0, n=922, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1576337, key=n922_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=93, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n923_rep1_p0_it0, n=923, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1576634, key=n923_rep1_p0_it0
+Launching QAOA key=n924_rep1_p0_it0, n=924, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1576720, key=n924_rep1_p0_it0
+Launching QAOA key=n925_rep1_p0_it0, n=925, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1576802, key=n925_rep1_p0_it0
+Launching QAOA key=n926_rep1_p0_it0, n=926, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1576888, key=n926_rep1_p0_it0
+Launching QAOA key=n927_rep1_p0_it0, n=927, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1576974, key=n927_rep1_p0_it0
+Launching QAOA key=n928_rep1_p0_it0, n=928, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1577060, key=n928_rep1_p0_it0
+Launching QAOA key=n929_rep1_p0_it0, n=929, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1577146, key=n929_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=86, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n930_rep1_p0_it0, n=930, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1577598, key=n930_rep1_p0_it0
+Launching QAOA key=n931_rep1_p0_it0, n=931, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1577680, key=n931_rep1_p0_it0
+Launching QAOA key=n932_rep1_p0_it0, n=932, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1577762, key=n932_rep1_p0_it0
+Launching QAOA key=n933_rep1_p0_it0, n=933, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1577844, key=n933_rep1_p0_it0
+Launching QAOA key=n934_rep1_p0_it0, n=934, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1577926, key=n934_rep1_p0_it0
+Launching QAOA key=n935_rep1_p0_it0, n=935, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1578008, key=n935_rep1_p0_it0
+Launching QAOA key=n936_rep1_p0_it0, n=936, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1578090, key=n936_rep1_p0_it0
+Launching QAOA key=n937_rep1_p0_it0, n=937, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1578172, key=n937_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=78, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n938_rep1_p0_it0, n=938, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1578518, key=n938_rep1_p0_it0
+Launching QAOA key=n939_rep1_p0_it0, n=939, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1578605, key=n939_rep1_p0_it0
+Launching QAOA key=n940_rep1_p0_it0, n=940, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1578690, key=n940_rep1_p0_it0
+Launching QAOA key=n941_rep1_p0_it0, n=941, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1578779, key=n941_rep1_p0_it0
+Launching QAOA key=n942_rep1_p0_it0, n=942, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1578862, key=n942_rep1_p0_it0
+Launching QAOA key=n943_rep1_p0_it0, n=943, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1578949, key=n943_rep1_p0_it0
+Launching QAOA key=n944_rep1_p0_it0, n=944, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1579035, key=n944_rep1_p0_it0
+Launching QAOA key=n945_rep1_p0_it0, n=945, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1579121, key=n945_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=70, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n946_rep1_p0_it0, n=946, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1579539, key=n946_rep1_p0_it0
+Launching QAOA key=n947_rep1_p0_it0, n=947, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1579624, key=n947_rep1_p0_it0
+Launching QAOA key=n948_rep1_p0_it0, n=948, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1579707, key=n948_rep1_p0_it0
+Launching QAOA key=n949_rep1_p0_it0, n=949, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1579789, key=n949_rep1_p0_it0
+Launching QAOA key=n950_rep1_p0_it0, n=950, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1579871, key=n950_rep1_p0_it0
+Launching QAOA key=n951_rep1_p0_it0, n=951, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1579953, key=n951_rep1_p0_it0
+Launching QAOA key=n952_rep1_p0_it0, n=952, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1580035, key=n952_rep1_p0_it0
+Launching QAOA key=n953_rep1_p0_it0, n=953, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1580117, key=n953_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=62, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n954_rep1_p0_it0, n=954, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1580447, key=n954_rep1_p0_it0
+Launching QAOA key=n955_rep1_p0_it0, n=955, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1580533, key=n955_rep1_p0_it0
+Launching QAOA key=n956_rep1_p0_it0, n=956, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1580623, key=n956_rep1_p0_it0
+Launching QAOA key=n957_rep1_p0_it0, n=957, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1580709, key=n957_rep1_p0_it0
+Launching QAOA key=n958_rep1_p0_it0, n=958, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1580795, key=n958_rep1_p0_it0
+Launching QAOA key=n959_rep1_p0_it0, n=959, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1580881, key=n959_rep1_p0_it0
+Launching QAOA key=n960_rep1_p0_it0, n=960, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1580971, key=n960_rep1_p0_it0
+Launching QAOA key=n961_rep1_p0_it0, n=961, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1581058, key=n961_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=54, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n962_rep1_p0_it0, n=962, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1581484, key=n962_rep1_p0_it0
+Launching QAOA key=n963_rep1_p0_it0, n=963, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1581566, key=n963_rep1_p0_it0
+Launching QAOA key=n964_rep1_p0_it0, n=964, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1581648, key=n964_rep1_p0_it0
+Launching QAOA key=n965_rep1_p0_it0, n=965, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1581730, key=n965_rep1_p0_it0
+Launching QAOA key=n966_rep1_p0_it0, n=966, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1581812, key=n966_rep1_p0_it0
+Launching QAOA key=n967_rep1_p0_it0, n=967, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1581894, key=n967_rep1_p0_it0
+Launching QAOA key=n968_rep1_p0_it0, n=968, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1581976, key=n968_rep1_p0_it0
+Launching QAOA key=n969_rep1_p0_it0, n=969, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1582058, key=n969_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=46, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n970_rep1_p0_it0, n=970, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1582482, key=n970_rep1_p0_it0
+Launching QAOA key=n971_rep1_p0_it0, n=971, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1582572, key=n971_rep1_p0_it0
+Launching QAOA key=n972_rep1_p0_it0, n=972, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1582658, key=n972_rep1_p0_it0
+Launching QAOA key=n973_rep1_p0_it0, n=973, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1582744, key=n973_rep1_p0_it0
+Launching QAOA key=n974_rep1_p0_it0, n=974, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1582834, key=n974_rep1_p0_it0
+Launching QAOA key=n975_rep1_p0_it0, n=975, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1582920, key=n975_rep1_p0_it0
+Launching QAOA key=n976_rep1_p0_it0, n=976, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1583010, key=n976_rep1_p0_it0
+Launching QAOA key=n977_rep1_p0_it0, n=977, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1583098, key=n977_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=38, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n978_rep1_p0_it0, n=978, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1583480, key=n978_rep1_p0_it0
+Launching QAOA key=n979_rep1_p0_it0, n=979, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1583562, key=n979_rep1_p0_it0
+Launching QAOA key=n980_rep1_p0_it0, n=980, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1583644, key=n980_rep1_p0_it0
+Launching QAOA key=n981_rep1_p0_it0, n=981, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1583726, key=n981_rep1_p0_it0
+Launching QAOA key=n982_rep1_p0_it0, n=982, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1583808, key=n982_rep1_p0_it0
+Launching QAOA key=n983_rep1_p0_it0, n=983, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1583890, key=n983_rep1_p0_it0
+Launching QAOA key=n984_rep1_p0_it0, n=984, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1583972, key=n984_rep1_p0_it0
+Launching QAOA key=n985_rep1_p0_it0, n=985, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1584055, key=n985_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=30, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n986_rep1_p0_it0, n=986, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1584535, key=n986_rep1_p0_it0
+Launching QAOA key=n987_rep1_p0_it0, n=987, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1584617, key=n987_rep1_p0_it0
+Launching QAOA key=n988_rep1_p0_it0, n=988, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1584703, key=n988_rep1_p0_it0
+Launching QAOA key=n989_rep1_p0_it0, n=989, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1584789, key=n989_rep1_p0_it0
+Launching QAOA key=n990_rep1_p0_it0, n=990, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1584878, key=n990_rep1_p0_it0
+Launching QAOA key=n991_rep1_p0_it0, n=991, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1584961, key=n991_rep1_p0_it0
+Launching QAOA key=n992_rep1_p0_it0, n=992, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1585043, key=n992_rep1_p0_it0
+Launching QAOA key=n993_rep1_p0_it0, n=993, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1585125, key=n993_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=22, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n994_rep1_p0_it0, n=994, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1585449, key=n994_rep1_p0_it0
+Launching QAOA key=n995_rep1_p0_it0, n=995, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1585535, key=n995_rep1_p0_it0
+Launching QAOA key=n996_rep1_p0_it0, n=996, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1585625, key=n996_rep1_p0_it0
+Launching QAOA key=n997_rep1_p0_it0, n=997, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1585711, key=n997_rep1_p0_it0
+Launching QAOA key=n998_rep1_p0_it0, n=998, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1585801, key=n998_rep1_p0_it0
+Launching QAOA key=n999_rep1_p0_it0, n=999, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1585886, key=n999_rep1_p0_it0
+Launching QAOA key=n1000_rep1_p0_it0, n=1000, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1585973, key=n1000_rep1_p0_it0
+Launching QAOA key=n1001_rep1_p0_it0, n=1001, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1586059, key=n1001_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=14, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n1002_rep1_p0_it0, n=1002, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1586495, key=n1002_rep1_p0_it0
+Launching QAOA key=n1003_rep1_p0_it0, n=1003, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1586577, key=n1003_rep1_p0_it0
+Launching QAOA key=n1004_rep1_p0_it0, n=1004, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1586659, key=n1004_rep1_p0_it0
+Launching QAOA key=n1005_rep1_p0_it0, n=1005, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1586741, key=n1005_rep1_p0_it0
+Launching QAOA key=n1006_rep1_p0_it0, n=1006, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1586823, key=n1006_rep1_p0_it0
+Launching QAOA key=n1007_rep1_p0_it0, n=1007, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1586905, key=n1007_rep1_p0_it0
+Launching QAOA key=n1008_rep1_p0_it0, n=1008, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1586987, key=n1008_rep1_p0_it0
+Launching QAOA key=n1009_rep1_p0_it0, n=1009, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1587069, key=n1009_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=6, running_qaoa=8, total_sdp_rss_mb=0, cache_size_mb=420
+Launching QAOA key=n1010_rep1_p0_it0, n=1010, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1587457, key=n1010_rep1_p0_it0
+Launching QAOA key=n1011_rep1_p0_it0, n=1011, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1587547, key=n1011_rep1_p0_it0
+Launching QAOA key=n1012_rep1_p0_it0, n=1012, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1587633, key=n1012_rep1_p0_it0
+Launching QAOA key=n1013_rep1_p0_it0, n=1013, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1587719, key=n1013_rep1_p0_it0
+Launching QAOA key=n1014_rep1_p0_it0, n=1014, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1587801, key=n1014_rep1_p0_it0
+Launching QAOA key=n1015_rep1_p0_it0, n=1015, p=0, iterations=0, repeat=1, seed=none, cache=none
+Launched QAOA PID=1587883, key=n1015_rep1_p0_it0
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=0, running_qaoa=6, total_sdp_rss_mb=0, cache_size_mb=420
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=0, cache_size_mb=420
+All queues drained.
+Finished at: 2026-06-26 13:55:38
+Run tag: 20260626_134258_pid1463067
+Log directory: Results/logs/exact/20260626_134258_pid1463067
+Resource requeue CSV: Results/logs/exact/20260626_134258_pid1463067/resource_requeues.csv
+Failed warm-start CSV: Results/logs/exact/20260626_134258_pid1463067/failed_warm_starts.csv
+Failed warm-start adjacency-list file: Results/logs/exact/20260626_134258_pid1463067/failed_warm_starts.adjlist
+Warm-start cache dir: Results/warm_start_cache
+Warm-start cache size now: 420 MB

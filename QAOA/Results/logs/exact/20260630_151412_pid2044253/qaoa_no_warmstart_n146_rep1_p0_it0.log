@@ -1,0 +1,32 @@
+Starting QAOA benchmark with global start time: 1782825361.889884
+Benchmark parameters: {'optimiser': 'exact', 'optimiser_use_heuristic': False, 'heuristic_optimiser_iterations': 0, 'heuristic_optimiser_sampleSize': 0, 'circuit_type': 'standard', 'parameter_vector': [1, 1, 1], 'iterations_list': [1], 'learning_rate_adam': 0.05, 'depth_list': [1], 'n_start': None, 'n_end': None, 'singlet_injection': False, 'start_index_singlet': None, 'warm_start': False, 'warm_start_mode': 'standard', 'lasserre_level': 2, 'initial_solver_level_M': 2, 'sdp_seed': None, 'sdp_solver_mode': 'scs', 'sdp_scs_eps': 0.001, 'sdp_scs_max_iters': 20000, 'warm_start_corr_strength': None, 'warm_start_corr_repeats': None, 'compare_with_010101': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': None, 'failed_instance_termination_thrsh': None, 'graph_generation_type': 'hog', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': None, 'debug': False, 'save_circuit_svg': False, 'rerun_exclude_finished_instances': True, 'warm_start_cache_producer_only': False, 'qaoa_only_from_existing_warm_start_cache': False, 'optimiser_debug_iterations': None, 'num_repeats': 1, 'relative_graph_adjList_path': 'HOG_graphs/stress_test.txt', 'persistent_warm_start_cache': False, 'warm_start_cache_dir': 'Results/warm_start_cache/unused_exact', 'warm_start_cache_max_file_mb': 512, 'warm_start_cache_max_total_gb': 60, 'sdp_max_parallel': 0, 'qaoa_max_parallel': 8, 'sdp_threads': 1, 'qaoa_threads': 1, 'sdp_memory_limit_total_gb': 50, 'sdp_memory_limit_single_gb': 50, 'sdp_memory_poll_seconds': 5, 'sdp_max_retries': 0, 'queue_poll_interval_seconds': 5}, Running QAOA with equal superposition
+Benchmark run ID: fa3dface
+Benchmark repeat index: 1
+SDP seed override: None
+Processor: x86_64
+Hostname: dacsgpu0002
+Total RAM (GB): None
+Physical cores: 64
+Logical cores: 64
+Python version: 3.11.15
+Initialisation time: 0.00 seconds; started at stardate {'initialisation': 0.0025529861450195312} and finished at stardate1782825361.8924487
+Loaded HOG graph index 146 with 12 edges.
+Instance generation for n=146 took 0.00 seconds; started at stardate 1782825361.892456 and finished at stardate 1782825361.8963723
+Running QAOA for n=12 nodes, m=12 edges...; Max iterations: 0
+Edges: [(8, 9), (0, 11), (0, 1), (9, 10), (2, 3), (1, 2), (5, 6), (3, 4), (7, 8), (10, 11), (4, 5), (6, 7)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, n: 12 nodes, p: 0 layers, N_bayes: 0 iterations
+Solving for uuid: aba666b4
+No warm start: Default initial state is equal superposition
+Building standard QAOA circuit with 2 parameter types (γ and β)
+Exact result already logged for this instance; skipping duplicate. Existing energy: 8.387390917445225
+16.774781834890476
+QAOA optimisation for n=146 took 0.03 seconds; started at stardate 1782825361.8963766 and finished at stardate 1782825361.921612
+Finished QAOA for n=12 nodes, m=12 edges at 2026-06-30 15:16:01 on x86_64. Time taken: 0.03 seconds. Hours: 0.00 hours. Peak RAM: 0.21 MB.
+Computing cycle approximation ratio
+CSV writing for n=146 took 0.01 seconds; started at stardate 1782825361.9216182 and finished at stardate 1782825361.9293113
+results: {146: 16.774781834890476}
+durations: {12: 0.02523970603942871}
+Results saved to: Results/logs/exact/qaoa_results_exact_20260630_151412_pid2044253.csv
+Global end time: 1782825361.929323
+Finalisation time: 0.00 seconds; started at stardate 1782825361.9293141 and finished at stardate 1782825361.9293258
+Sum of all section times: 0.04 seconds
+run_id: fa3dface

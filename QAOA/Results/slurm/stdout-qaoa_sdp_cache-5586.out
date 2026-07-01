@@ -1,0 +1,17 @@
+Launcher PID: 3509517
+Started at: 2026-06-25 15:46:25
+Host: dacsgpu0002
+Working directory: /home/i6408800/MasterThesis/QAOA
+Using MOSEK license path: /home/i6408800/MasterThesis/mosek.lic
+Using benchmark config snapshot: Results/config_snapshots/benchmark_config_20260625_154625_pid3509517.json
+Running inside Slurm job: 5586 (qaoa_sdp_cache)
+Slurm node list: dacsgpu0002.fse-cslab.nl
+Slurm CPUs per task: 18
+Nominal launcher thread budget: 16
+Slurm memory per node: 307200 MB (~300 GB)
+HOG index range: n=79..1015 out of 1016 graphs.
+completed_result_csv_paths configured: 0
+completed_result_csv matched rows: 0
+completed_result_csv unique completed keys: 0
+completed_result_csv skipped non-matching rows: 0
+completed_result_csv rows missing required columns: 0

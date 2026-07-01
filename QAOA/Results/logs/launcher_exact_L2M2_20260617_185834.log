@@ -1,0 +1,8 @@
+nohup: ignoring input
+Launcher PID: 1468501
+Started at: 2026-06-17 18:58:34
+Host: dacsgpu0001
+Working directory: /home/i6408800/MasterThesis/QAOA
+Using MOSEK license path: /home/i6408800/MasterThesis/mosek.lic
+Using benchmark config snapshot: Results/config_snapshots/benchmark_config_20260617_185834_pid1468501.json
+Error: n_start and n_end must be set for graph_generation_type=.

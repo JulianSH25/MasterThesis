@@ -1,0 +1,13 @@
+finished_at=2026-06-25 21:13:44
+exit_code=137
+timed_out=0
+warm_start_failed=0
+role=sdp_producer
+key=n10_rep3_seed2000042
+n=10
+p=1
+iterations=50
+repeat_idx=3
+sdp_seed=2000042
+warm_start_cache_path=Results/warm_start_cache/line_graphs/line/line_n10_71df369e6604_seed2000042_L2_M2_standard.npz
+threads=1

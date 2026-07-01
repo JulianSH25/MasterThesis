@@ -1,0 +1,12 @@
+Launcher PID: 3133937
+Started at: 2026-06-18 14:16:22
+Host: dacsgpu0002
+Working directory: /home/i6408800/MasterThesis/QAOA
+Using MOSEK license path: /home/i6408800/MasterThesis/mosek.lic
+Using benchmark config snapshot: Results/config_snapshots/benchmark_config_20260618_141622_pid3133937.json
+Running inside Slurm job: 5314 (qaoa_L1M1_cached)
+Slurm node list: dacsgpu0002.fse-cslab.nl
+Slurm CPUs per task: 32
+Nominal launcher thread budget: 0
+Slurm memory per node: 49152 MB (~48 GB)
+Error: n_start and n_end must be set for graph_generation_type=.

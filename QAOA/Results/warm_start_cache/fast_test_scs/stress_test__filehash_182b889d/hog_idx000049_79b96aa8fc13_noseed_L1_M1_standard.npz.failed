@@ -1,0 +1,11 @@
+{
+  "graph_hash": "87f54a31c7f6cb4d",
+  "n_vertices": 7,
+  "n_edges": 21,
+  "sdp_seed": null,
+  "lasserre_level": 1,
+  "initial_solver_level_M": 1,
+  "warm_start_mode": "standard",
+  "failed_at": "2026-06-30 15:53:06",
+  "error": "IndexError('Index 21 is out of bounds for axis 1 with size 21.')"
+}

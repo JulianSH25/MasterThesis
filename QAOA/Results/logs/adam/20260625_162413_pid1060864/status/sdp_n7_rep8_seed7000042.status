@@ -1,0 +1,13 @@
+finished_at=2026-06-25 16:43:25
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=sdp_producer
+key=n7_rep8_seed7000042
+n=7
+p=1
+iterations=50
+repeat_idx=8
+sdp_seed=7000042
+warm_start_cache_path=Results/warm_start_cache/line_graphs/line/line_n7_b00e27acbbf4_seed7000042_L2_M2_standard.npz
+threads=1

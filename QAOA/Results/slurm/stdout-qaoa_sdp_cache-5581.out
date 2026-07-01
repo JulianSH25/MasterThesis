@@ -1,0 +1,6 @@
+Launcher PID: 3432705
+Started at: 2026-06-25 15:09:18
+Host: dacsgpu0002
+Working directory: /home/i6408800/MasterThesis/QAOA
+Using MOSEK license path: /home/i6408800/MasterThesis/mosek.lic
+Error: config file not found: Code/run_configurations/benchmark_config_sdpqueue_L2M2_cache_only

@@ -1,0 +1,13 @@
+Launcher PID: 728325
+Started at: 2026-06-26 12:44:35
+Host: dacsgpu0003
+Working directory: /home/i6408800/MasterThesis/QAOA
+Using MOSEK license path: /home/i6408800/MasterThesis/mosek.lic
+Using benchmark config snapshot: Results/config_snapshots/benchmark_config_20260626_124435_pid728325.json
+Running inside Slurm job: 5626 (exact)
+Slurm node list: dacsgpu0003.fse-cslab.nl
+Slurm CPUs per task: 19
+Nominal launcher thread budget: 19
+Slurm memory per node: 49152 MB (~48 GB)
+Error: sdp_memory_limit_total_gb (80 GB) exceeds requested Slurm memory (~48 GB).
+Adjust sdp_memory_limit_total_gb or request more memory in the Slurm file.

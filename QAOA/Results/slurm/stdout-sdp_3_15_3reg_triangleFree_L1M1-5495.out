@@ -1,0 +1,710 @@
+Launcher PID: 1659017
+Started at: 2026-06-23 15:21:19
+Host: dacsgpu0002
+Working directory: /home/i6408800/MasterThesis/QAOA
+Using MOSEK license path: /home/i6408800/MasterThesis/mosek.lic
+Using benchmark config snapshot: Results/config_snapshots/benchmark_config_20260623_152119_pid1659017.json
+Running inside Slurm job: 5495 (sdp_3_15_3reg_triangleFree_L1M1)
+Slurm node list: dacsgpu0002.fse-cslab.nl
+Slurm CPUs per task: 2
+Nominal launcher thread budget: 2
+Slurm memory per node: 52224 MB (~51 GB)
+HOG index range: n=0..12 out of 13 graphs.
+completed_result_csv_paths configured: 0
+completed_result_csv matched rows: 0
+completed_result_csv unique completed keys: 0
+completed_result_csv skipped non-matching rows: 0
+completed_result_csv rows missing required columns: 0
+Benchmark configuration from Results/config_snapshots/benchmark_config_20260623_152119_pid1659017.json:
+  optimiser: "adam"
+  optimiser_use_heuristic: true
+  heuristic_optimiser_iterations: 2
+  heuristic_optimiser_sampleSize: 1000
+  circuit_type: "hamqaoa"
+  parameter_vector: [1,1,1]
+  iterations_list: [50]
+  learning_rate_adam: 0.05
+  depth_list: [1,3,5]
+  n_start: null
+  n_end: null
+  singlet_injection: false
+  start_index_singlet: null
+  warm_start: true
+  warm_start_mode: "standard"
+  lasserre_level: 1
+  initial_solver_level_M: 1
+  sdp_seed: 42
+  warm_start_corr_strength: null
+  warm_start_corr_repeats: null
+  compare_with_010101: false
+  init_QAOAparams_close_to_zero: false
+  use_correlations_as_initial_params: false
+  time_limit: 10800
+  failed_instance_termination_thrsh: null
+  graph_generation_type: "hog"
+  weighted: false
+  easiest_first: true
+  cpu_util_threshold: null
+  debug: false
+  save_circuit_svg: false
+  rerun_exclude_finished_instances: true
+  warm_start_cache_producer_only: true
+  qaoa_only_from_existing_warm_start_cache: false
+  optimiser_debug_iterations: null
+  num_repeats: 10
+  relative_graph_adjList_path: "HOG_graphs/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList.txt"
+  persistent_warm_start_cache: true
+  warm_start_cache_dir: "Results/warm_start_cache"
+  warm_start_cache_max_file_mb: 512
+  warm_start_cache_max_total_gb: 60
+  sdp_max_parallel: 2
+  qaoa_max_parallel: 0
+  sdp_threads: 1
+  qaoa_threads: 1
+  sdp_memory_limit_total_gb: 50
+  sdp_memory_limit_single_gb: 50
+  sdp_memory_poll_seconds: 5
+  sdp_max_retries: 3
+  queue_poll_interval_seconds: 5
+
+DSRI SDP/QAOA queue launcher settings:
+  warm_start: true
+  pending_sdp_initial: 130
+  pending_qaoa_initial: 0
+  sdp_max_parallel: 2
+  qaoa_max_parallel: 0
+  sdp_memory_limit_total_gb: 50
+  sdp_memory_limit_single_gb: 50
+  sdp_max_retries: 3
+  sdp_threads: 1
+  qaoa_threads: 1
+  warm_start_cache_dir: Results/warm_start_cache
+  warm_start_cache_max_file_mb: 512
+  warm_start_cache_max_total_gb: 60
+  warm_start_cache_producer_only: true
+  qaoa_only_from_existing_warm_start_cache: false
+  completed_runs_txt_entries: 2861
+  completed_result_csv_entries: 0
+  nominal_thread_budget: 2
+  slurm_job_id: 5495
+  slurm_node_list: dacsgpu0002.fse-cslab.nl
+  slurm_cpus_per_task: 2
+  slurm_mem_per_node_mb: 52224
+  python_bin: /home/i6408800/miniforge3/envs/masterthesis/bin/python
+  MOSEKLM_LICENSE_FILE: /home/i6408800/MasterThesis/mosek.lic
+
+Launching SDP producer key=n0_rep1_seed42, n=0, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed42_L1_M1_standard.npz
+Launched SDP PID=1661192, key=n0_rep1_seed42
+Launching SDP producer key=n0_rep2_seed1000042, n=0, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1661205, key=n0_rep2_seed1000042
+Loop status: pending_sdp=128, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n0_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n0_rep1_seed42.
+SDP producer finished successfully for key=n0_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n0_rep2_seed1000042.
+Launching SDP producer key=n0_rep3_seed2000042, n=0, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1661304, key=n0_rep3_seed2000042
+Launching SDP producer key=n0_rep4_seed3000042, n=0, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1661317, key=n0_rep4_seed3000042
+Loop status: pending_sdp=126, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n0_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n0_rep3_seed2000042.
+SDP producer finished successfully for key=n0_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n0_rep4_seed3000042.
+Launching SDP producer key=n0_rep5_seed4000042, n=0, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1661416, key=n0_rep5_seed4000042
+Launching SDP producer key=n0_rep6_seed5000042, n=0, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1661429, key=n0_rep6_seed5000042
+Loop status: pending_sdp=124, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n0_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n0_rep5_seed4000042.
+SDP producer finished successfully for key=n0_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n0_rep6_seed5000042.
+Launching SDP producer key=n0_rep7_seed6000042, n=0, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1661528, key=n0_rep7_seed6000042
+Launching SDP producer key=n0_rep8_seed7000042, n=0, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1661541, key=n0_rep8_seed7000042
+Loop status: pending_sdp=122, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n0_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n0_rep7_seed6000042.
+SDP producer finished successfully for key=n0_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n0_rep8_seed7000042.
+Launching SDP producer key=n0_rep9_seed8000042, n=0, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1661640, key=n0_rep9_seed8000042
+Launching SDP producer key=n0_rep10_seed9000042, n=0, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1661653, key=n0_rep10_seed9000042
+Loop status: pending_sdp=120, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n0_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n0_rep9_seed8000042.
+SDP producer finished successfully for key=n0_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000000_a9ba2966dd1c_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n0_rep10_seed9000042.
+Launching SDP producer key=n1_rep1_seed42, n=1, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed42_L1_M1_standard.npz
+Launched SDP PID=1661758, key=n1_rep1_seed42
+Launching SDP producer key=n1_rep2_seed1000042, n=1, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1661771, key=n1_rep2_seed1000042
+Loop status: pending_sdp=118, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n1_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n1_rep1_seed42.
+SDP producer finished successfully for key=n1_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n1_rep2_seed1000042.
+Launching SDP producer key=n1_rep3_seed2000042, n=1, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1661870, key=n1_rep3_seed2000042
+Launching SDP producer key=n1_rep4_seed3000042, n=1, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1661883, key=n1_rep4_seed3000042
+Loop status: pending_sdp=116, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n1_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n1_rep3_seed2000042.
+SDP producer finished successfully for key=n1_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n1_rep4_seed3000042.
+Launching SDP producer key=n1_rep5_seed4000042, n=1, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1661983, key=n1_rep5_seed4000042
+Launching SDP producer key=n1_rep6_seed5000042, n=1, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1661996, key=n1_rep6_seed5000042
+Loop status: pending_sdp=114, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n1_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n1_rep5_seed4000042.
+SDP producer finished successfully for key=n1_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n1_rep6_seed5000042.
+Launching SDP producer key=n1_rep7_seed6000042, n=1, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1662097, key=n1_rep7_seed6000042
+Launching SDP producer key=n1_rep8_seed7000042, n=1, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1662114, key=n1_rep8_seed7000042
+Loop status: pending_sdp=112, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n1_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n1_rep7_seed6000042.
+SDP producer finished successfully for key=n1_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n1_rep8_seed7000042.
+Launching SDP producer key=n1_rep9_seed8000042, n=1, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1662213, key=n1_rep9_seed8000042
+Launching SDP producer key=n1_rep10_seed9000042, n=1, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1662226, key=n1_rep10_seed9000042
+Loop status: pending_sdp=110, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n1_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n1_rep9_seed8000042.
+SDP producer finished successfully for key=n1_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000001_b429b5be497c_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n1_rep10_seed9000042.
+Launching SDP producer key=n2_rep1_seed42, n=2, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed42_L1_M1_standard.npz
+Launched SDP PID=1662327, key=n2_rep1_seed42
+Launching SDP producer key=n2_rep2_seed1000042, n=2, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1662340, key=n2_rep2_seed1000042
+Loop status: pending_sdp=108, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n2_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n2_rep1_seed42.
+SDP producer finished successfully for key=n2_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n2_rep2_seed1000042.
+Launching SDP producer key=n2_rep3_seed2000042, n=2, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1662439, key=n2_rep3_seed2000042
+Launching SDP producer key=n2_rep4_seed3000042, n=2, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1662452, key=n2_rep4_seed3000042
+Loop status: pending_sdp=106, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n2_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n2_rep3_seed2000042.
+SDP producer finished successfully for key=n2_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n2_rep4_seed3000042.
+Launching SDP producer key=n2_rep5_seed4000042, n=2, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1662552, key=n2_rep5_seed4000042
+Launching SDP producer key=n2_rep6_seed5000042, n=2, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1662565, key=n2_rep6_seed5000042
+Loop status: pending_sdp=104, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n2_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n2_rep5_seed4000042.
+SDP producer finished successfully for key=n2_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n2_rep6_seed5000042.
+Launching SDP producer key=n2_rep7_seed6000042, n=2, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1662665, key=n2_rep7_seed6000042
+Launching SDP producer key=n2_rep8_seed7000042, n=2, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1662678, key=n2_rep8_seed7000042
+Loop status: pending_sdp=102, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n2_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n2_rep7_seed6000042.
+SDP producer finished successfully for key=n2_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n2_rep8_seed7000042.
+Launching SDP producer key=n2_rep9_seed8000042, n=2, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1662777, key=n2_rep9_seed8000042
+Launching SDP producer key=n2_rep10_seed9000042, n=2, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1662790, key=n2_rep10_seed9000042
+Loop status: pending_sdp=100, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n2_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n2_rep9_seed8000042.
+SDP producer finished successfully for key=n2_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000002_5e963646d08b_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n2_rep10_seed9000042.
+Launching SDP producer key=n3_rep1_seed42, n=3, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed42_L1_M1_standard.npz
+Launched SDP PID=1662889, key=n3_rep1_seed42
+Launching SDP producer key=n3_rep2_seed1000042, n=3, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1662902, key=n3_rep2_seed1000042
+Loop status: pending_sdp=98, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=240
+SDP producer finished successfully for key=n3_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n3_rep1_seed42.
+SDP producer finished successfully for key=n3_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n3_rep2_seed1000042.
+Launching SDP producer key=n3_rep3_seed2000042, n=3, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1663003, key=n3_rep3_seed2000042
+Launching SDP producer key=n3_rep4_seed3000042, n=3, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1663016, key=n3_rep4_seed3000042
+Loop status: pending_sdp=96, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n3_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n3_rep3_seed2000042.
+SDP producer finished successfully for key=n3_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n3_rep4_seed3000042.
+Launching SDP producer key=n3_rep5_seed4000042, n=3, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1663115, key=n3_rep5_seed4000042
+Launching SDP producer key=n3_rep6_seed5000042, n=3, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1663128, key=n3_rep6_seed5000042
+Loop status: pending_sdp=94, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n3_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n3_rep5_seed4000042.
+SDP producer finished successfully for key=n3_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n3_rep6_seed5000042.
+Launching SDP producer key=n3_rep7_seed6000042, n=3, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1663229, key=n3_rep7_seed6000042
+Launching SDP producer key=n3_rep8_seed7000042, n=3, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1663242, key=n3_rep8_seed7000042
+Loop status: pending_sdp=92, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n3_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n3_rep7_seed6000042.
+SDP producer finished successfully for key=n3_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n3_rep8_seed7000042.
+Launching SDP producer key=n3_rep9_seed8000042, n=3, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1663341, key=n3_rep9_seed8000042
+Launching SDP producer key=n3_rep10_seed9000042, n=3, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1663354, key=n3_rep10_seed9000042
+Loop status: pending_sdp=90, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n3_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n3_rep9_seed8000042.
+SDP producer finished successfully for key=n3_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000003_d393a39a1f08_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n3_rep10_seed9000042.
+Launching SDP producer key=n4_rep1_seed42, n=4, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed42_L1_M1_standard.npz
+Launched SDP PID=1663453, key=n4_rep1_seed42
+Launching SDP producer key=n4_rep2_seed1000042, n=4, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1663470, key=n4_rep2_seed1000042
+Loop status: pending_sdp=88, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n4_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n4_rep1_seed42.
+SDP producer finished successfully for key=n4_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n4_rep2_seed1000042.
+Launching SDP producer key=n4_rep3_seed2000042, n=4, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1663569, key=n4_rep3_seed2000042
+Launching SDP producer key=n4_rep4_seed3000042, n=4, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1663582, key=n4_rep4_seed3000042
+Loop status: pending_sdp=86, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n4_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n4_rep3_seed2000042.
+SDP producer finished successfully for key=n4_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n4_rep4_seed3000042.
+Launching SDP producer key=n4_rep5_seed4000042, n=4, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1663682, key=n4_rep5_seed4000042
+Launching SDP producer key=n4_rep6_seed5000042, n=4, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1663695, key=n4_rep6_seed5000042
+Loop status: pending_sdp=84, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n4_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n4_rep5_seed4000042.
+SDP producer finished successfully for key=n4_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n4_rep6_seed5000042.
+Launching SDP producer key=n4_rep7_seed6000042, n=4, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1663795, key=n4_rep7_seed6000042
+Launching SDP producer key=n4_rep8_seed7000042, n=4, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1663808, key=n4_rep8_seed7000042
+Loop status: pending_sdp=82, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n4_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n4_rep7_seed6000042.
+SDP producer finished successfully for key=n4_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n4_rep8_seed7000042.
+Launching SDP producer key=n4_rep9_seed8000042, n=4, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1663907, key=n4_rep9_seed8000042
+Launching SDP producer key=n4_rep10_seed9000042, n=4, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1663920, key=n4_rep10_seed9000042
+Loop status: pending_sdp=80, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n4_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n4_rep9_seed8000042.
+SDP producer finished successfully for key=n4_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000004_4905c4ec9e9d_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n4_rep10_seed9000042.
+Launching SDP producer key=n5_rep1_seed42, n=5, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed42_L1_M1_standard.npz
+Launched SDP PID=1664020, key=n5_rep1_seed42
+Launching SDP producer key=n5_rep2_seed1000042, n=5, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1664033, key=n5_rep2_seed1000042
+Loop status: pending_sdp=78, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n5_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n5_rep1_seed42.
+SDP producer finished successfully for key=n5_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n5_rep2_seed1000042.
+Launching SDP producer key=n5_rep3_seed2000042, n=5, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1664133, key=n5_rep3_seed2000042
+Launching SDP producer key=n5_rep4_seed3000042, n=5, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1664146, key=n5_rep4_seed3000042
+Loop status: pending_sdp=76, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n5_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n5_rep3_seed2000042.
+SDP producer finished successfully for key=n5_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n5_rep4_seed3000042.
+Launching SDP producer key=n5_rep5_seed4000042, n=5, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1664246, key=n5_rep5_seed4000042
+Launching SDP producer key=n5_rep6_seed5000042, n=5, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1664259, key=n5_rep6_seed5000042
+Loop status: pending_sdp=74, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n5_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n5_rep5_seed4000042.
+SDP producer finished successfully for key=n5_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n5_rep6_seed5000042.
+Launching SDP producer key=n5_rep7_seed6000042, n=5, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1664358, key=n5_rep7_seed6000042
+Launching SDP producer key=n5_rep8_seed7000042, n=5, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1664371, key=n5_rep8_seed7000042
+Loop status: pending_sdp=72, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n5_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n5_rep7_seed6000042.
+SDP producer finished successfully for key=n5_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n5_rep8_seed7000042.
+Launching SDP producer key=n5_rep9_seed8000042, n=5, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1664470, key=n5_rep9_seed8000042
+Launching SDP producer key=n5_rep10_seed9000042, n=5, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1664483, key=n5_rep10_seed9000042
+Loop status: pending_sdp=70, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n5_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n5_rep9_seed8000042.
+SDP producer finished successfully for key=n5_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000005_14589aaf2840_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n5_rep10_seed9000042.
+Launching SDP producer key=n6_rep1_seed42, n=6, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed42_L1_M1_standard.npz
+Launched SDP PID=1664582, key=n6_rep1_seed42
+Launching SDP producer key=n6_rep2_seed1000042, n=6, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1664595, key=n6_rep2_seed1000042
+Loop status: pending_sdp=68, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n6_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n6_rep1_seed42.
+SDP producer finished successfully for key=n6_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n6_rep2_seed1000042.
+Launching SDP producer key=n6_rep3_seed2000042, n=6, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1664694, key=n6_rep3_seed2000042
+Launching SDP producer key=n6_rep4_seed3000042, n=6, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1664707, key=n6_rep4_seed3000042
+Loop status: pending_sdp=66, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n6_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n6_rep3_seed2000042.
+SDP producer finished successfully for key=n6_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n6_rep4_seed3000042.
+Launching SDP producer key=n6_rep5_seed4000042, n=6, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1664806, key=n6_rep5_seed4000042
+Launching SDP producer key=n6_rep6_seed5000042, n=6, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1664823, key=n6_rep6_seed5000042
+Loop status: pending_sdp=64, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=241
+SDP producer finished successfully for key=n6_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n6_rep5_seed4000042.
+SDP producer finished successfully for key=n6_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n6_rep6_seed5000042.
+Launching SDP producer key=n6_rep7_seed6000042, n=6, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1664922, key=n6_rep7_seed6000042
+Launching SDP producer key=n6_rep8_seed7000042, n=6, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1664935, key=n6_rep8_seed7000042
+Loop status: pending_sdp=62, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=242
+SDP producer finished successfully for key=n6_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n6_rep7_seed6000042.
+SDP producer finished successfully for key=n6_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n6_rep8_seed7000042.
+Launching SDP producer key=n6_rep9_seed8000042, n=6, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1665035, key=n6_rep9_seed8000042
+Launching SDP producer key=n6_rep10_seed9000042, n=6, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1665048, key=n6_rep10_seed9000042
+Loop status: pending_sdp=60, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=242
+SDP producer finished successfully for key=n6_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n6_rep9_seed8000042.
+SDP producer finished successfully for key=n6_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000006_a22f9bcc3188_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n6_rep10_seed9000042.
+Launching SDP producer key=n7_rep1_seed42, n=7, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed42_L1_M1_standard.npz
+Launched SDP PID=1665148, key=n7_rep1_seed42
+Launching SDP producer key=n7_rep2_seed1000042, n=7, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1665161, key=n7_rep2_seed1000042
+Loop status: pending_sdp=58, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=242
+SDP producer finished successfully for key=n7_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n7_rep1_seed42.
+SDP producer finished successfully for key=n7_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n7_rep2_seed1000042.
+Launching SDP producer key=n7_rep3_seed2000042, n=7, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1665260, key=n7_rep3_seed2000042
+Launching SDP producer key=n7_rep4_seed3000042, n=7, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1665273, key=n7_rep4_seed3000042
+Loop status: pending_sdp=56, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=242
+SDP producer finished successfully for key=n7_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n7_rep3_seed2000042.
+SDP producer finished successfully for key=n7_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n7_rep4_seed3000042.
+Launching SDP producer key=n7_rep5_seed4000042, n=7, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1665372, key=n7_rep5_seed4000042
+Launching SDP producer key=n7_rep6_seed5000042, n=7, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1665385, key=n7_rep6_seed5000042
+Loop status: pending_sdp=54, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=242
+SDP producer finished successfully for key=n7_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n7_rep5_seed4000042.
+SDP producer finished successfully for key=n7_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n7_rep6_seed5000042.
+Launching SDP producer key=n7_rep7_seed6000042, n=7, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1665486, key=n7_rep7_seed6000042
+Launching SDP producer key=n7_rep8_seed7000042, n=7, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1665499, key=n7_rep8_seed7000042
+Loop status: pending_sdp=52, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=242
+SDP producer finished successfully for key=n7_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n7_rep7_seed6000042.
+SDP producer finished successfully for key=n7_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n7_rep8_seed7000042.
+Launching SDP producer key=n7_rep9_seed8000042, n=7, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1665625, key=n7_rep9_seed8000042
+Launching SDP producer key=n7_rep10_seed9000042, n=7, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1665638, key=n7_rep10_seed9000042
+Loop status: pending_sdp=50, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=242
+SDP producer finished successfully for key=n7_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n7_rep9_seed8000042.
+SDP producer finished successfully for key=n7_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000007_e136d8552ed5_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n7_rep10_seed9000042.
+Launching SDP producer key=n8_rep1_seed42, n=8, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed42_L1_M1_standard.npz
+Launched SDP PID=1665764, key=n8_rep1_seed42
+Launching SDP producer key=n8_rep2_seed1000042, n=8, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1665777, key=n8_rep2_seed1000042
+Loop status: pending_sdp=48, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=242
+SDP producer finished successfully for key=n8_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n8_rep1_seed42.
+SDP producer finished successfully for key=n8_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n8_rep2_seed1000042.
+Launching SDP producer key=n8_rep3_seed2000042, n=8, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1665876, key=n8_rep3_seed2000042
+Launching SDP producer key=n8_rep4_seed3000042, n=8, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1665889, key=n8_rep4_seed3000042
+Loop status: pending_sdp=46, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=242
+SDP producer finished successfully for key=n8_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n8_rep3_seed2000042.
+SDP producer finished successfully for key=n8_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n8_rep4_seed3000042.
+Launching SDP producer key=n8_rep5_seed4000042, n=8, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1666042, key=n8_rep5_seed4000042
+Launching SDP producer key=n8_rep6_seed5000042, n=8, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1666055, key=n8_rep6_seed5000042
+Loop status: pending_sdp=44, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=242
+SDP producer finished successfully for key=n8_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n8_rep5_seed4000042.
+SDP producer finished successfully for key=n8_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n8_rep6_seed5000042.
+Launching SDP producer key=n8_rep7_seed6000042, n=8, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1666154, key=n8_rep7_seed6000042
+Launching SDP producer key=n8_rep8_seed7000042, n=8, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1666167, key=n8_rep8_seed7000042
+Loop status: pending_sdp=42, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=242
+SDP producer finished successfully for key=n8_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n8_rep7_seed6000042.
+SDP producer finished successfully for key=n8_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n8_rep8_seed7000042.
+Launching SDP producer key=n8_rep9_seed8000042, n=8, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1666297, key=n8_rep9_seed8000042
+Launching SDP producer key=n8_rep10_seed9000042, n=8, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1666314, key=n8_rep10_seed9000042
+Loop status: pending_sdp=40, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=243
+SDP producer finished successfully for key=n8_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n8_rep9_seed8000042.
+SDP producer finished successfully for key=n8_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000008_f37e9570caae_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n8_rep10_seed9000042.
+Launching SDP producer key=n9_rep1_seed42, n=9, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed42_L1_M1_standard.npz
+Launched SDP PID=1666413, key=n9_rep1_seed42
+Launching SDP producer key=n9_rep2_seed1000042, n=9, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1666426, key=n9_rep2_seed1000042
+Loop status: pending_sdp=38, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=243
+SDP producer finished successfully for key=n9_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n9_rep1_seed42.
+SDP producer finished successfully for key=n9_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n9_rep2_seed1000042.
+Launching SDP producer key=n9_rep3_seed2000042, n=9, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1666525, key=n9_rep3_seed2000042
+Launching SDP producer key=n9_rep4_seed3000042, n=9, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1666538, key=n9_rep4_seed3000042
+Loop status: pending_sdp=36, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=243
+SDP producer finished successfully for key=n9_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n9_rep3_seed2000042.
+SDP producer finished successfully for key=n9_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n9_rep4_seed3000042.
+Launching SDP producer key=n9_rep5_seed4000042, n=9, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1666641, key=n9_rep5_seed4000042
+Launching SDP producer key=n9_rep6_seed5000042, n=9, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1666654, key=n9_rep6_seed5000042
+Loop status: pending_sdp=34, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=243
+SDP producer finished successfully for key=n9_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n9_rep5_seed4000042.
+SDP producer finished successfully for key=n9_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n9_rep6_seed5000042.
+Launching SDP producer key=n9_rep7_seed6000042, n=9, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1666753, key=n9_rep7_seed6000042
+Launching SDP producer key=n9_rep8_seed7000042, n=9, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1666766, key=n9_rep8_seed7000042
+Loop status: pending_sdp=32, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=244
+SDP producer finished successfully for key=n9_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n9_rep7_seed6000042.
+SDP producer finished successfully for key=n9_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n9_rep8_seed7000042.
+Launching SDP producer key=n9_rep9_seed8000042, n=9, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1666865, key=n9_rep9_seed8000042
+Launching SDP producer key=n9_rep10_seed9000042, n=9, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1666878, key=n9_rep10_seed9000042
+Loop status: pending_sdp=30, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=244
+SDP producer finished successfully for key=n9_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n9_rep9_seed8000042.
+SDP producer finished successfully for key=n9_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000009_61375667686a_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n9_rep10_seed9000042.
+Launching SDP producer key=n10_rep1_seed42, n=10, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed42_L1_M1_standard.npz
+Launched SDP PID=1666977, key=n10_rep1_seed42
+Launching SDP producer key=n10_rep2_seed1000042, n=10, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1666990, key=n10_rep2_seed1000042
+Loop status: pending_sdp=28, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=244
+SDP producer finished successfully for key=n10_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n10_rep1_seed42.
+SDP producer finished successfully for key=n10_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n10_rep2_seed1000042.
+Launching SDP producer key=n10_rep3_seed2000042, n=10, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1667089, key=n10_rep3_seed2000042
+Launching SDP producer key=n10_rep4_seed3000042, n=10, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1667102, key=n10_rep4_seed3000042
+Loop status: pending_sdp=26, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=245
+SDP producer finished successfully for key=n10_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n10_rep3_seed2000042.
+SDP producer finished successfully for key=n10_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n10_rep4_seed3000042.
+Launching SDP producer key=n10_rep5_seed4000042, n=10, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1667201, key=n10_rep5_seed4000042
+Launching SDP producer key=n10_rep6_seed5000042, n=10, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1667214, key=n10_rep6_seed5000042
+Loop status: pending_sdp=24, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=245
+SDP producer finished successfully for key=n10_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n10_rep5_seed4000042.
+SDP producer finished successfully for key=n10_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n10_rep6_seed5000042.
+Launching SDP producer key=n10_rep7_seed6000042, n=10, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1667313, key=n10_rep7_seed6000042
+Launching SDP producer key=n10_rep8_seed7000042, n=10, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1667326, key=n10_rep8_seed7000042
+Loop status: pending_sdp=22, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=246
+SDP producer finished successfully for key=n10_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n10_rep7_seed6000042.
+SDP producer finished successfully for key=n10_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n10_rep8_seed7000042.
+Launching SDP producer key=n10_rep9_seed8000042, n=10, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1667427, key=n10_rep9_seed8000042
+Launching SDP producer key=n10_rep10_seed9000042, n=10, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1667440, key=n10_rep10_seed9000042
+Loop status: pending_sdp=20, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=246
+SDP producer finished successfully for key=n10_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n10_rep9_seed8000042.
+SDP producer finished successfully for key=n10_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000010_441a644d1676_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n10_rep10_seed9000042.
+Launching SDP producer key=n11_rep1_seed42, n=11, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed42_L1_M1_standard.npz
+Launched SDP PID=1667539, key=n11_rep1_seed42
+Launching SDP producer key=n11_rep2_seed1000042, n=11, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1667552, key=n11_rep2_seed1000042
+Loop status: pending_sdp=18, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=247
+Loop status: pending_sdp=18, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=247
+Loop status: pending_sdp=18, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=247
+SDP producer finished successfully for key=n11_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n11_rep1_seed42.
+SDP producer finished successfully for key=n11_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n11_rep2_seed1000042.
+Launching SDP producer key=n11_rep3_seed2000042, n=11, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1667778, key=n11_rep3_seed2000042
+Launching SDP producer key=n11_rep4_seed3000042, n=11, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1667795, key=n11_rep4_seed3000042
+Loop status: pending_sdp=16, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=248
+Loop status: pending_sdp=16, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=248
+Loop status: pending_sdp=16, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=248
+SDP producer finished successfully for key=n11_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n11_rep3_seed2000042.
+SDP producer finished successfully for key=n11_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n11_rep4_seed3000042.
+Launching SDP producer key=n11_rep5_seed4000042, n=11, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1668021, key=n11_rep5_seed4000042
+Launching SDP producer key=n11_rep6_seed5000042, n=11, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1668034, key=n11_rep6_seed5000042
+Loop status: pending_sdp=14, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=249
+Loop status: pending_sdp=14, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=249
+Loop status: pending_sdp=14, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=249
+SDP producer finished successfully for key=n11_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n11_rep5_seed4000042.
+SDP producer finished successfully for key=n11_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n11_rep6_seed5000042.
+Launching SDP producer key=n11_rep7_seed6000042, n=11, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1668257, key=n11_rep7_seed6000042
+Launching SDP producer key=n11_rep8_seed7000042, n=11, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1668270, key=n11_rep8_seed7000042
+Loop status: pending_sdp=12, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=250
+Loop status: pending_sdp=12, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=250
+Loop status: pending_sdp=12, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=250
+SDP producer finished successfully for key=n11_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n11_rep7_seed6000042.
+SDP producer finished successfully for key=n11_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n11_rep8_seed7000042.
+Launching SDP producer key=n11_rep9_seed8000042, n=11, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1668493, key=n11_rep9_seed8000042
+Launching SDP producer key=n11_rep10_seed9000042, n=11, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1668506, key=n11_rep10_seed9000042
+Loop status: pending_sdp=10, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=251
+Loop status: pending_sdp=10, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=251
+Loop status: pending_sdp=10, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=251
+SDP producer finished successfully for key=n11_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n11_rep9_seed8000042.
+SDP producer finished successfully for key=n11_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000011_48d4acb33582_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n11_rep10_seed9000042.
+Launching SDP producer key=n12_rep1_seed42, n=12, repeat=1, seed=42, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed42_L1_M1_standard.npz
+Launched SDP PID=1668723, key=n12_rep1_seed42
+Launching SDP producer key=n12_rep2_seed1000042, n=12, repeat=2, seed=1000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed1000042_L1_M1_standard.npz
+Launched SDP PID=1668744, key=n12_rep2_seed1000042
+Loop status: pending_sdp=8, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=252
+Loop status: pending_sdp=8, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=252
+Loop status: pending_sdp=8, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=252
+SDP producer finished successfully for key=n12_rep1_seed42; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed42_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n12_rep1_seed42.
+SDP producer finished successfully for key=n12_rep2_seed1000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed1000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n12_rep2_seed1000042.
+Launching SDP producer key=n12_rep3_seed2000042, n=12, repeat=3, seed=2000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed2000042_L1_M1_standard.npz
+Launched SDP PID=1668972, key=n12_rep3_seed2000042
+Launching SDP producer key=n12_rep4_seed3000042, n=12, repeat=4, seed=3000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed3000042_L1_M1_standard.npz
+Launched SDP PID=1668985, key=n12_rep4_seed3000042
+Loop status: pending_sdp=6, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=253
+Loop status: pending_sdp=6, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=253
+Loop status: pending_sdp=6, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=253
+SDP producer finished successfully for key=n12_rep3_seed2000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed2000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n12_rep3_seed2000042.
+SDP producer finished successfully for key=n12_rep4_seed3000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed3000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n12_rep4_seed3000042.
+Launching SDP producer key=n12_rep5_seed4000042, n=12, repeat=5, seed=4000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed4000042_L1_M1_standard.npz
+Launched SDP PID=1669301, key=n12_rep5_seed4000042
+Launching SDP producer key=n12_rep6_seed5000042, n=12, repeat=6, seed=5000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed5000042_L1_M1_standard.npz
+Launched SDP PID=1669314, key=n12_rep6_seed5000042
+Loop status: pending_sdp=4, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=254
+Loop status: pending_sdp=4, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=254
+Loop status: pending_sdp=4, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=254
+SDP producer finished successfully for key=n12_rep5_seed4000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed4000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n12_rep5_seed4000042.
+SDP producer finished successfully for key=n12_rep6_seed5000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed5000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n12_rep6_seed5000042.
+Launching SDP producer key=n12_rep7_seed6000042, n=12, repeat=7, seed=6000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed6000042_L1_M1_standard.npz
+Launched SDP PID=1669586, key=n12_rep7_seed6000042
+Launching SDP producer key=n12_rep8_seed7000042, n=12, repeat=8, seed=7000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed7000042_L1_M1_standard.npz
+Launched SDP PID=1669599, key=n12_rep8_seed7000042
+Loop status: pending_sdp=2, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=255
+Loop status: pending_sdp=2, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=255
+Loop status: pending_sdp=2, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=255
+SDP producer finished successfully for key=n12_rep7_seed6000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed6000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n12_rep7_seed6000042.
+SDP producer finished successfully for key=n12_rep8_seed7000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed7000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n12_rep8_seed7000042.
+Launching SDP producer key=n12_rep9_seed8000042, n=12, repeat=9, seed=8000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed8000042_L1_M1_standard.npz
+Launched SDP PID=1669807, key=n12_rep9_seed8000042
+Launching SDP producer key=n12_rep10_seed9000042, n=12, repeat=10, seed=9000042, p=1, iterations=50, retry=0, cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed9000042_L1_M1_standard.npz
+Launched SDP PID=1669830, key=n12_rep10_seed9000042
+Loop status: pending_sdp=0, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=256
+Loop status: pending_sdp=0, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=256
+Loop status: pending_sdp=0, running_sdp=2, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=8, cache_size_mb=256
+SDP producer finished successfully for key=n12_rep9_seed8000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed8000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n12_rep9_seed8000042.
+SDP producer finished successfully for key=n12_rep10_seed9000042; cache=Results/warm_start_cache/triangleFree_connected_3regular_4to15vertices_13instances_AdjacencyList__filehash_95ed42df/hog_idx000012_6ef035ab6107_seed9000042_L1_M1_standard.npz
+warm_start_cache_producer_only=true; not enqueueing QAOA jobs for key=n12_rep10_seed9000042.
+Loop status: pending_sdp=0, running_sdp=0, pending_qaoa=0, running_qaoa=0, total_sdp_rss_mb=0, cache_size_mb=257
+All queues drained.
+Finished at: 2026-06-23 15:29:02
+Run tag: 20260623_152119_pid1659017
+Log directory: Results/logs/adam/20260623_152119_pid1659017
+Resource requeue CSV: Results/logs/adam/20260623_152119_pid1659017/resource_requeues.csv
+Failed warm-start CSV: Results/logs/adam/20260623_152119_pid1659017/failed_warm_starts.csv
+Failed warm-start adjacency-list file: Results/logs/adam/20260623_152119_pid1659017/failed_warm_starts.adjlist
+Warm-start cache dir: Results/warm_start_cache
+Warm-start cache size now: 257 MB

@@ -1,0 +1,33 @@
+Starting QAOA benchmark with global start time: 1782338078.8601098
+Benchmark parameters: {'optimiser': 'adam', 'optimiser_use_heuristic': True, 'heuristic_optimiser_iterations': 2, 'heuristic_optimiser_sampleSize': 1000, 'circuit_type': 'hamqaoa', 'parameter_vector': [1, 1, 1], 'iterations_list': [50], 'learning_rate_adam': 0.05, 'depth_list': [1, 3, 5], 'n_start': 3, 'n_end': 10, 'singlet_injection': False, 'start_index_singlet': None, 'warm_start': True, 'warm_start_mode': 'standard', 'lasserre_level': 2, 'initial_solver_level_M': 1, 'sdp_seed': 8000042, 'warm_start_corr_strength': None, 'warm_start_corr_repeats': None, 'compare_with_010101': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': 10800, 'failed_instance_termination_thrsh': None, 'graph_generation_type': 'complete', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': None, 'debug': False, 'save_circuit_svg': False, 'rerun_exclude_finished_instances': True, 'warm_start_cache_producer_only': False, 'qaoa_only_from_existing_warm_start_cache': True, 'optimiser_debug_iterations': None, 'num_repeats': 10, 'persistent_warm_start_cache': True, 'warm_start_cache_dir': 'Results/warm_start_cache/complete_graphs', 'warm_start_cache_max_file_mb': 512, 'warm_start_cache_max_total_gb': 60, 'sdp_max_parallel': 0, 'qaoa_max_parallel': 30, 'sdp_threads': 1, 'qaoa_threads': 1, 'sdp_memory_limit_total_gb': 32, 'sdp_memory_limit_single_gb': 32, 'sdp_memory_poll_seconds': 5, 'sdp_max_retries': 3, 'queue_poll_interval_seconds': 5}, Running QAOA with equal superposition
+Benchmark run ID: 04df4c97
+Benchmark repeat index: 9
+SDP seed override: 8000042
+Processor: x86_64
+Hostname: dacsvm-cpunode01
+Total RAM (GB): None
+Physical cores: 32
+Logical cores: 32
+Python version: 3.11.15
+Initialisation time: 0.00 seconds; started at stardate {'initialisation': 0.004610300064086914} and finished at stardate1782338078.8647275
+Generating complete graph with 5 nodes...
+Instance generation for n=5 took 0.00 seconds; started at stardate 1782338078.8647316 and finished at stardate 1782338078.8647435
+Running QAOA for n=5 nodes, m=10 edges...; Max iterations: 50
+Warm-start cache: loading Results/warm_start_cache/complete_graphs/complete/complete_n5_a3fe0fbe2cd2_seed8000042_L2_M1_standard.npz
+Warm-start cache: loaded in 0.0016 seconds; effective compute time=0.05548834800720215
+Edges: [(0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4}, n: 5 nodes, p: 5 layers, N_bayes: 50 iterations
+Solving for uuid: f75cd15d
+Initial state injected as warm start
+Running ADAM optimization with a single iteration (no debug loop)
+7.273878638598645
+QAOA optimisation for n=5 took 1224.48 seconds; started at stardate 1782338078.8647463 and finished at stardate 1782339303.3425283
+Finished QAOA for n=5 nodes, m=10 edges at 2026-06-25 00:15:03 on x86_64. Time taken: 1224.48 seconds. Hours: 0.34 hours. Peak RAM: 0.24 MB.
+Computing complete graph approximation ratio
+CSV writing for n=5 took 0.01 seconds; started at stardate 1782339303.3425393 and finished at stardate 1782339303.3483598
+results: {5: 7.273878638598645}
+durations: {5: 1224.4777863025665}
+Results saved to: Results/logs/adam/qaoa_results_adam_20260624_234128_pid1999739.csv
+Global end time: 1782339303.3483763
+Finalisation time: 0.00 seconds; started at stardate 1782339303.3483648 and finished at stardate 1782339303.348381
+Sum of all section times: 1224.49 seconds
+run_id: 04df4c97
