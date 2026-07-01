@@ -48,21 +48,21 @@
   "optimiser_debug_iterations": null,
 
   "num_repeats": 1,
-  "relative_graph_adjList_path": "HOG_graphs/stress_test_sdp_under_1.000_mapping.csv",
+  "relative_graph_adjList_path": "HOG_graphs/stress_test_cycles.txt",
 
   "persistent_warm_start_cache": true,
   "warm_start_cache_dir": "Results/warm_start_cache/fast_test_scs_verificationSuspicious",
   "warm_start_cache_max_file_mb": 512,
   "warm_start_cache_max_total_gb": 60,
 
-  "sdp_max_parallel": 16,
+  "sdp_max_parallel": 8,
   "qaoa_max_parallel": 0,
 
   "sdp_threads": 1,
   "qaoa_threads": 1,
 
-  "sdp_memory_limit_total_gb": 250,
-  "sdp_memory_limit_single_gb": 250,
+  "sdp_memory_limit_total_gb": 125,
+  "sdp_memory_limit_single_gb": 125,
   "sdp_memory_poll_seconds": 5,
   "sdp_max_retries": 3,
 
