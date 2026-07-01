@@ -1,0 +1,13 @@
+finished_at=2026-06-30 15:34:54
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=sdp_producer
+key=n34_rep1_seednone
+n=34
+p=1
+iterations=50
+repeat_idx=1
+sdp_seed=
+warm_start_cache_path=Results/warm_start_cache/fast_test_scs/stress_test__filehash_182b889d/hog_idx000034_5d82051a2222_noseed_L2_M2_standard.npz
+threads=1
