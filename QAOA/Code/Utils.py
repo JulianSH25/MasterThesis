@@ -1,4 +1,6 @@
 import json
+import ast
+import hashlib
 from pathlib import Path
 import numpy as np
 import platform
@@ -8,6 +10,8 @@ import resource
 import random
 from collections import Counter
 import csv
+
+EXACT_RESULT_FIELDNAMES = ["energy", "n", "m", "edges", "weights", "graph_hash", "graph_type"]
 
 def set_random_params(p: int, range: tuple[float, float], seed: int | None = None, init_close_to_zero: bool = False):
     """
@@ -178,37 +182,94 @@ def classify_graph(edges):
         return "line"
     return None
 
-def canonical_edge_weight_strings(edges: list, weights: list | None) -> tuple[str, str]:
+def normalise_edge_weights(edges: list, weights: list | str | None = None) -> list[float]:
+    if weights is None:
+        return [1.0] * len(edges)
+    if isinstance(weights, str):
+        if weights.strip() == "":
+            return [1.0] * len(edges)
+        weights = ast.literal_eval(weights)
+    if len(weights) == 0:
+        return [1.0] * len(edges)
+    if len(edges) != len(weights):
+        raise ValueError(
+            f"Edge/weight length mismatch: {len(edges)} edges, {len(weights)} weights"
+        )
+    return [float(weight) for weight in weights]
+
+def canonical_edge_weight_items(edges: list, weights: list | str | None = None) -> list[tuple[tuple[int, int], float]]:
     """
     Canonical representation of an undirected weighted graph.
     Makes matching independent of edge order and endpoint orientation.
     Example: (0, 1) and (1, 0) become identical.
     """
 
-    if weights is None:
-        weights = [1.0] * len(edges)
+    weights = normalise_edge_weights(edges, weights)
 
-    canonical_items = sorted(
+    return sorted(
         (tuple(sorted((int(u), int(v)))), float(w))
         for (u, v), w in zip(edges, weights)
     )
+
+def canonical_edge_weight_strings(edges: list, weights: list | str | None = None) -> tuple[str, str]:
+    canonical_items = canonical_edge_weight_items(edges, weights)
     canonical_edges = [edge for edge, _ in canonical_items]
     canonical_weights = [weight for _, weight in canonical_items]
     return str(canonical_edges), str(canonical_weights)
+
+def graph_instance_hash(edges: list, weights: list | str | None = None) -> str:
+    """Stable hash for a canonical undirected weighted graph instance."""
+    payload = [
+        {"edge": [u, v], "weight": weight}
+        for (u, v), weight in canonical_edge_weight_items(edges, weights)
+    ]
+    blob = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
+
+def _row_with_graph_hash(row: dict) -> dict:
+    parsed_edges = ast.literal_eval(row["edges"])
+    parsed_weights = normalise_edge_weights(parsed_edges, row.get("weights"))
+    edges_str, weights_str = canonical_edge_weight_strings(parsed_edges, parsed_weights)
+    return {
+        "energy": row.get("energy"),
+        "n": row.get("n"),
+        "m": row.get("m"),
+        "edges": edges_str,
+        "weights": weights_str,
+        "graph_hash": row.get("graph_hash") or graph_instance_hash(parsed_edges, parsed_weights),
+        "graph_type": row.get("graph_type"),
+    }
+
+def ensure_exact_results_misc_has_hashes(csv_path: Path) -> None:
+    """Backfill graph_hash for existing exact-result CSVs before appending new rows."""
+    if not csv_path.exists() or csv_path.stat().st_size == 0:
+        return
+
+    with csv_path.open("r", newline="") as csvfile:
+        reader = csv.DictReader(csvfile)
+        if reader.fieldnames and "graph_hash" in reader.fieldnames:
+            return
+        rows = [_row_with_graph_hash(row) for row in reader]
+
+    with csv_path.open("w", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=EXACT_RESULT_FIELDNAMES)
+        writer.writeheader()
+        writer.writerows(rows)
 
 def log_exact_result(energy: float, n: int, m: int, edges: list, weights: list, graph_type: str) -> None:
     """Log exact solver result to optimal_results_misc.csv unless already present."""
     csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
     csv_path.parent.mkdir(parents=True, exist_ok=True)
 
-    fieldnames = ["energy", "n", "m", "edges", "weights", "graph_type"]
+    ensure_exact_results_misc_has_hashes(csv_path)
 
-    existing_energy = get_exact_result_from_misc(edges, weights, raise_if_missing=False)
+    existing_energy = get_exact_result_from_misc(edges, weights, n, m, raise_if_missing=False)
     if existing_energy is not None:
         print(f"Exact result already logged for this instance; skipping duplicate. Existing energy: {existing_energy}")
         return
 
     edges_str, weights_str = canonical_edge_weight_strings(edges, weights)
+    graph_hash = graph_instance_hash(edges, weights)
 
     row = {
         "energy": energy,
@@ -216,23 +277,26 @@ def log_exact_result(energy: float, n: int, m: int, edges: list, weights: list, 
         "m": m,
         "edges": edges_str,
         "weights": weights_str,
+        "graph_hash": graph_hash,
         "graph_type": graph_type,
     }
 
     write_header = not csv_path.exists() or csv_path.stat().st_size == 0
 
     with csv_path.open("a", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer = csv.DictWriter(csvfile, fieldnames=EXACT_RESULT_FIELDNAMES)
         if write_header:
             writer.writeheader()
         writer.writerow(row)
 
 def get_exact_result_from_misc(
     edges: list,
-    weights: list,
+    weights: list | None,
+    n: int,
+    m: int,
     raise_if_missing: bool = True
 ) -> float | None:
-    """Look up exact result from optimal_results_misc.csv by canonical edges and weights."""
+    """Look up exact result from optimal_results_misc.csv by n, m, and graph hash."""
     csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
 
     if not csv_path.exists():
@@ -241,13 +305,24 @@ def get_exact_result_from_misc(
         return None
 
     edges_str, weights_str = canonical_edge_weight_strings(edges, weights)
+    target_hash = graph_instance_hash(edges, weights)
 
     try:
         with csv_path.open("r", newline="") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
+                try:
+                    if int(row.get("n", "")) != int(n) or int(row.get("m", "")) != int(m):
+                        continue
+                except (TypeError, ValueError):
+                    continue
+
                 row_edges = row.get("edges")
                 row_weights = row.get("weights")
+                row_hash = row.get("graph_hash")
+
+                if row_hash and row_hash == target_hash:
+                    return float(row["energy"])
 
                 # Preferred new canonical format.
                 if row_edges == edges_str and row_weights == weights_str:
@@ -256,7 +331,7 @@ def get_exact_result_from_misc(
                 # Backward compatibility for old non-canonical rows.
                 try:
                     old_edges = ast.literal_eval(row_edges)
-                    old_weights = ast.literal_eval(row_weights)
+                    old_weights = normalise_edge_weights(old_edges, row_weights)
                     old_edges_str, old_weights_str = canonical_edge_weight_strings(old_edges, old_weights)
 
                     if old_edges_str == edges_str and old_weights_str == weights_str:
@@ -282,9 +357,8 @@ def deduplicate_exact_results_misc() -> None:
         print(f"No exact-results file found at {csv_path}; nothing to deduplicate.")
         return
 
-    fieldnames = ["energy", "n", "m", "edges", "weights", "graph_type"]
     unique_rows = []
-    seen_keys: set[tuple[str, str]] = set()
+    seen_keys: set[str] = set()
     removed_count = 0
 
     with csv_path.open("r", newline="") as csvfile:
@@ -292,31 +366,35 @@ def deduplicate_exact_results_misc() -> None:
 
         for row in reader:
             try:
-                parsed_edges = ast.literal_eval(row["edges"])
-                parsed_weights = ast.literal_eval(row["weights"])
-                edges_str, weights_str = canonical_edge_weight_strings(parsed_edges, parsed_weights)
+                normalised_row = _row_with_graph_hash(row)
+                edges_str = normalised_row["edges"]
+                weights_str = normalised_row["weights"]
+                graph_hash = normalised_row["graph_hash"]
             except Exception:
-                edges_str = row.get("edges", "")
-                weights_str = row.get("weights", "")
+                normalised_row = {
+                    "energy": row.get("energy"),
+                    "n": row.get("n"),
+                    "m": row.get("m"),
+                    "edges": row.get("edges", ""),
+                    "weights": row.get("weights", ""),
+                    "graph_hash": row.get("graph_hash", ""),
+                    "graph_type": row.get("graph_type"),
+                }
+                edges_str = normalised_row["edges"]
+                weights_str = normalised_row["weights"]
+                graph_hash = normalised_row["graph_hash"]
 
-            key = (edges_str, weights_str)
+            key = graph_hash or f"{edges_str}|{weights_str}"
 
             if key in seen_keys:
                 removed_count += 1
                 continue
 
             seen_keys.add(key)
-            unique_rows.append({
-                "energy": row.get("energy"),
-                "n": row.get("n"),
-                "m": row.get("m"),
-                "edges": edges_str,
-                "weights": weights_str,
-                "graph_type": row.get("graph_type"),
-            })
+            unique_rows.append(normalised_row)
 
     with csv_path.open("w", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer = csv.DictWriter(csvfile, fieldnames=EXACT_RESULT_FIELDNAMES)
         writer.writeheader()
         writer.writerows(unique_rows)
 
@@ -457,4 +535,3 @@ def is_3_regular(edge_list: list[tuple[int, int]]) -> bool:
         return False
 
     return all(len(neighbours) == 3 for neighbours in adjacency.values())
-

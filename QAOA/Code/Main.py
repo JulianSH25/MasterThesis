@@ -149,6 +149,21 @@ def _save_warm_start_cache(
     payload_metadata = dict(metadata)
     payload_metadata["warm_start_compute_time_seconds"] = float(compute_time_seconds)
     payload_metadata["created_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    has_moment_matrix = store_moment_matrix and moment_matrix is not None
+    moment_matrix_array = np.asarray(moment_matrix) if has_moment_matrix else np.array([])
+
+    if has_moment_matrix:
+        print(
+            "Warm-start cache: moment matrix before save "
+            f"shape={moment_matrix_array.shape}, "
+            f"dtype={moment_matrix_array.dtype}, "
+            f"entries={moment_matrix_array.size}, "
+            f"bytes={moment_matrix_array.nbytes} "
+            f"({moment_matrix_array.nbytes / (1024 ** 2):.2f} MiB)",
+            flush=True,
+        )
+    else:
+        print("Warm-start cache: moment matrix not saved for this configuration.", flush=True)
 
     with open(tmp_path, "wb") as file:
         np.savez(
@@ -160,8 +175,8 @@ def _save_warm_start_cache(
             has_product_states=np.array(product_states is not None),
             classical_cut=np.asarray(classical_cut) if classical_cut is not None else np.array([]),
             has_classical_cut=np.array(classical_cut is not None),
-            moment_matrix=np.asarray(moment_matrix) if store_moment_matrix and moment_matrix is not None else np.array([]),
-            has_moment_matrix=np.array(store_moment_matrix and moment_matrix is not None),
+            moment_matrix=moment_matrix_array,
+            has_moment_matrix=np.array(has_moment_matrix),
             warm_start_result_json=json.dumps(_json_sanitise(warm_start_result or {})),
         )
     tmp_path.replace(cache_path)
@@ -663,7 +678,7 @@ if __name__ == "__main__":
         # Fallback: check misc CSV for matching edges and weights
         if approx_ratio is None:
             print(f"Checking optimal_results_misc.csv for matching edges and weights...")
-            optimal_from_misc = get_exact_result_from_misc(edges, weights)
+            optimal_from_misc = get_exact_result_from_misc(edges, weights, node_count, m)
             optimal_result = optimal_from_misc
             if optimal_from_misc is not None:
                 print(f"Found matching exact result in misc CSV: {optimal_from_misc}")
@@ -723,9 +738,10 @@ if __name__ == "__main__":
             'Instance_is_3_regular': is_3_regular(edges)
         }
 
-        # include edges and weights (weights only meaningful when benchmark flagged as weighted)
+        # Include explicit unit weights for unweighted instances so exact-result
+        # extraction can reconstruct the full graph key later.
         row['edges'] = str(edges)
-        row['weights'] = str(weights) if weighted_flag else None
+        row['weights'] = str(weights)
 
         # inject scalar params automatically
         for key, value in scalar_params.items():
