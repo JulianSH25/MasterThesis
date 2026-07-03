@@ -402,7 +402,16 @@ easiest_first=$(jq -r '.easiest_first // false' "$config_file")
 if [[ "$easiest_first" == "true" ]]; then
     sort -n "$jobs_file" -o "$jobs_file"
 else
-    sort -nr "$jobs_file" -o "$jobs_file"
+    "$python_bin" - "$jobs_file" <<'PY'
+import random
+import sys
+from pathlib import Path
+
+jobs_path = Path(sys.argv[1])
+jobs = [line for line in jobs_path.read_text().splitlines() if line.strip()]
+random.shuffle(jobs)
+jobs_path.write_text("\n".join(jobs) + "\n")
+PY
 fi
 build_warm_start_cache_path() {
     local n="$1"
