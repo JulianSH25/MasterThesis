@@ -47,7 +47,7 @@
   "qaoa_only_from_existing_warm_start_cache": false,
   "optimiser_debug_iterations": null,
 
-  "num_repeats": 1,
+  "num_repeats": 5,
   "relative_graph_adjList_path": "HOG_graphs/random_graphs_8to14vertices_78instances_20260625_143415_AdjacencyList.txt",
 
   "persistent_warm_start_cache": true,
