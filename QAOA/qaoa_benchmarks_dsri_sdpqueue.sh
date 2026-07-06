@@ -397,6 +397,7 @@ build_persistent_warm_start_cache_path() {
     local n="$1"
     local repeat_idx_value="$2"
     local sdp_seed_value="$3"
+    local cache_mode="${4:-$warm_start_mode}"
     local graph_hash graph_label seed_label cache_dataset_dir hog_file_base hog_file_safe hog_file_hash
 
     seed_label="noseed"
@@ -422,7 +423,7 @@ build_persistent_warm_start_cache_path() {
         graph_label="${graph_generation_type}_n${n}_${graph_hash[1,12]}"
     fi
 
-    echo "${cache_dataset_dir}/${graph_label}_${seed_label}_L${lasserre_level}_M${initial_solver_level_M}_${warm_start_mode}.npz"
+    echo "${cache_dataset_dir}/${graph_label}_${seed_label}_L${lasserre_level}_M${initial_solver_level_M}_${cache_mode}.npz"
 }
 
 # -----------------------------
@@ -1293,6 +1294,13 @@ while read -r score n; do
 
         if [[ "${warm_start:l}" == "true" ]]; then
             cache_path=$(build_persistent_warm_start_cache_path "$n" "$repeat_idx" "$derived_sdp_seed")
+            if [[ ! -f "$cache_path" && ( "${warm_start_mode:l}" == "standard" || "${warm_start_mode:l}" == "entangled" ) ]]; then
+                amplified_cache_path=$(build_persistent_warm_start_cache_path "$n" "$repeat_idx" "$derived_sdp_seed" "amplified")
+                if [[ -f "$amplified_cache_path" ]]; then
+                    echo "Requested ${warm_start_mode:l} cache missing for n=${n}, repeat=${repeat_idx}, seed=${derived_sdp_seed:-none}; using compatible amplified cache: ${amplified_cache_path}"
+                    cache_path="$amplified_cache_path"
+                fi
+            fi
             sdp_key="n${n}_rep${repeat_idx}_seed${derived_sdp_seed:-none}"
 
             sdp_n[$sdp_key]="$n"

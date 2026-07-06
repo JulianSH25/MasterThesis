@@ -104,7 +104,19 @@ def _expected_warm_start_metadata(edges: list[tuple[int, int]], weights: list[fl
 
 def _metadata_matches(found: dict[str, Any], expected: dict[str, Any]) -> bool:
     for key, expected_value in expected.items():
-        if found.get(key) != expected_value:
+        found_value = found.get(key)
+
+        if key == "warm_start_mode":
+            found_mode = str(found_value or "standard").lower()
+            expected_mode = str(expected_value or "standard").lower()
+            if (
+                found_mode != expected_mode
+                and not (found_mode == "amplified" and expected_mode in {"standard", "entangled"})
+            ):
+                return False
+            continue
+
+        if found_value != expected_value:
             return False
     return True
 
@@ -225,6 +237,23 @@ def get_or_create_cached_warm_start(edges: list[tuple[int, int]], weights: list[
 
     if cache_path_raw:
         cache_path = Path(cache_path_raw)
+        if not cache_path.exists():
+            expected_mode = str(benchmark_params.get("warm_start_mode") or "standard").lower()
+            if expected_mode in {"standard", "entangled"}:
+                expected_suffix = f"_{expected_mode}.npz"
+                if cache_path.name.endswith(expected_suffix):
+                    amplified_cache_path = cache_path.with_name(
+                        cache_path.name[:-len(expected_suffix)] + "_amplified.npz"
+                    )
+                    if amplified_cache_path.exists():
+                        print(
+                            "Warm-start cache: requested cache missing; "
+                            f"using compatible amplified cache {amplified_cache_path}",
+                            flush=True,
+                        )
+                        cache_path = amplified_cache_path
+                        warm_start_cache_stats["cache_path"] = str(cache_path)
+
         if cache_path.exists():
             print(f"Warm-start cache: loading {cache_path}")
             warm_start_data, moment_matrix, warm_start_result, compute_time_seconds, load_time_seconds = _load_warm_start_cache(cache_path, expected_metadata)
