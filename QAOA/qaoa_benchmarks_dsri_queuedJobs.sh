@@ -491,7 +491,7 @@ current_warm_start_mode = str(config.get("warm_start_mode", ""))
 current_lasserre_level = str(config.get("lasserre_level", ""))
 current_initial_solver_level_m = str(config.get("initial_solver_level_M", ""))
 current_sdp_seed = config.get("sdp_seed", None)
-seed_increment_per_repeat = 1_000_000
+seed_increment_per_repeat = 1
 
 def scalar_to_string(value):
     if value is None:
@@ -1278,7 +1278,7 @@ while read -r score n; do
     for (( repeat_idx=1; repeat_idx<=num_repeats; repeat_idx++ )); do
         derived_sdp_seed=""
         if [[ -n "$configured_sdp_seed" && "$configured_sdp_seed" != "null" ]]; then
-            seed_increment_per_repeat=1000000
+            seed_increment_per_repeat=1
             derived_sdp_seed=$(( configured_sdp_seed + (repeat_idx - 1) * seed_increment_per_repeat ))
         fi
 

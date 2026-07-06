@@ -537,7 +537,7 @@ while read -r score n; do
         derived_sdp_seed=""
 
         if [[ -n "$configured_sdp_seed" ]]; then
-            seed_increment_per_repeat=1000000
+            seed_increment_per_repeat=1
             derived_sdp_seed=$(( configured_sdp_seed + (repeat_idx - 1) * seed_increment_per_repeat ))
             echo "Derived SDP seed for repeat ${repeat_idx}: ${derived_sdp_seed} (base: ${configured_sdp_seed}, increment: ${seed_increment_per_repeat})"
         fi
