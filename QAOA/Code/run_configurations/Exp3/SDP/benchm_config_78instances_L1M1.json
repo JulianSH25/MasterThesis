@@ -61,8 +61,8 @@
   "sdp_threads": 1,
   "qaoa_threads": 1,
 
-  "sdp_memory_limit_total_gb": 350,
-  "sdp_memory_limit_single_gb": 350,
+  "sdp_memory_limit_total_gb": 150,
+  "sdp_memory_limit_single_gb": 150,
   "sdp_memory_poll_seconds": 5,
   "sdp_max_retries": 3,
 
