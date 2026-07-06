@@ -18,8 +18,8 @@
 
   "warm_start": true,
   "warm_start_mode": "standard",
-  "lasserre_level": 2,
-  "initial_solver_level_M": 2,
+  "lasserre_level": 1,
+  "initial_solver_level_M": 1,
   "sdp_seed": 42,
 
   "sdp_solver_mode": "scs",
@@ -56,7 +56,7 @@
   "warm_start_cache_max_total_gb": 60,
 
   "sdp_max_parallel": 0,
-  "qaoa_max_parallel": 32,
+  "qaoa_max_parallel": 16,
 
   "sdp_threads": 1,
   "qaoa_threads": 1,
