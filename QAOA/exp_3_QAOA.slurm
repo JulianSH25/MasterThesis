@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=Exp3_SDP_78_instances_5rep
+#SBATCH --job-name=Exp3_QAOA_78_instances_1rep
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --time=7-0:00:00
@@ -7,7 +7,7 @@
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=33
-#SBATCH --mem=350G
+#SBATCH --mem=100G
 #SBATCH --partition=research
 #SBATCH --account=research
 
@@ -22,4 +22,4 @@ conda activate masterthesis
 
 export MOSEKLM_LICENSE_FILE="$HOME/MasterThesis/mosek.lic"
 
-zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/Exp3/SDP/benchm_config_78instances.json
+zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/Exp3/QAOA/benchm_config_78instances.json
