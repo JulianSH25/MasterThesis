@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=Exp3_QAOA_L1M1_78_instances
+#SBATCH --job-name=Exp3_QAOA_L2M2_78_instances
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --time=7-0:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=18
 #SBATCH --mem=100G
 #SBATCH --partition=research
 #SBATCH --account=research
