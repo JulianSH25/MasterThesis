@@ -273,8 +273,59 @@ class QAOACircuit(QuantumCircuit):
         theta_dict = self.warm_start_king_data.get("theta_dict")
         epsilon_dict = self.warm_start_king_data.get("epsilon_dict")
         n_vectors = self.warm_start_king_data.get("n_vectors")
-        if theta_dict is None or epsilon_dict is None or n_vectors is None:
-            raise RuntimeError("King warm-start data requires theta_dict, epsilon_dict, and n_vectors")
+        if theta_dict is None or epsilon_dict is None:
+            raise RuntimeError("King warm-start data requires theta_dict and epsilon_dict")
+
+        if n_vectors is None and self.warm_start_king_data.get("P_matrices") is not None:
+            n_vectors = []
+            for qubit, matrix in enumerate(self.warm_start_king_data["P_matrices"]):
+                matrix = np.asarray(self._restore_json_complex(matrix), dtype=complex)
+                if matrix.shape != (2, 2):
+                    raise RuntimeError(f"King P_matrix for qubit {qubit} has shape {matrix.shape}, expected (2, 2)")
+                n_vectors.append(
+                    np.array(
+                        [
+                            float(np.real(matrix[0, 1])),
+                            float(-np.imag(matrix[0, 1])),
+                            float(np.real(matrix[0, 0])),
+                        ]
+                    )
+                )
+
+        if n_vectors is None and self.warm_start_king_data.get("product_state_vectors") is not None:
+            n_vectors = []
+            for qubit, state in enumerate(self.warm_start_king_data["product_state_vectors"]):
+                state = np.asarray(self._restore_json_complex(state), dtype=complex)
+                if state.shape != (2,):
+                    raise RuntimeError(f"King product state for qubit {qubit} has shape {state.shape}, expected (2,)")
+                norm = np.linalg.norm(state)
+                if norm <= 0:
+                    raise RuntimeError(f"King product state for qubit {qubit} has zero norm")
+                state = state / norm
+                alpha, beta = state
+                bloch = np.array(
+                    [
+                        2.0 * np.real(np.conj(alpha) * beta),
+                        2.0 * np.imag(np.conj(alpha) * beta),
+                        abs(alpha) ** 2 - abs(beta) ** 2,
+                    ],
+                    dtype=float,
+                )
+                bloch_norm = np.linalg.norm(bloch)
+                if bloch_norm <= 1e-10:
+                    raise RuntimeError(f"King product state for qubit {qubit} has near-zero Bloch vector")
+                bloch = bloch / bloch_norm
+                reference = np.array([1.0, 0.0, 0.0]) if abs(bloch[0]) < 0.9 else np.array([0.0, 1.0, 0.0])
+                axis = np.cross(bloch, reference)
+                axis_norm = np.linalg.norm(axis)
+                if axis_norm <= 1e-10:
+                    reference = np.array([0.0, 0.0, 1.0])
+                    axis = np.cross(bloch, reference)
+                    axis_norm = np.linalg.norm(axis)
+                n_vectors.append(axis / axis_norm)
+
+        if n_vectors is None:
+            raise RuntimeError("King warm-start data requires n_vectors, P_matrices, or product_state_vectors")
         if len(n_vectors) != self.n:
             raise RuntimeError(f"Expected {self.n} King axis vectors, got {len(n_vectors)}")
 

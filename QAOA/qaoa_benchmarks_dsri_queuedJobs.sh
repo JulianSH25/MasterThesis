@@ -1293,7 +1293,11 @@ while read -r score n; do
         fi
 
         if [[ "${warm_start:l}" == "true" ]]; then
-            cache_path=$(build_persistent_warm_start_cache_path "$n" "$repeat_idx" "$derived_sdp_seed")
+            cache_lookup_mode="$warm_start_mode"
+            if [[ "${warm_start_mode:l}" == "amplified_king" || "${warm_start_mode:l}" == "entangled_king" ]]; then
+                cache_lookup_mode="amplified"
+            fi
+            cache_path=$(build_persistent_warm_start_cache_path "$n" "$repeat_idx" "$derived_sdp_seed" "$cache_lookup_mode")
             if [[ ! -f "$cache_path" && ( "${warm_start_mode:l}" == "standard" || "${warm_start_mode:l}" == "entangled" ) ]]; then
                 amplified_cache_path=$(build_persistent_warm_start_cache_path "$n" "$repeat_idx" "$derived_sdp_seed" "amplified")
                 if [[ -f "$amplified_cache_path" ]]; then

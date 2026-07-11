@@ -91,6 +91,8 @@ def _graph_hash(edges: list[tuple[int, int]], weights: list[float]) -> str:
 
 
 def _expected_warm_start_metadata(edges: list[tuple[int, int]], weights: list[float], n_vertices: int) -> dict[str, Any]:
+    warm_start_mode = str(benchmark_params.get("warm_start_mode") or "standard").lower()
+    cache_warm_start_mode = "amplified" if warm_start_mode in {"amplified_king", "entangled_king"} else warm_start_mode
     return {
         "graph_hash": _graph_hash(edges, weights),
         "n_vertices": int(n_vertices),
@@ -98,7 +100,7 @@ def _expected_warm_start_metadata(edges: list[tuple[int, int]], weights: list[fl
         "sdp_seed": sdp_seed_override,
         "lasserre_level": benchmark_params.get("lasserre_level"),
         "initial_solver_level_M": benchmark_params.get("initial_solver_level_M"),
-        "warm_start_mode": str(benchmark_params.get("warm_start_mode") or "standard").lower(),
+        "warm_start_mode": cache_warm_start_mode,
     }
 
 
@@ -111,7 +113,10 @@ def _metadata_matches(found: dict[str, Any], expected: dict[str, Any]) -> bool:
             expected_mode = str(expected_value or "standard").lower()
             if (
                 found_mode != expected_mode
-                and not (found_mode == "amplified" and expected_mode in {"standard", "entangled"})
+                and not (
+                    found_mode == "amplified"
+                    and expected_mode in {"standard", "entangled", "amplified_king", "entangled_king"}
+                )
             ):
                 return False
             continue
@@ -139,7 +144,7 @@ def _json_sanitise(value: Any) -> Any:
 def _warm_start_mode_needs_moment_matrix() -> bool:
     warm_start_mode = str(benchmark_params.get("warm_start_mode") or "standard").lower()
     return (
-        warm_start_mode in {"amplified", "entangled"}
+        warm_start_mode in {"amplified", "entangled", "amplified_king", "entangled_king"}
         or config_bool(benchmark_params, "use_correlations_as_initial_params")
     )
 
@@ -239,7 +244,7 @@ def get_or_create_cached_warm_start(edges: list[tuple[int, int]], weights: list[
         cache_path = Path(cache_path_raw)
         if not cache_path.exists():
             expected_mode = str(benchmark_params.get("warm_start_mode") or "standard").lower()
-            if expected_mode in {"standard", "entangled"}:
+            if expected_mode in {"standard", "entangled", "amplified_king", "entangled_king"}:
                 expected_suffix = f"_{expected_mode}.npz"
                 if cache_path.name.endswith(expected_suffix):
                     amplified_cache_path = cache_path.with_name(
@@ -414,7 +419,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
     if init_initial_state and warm_start_mode in {"amplified_king", "entangled_king"}:
         if warm_start_result is None:
             raise RuntimeError(f"{warm_start_mode} requires King warm-start data, but no warm_start_result was available.")
-        QAOA.warm_start_king_data = warm_start_result
+        QAOA.warm_start_king_data = dict(warm_start_result)
     
     if debug:
         print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.")

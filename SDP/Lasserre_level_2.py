@@ -506,7 +506,6 @@ class Level_2_Rounding:
             "x_dict": self.x_dict,
             "theta_dict": self.theta_dict,
             "epsilon_dict": self.epsilon_dict,
-            "n_vectors": self.n_vectors,
         }
     
     def QMC_rounding(self, seed=None, max_vertices: int = 16):
@@ -575,7 +574,6 @@ class Level_2_Rounding:
             {
                 "x_dict": self.x_dict,
                 "theta_dict": self.theta_dict,
-                "n_vectors": self.n_vectors,
                 "P_matrices": self.P_matrices,
                 "epsilon_dict": self.epsilon_dict,
             }
