@@ -18,8 +18,8 @@
 
   "warm_start": true,
   "warm_start_mode": "standard",
-  "lasserre_level": 1,
-  "initial_solver_level_M": 1,
+  "lasserre_level": 2,
+  "initial_solver_level_M": 2,
   "sdp_seed": 42,
 
   "sdp_solver_mode": "scs",
@@ -43,14 +43,11 @@
   "debug": false,
   "save_circuit_svg": false,
   "rerun_exclude_finished_instances": true,
-  "completed_result_csv_paths": [
-    "Results/logs/adam/qaoa_results_adam_20260622_143724_pid1988278.csv"
-  ],
   "warm_start_cache_producer_only": false,
   "qaoa_only_from_existing_warm_start_cache": true,
   "optimiser_debug_iterations": null,
 
-  "num_repeats": 5,
+  "num_repeats": 1,
   "relative_graph_adjList_path": "HOG_graphs/random_graphs_8to14vertices_78instances_20260625_143415_AdjacencyList.txt",
 
   "persistent_warm_start_cache": true,
