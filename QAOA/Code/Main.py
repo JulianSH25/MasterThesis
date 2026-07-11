@@ -410,6 +410,11 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
         QAOA.warm_start_correlations = warm_start_correlations # assign circuit parameter: assign warm start correlations which can then be used for warm start initialisation or as initial parameters
     elif use_correlations:
         raise RuntimeError("Warm start correlations are required for warm_start_mode or correlation-based initial params, but none were available.")
+
+    if init_initial_state and warm_start_mode in {"amplified_king", "entangled_king"}:
+        if warm_start_result is None:
+            raise RuntimeError(f"{warm_start_mode} requires King warm-start data, but no warm_start_result was available.")
+        QAOA.warm_start_king_data = warm_start_result
     
     if debug:
         print(f"Initial state: {initial_state}") if initial_state is not None else print("No initial state provided.")

@@ -56,6 +56,7 @@ class QAOACircuit(QuantumCircuit):
         self.classical_WS_cut = None
         self.WS_ENERGY = None
         self.warm_start_correlations = None
+        self.warm_start_king_data = None
         self.self_init_linegraph = False
         self.params = None
         self.cost_operator: SparsePauliOp | None = None
@@ -127,6 +128,7 @@ class QAOACircuit(QuantumCircuit):
         if self.params is None:
             self.params = [1, 1, 1]
         a, b, c = self.params
+        king_strength, king_repeats = self._resolve_correlation_settings(self.warm_start_mode)
         if self.circuit_type == 'standard':
             print("Building standard QAOA circuit with 2 parameter types (γ and β)")
             for layer in range(self.p):
@@ -148,6 +150,12 @@ class QAOACircuit(QuantumCircuit):
                     self.qc.rzz(-2 * gamma * w * c, j, k) """ # z_j z_k, i.e. z interaction term between qubtis j and k
                     # The factor 2 accomodates for qiskits default weighting of /2 for .rzz, .rxx, .ryy
 
+                if self.warm_start_mode == "amplified_king":
+                    self._apply_king_warm_start_layer(
+                        strength=king_strength,
+                        repeats=king_repeats,
+                    )
+
                 # add Mixer Hamiltionian for all nodes
                 self.qc.rx(2 * beta, range(self.n))
                 self.qc.rz(2 * beta, range(self.n)) # NOTE experimental
@@ -159,6 +167,13 @@ class QAOACircuit(QuantumCircuit):
                 a, b, c, d = self.qaoa_parameters[0][layer], self.qaoa_parameters[1][layer], self.qaoa_parameters[2][layer], self.qaoa_parameters[3][layer]
                 for (j, k), w in zip(self.edges, self.weights):
                     self.qc.rzz(2*a, j, k) # Gate 1 of HAMQAOA layer: ZZ interaction term with parameter a
+
+                if self.warm_start_mode == "amplified_king":
+                    self._apply_king_warm_start_layer(
+                        strength=king_strength,
+                        repeats=king_repeats,
+                    )
+
                 self.qc.rx(2*b, range(self.n)) # Gate 2 of HAMQAOA layer: X mixer term with parameter b
                 self.qc.rz(2*c, range(self.n)) # Gate 3 of HAMQAOA layer: Z mixer term with parameter c
 
@@ -214,6 +229,81 @@ class QAOACircuit(QuantumCircuit):
                 self.qc.ryy(-2*x, i, j)
                 self.qc.rzz(-2*x, i, j)
 
+    @staticmethod
+    def _restore_json_complex(value):
+        if isinstance(value, dict) and set(value.keys()) == {"real", "imag"}:
+            return complex(value["real"], value["imag"])
+        if isinstance(value, list):
+            return [QAOACircuit._restore_json_complex(item) for item in value]
+        return value
+
+    @staticmethod
+    def _edge_dict_value(mapping: dict, edge: tuple[int, int], name: str):
+        i, j = edge
+        for key in (edge, (j, i), str(edge), str((j, i)), f"{i},{j}", f"{j},{i}"):
+            if key in mapping:
+                return mapping[key]
+        raise RuntimeError(f"Missing King {name} for edge {edge}")
+
+    def _apply_king_product_state(self) -> None:
+        if self.warm_start_king_data is None:
+            raise RuntimeError("King warm start requires warm_start_king_data")
+
+        product_state_vectors = self.warm_start_king_data.get("product_state_vectors")
+        if product_state_vectors is None:
+            raise RuntimeError("King warm start data does not contain product_state_vectors")
+        if len(product_state_vectors) != self.n:
+            raise RuntimeError(
+                f"Expected {self.n} King product state vectors, got {len(product_state_vectors)}"
+            )
+
+        for qubit, vector in enumerate(product_state_vectors):
+            state = np.asarray(self._restore_json_complex(vector), dtype=complex)
+            if state.shape != (2,):
+                raise RuntimeError(f"King product state for qubit {qubit} has shape {state.shape}, expected (2,)")
+            norm = np.linalg.norm(state)
+            if norm <= 0:
+                raise RuntimeError(f"King product state for qubit {qubit} has zero norm")
+            self.qc.initialize(state / norm, [qubit])
+
+    def _apply_king_warm_start_layer(self, strength: float = 1.0, repeats: int = 1) -> None:
+        if self.warm_start_king_data is None:
+            raise RuntimeError("King warm-start rotations require warm_start_king_data")
+
+        theta_dict = self.warm_start_king_data.get("theta_dict")
+        epsilon_dict = self.warm_start_king_data.get("epsilon_dict")
+        n_vectors = self.warm_start_king_data.get("n_vectors")
+        if theta_dict is None or epsilon_dict is None or n_vectors is None:
+            raise RuntimeError("King warm-start data requires theta_dict, epsilon_dict, and n_vectors")
+        if len(n_vectors) != self.n:
+            raise RuntimeError(f"Expected {self.n} King axis vectors, got {len(n_vectors)}")
+
+        X = np.array([[0, 1], [1, 0]], dtype=complex)
+        Y = np.array([[0, -1j], [1j, 0]], dtype=complex)
+        Z = np.array([[1, 0], [0, -1]], dtype=complex)
+        I4 = np.eye(4, dtype=complex)
+
+        repeats = max(1, int(repeats))
+        for _ in range(repeats):
+            for i, j in self.edges:
+                theta_ij = float(self._edge_dict_value(theta_dict, (i, j), "theta"))
+                epsilon_ij = float(self._edge_dict_value(epsilon_dict, (i, j), "epsilon"))
+
+                n_i = np.asarray(n_vectors[i], dtype=float)
+                n_j = np.asarray(n_vectors[j], dtype=float)
+                if n_i.shape != (3,) or n_j.shape != (3,):
+                    raise RuntimeError(f"King axis vectors for edge {(i, j)} must have shape (3,)")
+
+                P_i = n_i[0] * X + n_i[1] * Y + n_i[2] * Z
+                P_j = n_j[0] * X + n_j[1] * Y + n_j[2] * Z
+
+                # For qargs [i, j], Qiskit interprets the left tensor factor as qubit j.
+                generator = np.kron(P_j, P_i)
+                angle = strength * epsilon_ij * theta_ij
+                gate = np.cos(angle) * I4 + 1j * np.sin(angle) * generator
+
+                self.qc.unitary(gate, [i, j], label="King")
+
     def apply_warm_start(self) -> None:
         """This method applies the warm start to the quantum circuit based on the provided initial state and correlations, following the specified warm start mode.
         It handles different scenarios for initializing the circuit and applying correlation-based gates, allowing for flexible warm start configurations."""
@@ -228,8 +318,16 @@ class QAOACircuit(QuantumCircuit):
             )
         if warm_mode in {"amplified", "entangled"} and self.warm_start_correlations is None: # XXX Sanity check for correlation-based warm start modes
             raise RuntimeError("warm_start_correlations are required for amplified/entangled warm start modes")
+        if warm_mode in {"amplified_king", "entangled_king"} and self.warm_start_king_data is None:
+            raise RuntimeError("warm_start_king_data is required for amplified_king/entangled_king warm start modes")
         ###
 
+        if warm_mode == "entangled_king":
+            self._apply_king_product_state()
+            self._apply_king_warm_start_layer(strength=1.0, repeats=1)
+            print("Entangled King warm start: GP/GW product state + King rotations")
+            self._set_initial_ws_energy("entangled King warm start")
+            return
         if warm_mode == "entangled": # In 'entangled' mode, we start from an equal superposition state and apply correlation-based gates to induce entanglement, without directly using the provided initial statevector as the initial state for the circuit
             # Use equal superposition as the base state for the entangled warm start, then apply correlations to induce entanglement
             self.qc.h(range(self.n)) # STEP 1: Initialise circuit as equal superposition
@@ -240,7 +338,7 @@ class QAOACircuit(QuantumCircuit):
             )
             self._set_initial_ws_energy("entangled warm start")
             return
-        elif self.initial_state is not None and warm_mode in {"standard", "amplified"}: # In 'standard' and 'amplified' modes, we use the provided initial statevector directly as the initial state for the circuit, and optionally apply correlation-based gates on top of it in 'amplified' mode to enhance the influence of the warm start
+        elif self.initial_state is not None and warm_mode in {"standard", "amplified", "amplified_king"}: # In 'standard' and 'amplified' modes, we use the provided initial statevector directly as the initial state for the circuit, and optionally apply correlation-based gates on top of it in 'amplified' mode to enhance the influence of the warm start
             # Otherwise, if an initial statevector is provided, use it directly as the initial state for the circuit
             _initial_state = np.asarray(self.initial_state, dtype=complex)
             assert _initial_state.shape == (2**self.n,) # XXX Sanity check
@@ -489,8 +587,10 @@ class QAOACircuit(QuantumCircuit):
         Available warm start modes (so far; last updated 05.05.2026):
         - 'standard': use the provided initial statevector directly as the warm start without additional correlation-based gates.
         - 'amplified': apply correlation-based gates ON TOP OF the initial state (i.e. an extension of 'standard' mode) with angles directly derived from the correlations, effectively amplifying the influence of the warm start on the initial state.
-        - 'entangled': start from an equal superposition state and apply correlation-based gates to induce entanglement"""
-        if warm_mode not in {"standard", "amplified", "entangled"}:
+        - 'entangled': start from an equal superposition state and apply correlation-based gates to induce entanglement
+        - 'entangled_king': prepare the GP/GW product state and apply the King Algorithm-17 rotation layer
+        - 'amplified_king': use the standard warm-start state and add fixed King Algorithm-17 rotation layers inside each QAOA layer"""
+        if warm_mode not in {"standard", "amplified", "entangled", "entangled_king", "amplified_king"}:
             raise ValueError(f"Unsupported warm_start_mode: {warm_mode}")
         return warm_mode
 
