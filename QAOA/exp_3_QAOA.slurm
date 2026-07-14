@@ -22,4 +22,4 @@ conda activate masterthesis
 
 export MOSEKLM_LICENSE_FILE="$HOME/MasterThesis/mosek.lic"
 
-zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/Exp3/QAOA/benchm_config_STRESSTESTinstances_L2M2.json
+zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/Exp3/QAOA/benchm_config_STRESSTESTinstances_L1M1.json
