@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=Exp3_QAOA_ONLY_STRESSinstances
+#SBATCH --job-name=Exp3_QAOA_ONLY_74instances3reg
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --time=7-0:00:00
@@ -22,4 +22,4 @@ conda activate masterthesis
 
 export MOSEKLM_LICENSE_FILE="$HOME/MasterThesis/mosek.lic"
 
-zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/Exp3/QAOA/benchm_config_QAOA_Only_STRESSinstances.json
+zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/Exp3/QAOA/benchm_config_QAOA_Only_74instances3reg.json
