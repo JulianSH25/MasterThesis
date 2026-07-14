@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=Exp3_QAOA_ONLY_176instances
+#SBATCH --job-name=Exp3_QAOA_ONLY_STRESSinstances
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --time=7-0:00:00
