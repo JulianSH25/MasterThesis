@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=Exp3_SDP_L2M2_74_instances_5rep
+#SBATCH --job-name=Exp3_SDP_L1M1_74_instances_5rep
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --time=7-0:00:00
@@ -22,4 +22,4 @@ conda activate masterthesis
 
 export MOSEKLM_LICENSE_FILE="$HOME/MasterThesis/mosek.lic"
 
-zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/Exp3/SDP/benchm_config_74instances_3reg_L2M2.json
+zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/Exp3/SDP/benchm_config_74instances_3reg_L1M1.json
