@@ -59,7 +59,7 @@
   "qaoa_max_parallel": 1,
 
   "sdp_threads": 1,
-  "qaoa_threads": 32,
+  "qaoa_threads": 64,
 
   "sdp_memory_limit_total_gb": 100,
   "sdp_memory_limit_single_gb": 100,
