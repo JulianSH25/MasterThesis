@@ -43,6 +43,7 @@
   "debug": false,
   "save_circuit_svg": false,
   "rerun_exclude_finished_instances": true,
+  "completed_result_csv_paths": ["Results/logs/adam/qaoa_results_adam_20260710_104530_pid1582888.csv"],
   "warm_start_cache_producer_only": false,
   "qaoa_only_from_existing_warm_start_cache": true,
   "optimiser_debug_iterations": null,
@@ -61,8 +62,8 @@
   "sdp_threads": 1,
   "qaoa_threads": 1,
 
-  "sdp_memory_limit_total_gb": 16,
-  "sdp_memory_limit_single_gb": 16,
+  "sdp_memory_limit_total_gb": 100,
+  "sdp_memory_limit_single_gb": 100,
   "sdp_memory_poll_seconds": 5,
   "sdp_max_retries": 3,
 
