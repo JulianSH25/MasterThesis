@@ -7,7 +7,7 @@
   "circuit_type": "hamqaoa",
   "parameter_vector": [1, 1, 1],
   "iterations_list": [5, 10, 25, 50],
-  "learning_rate_adam": 0.01,
+  "learning_rate_adam": 0.005,
   "depth_list": [1, 2, 3],
 
   "n_start": null,
@@ -43,12 +43,15 @@
   "debug": false,
   "save_circuit_svg": false,
   "rerun_exclude_finished_instances": true,
+  "completed_result_csv_paths": [
+    "Results/logs/adam/qaoa_results_adam_20260715_064123_pid2122293.csv"
+  ],
   "warm_start_cache_producer_only": false,
   "qaoa_only_from_existing_warm_start_cache": false,
   "optimiser_debug_iterations": null,
 
   "num_repeats": 1,
-  "relative_graph_adjList_path": "HOG_graphs/triangleFree_connected_4to8vertices_176instances_AdjacencyList.txt",
+  "relative_graph_adjList_path": "HOG_graphs/3regular_connected_74instances.txt",
 
   "persistent_warm_start_cache": false,
   "warm_start_cache_dir": null,
@@ -56,7 +59,7 @@
   "warm_start_cache_max_total_gb": null,
 
   "sdp_max_parallel": 0,
-  "qaoa_max_parallel": 48,
+  "qaoa_max_parallel": 32,
 
   "sdp_threads": null,
   "qaoa_threads": 1,

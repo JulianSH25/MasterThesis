@@ -7,7 +7,7 @@
   "circuit_type": "hamqaoa",
   "parameter_vector": [1, 1, 1],
   "iterations_list": [5, 10, 25, 50],
-  "learning_rate_adam": 0.05,
+  "learning_rate_adam": 0.005,
   "depth_list": [1, 2, 3],
 
   "n_start": null,
@@ -56,13 +56,13 @@
   "warm_start_cache_max_total_gb": 60,
 
   "sdp_max_parallel": 0,
-  "qaoa_max_parallel": 32,
+  "qaoa_max_parallel": 60,
 
   "sdp_threads": 1,
   "qaoa_threads": 1,
 
-  "sdp_memory_limit_total_gb": 250,
-  "sdp_memory_limit_single_gb": 250,
+  "sdp_memory_limit_total_gb": 500,
+  "sdp_memory_limit_single_gb": 500,
   "sdp_memory_poll_seconds": 5,
   "sdp_max_retries": 3,
 

@@ -18,8 +18,8 @@
 
   "warm_start": true,
   "warm_start_mode": "amplified",
-  "lasserre_level": 1,
-  "initial_solver_level_M": 1,
+  "lasserre_level": 2,
+  "initial_solver_level_M": 2,
   "sdp_seed": 42,
 
   "sdp_solver_mode": "scs",
@@ -61,8 +61,8 @@
   "sdp_threads": 1,
   "qaoa_threads": 1,
 
-  "sdp_memory_limit_total_gb": 150,
-  "sdp_memory_limit_single_gb": 150,
+  "sdp_memory_limit_total_gb": 350,
+  "sdp_memory_limit_single_gb": 350,
   "sdp_memory_poll_seconds": 5,
   "sdp_max_retries": 3,
 

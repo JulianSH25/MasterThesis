@@ -7,7 +7,7 @@
   "circuit_type": "hamqaoa",
   "parameter_vector": [1, 1, 1],
   "iterations_list": [5, 10, 25, 50],
-  "learning_rate_adam": 0.01,
+  "learning_rate_adam": 0.005,
   "depth_list": [1, 2, 3],
 
   "n_start": null,

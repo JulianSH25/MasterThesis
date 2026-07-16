@@ -7,7 +7,7 @@
   "circuit_type": "hamqaoa",
   "parameter_vector": [1, 1, 1],
   "iterations_list": [5, 10, 25, 50],
-  "learning_rate_adam": 0.05,
+  "learning_rate_adam": 0.01,
   "depth_list": [1, 2, 3],
 
   "n_start": null,
@@ -53,15 +53,15 @@
   "persistent_warm_start_cache": true,
   "warm_start_cache_dir": "Results/warm_start_cache/experiment_3",
   "warm_start_cache_max_file_mb": 512,
-  "warm_start_cache_max_total_gb": 60,
+  "warm_start_cache_max_total_gb": 48,
 
   "sdp_max_parallel": 0,
   "qaoa_max_parallel": 32,
   "sdp_threads": 1,
   "qaoa_threads": 1,
 
-  "sdp_memory_limit_total_gb": 250,
-  "sdp_memory_limit_single_gb": 250,
+  "sdp_memory_limit_total_gb": 400,
+  "sdp_memory_limit_single_gb": 400,
   "sdp_memory_poll_seconds": 5,
   "sdp_max_retries": 3,
 
