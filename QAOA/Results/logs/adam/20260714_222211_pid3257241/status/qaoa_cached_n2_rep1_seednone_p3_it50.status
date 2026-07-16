@@ -1,0 +1,13 @@
+finished_at=2026-07-14 22:46:02
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=qaoa_cached
+key=n2_rep1_seednone_p3_it50
+n=2
+p=3
+iterations=50
+repeat_idx=1
+sdp_seed=
+warm_start_cache_path=Results/warm_start_cache/fast_test_scs/stress_test__filehash_182b889d/hog_idx000002_d2654d23c58b_noseed_L2_M2_standard.npz
+threads=1

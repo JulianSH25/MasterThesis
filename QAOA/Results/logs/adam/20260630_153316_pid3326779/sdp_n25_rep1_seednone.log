@@ -16,3 +16,16 @@ Running QAOA for n=15 nodes, m=21 edges...; Max iterations: 50
 Warm-start: starting SDP solve for n_vertices=15
 Warm-start: no sdp_seed in config, generated fallback seed 8401247455369539317
 Using SCS solver for SDP with eps=0.001, max_iters=20000.
+Rounding...
+Setting seed to 8401247455369539317
+n_vertices: 15 for n = 45
+Using seed 8401247455369539317 to generate random matrix for x.
+Energy of rounded cut/product state: 12.301388880519252
+Algorithm 17 lower-bound energy: 12.538509987235773
+Algorithm 17 actual entangled-state energy: 12.690006936452281
+SDP objective value: 20.99288549897905
+12 in cut out of a total of 21 edges
+Warm-start: SDP solve + rounding finished in 153656.50 seconds
+Warm-start: using level-2 Algorithm 17 entangled statevector with shape (32768,)
+Warm-start cache: saved Results/warm_start_cache/fast_test_scs/stress_test__filehash_182b889d/hog_idx000025_cd7deaa61522_noseed_L2_M2_standard.npz in 0.0766 seconds
+WARM_START_CACHE_PRODUCER_ONLY is set; warm-start cache has been produced/loaded. Exiting before QAOA optimisation.

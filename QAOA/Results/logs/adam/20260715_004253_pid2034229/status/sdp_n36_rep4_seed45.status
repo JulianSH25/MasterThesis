@@ -1,0 +1,13 @@
+finished_at=2026-07-15 00:43:52
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=sdp_producer
+key=n36_rep4_seed45
+n=36
+p=1
+iterations=50
+repeat_idx=4
+sdp_seed=45
+warm_start_cache_path=Results/warm_start_cache/experiment_3/3regular_connected_74instances__filehash_688b5b4e/hog_idx000036_60bbe39cc295_seed45_L1_M1_amplified.npz
+threads=1

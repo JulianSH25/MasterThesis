@@ -16,3 +16,24 @@ Running QAOA for n=14 nodes, m=91 edges...; Max iterations: 50
 Warm-start: starting SDP solve for n_vertices=14
 Warm-start: no sdp_seed in config, generated fallback seed 14751366872464638737
 Using SCS solver for SDP with eps=0.001, max_iters=20000.
+SDP solver status: optimal
+SDP solver name: SCS
+SDP solver iterations: 25
+SDP solve time: 7.063023601
+SDP extra stats: {'x': array([ 9.99999968e-01, -1.72421310e-16,  7.30615830e-17, ...,
+        9.99999968e-01, -5.48676646e-19,  9.99999966e-01], shape=(371953,)), 'y': array([1.25026961e-02, 1.06095563e-02, 1.06095563e-02, ...,
+       9.13836735e-03, 1.72494909e-17, 1.79960805e-02], shape=(1024088,)), 's': array([0.00000000e+00, 0.00000000e+00, 0.00000000e+00, ...,
+       9.99999524e-01, 1.02166616e-15, 9.99998332e-01], shape=(1024088,)), 'info': {'status_val': 1, 'iter': 25, 'scale_updates': 0, 'scale': 0.1, 'pobj': -10.500000143489805, 'dobj': -10.500167833274379, 'res_pri': 2.123379147112022e-05, 'res_dual': 1.167379918672716e-06, 'gap': 0.0001676897845737102, 'res_infeas': nan, 'res_unbdd_a': 0.09523809215841048, 'res_unbdd_p': 0.0, 'comp_slack': 4.707345624410664e-12, 'solve_time': 7063.023601, 'setup_time': 696.257858, 'lin_sys_time': 473.03212599999995, 'cone_time': 6390.1827550000025, 'accel_time': 14.284982999999999, 'rejected_accel_steps': 0, 'accepted_accel_steps': 0, 'status': 'solved'}}
+Rounding...
+Setting seed to 14751366872464638737
+n_vertices: 14 for n = 42
+Using seed 14751366872464638737 to generate random matrix for x.
+Energy of rounded cut/product state: 48.61782799266698
+Algorithm 17 lower-bound energy: 37.284046860607575
+Algorithm 17 actual entangled-state energy: 48.61782799266701
+SDP objective value: 56.00000014348979
+49 in cut out of a total of 91 edges
+Warm-start: SDP solve + rounding finished in 90734.17 seconds
+Warm-start: using level-2 Algorithm 17 entangled statevector with shape (16384,)
+Warm-start cache: saved Results/warm_start_cache/fast_test_scs/complete/complete_n14_8566d40c3cea_noseed_L2_M2_standard.npz in 0.0677 seconds
+WARM_START_CACHE_PRODUCER_ONLY is set; warm-start cache has been produced/loaded. Exiting before QAOA optimisation.

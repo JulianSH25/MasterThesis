@@ -1,0 +1,13 @@
+finished_at=2026-07-15 10:34:23
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=qaoa_cached
+key=n20_rep1_seed42_p1_it25
+n=20
+p=1
+iterations=25
+repeat_idx=1
+sdp_seed=42
+warm_start_cache_path=Results/warm_start_cache/experiment_3/3regular_connected_74instances__filehash_688b5b4e/hog_idx000020_6ad7f7f002a9_seed42_L1_M1_amplified.npz
+threads=1

@@ -1,0 +1,13 @@
+finished_at=2026-07-06 12:55:09
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=sdp_producer
+key=n62_rep2_seed43
+n=62
+p=1
+iterations=50
+repeat_idx=2
+sdp_seed=43
+warm_start_cache_path=Results/warm_start_cache/experiment_3/random_graphs_8to14vertices_78instances_20260625_143415_AdjacencyList__filehash_a79662a0/hog_idx000062_2062587df77b_seed43_L1_M1_amplified.npz
+threads=1
