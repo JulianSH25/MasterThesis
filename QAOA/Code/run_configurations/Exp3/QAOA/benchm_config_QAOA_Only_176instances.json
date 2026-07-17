@@ -1,17 +1,17 @@
 {
   "optimiser": "adam",
   "optimiser_use_heuristic": true,
-  "heuristic_optimiser_iterations": 2,
-  "heuristic_optimiser_sampleSize": 1000,
+  "heuristic_optimiser_iterations": 1,
+  "heuristic_optimiser_sampleSize": 10,
 
   "circuit_type": "hamqaoa",
   "parameter_vector": [1, 1, 1],
   "iterations_list": [5, 10, 25, 50],
-  "learning_rate_adam": 0.01,
-  "depth_list": [1, 2, 3],
+  "learning_rate_adam": 0.001,
+  "depth_list": [1, 2, 3, 4, 5],
 
-  "n_start": null,
-  "n_end": null,
+  "n_start": 1,
+  "n_end": 175,
 
   "singlet_injection": false,
   "start_index_singlet": null,
@@ -56,7 +56,7 @@
   "warm_start_cache_max_total_gb": null,
 
   "sdp_max_parallel": 0,
-  "qaoa_max_parallel": 48,
+  "qaoa_max_parallel": 32,
 
   "sdp_threads": null,
   "qaoa_threads": 1,
