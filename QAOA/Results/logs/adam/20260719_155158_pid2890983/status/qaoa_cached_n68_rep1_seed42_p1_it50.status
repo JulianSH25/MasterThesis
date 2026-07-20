@@ -1,0 +1,13 @@
+finished_at=2026-07-19 20:51:31
+exit_code=137
+timed_out=0
+warm_start_failed=0
+role=qaoa_cached
+key=n68_rep1_seed42_p1_it50
+n=68
+p=1
+iterations=50
+repeat_idx=1
+sdp_seed=42
+warm_start_cache_path=Results/warm_start_cache/experiment_3/random_graphs_8to14vertices_78instances_20260625_143415_AdjacencyList__filehash_a79662a0/hog_idx000068_68ebae82b141_seed42_L2_M2_amplified.npz
+threads=1

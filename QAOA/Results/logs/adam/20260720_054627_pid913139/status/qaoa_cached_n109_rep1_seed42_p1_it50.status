@@ -1,0 +1,13 @@
+finished_at=2026-07-20 06:01:38
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=qaoa_cached
+key=n109_rep1_seed42_p1_it50
+n=109
+p=1
+iterations=50
+repeat_idx=1
+sdp_seed=42
+warm_start_cache_path=Results/warm_start_cache/triangleFree_connected_4to8vertices_176instances_AdjacencyList__filehash_279b7452/hog_idx000109_c809859b347b_seed42_L1_M1_standard.npz
+threads=1
