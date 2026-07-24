@@ -14,6 +14,7 @@ import json
 import pandas as pan
 from numpy.f2py.auxfuncs import throw_error
 from qiskit.quantum_info import Statevector
+from GraphCharacteristics import is_triangle_free, is_3_regular, is_bipartite, is_regular, get_regular_degree, is_claw_free, is_twin_free, is_planar, is_eulerian
 
 # Local imports
 from Circuit import QAOACircuit
@@ -542,7 +543,7 @@ if __name__ == "__main__":
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
                        'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'duration_seconds_excluding_warm_start_cache_io', 'warm_start_cache_used', 'warm_start_compute_time_seconds', 'warm_start_load_time_seconds', 'warm_start_save_time_seconds', 'warm_start_effective_time_seconds', 'warm_start_cache_path', 'full duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
-                       'python_version', 'peak_ram_mb', 'Instance_is_triangle_free', 'Instance_is_3_regular']
+                       'python_version', 'peak_ram_mb', 'Instance_is_triangle_free', 'Instance_is_3_regular', 'Instance_is_bipartite', 'Instance_is_regular', 'Regular_degree', 'Instance_is_claw_free', 'Instance_is_twin_free', 'Instance_is_planar', 'Instance_is_eulerian']
 
     # start from base_fieldnames and insert scalar params next; reproducibility columns appended last
     fieldnames = list(base_fieldnames)
@@ -774,7 +775,14 @@ if __name__ == "__main__":
             'sdp_seed': sdp_seed_override,
             'hog_graph_index': n if graph_generation_type == "hog" else None,
             'Instance_is_triangle_free': is_triangle_free(edges),
-            'Instance_is_3_regular': is_3_regular(edges)
+            'Instance_is_3_regular': is_3_regular(edges),
+            'Instance_is_bipartite': is_bipartite(edges),
+            'Instance_is_regular': is_regular(edges),
+            'Regular_degree': get_regular_degree(edges),
+            'Instance_is_claw_free': is_claw_free(edges),
+            'Instance_is_twin_free': is_twin_free(edges),
+            'Instance_is_planar': is_planar(edges),
+            'Instance_is_eulerian': is_eulerian(edges),
         }
 
         # Include explicit unit weights for unweighted instances so exact-result
