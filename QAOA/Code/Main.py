@@ -14,7 +14,7 @@ import json
 import pandas as pan
 from numpy.f2py.auxfuncs import throw_error
 from qiskit.quantum_info import Statevector
-from GraphCharacteristics import is_triangle_free, is_3_regular, is_bipartite, is_regular, get_regular_degree, is_claw_free, is_twin_free, is_planar, is_eulerian
+from GraphCharacteristics import is_bipartite, is_regular, get_regular_degree, is_claw_free, is_twin_free, is_planar, is_eulerian
 
 # Local imports
 from Circuit import QAOACircuit
