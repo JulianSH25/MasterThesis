@@ -16,27 +16,22 @@ CONDA_ENV_NAME = "masterthesis"
 CONDA_ACTIVATE_SCRIPT = "/home/i6408800/miniforge3/bin/activate"
 
 # Resource knobs copied into the generated JSON and Slurm files.
-# The *_MAX_PARALLEL knobs are internal benchmark worker pools.
-# Keep them at 1 for one process per Slurm job; submit wrappers throttle job concurrency.
-SLURM_SUBMIT_MAX_PARALLEL_JOBS = 32
-SLURM_SUBMIT_POLL_SECONDS = 30
-SUBMIT_WRAPPER_TIME = "7-00:00:00"
-
-QAOA_FROM_CACHE_CPUS_PER_TASK = 1
-QAOA_FROM_CACHE_MAX_PARALLEL = 1
+# Each generated benchmark job requests 32 CPUs and runs 32 one-thread workers internally.
+QAOA_FROM_CACHE_CPUS_PER_TASK = 32
+QAOA_FROM_CACHE_MAX_PARALLEL = 32
 QAOA_FROM_CACHE_SLURM_MEM = "250G"
 QAOA_FROM_CACHE_TIME = "12:00:00"
 
-SDP_CACHE_CPUS_PER_TASK = 1
-SDP_CACHE_MAX_PARALLEL = 1
+SDP_CACHE_CPUS_PER_TASK = 32
+SDP_CACHE_MAX_PARALLEL = 32
 SDP_CACHE_SLURM_MEM = "250G"
 SDP_CACHE_TIME = "7-00:00:00"
 SDP_CACHE_MEMORY_LIMIT_TOTAL_GB = 250
 SDP_CACHE_MEMORY_LIMIT_SINGLE_GB = 100
 SDP_CACHE_MAX_RETRIES = 3
 
-EXACT_CPUS_PER_TASK = 1
-EXACT_MAX_PARALLEL = 1
+EXACT_CPUS_PER_TASK = 32
+EXACT_MAX_PARALLEL = 32
 EXACT_SLURM_MEM = "250G"
 EXACT_TIME = "7-00:00:00"
 
@@ -412,29 +407,10 @@ def submit_sort_key(path: Path, slurm_root: Path) -> tuple:
 
 
 def make_submit_script(slurm_files: list[Path], slurm_root: Path) -> str:
-    lines = [
-        "#!/bin/bash",
-        "set -euo pipefail",
-        "",
-        f"MAX_PARALLEL_JOBS={SLURM_SUBMIT_MAX_PARALLEL_JOBS}",
-        f"POLL_SECONDS={SLURM_SUBMIT_POLL_SECONDS}",
-        "",
-        "active_exp_jobs() {",
-        f"  squeue -h -u \"$USER\" -t PD,R,CF,CG -o \"%.200j\" | awk '$1 ~ /^{EXP_NAME}_/ {{n++}} END {{print n+0}}'",
-        "}",
-        "",
-        "submit_when_slot_free() {",
-        "  local slurm_file=\"$1\"",
-        "  while [ \"$(active_exp_jobs)\" -ge \"$MAX_PARALLEL_JOBS\" ]; do",
-        "    sleep \"$POLL_SECONDS\"",
-        "  done",
-        "  sbatch \"$slurm_file\"",
-        "}",
-        "",
-    ]
+    lines = ["#!/bin/bash", "set -euo pipefail", ""]
     for path in sorted(slurm_files, key=lambda p: submit_sort_key(p, slurm_root)):
         rel = path.relative_to(QAOA_ROOT)
-        lines.append(f"submit_when_slot_free \"{rel}\"")
+        lines.append(f"sbatch {rel}")
     lines.append("")
     return "\n".join(lines)
 
@@ -445,7 +421,7 @@ def make_submit_slurm(exp_name: str, submit_script_name: str, job_name: str) -> 
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --partition=research
-#SBATCH --time={SUBMIT_WRAPPER_TIME}
+#SBATCH --time=00:20:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
