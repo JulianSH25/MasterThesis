@@ -14,7 +14,7 @@ import json
 import pandas as pan
 from numpy.f2py.auxfuncs import throw_error
 from qiskit.quantum_info import Statevector
-from GraphCharacteristics import is_bipartite, is_regular, get_regular_degree, is_claw_free, is_twin_free, is_planar, is_eulerian
+from GraphCharacteristics import is_bipartite, is_regular, regular_degree, is_claw_free, is_twin_free, is_planar, is_eulerian
 
 # Local imports
 from Circuit import QAOACircuit
@@ -778,7 +778,7 @@ if __name__ == "__main__":
             'Instance_is_3_regular': is_3_regular(edges),
             'Instance_is_bipartite': is_bipartite(edges),
             'Instance_is_regular': is_regular(edges),
-            'Regular_degree': get_regular_degree(edges),
+            'Regular_degree': regular_degree(edges),
             'Instance_is_claw_free': is_claw_free(edges),
             'Instance_is_twin_free': is_twin_free(edges),
             'Instance_is_planar': is_planar(edges),
