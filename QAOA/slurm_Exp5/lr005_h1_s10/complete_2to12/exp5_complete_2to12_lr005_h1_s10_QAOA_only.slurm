@@ -14,14 +14,21 @@ set -euo pipefail
 cd "$SLURM_SUBMIT_DIR"
 mkdir -p Results/slurm
 
-if command -v conda >/dev/null 2>&1; then
+if [ -f "/home/i6408800/miniforge3/bin/activate" ]; then
+  source "/home/i6408800/miniforge3/bin/activate" "masterthesis"
+elif [ -f "$HOME/miniforge3/bin/activate" ]; then
+  source "$HOME/miniforge3/bin/activate" "masterthesis"
+elif [ -f "$HOME/miniconda3/bin/activate" ]; then
+  source "$HOME/miniconda3/bin/activate" "masterthesis"
+elif [ -f "$HOME/anaconda3/bin/activate" ]; then
+  source "$HOME/anaconda3/bin/activate" "masterthesis"
+elif command -v conda >/dev/null 2>&1; then
   eval "$(conda shell.bash hook)"
-elif [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
-  source "$HOME/miniconda3/etc/profile.d/conda.sh"
-elif [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
-  source "$HOME/anaconda3/etc/profile.d/conda.sh"
+  conda activate "masterthesis"
+else
+  echo "Error: could not find conda activation script for environment masterthesis." >&2
+  exit 1
 fi
-conda activate masterthesis
 
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
