@@ -28,4 +28,4 @@ export MKL_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1
 
-bash qaoa_benchmarks_dsri_sdpqueue.sh Code/run_configurations/Exp5/exact/bipartite_454/benchm_config_bipartite_454_exact.json
+zsh qaoa_benchmarks_dsri_sdpqueue.sh Code/run_configurations/Exp5/exact/bipartite_454/benchm_config_bipartite_454_exact.json

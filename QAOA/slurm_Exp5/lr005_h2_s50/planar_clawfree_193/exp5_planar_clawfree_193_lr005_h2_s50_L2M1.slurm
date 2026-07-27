@@ -28,4 +28,4 @@ export MKL_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1
 
-bash qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/Exp5/lr005_h2_s50/planar_clawfree_193/benchm_config_planar_clawfree_193_lr005_h2_s50_L2M1.json
+zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/Exp5/lr005_h2_s50/planar_clawfree_193/benchm_config_planar_clawfree_193_lr005_h2_s50_L2M1.json
