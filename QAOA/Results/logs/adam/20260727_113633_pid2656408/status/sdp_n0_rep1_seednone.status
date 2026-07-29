@@ -1,0 +1,13 @@
+finished_at=2026-07-27 11:36:38
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=sdp_producer
+key=n0_rep1_seednone
+n=0
+p=1
+iterations=50
+repeat_idx=1
+sdp_seed=
+warm_start_cache_path=Results/warm_start_cache/cycle_graphs_3to12vertices_10instances_AdjacencyList__filehash_1a582721/hog_idx000000_ef04306f2d85_noseed_L2_M2_standard.npz
+threads=1
