@@ -11,9 +11,7 @@
   ],
   "iterations_list": [
     5,
-    10,
-    25,
-    50
+    10
   ],
   "learning_rate_adam": 0.005,
   "depth_list": [

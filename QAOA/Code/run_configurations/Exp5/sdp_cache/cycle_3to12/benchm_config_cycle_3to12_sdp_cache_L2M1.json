@@ -10,7 +10,7 @@
     1
   ],
   "iterations_list": [
-    50
+    10
   ],
   "learning_rate_adam": null,
   "depth_list": [
