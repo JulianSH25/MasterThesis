@@ -24,7 +24,7 @@
   "singlet_injection": false,
   "start_index_singlet": null,
   "warm_start": true,
-  "warm_start_mode": "standard",
+  "warm_start_mode": "amplified",
   "lasserre_level": 2,
   "initial_solver_level_M": 2,
   "sdp_seed": null,

@@ -3,7 +3,8 @@
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --partition=research
-#SBATCH --time=8:00:00
+#SBATCH --nodelist=dacsgpu0003.fse-cslab.nl
+#SBATCH --time=12:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32

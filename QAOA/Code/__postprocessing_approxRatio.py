@@ -8,9 +8,16 @@ from typing import Any
 import pandas as pd
 
 
-CSV_PATHS = [Path("/Users/julian/PycharmProjects/PythonProject/MasterThesis/QAOA/Results/logs/ADAM/qaoa_results_adam_20260717_151914_pid3880806.csv"),
-                 #Path("/Users/julian/PycharmProjects/PythonProject/MasterThesis/QAOA/Results/logs/ADAM/qaoa_results_adam_20260714_173124_pid2184512.csv"),
-                 ]
+EXP5_RESULTS = Path(
+    "/Users/julian/PycharmProjects/PythonProject/MasterThesis/"
+    "QAOA/Results/logs/ADAM/Exp5"
+)
+
+CSV_PATHS = sorted(
+    path
+    for path in EXP5_RESULTS.glob("*/*/*.csv")
+    if not path.stem.endswith("_clipped")
+)
 
 OVERWRITE = False
 OUTPUT_SUFFIX = "_clipped"
