@@ -1,10 +1,9 @@
 #!/bin/bash
-#SBATCH --job-name=Exp5_regular_388_lr01_h1_s50_L2M2
+#SBATCH --job-name=Exp5_regular_388_lr01_h1_s50_L2M2_Exp5_subexp1_zeroAngles
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --partition=research
-#SBATCH --nodelist=dacsgpu0003.fse-cslab.nl
-#SBATCH --time=12:00:00
+#SBATCH --time=1-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32

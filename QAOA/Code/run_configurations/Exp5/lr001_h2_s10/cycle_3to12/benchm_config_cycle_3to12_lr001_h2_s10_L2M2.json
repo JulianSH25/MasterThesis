@@ -10,8 +10,7 @@
     1
   ],
   "iterations_list": [
-    5,
-    10
+    50
   ],
   "learning_rate_adam": 0.001,
   "depth_list": [
@@ -24,7 +23,7 @@
   "singlet_injection": false,
   "start_index_singlet": null,
   "warm_start": true,
-  "warm_start_mode": "amplified",
+  "warm_start_mode": "standard",
   "lasserre_level": 2,
   "initial_solver_level_M": 2,
   "sdp_seed": null,
@@ -63,5 +62,7 @@
   "sdp_memory_poll_seconds": 5,
   "sdp_max_retries": 0,
   "queue_poll_interval_seconds": 5,
-  "completed_result_csv_paths": []
+  "completed_result_csv_paths": [],
+  "initialise_standard_warm_start_with_zero_angles": true,
+  "result_name_suffix": "_Exp5_subexp1_zeroAngles"
 }

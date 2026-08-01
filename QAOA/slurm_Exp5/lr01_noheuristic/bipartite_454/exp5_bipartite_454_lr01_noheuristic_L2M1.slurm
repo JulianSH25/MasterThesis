@@ -1,10 +1,9 @@
 #!/bin/bash
-#SBATCH --job-name=Exp5_bipartite_454_lr01_noheuristic_L2M1
+#SBATCH --job-name=Exp5_bipartite_454_lr01_noheuristic_L2M1_Exp5_subexp1_zeroAngles
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --partition=research
-#SBATCH --nodelist=dacsgpu0003.fse-cslab.nl
-#SBATCH --time=12:00:00
+#SBATCH --time=1-00:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32

@@ -51,5 +51,6 @@
   "sdp_memory_limit_single_gb": 0,
   "sdp_memory_poll_seconds": 5,
   "sdp_max_retries": 0,
-  "queue_poll_interval_seconds": 5
+  "queue_poll_interval_seconds": 5,
+  "result_name_suffix": "_Exp5_subexp1_zeroAngles"
 }
