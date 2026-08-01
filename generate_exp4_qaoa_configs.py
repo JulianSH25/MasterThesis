@@ -45,6 +45,10 @@ EXP_NAME = "Exp5"
 DEPTH_LIST = [1, 2, 3]
 ITERATIONS_LIST = [5, 10, 25, 50]
 
+# When enabled, standard warm-start QAOA runs begin Adam at zero for every
+# rotation parameter, rather than using the heuristic or a random initial point.
+INITIALISE_STANDARD_WARM_START_WITH_ZERO_ANGLES = False
+
 EXP5_TEMPLATE_SET = {
     "warm_template": "benchm_config_176instances_L2M2.json",
     "l1_template": "benchm_config_176instances_L1M1.json",
@@ -210,6 +214,7 @@ def normalise_common(config: dict, dataset_base: dict, lr: float, use_heuristic:
     config["qaoa_threads"] = 1
     config["queue_poll_interval_seconds"] = 5
     config["completed_result_csv_paths"] = []
+    config["initialise_standard_warm_start_with_zero_angles"] = False
 
 
 def make_warm_config(base: dict, dataset_base: dict, lr: float, use_heuristic: bool,
@@ -220,6 +225,9 @@ def make_warm_config(base: dict, dataset_base: dict, lr: float, use_heuristic: b
     config["optimiser"] = "adam"
     config["warm_start"] = True
     config["warm_start_mode"] = "standard"
+    config["initialise_standard_warm_start_with_zero_angles"] = (
+        INITIALISE_STANDARD_WARM_START_WITH_ZERO_ANGLES
+    )
     config["sdp_seed"] = None
     config["persistent_warm_start_cache"] = True
     config["warm_start_cache_producer_only"] = False
@@ -276,6 +284,7 @@ def make_sdp_cache_config(warm_template: dict, l1_template: dict, dataset_base: 
     config["heuristic_optimiser_iterations"] = None
     config["heuristic_optimiser_sampleSize"] = None
     config["warm_start_cache_producer_only"] = True
+    config["initialise_standard_warm_start_with_zero_angles"] = False
     config["qaoa_only_from_existing_warm_start_cache"] = False
     config["persistent_warm_start_cache"] = True
     config["sdp_max_parallel"] = SDP_CACHE_MAX_PARALLEL

@@ -448,7 +448,28 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
         minimum_energy = -returned_energy.fun
         used_initial_point = getattr(returned_energy, "initial_point", None)
     elif optimiser == "adam":
-        returned_energy = optimise_adam(QAOA=QAOA, no_layers=p, steps=N_bayes, x0=fixed_initial_point, learning_rate=benchmark_params["learning_rate_adam"])
+        zero_angle_warm_start_requested = config_bool(
+            benchmark_params, "initialise_standard_warm_start_with_zero_angles"
+        )
+        zero_angle_warm_start = (
+            zero_angle_warm_start_requested
+            and init_initial_state
+            and initial_state is not None
+            and warm_start_mode == "standard"
+        )
+        if zero_angle_warm_start_requested and not zero_angle_warm_start:
+            print(
+                "Ignoring initialise_standard_warm_start_with_zero_angles because "
+                "this run has no active standard warm start; using the normal Adam initialization."
+            )
+        returned_energy = optimise_adam(
+            QAOA=QAOA,
+            no_layers=p,
+            steps=N_bayes,
+            x0=fixed_initial_point,
+            learning_rate=benchmark_params["learning_rate_adam"],
+            zero_angle_warm_start=zero_angle_warm_start,
+        )
         minimum_energy = -returned_energy.fun
         used_initial_point = getattr(returned_energy, "initial_point", None)
         adam_energy_history = getattr(returned_energy, "adam_energy_history", None)

@@ -39,10 +39,20 @@ def optimise_adam(
     steps: int,
     learning_rate: float = 0.05,
     x0: np.ndarray | None = None,
+    zero_angle_warm_start: bool = False,
 ):
     benchmark_params: dict = get_benchmark_params()
-    if benchmark_params.get("optimiser_use_heuristic"):
-        _, x0 = heuristic_optimiser(QAOA, no_layers, learning_rate=learning_rate)
+    if zero_angle_warm_start and QAOA.warm_start_flag and QAOA.warm_start_mode == "standard":
+        x0 = np.zeros(QAOA.p * QAOA.no_param_types, dtype=float)
+        print("Using an all-zero Adam initial point for the standard warm start.") if debug else None
+    else:
+        if zero_angle_warm_start:
+            print(
+                "Ignoring zero_angle_warm_start because no active standard warm start "
+                "is available; using the normal Adam initialization."
+            )
+        if benchmark_params.get("optimiser_use_heuristic"):
+            _, x0 = heuristic_optimiser(QAOA, no_layers, learning_rate=learning_rate)
     print("Running ADAM optimization with a single iteration (no debug loop)")
     result, _ = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=x0)
     return result
