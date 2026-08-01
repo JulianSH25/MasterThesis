@@ -47,6 +47,11 @@ warm_start_cache_stats: dict[str, Any] = {
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
 debug = benchmark_params.get("debug", False)
+result_name_suffix = str(benchmark_params.get("result_name_suffix") or "")
+if result_name_suffix and not all(char.isascii() and (char.isalnum() or char in "._-") for char in result_name_suffix):
+    raise ValueError(
+        "result_name_suffix may contain only letters, numbers, dots, underscores, and hyphens."
+    )
 
 benchmark_repeat_idx = os.environ.get("BENCHMARK_REPEAT_IDX")
 benchmark_repeat_idx = int(benchmark_repeat_idx) if benchmark_repeat_idx not in (None, "") else None
@@ -547,6 +552,8 @@ if __name__ == "__main__":
 
     # Keep one shared CSV file and append safely across parallel runs.
     debug_csv_path = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else f"qaoa_results_{optimiser}"
+    if result_name_suffix and not Path(debug_csv_path).name.endswith(result_name_suffix):
+        debug_csv_path = f"{debug_csv_path}{result_name_suffix}"
     csv_filename = f"{debug_csv_path}.csv"
 
     # Generate unique hash ID for this benchmark run
@@ -885,7 +892,7 @@ if __name__ == "__main__":
     print(f"run_id: {run_id}")
     time_dir = Path(__file__).resolve().parents[1] / "Results" / "time"
     time_dir.mkdir(parents=True, exist_ok=True)
-    with (time_dir / f"{run_id}.csv").open('w', newline='') as csvfile:
+    with (time_dir / f"{run_id}{result_name_suffix}.csv").open('w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=['section', 'duration_seconds'])
         writer.writeheader()
         for section, duration_sec in time_sections.items():

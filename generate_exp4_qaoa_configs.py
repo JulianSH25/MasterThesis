@@ -45,6 +45,10 @@ EXP_NAME = "Exp5"
 DEPTH_LIST = [1, 2, 3]
 ITERATIONS_LIST = [5, 10, 25, 50]
 
+# Optional label appended to QAOA result artifacts. Leave empty for the
+# historical names, or use e.g. "_Exp5_subexp1" to identify a subexperiment.
+RESULT_NAME_SUFFIX = "_Exp5_subexp1"
+
 # When enabled, standard warm-start QAOA runs begin Adam at zero for every
 # rotation parameter, rather than using the heuristic or a random initial point.
 INITIALISE_STANDARD_WARM_START_WITH_ZERO_ANGLES = False
@@ -215,6 +219,7 @@ def normalise_common(config: dict, dataset_base: dict, lr: float, use_heuristic:
     config["queue_poll_interval_seconds"] = 5
     config["completed_result_csv_paths"] = []
     config["initialise_standard_warm_start_with_zero_angles"] = False
+    config["result_name_suffix"] = RESULT_NAME_SUFFIX
 
 
 def make_warm_config(base: dict, dataset_base: dict, lr: float, use_heuristic: bool,
@@ -318,6 +323,7 @@ def make_exact_config(base: dict, dataset_base: dict) -> dict:
     config["sdp_solver_mode"] = None
     config["sdp_scs_eps"] = None
     config["sdp_scs_max_iters"] = None
+    config["result_name_suffix"] = RESULT_NAME_SUFFIX
     config["warm_start_corr_strength"] = None
     config["warm_start_corr_repeats"] = None
     config["use_correlations_as_initial_params"] = None
@@ -506,7 +512,7 @@ def main() -> None:
 
                         config_name = f"benchm_config_{dataset}_{variation}_{family}.json"
                         slurm_name = f"{EXP_NAME.lower()}_{dataset}_{variation}_{family}.slurm"
-                        job_name = f"{EXP_NAME}_{dataset}_{variation}_{family}"
+                        job_name = f"{EXP_NAME}_{dataset}_{variation}_{family}{RESULT_NAME_SUFFIX}"
                         generate_pair(
                             config,
                             config_root / variation / dataset / config_name,
@@ -523,7 +529,7 @@ def main() -> None:
                 config = make_sdp_cache_config(warm_template, l1_template, dataset_base, family)
                 config_name = f"benchm_config_{dataset}_sdp_cache_{family}.json"
                 slurm_name = f"{EXP_NAME.lower()}_sdp_cache_{dataset}_{family}.slurm"
-                job_name = f"{EXP_NAME}_sdp_cache_{dataset}_{family}"
+                job_name = f"{EXP_NAME}_sdp_cache_{dataset}_{family}{RESULT_NAME_SUFFIX}"
                 generate_pair(
                     config,
                     config_root / "sdp_cache" / dataset / config_name,
@@ -540,7 +546,7 @@ def main() -> None:
             config = make_exact_config(exact_template, dataset_base)
             config_name = f"benchm_config_{dataset}_exact.json"
             slurm_name = f"{EXP_NAME.lower()}_exact_{dataset}.slurm"
-            job_name = f"{EXP_NAME}_exact_{dataset}"
+            job_name = f"{EXP_NAME}_exact_{dataset}{RESULT_NAME_SUFFIX}"
             generate_pair(
                 config,
                 config_root / "exact" / dataset / config_name,
