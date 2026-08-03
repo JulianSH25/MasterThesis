@@ -21,6 +21,9 @@ QAOA_FROM_CACHE_CPUS_PER_TASK = 32
 QAOA_FROM_CACHE_MAX_PARALLEL = 32
 QAOA_FROM_CACHE_SLURM_MEM = "250G"
 QAOA_FROM_CACHE_TIME = "12:00:00"
+# Set to one node or a comma-separated allowed node list. Leave as None to
+# let Slurm choose, e.g. "dacsgpu0001.fse-cslab.nl,dacsgpu0002.fse-cslab.nl".
+QAOA_FROM_CACHE_NODELIST: str | None = None
 
 SDP_CACHE_CPUS_PER_TASK = 32
 SDP_CACHE_MAX_PARALLEL = 32
@@ -29,6 +32,7 @@ SDP_CACHE_TIME = "7-00:00:00"
 SDP_CACHE_MEMORY_LIMIT_TOTAL_GB = 250
 SDP_CACHE_MEMORY_LIMIT_SINGLE_GB = 100
 SDP_CACHE_MAX_RETRIES = 3
+SDP_CACHE_NODELIST: str | None = None
 
 EXACT_CPUS_PER_TASK = 32
 EXACT_MAX_PARALLEL = 32
@@ -43,15 +47,15 @@ EXP3_EXACT = QAOA_ROOT / "Code/run_configurations/Exp3/exact"
 
 EXP_NAME = "Exp5"
 DEPTH_LIST = [1, 2, 3]
-ITERATIONS_LIST = [5, 10, 25, 50]
+ITERATIONS_LIST = [50]
 
 # Optional label appended to QAOA result artifacts. Leave empty for the
 # historical names, or use e.g. "_Exp5_subexp1" to identify a subexperiment.
-RESULT_NAME_SUFFIX = "_Exp5_subexp1"
+RESULT_NAME_SUFFIX = "_Exp5_subexp2_heuristic"
 
 # When enabled, standard warm-start QAOA runs begin Adam at zero for every
 # rotation parameter, rather than using the heuristic or a random initial point.
-INITIALISE_STANDARD_WARM_START_WITH_ZERO_ANGLES = False
+INITIALISE_STANDARD_WARM_START_WITH_ZERO_ANGLES = True
 
 EXP5_TEMPLATE_SET = {
     "warm_template": "benchm_config_176instances_L2M2.json",
@@ -89,20 +93,20 @@ DATASETS = {
         "n_end": None,
         "easiest_first": False,
     },
-    "planar_clawfree_193": {
-        **EXP5_TEMPLATE_SET,
-        "relative_graph_adjList_path": "HOG_graphs/Exp5/list_193_graphs_adjacency_listhog_v04-12_planar_clawFree.txt",
-        "n_start": None,
-        "n_end": None,
-        "easiest_first": False,
-    },
-    "regular_388": {
-        **EXP5_TEMPLATE_SET,
-        "relative_graph_adjList_path": "HOG_graphs/Exp5/list_388_graphs_adjacency_list_hog_v04-12_regular.txt",
-        "n_start": None,
-        "n_end": None,
-        "easiest_first": False,
-    },
+    #"planar_clawfree_193": {
+        #**EXP5_TEMPLATE_SET,
+       # "relative_graph_adjList_path": "HOG_graphs/Exp5/list_193_graphs_adjacency_listhog_v04-12_planar_clawFree.txt",
+       # "n_start": None,
+      #  "n_end": None,
+     #   "easiest_first": False,
+    #},
+    #"regular_388": {
+        #**EXP5_TEMPLATE_SET,
+        #"relative_graph_adjList_path": "HOG_graphs/Exp5/list_388_graphs_adjacency_list_hog_v04-12_regular.txt",
+       # "n_start": None,
+      #  "n_end": None,
+     #   "easiest_first": False,
+    #},
 }
 
 LEARNING_RATES = [
@@ -113,13 +117,13 @@ LEARNING_RATES = [
 ]
 
 HEURISTICS = [
-    ("noheuristic", False, None, None),
+    #("noheuristic", False, None, None),
     ("h1_s10", True, 1, 10),
     ("h1_s20", True, 1, 20),
     ("h1_s50", True, 1, 50),
-    ("h2_s10", True, 2, 10),
-    ("h2_s20", True, 2, 20),
-    ("h2_s50", True, 2, 50),
+    #("h2_s10", True, 2, 10),
+    #("h2_s20", True, 2, 20),
+    #("h2_s50", True, 2, 50),
 ]
 
 QAOA_FAMILIES = ["L1M1", "L2M1", "L2M2", "QAOA_only"]
@@ -131,12 +135,14 @@ SLURM_PROFILES = {
         "time": QAOA_FROM_CACHE_TIME,
         "cpus": QAOA_FROM_CACHE_CPUS_PER_TASK,
         "mem": QAOA_FROM_CACHE_SLURM_MEM,
+        "nodelist": QAOA_FROM_CACHE_NODELIST,
     },
     "sdp_cache": {
         "runner": "qaoa_benchmarks_dsri_queuedJobs.sh",
         "time": SDP_CACHE_TIME,
         "cpus": SDP_CACHE_CPUS_PER_TASK,
         "mem": SDP_CACHE_SLURM_MEM,
+        "nodelist": SDP_CACHE_NODELIST,
     },
     "exact": {
         "runner": "qaoa_benchmarks_dsri_sdpqueue.sh",
@@ -229,7 +235,7 @@ def make_warm_config(base: dict, dataset_base: dict, lr: float, use_heuristic: b
     normalise_common(config, dataset_base, lr, use_heuristic, heuristic_iterations, heuristic_sample_size)
     config["optimiser"] = "adam"
     config["warm_start"] = True
-    config["warm_start_mode"] = "standard"
+    config["warm_start_mode"] = "amplified"
     config["initialise_standard_warm_start_with_zero_angles"] = (
         INITIALISE_STANDARD_WARM_START_WITH_ZERO_ANGLES
     )
@@ -348,12 +354,17 @@ def make_exact_config(base: dict, dataset_base: dict) -> dict:
 def make_slurm(job_name: str, config_path: Path, exp_name: str, profile: dict) -> str:
     rel_config = config_path.relative_to(QAOA_ROOT)
     runner = profile["runner"]
+    node_directive = (
+        f"#SBATCH --nodelist={profile['nodelist']}\n"
+        if profile.get("nodelist")
+        else ""
+    )
     return f"""#!/bin/bash
 #SBATCH --job-name={job_name}
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --partition=research
-#SBATCH --time={profile['time']}
+{node_directive}#SBATCH --time={profile['time']}
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task={profile['cpus']}
