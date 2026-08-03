@@ -29,6 +29,10 @@ SDP_CACHE_CPUS_PER_TASK = 32
 SDP_CACHE_MAX_PARALLEL = 32
 SDP_CACHE_SLURM_MEM = "250G"
 SDP_CACHE_TIME = "7-00:00:00"
+SDP_CACHE_NODELIST = (
+    "dacsgpu0003.fse-cslab.nl,"
+    "dacsvm-cpunode01.fse-cslab.nl"
+)
 SDP_CACHE_MEMORY_LIMIT_TOTAL_GB = 250
 SDP_CACHE_MEMORY_LIMIT_SINGLE_GB = 100
 SDP_CACHE_MAX_RETRIES = 3
@@ -38,6 +42,7 @@ EXACT_CPUS_PER_TASK = 32
 EXACT_MAX_PARALLEL = 32
 EXACT_SLURM_MEM = "250G"
 EXACT_TIME = "7-00:00:00"
+EXACT_NODELIST = ""  # e.g. "dacsgpu0002.fse-cslab.nl"
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR if (SCRIPT_DIR / "QAOA").is_dir() else SCRIPT_DIR.parent
@@ -136,6 +141,7 @@ SLURM_PROFILES = {
         "cpus": QAOA_FROM_CACHE_CPUS_PER_TASK,
         "mem": QAOA_FROM_CACHE_SLURM_MEM,
         "nodelist": QAOA_FROM_CACHE_NODELIST,
+        "nodelist": QAOA_FROM_CACHE_NODELIST,
     },
     "sdp_cache": {
         "runner": "qaoa_benchmarks_dsri_queuedJobs.sh",
@@ -143,12 +149,14 @@ SLURM_PROFILES = {
         "cpus": SDP_CACHE_CPUS_PER_TASK,
         "mem": SDP_CACHE_SLURM_MEM,
         "nodelist": SDP_CACHE_NODELIST,
+        "nodelist": SDP_CACHE_NODELIST,
     },
     "exact": {
         "runner": "qaoa_benchmarks_dsri_sdpqueue.sh",
         "time": EXACT_TIME,
         "cpus": EXACT_CPUS_PER_TASK,
         "mem": EXACT_SLURM_MEM,
+        "nodelist": EXACT_NODELIST,
     },
 }
 
@@ -235,6 +243,7 @@ def make_warm_config(base: dict, dataset_base: dict, lr: float, use_heuristic: b
     normalise_common(config, dataset_base, lr, use_heuristic, heuristic_iterations, heuristic_sample_size)
     config["optimiser"] = "adam"
     config["warm_start"] = True
+    config["warm_start_mode"] = "amplified"
     config["warm_start_mode"] = "amplified"
     config["initialise_standard_warm_start_with_zero_angles"] = (
         INITIALISE_STANDARD_WARM_START_WITH_ZERO_ANGLES
