@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=Exp5_cycle_3to12_lr05_h1_s20_L2M1_Exp5_subexp1_zeroAngles
+#SBATCH --job-name=Exp5_cycle_3to12_lr05_h1_s20_L2M1_Exp5_subexp2_heuristic
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --partition=research
