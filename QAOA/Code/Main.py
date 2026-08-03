@@ -47,6 +47,11 @@ warm_start_cache_stats: dict[str, Any] = {
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
 debug = benchmark_params.get("debug", False)
+result_name_suffix = str(benchmark_params.get("result_name_suffix") or "")
+if result_name_suffix and not all(char.isascii() and (char.isalnum() or char in "._-") for char in result_name_suffix):
+    raise ValueError(
+        "result_name_suffix may contain only letters, numbers, dots, underscores, and hyphens."
+    )
 
 benchmark_repeat_idx = os.environ.get("BENCHMARK_REPEAT_IDX")
 benchmark_repeat_idx = int(benchmark_repeat_idx) if benchmark_repeat_idx not in (None, "") else None
@@ -315,7 +320,7 @@ def get_or_create_cached_warm_start(edges: list[tuple[int, int]], weights: list[
     return warm_start_data, moment_matrix, warm_start_result
 
 def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_init_linegraph=False, edges=None,
-    weights=None, __initial_state__=None, fixed_initial_point=None, return_initial_point=False, graph_generation_type: str = "unknown") -> tuple[float | Literal[0] | None, Any | None, float | None, float | Any | None, float | None] | tuple[float | Literal[0] | None, float | None, float | Any | None, float | None]:
+    weights=None, __initial_state__=None, fixed_initial_point=None, return_initial_point=False, graph_generation_type: str = "unknown") -> tuple[Any, ...]:
     global last_sdp_objective_value
     """
     This method builds and optimises a QAOA instance on a line graph.
@@ -435,6 +440,8 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
 
     minimum_energy = None
     used_initial_point = None
+    adam_energy_history = None
+    adam_updates_completed = None
     exact_mode = False
     """[2] Start the QAOA evaluation loop with the specified optimiser"""
     if optimiser == "bayesian":
@@ -446,9 +453,32 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
         minimum_energy = -returned_energy.fun
         used_initial_point = getattr(returned_energy, "initial_point", None)
     elif optimiser == "adam":
-        returned_energy = optimise_adam(QAOA=QAOA, no_layers=p, steps=N_bayes, x0=fixed_initial_point, learning_rate=benchmark_params["learning_rate_adam"])
+        zero_angle_warm_start_requested = config_bool(
+            benchmark_params, "initialise_standard_warm_start_with_zero_angles"
+        )
+        zero_angle_warm_start = (
+            zero_angle_warm_start_requested
+            and init_initial_state
+            and initial_state is not None
+            and warm_start_mode == "standard"
+        )
+        if zero_angle_warm_start_requested and not zero_angle_warm_start:
+            print(
+                "Ignoring initialise_standard_warm_start_with_zero_angles because "
+                "this run has no active standard warm start; using the normal Adam initialization."
+            )
+        returned_energy = optimise_adam(
+            QAOA=QAOA,
+            no_layers=p,
+            steps=N_bayes,
+            x0=fixed_initial_point,
+            learning_rate=benchmark_params["learning_rate_adam"],
+            zero_angle_warm_start=zero_angle_warm_start,
+        )
         minimum_energy = -returned_energy.fun
         used_initial_point = getattr(returned_energy, "initial_point", None)
+        adam_energy_history = getattr(returned_energy, "adam_energy_history", None)
+        adam_updates_completed = getattr(returned_energy, "adam_updates_completed", None)
     elif optimiser == "gridsearch":
         minimum_energy = grid_search(QAOA, p, precision=precision)
     elif optimiser == "exact":
@@ -477,6 +507,8 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
             initial_energy_prodStates,
             initial_sdp_statevector_energy,
             warm_start_result,
+            adam_energy_history,
+            adam_updates_completed,
         )
     return minimum_energy, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy, warm_start_result
 
@@ -520,6 +552,8 @@ if __name__ == "__main__":
 
     # Keep one shared CSV file and append safely across parallel runs.
     debug_csv_path = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else f"qaoa_results_{optimiser}"
+    if result_name_suffix and not Path(debug_csv_path).name.endswith(result_name_suffix):
+        debug_csv_path = f"{debug_csv_path}{result_name_suffix}"
     csv_filename = f"{debug_csv_path}.csv"
 
     # Generate unique hash ID for this benchmark run
@@ -541,7 +575,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'duration_seconds_excluding_warm_start_cache_io', 'warm_start_cache_used', 'warm_start_compute_time_seconds', 'warm_start_load_time_seconds', 'warm_start_save_time_seconds', 'warm_start_effective_time_seconds', 'warm_start_cache_path', 'full duration_seconds', 'finished_at',
+                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_qaoa_input_energy_normalized', 'adam_energy_history_normalized_json', 'adam_updates_completed', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'duration_seconds_excluding_warm_start_cache_io', 'warm_start_cache_used', 'warm_start_compute_time_seconds', 'warm_start_load_time_seconds', 'warm_start_save_time_seconds', 'warm_start_effective_time_seconds', 'warm_start_cache_path', 'full duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb', 'Instance_is_triangle_free', 'Instance_is_3_regular', 'Instance_is_bipartite', 'Instance_is_regular', 'Regular_degree', 'Instance_is_claw_free', 'Instance_is_twin_free', 'Instance_is_planar', 'Instance_is_eulerian']
 
@@ -590,7 +624,16 @@ if __name__ == "__main__":
         time_section = time.time()
 
         try:
-            results[n], shared_initial_point, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy, warm_start_result = main(
+            (
+                results[n],
+                shared_initial_point,
+                initial_ws_energy,
+                initial_energy_prodStates,
+                initial_sdp_statevector_energy,
+                warm_start_result,
+                adam_energy_history,
+                adam_updates_completed,
+            ) = main(
                 p=p,
                 N_bayes=int(precision),
                 self_init_linegraph=singlet_injection,
@@ -744,6 +787,9 @@ if __name__ == "__main__":
             'algorithm17_lower_bound_energy': algorithm17_lower_bound_energy / normalisation_factor if lasserre_level == 2 and algorithm17_lower_bound_energy is not None else None,
             'initial_ws_energy_prodStates_step2': initial_energy_prodStates / normalisation_factor if initial_energy_prodStates is not None else None,
             'initial_sdp_statevector_energy': initial_sdp_statevector_energy / normalisation_factor if initial_sdp_statevector_energy is not None else None,
+            'initial_qaoa_input_energy_normalized': initial_ws_energy / normalisation_factor if initial_ws_energy is not None else None,
+            'adam_energy_history_normalized_json': json.dumps([float(energy) / normalisation_factor for energy in adam_energy_history]) if adam_energy_history is not None else None,
+            'adam_updates_completed': adam_updates_completed,
             'initial_sdp_statevec_ratio': (initial_sdp_statevector_energy / normalisation_factor) / _optimal if _optimal is not None and initial_sdp_statevector_energy is not None else None,
             'initial_ws_energy_010101': initial_ws_energy_010101 / normalisation_factor if compare_with_010101 and initial_ws_energy_010101 is not None else None,
             'QAOA_improvement_over_SDP_statevectorEnergy': results[n] - initial_sdp_statevector_energy if initial_sdp_statevector_energy is not None else None,
@@ -805,6 +851,15 @@ if __name__ == "__main__":
             try:
                 csvfile.seek(0, os.SEEK_END)
                 write_header = csvfile.tell() == 0
+                if not write_header:
+                    csvfile.seek(0)
+                    existing_header = next(csv.reader(csvfile), [])
+                    if existing_header != fieldnames:
+                        raise RuntimeError(
+                            f"CSV header mismatch for {csv_filename}. "
+                            "Use a new output CSV path for this schema."
+                        )
+                    csvfile.seek(0, os.SEEK_END)
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
                 if write_header:
                     writer.writeheader()
@@ -837,7 +892,7 @@ if __name__ == "__main__":
     print(f"run_id: {run_id}")
     time_dir = Path(__file__).resolve().parents[1] / "Results" / "time"
     time_dir.mkdir(parents=True, exist_ok=True)
-    with (time_dir / f"{run_id}.csv").open('w', newline='') as csvfile:
+    with (time_dir / f"{run_id}{result_name_suffix}.csv").open('w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=['section', 'duration_seconds'])
         writer.writeheader()
         for section, duration_sec in time_sections.items():

@@ -19,7 +19,7 @@ from Utils import set_random_params, sample_initial_qaoa_params, get_benchmark_p
 
 from Circuit import QAOACircuit
 
-from qiskit_algorithms.optimizers import ADAM
+from qiskit_algorithms.optimizers import ADAM, Optimizer
 
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
@@ -39,10 +39,20 @@ def optimise_adam(
     steps: int,
     learning_rate: float = 0.05,
     x0: np.ndarray | None = None,
+    zero_angle_warm_start: bool = False,
 ):
     benchmark_params: dict = get_benchmark_params()
-    if benchmark_params.get("optimiser_use_heuristic"):
-        _, x0 = heuristic_optimiser(QAOA, no_layers, learning_rate=learning_rate)
+    if zero_angle_warm_start and QAOA.warm_start_flag and QAOA.warm_start_mode == "standard":
+        x0 = np.zeros(QAOA.p * QAOA.no_param_types, dtype=float)
+        print("Using an all-zero Adam initial point for the standard warm start.") if debug else None
+    else:
+        if zero_angle_warm_start:
+            print(
+                "Ignoring zero_angle_warm_start because no active standard warm start "
+                "is available; using the normal Adam initialization."
+            )
+        if benchmark_params.get("optimiser_use_heuristic"):
+            _, x0 = heuristic_optimiser(QAOA, no_layers, learning_rate=learning_rate)
     print("Running ADAM optimization with a single iteration (no debug loop)")
     result, _ = _adam_optimiser(QAOA, no_layers, steps=steps, learning_rate=learning_rate, x0=x0)
     return result
@@ -176,9 +186,55 @@ def _adam_optimiser(
         Optimisation_time.append(time.time() - start) # XXX Time
         return energy
 
-    result = optimiser.minimize(fun=objective, x0=x0)
+    adam_energy_history: list[float] = []
+
+    def adam_gradient(theta: np.ndarray) -> np.ndarray:
+        """Compute Adam's usual finite-difference gradient while recording
+        only the energy at the base Adam point, not its perturbations.
+        """
+        base_evaluation_recorded = False
+
+        def traced_objective(point: np.ndarray):
+            nonlocal base_evaluation_recorded
+            value = objective(point)
+
+            # gradient_num_diff evaluates f(theta) before any finite-difference
+            # perturbations. Only that base-point energy belongs in the trace.
+            if not base_evaluation_recorded:
+                if not np.isscalar(value):
+                    raise RuntimeError(
+                        "Expected a scalar objective value at the Adam base point."
+                    )
+                adam_energy_history.append(float(-value))
+                base_evaluation_recorded = True
+            return value
+
+        return Optimizer.gradient_num_diff(
+            theta,
+            traced_objective,
+            optimiser._eps,
+            optimiser._max_evals_grouped,
+        )
+
+    result = optimiser.minimize(fun=objective, x0=x0, jac=adam_gradient)
+
+    # ADAM evaluates the final post-update point once after its update loop.
+    # For zero updates, the initial point was already recorded above.
+    if result.nfev > 0:
+        adam_energy_history.append(float(-result.fun))
+
+    expected_history_length = int(result.nfev) + 1
+    if len(adam_energy_history) != expected_history_length:
+        raise RuntimeError(
+            "Adam energy trace length does not match completed updates: "
+            f"{len(adam_energy_history)} != {expected_history_length}"
+        )
+
     setattr(result, "initial_point", x0.copy())
+    setattr(result, "adam_energy_history", adam_energy_history)
+    setattr(result, "adam_updates_completed", int(result.nfev))
     if debug:
+        print(f"ADAM iteration energy history: {adam_energy_history}")
         print(f"Energies observed during ADAM optimization: {Energies}")
         print(f"Total optimisation time observed during ADAM optimization: {sum(Optimisation_time):.6f} seconds")
         print(f"Median time per evaluation during ADAM optimization: {np.median(Optimisation_time):.6f} seconds")

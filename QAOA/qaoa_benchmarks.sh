@@ -46,8 +46,14 @@ if [[ ! -f "$config_source_file" ]]; then
     exit 1
 fi
 
+result_name_suffix=$(jq -r '.result_name_suffix // ""' "$config_source_file")
+if [[ ! "$result_name_suffix" =~ '^[A-Za-z0-9._-]*$' ]]; then
+    echo "Error: result_name_suffix may contain only letters, numbers, dots, underscores, and hyphens."
+    exit 1
+fi
+
 run_timestamp=$(date +"%Y%m%d_%H%M%S")
-run_tag="${run_timestamp}_pid$$"
+run_tag="${run_timestamp}_pid$$${result_name_suffix}"
 config_snapshot_dir="Results/config_snapshots"
 mkdir -p "$config_snapshot_dir"
 

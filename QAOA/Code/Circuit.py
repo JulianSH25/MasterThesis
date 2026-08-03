@@ -68,6 +68,16 @@ class QAOACircuit(QuantumCircuit):
         self.debug = bool(benchm_params.get('debug') or False)
         self.log_qc_svg = bool(benchm_params.get('save_circuit_svg') or False)
         self.debug_path = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else None
+        self.result_name_suffix = str(benchm_params.get("result_name_suffix") or "")
+        if self.result_name_suffix and not all(
+            char.isascii() and (char.isalnum() or char in "._-")
+            for char in self.result_name_suffix
+        ):
+            raise ValueError(
+                "result_name_suffix may contain only letters, numbers, dots, underscores, and hyphens."
+            )
+        if self.debug_path and self.result_name_suffix and not Path(self.debug_path).name.endswith(self.result_name_suffix):
+            self.debug_path = f"{self.debug_path}{self.result_name_suffix}"
         self.debug_run_counter = 0
         self.debug_previous_result: float | None = None
         self.parameter_log_path: Path | None = None # NOTE for debugging only
@@ -664,7 +674,7 @@ class QAOACircuit(QuantumCircuit):
                 debug_path = Path(self.debug_path)
                 debug_path.mkdir(parents=True, exist_ok=True)
                 fig = circuit.draw(output="mpl", fold=1000)
-                fig.savefig(debug_path / f"{self.n}_{self.p}_{len(self.edges)}_{str(uuid.uuid4())[:8]}_{name_addition}_circuit.svg", bbox_inches="tight")
+                fig.savefig(debug_path / f"{self.n}_{self.p}_{len(self.edges)}_{str(uuid.uuid4())[:8]}_{name_addition}_circuit{self.result_name_suffix}.svg", bbox_inches="tight")
             else:
                 #print(f"Circuit SVG saving skipped due to log_qc_svg=False or debug_path not set. [log_qc_svg={self.log_qc_svg}, debug_path={'set' if self.debug_path else 'not set'}]")
                 pass
@@ -686,7 +696,7 @@ class QAOACircuit(QuantumCircuit):
 
         if self.parameter_log_path is None:
             self.parameter_log_path = debug_dir / (
-                f"{self.n}_{self.p}_{len(self.edges)}_{self.uid}_parameter_trace.csv"
+                f"{self.n}_{self.p}_{len(self.edges)}_{self.uid}_parameter_trace{self.result_name_suffix}.csv"
             )
 
         fieldnames = ["bind_index", "run_counter_at_bind", "previous_result", "timestamp"]
