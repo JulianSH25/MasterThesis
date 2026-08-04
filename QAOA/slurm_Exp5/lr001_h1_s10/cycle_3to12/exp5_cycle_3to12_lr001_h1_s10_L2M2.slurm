@@ -1,10 +1,9 @@
 #!/bin/bash
-#SBATCH --job-name=Exp5_cycle_3to12_lr001_h1_s10_L2M2_Exp5_subexp2_heuristic
+#SBATCH --job-name=Exp5_cycle_3to12_lr001_h1_s10_L2M2_Exp5_subexp3_KingAmplified
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --partition=research
-#SBATCH --nodelist=dacsvm-cpunode01.fse-cslab.nl,dacsgpu0002.fse-cslab.nl
-#SBATCH --time=12:00:00
+#SBATCH --time=8:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32

@@ -21,7 +21,7 @@
   "singlet_injection": false,
   "start_index_singlet": null,
   "warm_start": true,
-  "warm_start_mode": "standard",
+  "warm_start_mode": "amplified_king",
   "lasserre_level": 2,
   "initial_solver_level_M": 2,
   "sdp_seed": null,
@@ -37,7 +37,7 @@
   "failed_instance_termination_thrsh": null,
   "graph_generation_type": "hog",
   "weighted": false,
-  "easiest_first": false,
+  "easiest_first": true,
   "cpu_util_threshold": null,
   "debug": false,
   "save_circuit_svg": false,
@@ -62,5 +62,5 @@
   "queue_poll_interval_seconds": 5,
   "completed_result_csv_paths": [],
   "initialise_standard_warm_start_with_zero_angles": false,
-  "result_name_suffix": "_Exp5_subexp1_zeroAngles"
+  "result_name_suffix": "_Exp5_subexp3_KingAmplified"
 }

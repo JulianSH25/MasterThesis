@@ -29,7 +29,7 @@
   "failed_instance_termination_thrsh": null,
   "graph_generation_type": "hog",
   "weighted": false,
-  "easiest_first": false,
+  "easiest_first": true,
   "cpu_util_threshold": null,
   "debug": false,
   "save_circuit_svg": false,
@@ -52,5 +52,5 @@
   "sdp_memory_poll_seconds": 5,
   "sdp_max_retries": 0,
   "queue_poll_interval_seconds": 5,
-  "result_name_suffix": "_Exp5_subexp1_zeroAngles"
+  "result_name_suffix": "_Exp5_subexp3_KingAmplified"
 }

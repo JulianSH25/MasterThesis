@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=Exp5_exact_path_2to12_Exp5_subexp2_heuristic
+#SBATCH --job-name=Exp5_exact_path_2to12_Exp5_subexp3_KingAmplified
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --partition=research

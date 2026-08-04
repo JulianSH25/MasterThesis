@@ -1,15 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
+sbatch slurm_Exp5/sdp_cache/complete_2to12/exp5_sdp_cache_complete_2to12_L2M2.slurm
 sbatch slurm_Exp5/sdp_cache/complete_2to12/exp5_sdp_cache_complete_2to12_L1M1.slurm
 sbatch slurm_Exp5/sdp_cache/complete_2to12/exp5_sdp_cache_complete_2to12_L2M1.slurm
-sbatch slurm_Exp5/sdp_cache/complete_2to12/exp5_sdp_cache_complete_2to12_L2M2.slurm
+sbatch slurm_Exp5/sdp_cache/cycle_3to12/exp5_sdp_cache_cycle_3to12_L2M2.slurm
 sbatch slurm_Exp5/sdp_cache/cycle_3to12/exp5_sdp_cache_cycle_3to12_L1M1.slurm
 sbatch slurm_Exp5/sdp_cache/cycle_3to12/exp5_sdp_cache_cycle_3to12_L2M1.slurm
-sbatch slurm_Exp5/sdp_cache/cycle_3to12/exp5_sdp_cache_cycle_3to12_L2M2.slurm
+sbatch slurm_Exp5/sdp_cache/path_2to12/exp5_sdp_cache_path_2to12_L2M2.slurm
 sbatch slurm_Exp5/sdp_cache/path_2to12/exp5_sdp_cache_path_2to12_L1M1.slurm
 sbatch slurm_Exp5/sdp_cache/path_2to12/exp5_sdp_cache_path_2to12_L2M1.slurm
-sbatch slurm_Exp5/sdp_cache/path_2to12/exp5_sdp_cache_path_2to12_L2M2.slurm
+sbatch slurm_Exp5/sdp_cache/bipartite_454/exp5_sdp_cache_bipartite_454_L2M2.slurm
 sbatch slurm_Exp5/sdp_cache/bipartite_454/exp5_sdp_cache_bipartite_454_L1M1.slurm
 sbatch slurm_Exp5/sdp_cache/bipartite_454/exp5_sdp_cache_bipartite_454_L2M1.slurm
-sbatch slurm_Exp5/sdp_cache/bipartite_454/exp5_sdp_cache_bipartite_454_L2M2.slurm
