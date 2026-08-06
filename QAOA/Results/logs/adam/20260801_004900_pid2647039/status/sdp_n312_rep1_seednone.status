@@ -1,0 +1,13 @@
+finished_at=2026-08-01 00:56:59
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=sdp_producer
+key=n312_rep1_seednone
+n=312
+p=1
+iterations=10
+repeat_idx=1
+sdp_seed=
+warm_start_cache_path=Results/warm_start_cache/list_454_graphs_adjacency_listhog_v04-12_bipartite__filehash_0815e7e8/hog_idx000312_c49357979722_noseed_L2_M1_amplified.npz
+threads=1

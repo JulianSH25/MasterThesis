@@ -1,0 +1,13 @@
+finished_at=2026-07-30 16:49:33
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=qaoa_cached
+key=n8_rep1_seednone_p3_it5
+n=8
+p=3
+iterations=5
+repeat_idx=1
+sdp_seed=
+warm_start_cache_path=Results/warm_start_cache/cycle_graphs_3to12vertices_10instances_AdjacencyList__filehash_1a582721/hog_idx000008_da780c6112a1_noseed_L2_M2_standard.npz
+threads=1
