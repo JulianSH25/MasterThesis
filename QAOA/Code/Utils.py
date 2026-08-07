@@ -13,7 +13,13 @@ import csv
 
 EXACT_RESULT_FIELDNAMES = ["energy", "n", "m", "edges", "weights", "graph_hash", "graph_type"]
 
-def set_random_params(p: int, range: tuple[float, float], seed: int | None = None, init_close_to_zero: bool = False):
+def set_random_params(
+    p: int,
+    range: tuple[float, float],
+    seed: int | None = None,
+    init_close_to_zero: bool = False,
+    rng: np.random.Generator | None = None,
+):
     """
     This function samples random QAOA angle parameters for a given circuit depth p.
 
@@ -21,9 +27,11 @@ def set_random_params(p: int, range: tuple[float, float], seed: int | None = Non
     :param range: the range (min, max) for the random sampling
     :param seed: optional random seed for reproducible sampling
     :param init_close_to_zero: if True, initialise parameters close to zero
+    :param rng: optional shared generator; use this to draw several reproducible, distinct points
     :return: tuple (gamma_values, beta_values) as numpy arrays
     """
-    rng = np.random.default_rng(seed)
+    if rng is None:
+        rng = np.random.default_rng(seed)
     gamma_values = rng.uniform(range[0], range[1], size=p) if not init_close_to_zero else rng.uniform(1e-10, 0.1, size=p)
     #beta_values = rng.uniform(1e-10, 0.1 if init_close_to_zero else np.pi, size=p)
 

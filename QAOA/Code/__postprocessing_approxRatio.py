@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import argparse
 import ast
+import json
 import sys
 from pathlib import Path
 from typing import Any
@@ -13,12 +15,6 @@ EXP5_RESULTS = Path(
     "QAOA/Results/logs/ADAM/Exp5"
 )
 
-CSV_PATHS = sorted(
-    path
-    for path in EXP5_RESULTS.glob("*/*/*.csv")
-    if not path.stem.endswith("_clipped")
-)
-
 OVERWRITE = False
 OUTPUT_SUFFIX = "_clipped"
 
@@ -29,15 +25,53 @@ if str(QAOA_CODE_DIR) not in sys.path:
 from Utils import get_exact_result_from_misc
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Add exact results, clipping metadata, and Adam approximation-ratio histories."
+    )
+    parser.add_argument(
+        "name_addition",
+        help='Exact result_name_suffix to process, e.g. "_Exp5_subexp3_KingAmplified".',
+    )
+    return parser.parse_args()
+
+
 def parse_literal(value: Any, default=None):
-    if value is None or pd.isna(value):
-        return default
     if isinstance(value, (list, tuple)):
         return value
+    if value is None or pd.isna(value):
+        return default
     try:
         return ast.literal_eval(str(value))
     except Exception:
         return default
+
+
+def parse_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"1", "true", "yes"}
+
+
+def adam_energy_history(row: pd.Series, csv_path: Path) -> list[float]:
+    history = parse_literal(row.get("adam_energy_history_normalized_json"), default=[])
+    if not history:
+        return []
+    if not isinstance(history, (list, tuple)):
+        raise ValueError(f"{csv_path.name}, row {row.name}: Adam energy history is not an array.")
+
+    try:
+        values = [float(value) for value in history]
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{csv_path.name}, row {row.name}: invalid Adam energy history.") from exc
+
+    completed = pd.to_numeric(row.get("adam_updates_completed"), errors="coerce")
+    if pd.notna(completed) and len(values) != int(completed) + 1:
+        raise ValueError(
+            f"{csv_path.name}, row {row.name}: history has {len(values)} entries, "
+            f"but adam_updates_completed={int(completed)} requires {int(completed) + 1}."
+        )
+    return values
 
 
 def patch_exact_results(csv_path: Path, *, overwrite: bool = False) -> Path:
@@ -53,6 +87,7 @@ def patch_exact_results(csv_path: Path, *, overwrite: bool = False) -> Path:
         "result_before_warm_start_clip",
         "warm_start_clip_value",
         "warm_start_clip_source",
+        "adam_approx_ratio_history_json",
     ]:
         if col not in df.columns:
             df[col] = pd.NA
@@ -61,8 +96,12 @@ def patch_exact_results(csv_path: Path, *, overwrite: bool = False) -> Path:
     found = 0
     missing = 0
     clipped = 0
+    histories = 0
 
     for idx, row in df.iterrows():
+        energy_history = adam_energy_history(row, csv_path)
+        histories += bool(energy_history)
+
         edges = parse_literal(row.get("edges"))
         weights = parse_literal(row.get("weights"))
         n = row.get("n")
@@ -95,13 +134,23 @@ def patch_exact_results(csv_path: Path, *, overwrite: bool = False) -> Path:
 
         found += 1
         df.at[idx, "optimal_result"] = optimal
+        if energy_history:
+            df.at[idx, "adam_approx_ratio_history_json"] = json.dumps(
+                [energy / optimal for energy in energy_history]
+            )
 
         result = pd.to_numeric(row.get("result"), errors="coerce")
         lasserre_level = pd.to_numeric(row.get("lasserre_level"), errors="coerce")
         clip_value = pd.NA
         clip_source = pd.NA
 
-        if pd.notna(lasserre_level) and int(lasserre_level) == 2:
+        initial_qaoa_energy = pd.to_numeric(
+            row.get("initial_qaoa_input_energy_normalized"), errors="coerce"
+        )
+        if parse_bool(row.get("warm_start")) and pd.notna(initial_qaoa_energy):
+            clip_value = initial_qaoa_energy
+            clip_source = "initial_qaoa_input_energy_normalized"
+        elif pd.notna(lasserre_level) and int(lasserre_level) == 2:
             algorithm17_actual_energy = pd.to_numeric(row.get("algorithm17_actual_energy"), errors="coerce")
             if pd.notna(algorithm17_actual_energy):
                 clip_value = algorithm17_actual_energy
@@ -112,13 +161,18 @@ def patch_exact_results(csv_path: Path, *, overwrite: bool = False) -> Path:
                 clip_value = initial_sdp_statevector_energy
                 clip_source = "initial_sdp_statevector_energy"
 
+        optimiser_result = energy_history[-1] if energy_history else result
+        if pd.isna(result) and pd.notna(optimiser_result):
+            result = optimiser_result
+            df.at[idx, "result"] = result
+
         if pd.notna(clip_value):
             df.at[idx, "warm_start_clip_value"] = clip_value
             df.at[idx, "warm_start_clip_source"] = clip_source
-            if pd.isna(result) or clip_value > result:
-                df.at[idx, "result_before_warm_start_clip"] = result
-                df.at[idx, "result"] = clip_value
-                result = clip_value
+            if pd.isna(optimiser_result) or clip_value > optimiser_result:
+                df.at[idx, "result_before_warm_start_clip"] = optimiser_result
+                result = clip_value if pd.isna(result) else max(float(result), float(clip_value))
+                df.at[idx, "result"] = result
                 clipped += 1
 
         if pd.notna(result):
@@ -139,9 +193,28 @@ def patch_exact_results(csv_path: Path, *, overwrite: bool = False) -> Path:
 
     print(
         f"{csv_path.name}: filled exact results for {found}/{len(df)} rows; "
-        f"missing {missing}; clipped {clipped} rows to warm-start energy; wrote {output_path}"
+        f"missing {missing}; histories {histories}; clipped {clipped} rows to warm-start energy; "
+        f"wrote {output_path}"
     )
     return output_path
 
 
-patched_paths = [patch_exact_results(path, overwrite=OVERWRITE) for path in CSV_PATHS]
+def main() -> None:
+    args = parse_args()
+    name_addition = args.name_addition.strip().lstrip("_")
+    subexperiment_dir = EXP5_RESULTS / name_addition
+    if not subexperiment_dir.is_dir():
+        raise FileNotFoundError(f"Subexperiment directory does not exist: {subexperiment_dir}")
+
+    csv_paths = sorted(
+        path
+        for path in subexperiment_dir.glob("*/*/*.csv")
+        if not path.stem.endswith("_clipped")
+    )
+    print(f"Postprocessing {len(csv_paths)} CSVs in {subexperiment_dir}.")
+    for path in csv_paths:
+        patch_exact_results(path, overwrite=OVERWRITE)
+
+
+if __name__ == "__main__":
+    main()

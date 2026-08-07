@@ -24,6 +24,15 @@ from qiskit_algorithms.optimizers import ADAM, Optimizer
 benchmark_params: dict = get_benchmark_params()
 parameters = benchmark_params["parameter_vector"]
 
+qaoa_seed_raw = os.environ.get("QAOA_SEED_OVERRIDE")
+if qaoa_seed_raw in (None, ""):
+    qaoa_seed_raw = benchmark_params.get("qaoa_seed")
+qaoa_seed = int(qaoa_seed_raw) if qaoa_seed_raw not in (None, "") else None
+qaoa_rng = np.random.default_rng(qaoa_seed)
+if qaoa_seed is not None:
+    random.seed(qaoa_seed)
+    np.random.seed(qaoa_seed)
+
 debug = benchmark_params["debug"]
 debug_allInfo = True
 idx_counter = 1
@@ -116,7 +125,14 @@ def _adam_optimiser(
                 bounds = QAOA.param_ranges[param_type_idx] if param_type_idx < len(QAOA.param_ranges) else QAOA.param_ranges[-1]
             else:
                 bounds = QAOA.param_ranges
-            parameters.append(set_random_params(QAOA.p, bounds, init_close_to_zero=init_close_to_zero))
+            parameters.append(
+                set_random_params(
+                    QAOA.p,
+                    bounds,
+                    init_close_to_zero=init_close_to_zero,
+                    rng=qaoa_rng,
+                )
+            )
         print(f"Generated {QAOA.no_param_types} random initial parameter sets for ADAM optimization") if debug else None
         x0 = np.concatenate(parameters).astype(float)
         print(f"Using random initial parameters with:") if debug else None
@@ -448,7 +464,14 @@ def optimise_cobyla( # TODO update & refactor method; currently this one is outd
                 bounds = QAOA.param_ranges[param_type_idx] if param_type_idx < len(QAOA.param_ranges) else QAOA.param_ranges[-1]
             else:
                 bounds = QAOA.param_ranges
-            parameters.append(set_random_params(QAOA.p, bounds, init_close_to_zero=init_close_to_zero))
+            parameters.append(
+                set_random_params(
+                    QAOA.p,
+                    bounds,
+                    init_close_to_zero=init_close_to_zero,
+                    rng=qaoa_rng,
+                )
+            )
         print(f"Using random initial parameters with {QAOA.no_param_types} parameter types")
 
         if use_corr_init and correlations is not None:
