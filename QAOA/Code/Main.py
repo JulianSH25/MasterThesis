@@ -543,6 +543,10 @@ if __name__ == "__main__":
 
     # Use the already loaded benchmark parameters.
     parameter_settings = benchmark_params
+    max_graph_vertices = parameter_settings.get("max_graph_vertices")
+    if max_graph_vertices is not None:
+        if isinstance(max_graph_vertices, bool) or not isinstance(max_graph_vertices, int) or max_graph_vertices <= 0:
+            raise ValueError("max_graph_vertices must be a positive integer or null")
     singlet_injection = config_bool(parameter_settings, "singlet_injection")
     warm_start = config_bool(parameter_settings, "warm_start")
     compare_with_010101 = config_bool(parameter_settings, "compare_with_010101")
@@ -619,6 +623,13 @@ if __name__ == "__main__":
         )
         m = len(edges)
         node_count = len({i for edge in edges for i in edge})
+
+        if max_graph_vertices is not None and node_count > max_graph_vertices:
+            print(
+                f"Skipping graph index/value n={n}: graph has {node_count} vertices, "
+                f"above max_graph_vertices={max_graph_vertices}. No result row will be written."
+            )
+            continue
 
         # XXX Time
         time_sections[f"instance_generation_n_{n}"] = time.time() - time_section
