@@ -96,7 +96,13 @@ weighted=$(jq -r '.weighted // false' "$config_file")
 relative_graph_adjList_path=$(jq -r '.relative_graph_adjList_path // empty' "$config_file")
 n_start_raw=$(jq -r '.n_start // empty' "$config_file")
 n_end_raw=$(jq -r '.n_end // empty' "$config_file")
+max_graph_vertices=$(jq -r '.max_graph_vertices // empty' "$config_file")
 easiest_first=$(jq -r '.easiest_first // false' "$config_file")
+
+if [[ -n "$max_graph_vertices" && ! "$max_graph_vertices" =~ '^[1-9][0-9]*$' ]]; then
+    echo "Error: max_graph_vertices must be a positive integer or null."
+    exit 1
+fi
 
 sdp_max_parallel=$(jq -r '.sdp_max_parallel // 3' "$config_file")
 qaoa_max_parallel=$(jq -r '.qaoa_max_parallel // 8' "$config_file")
@@ -215,6 +221,23 @@ count_hog_graphs() {
         }
         END { print count }
     ' "$path"
+}
+
+list_hog_graph_sizes() {
+    local path="$1"
+    "$python_bin" - "$path" <<'PY'
+import sys
+from pathlib import Path
+
+content = Path(sys.argv[1]).read_text().strip()
+for graph_index, raw_graph in enumerate(content.split("\n\n")):
+    vertices = set()
+    for line in raw_graph.splitlines():
+        node, neighbours = line.split(":", 1)
+        vertices.add(int(node.strip()))
+        vertices.update(int(value) for value in neighbours.split())
+    print(graph_index, len(vertices))
+PY
 }
 
 hog_graph_hash_for_index() {
@@ -1267,10 +1290,37 @@ launch_qaoa_key() {
 # Build initial queues
 # -----------------------------
 jobs_file="$(mktemp)"
-for (( n=n_start; n<=n_end; n++ )); do
-    score=$(( n + 1 ))
-    echo "${score} ${n}" >> "$jobs_file"
-done
+skipped_graph_count=0
+if [[ "${graph_generation_type:l}" == "hog" ]]; then
+    while read -r n vertex_count; do
+        if (( n < n_start || n > n_end )); then
+            continue
+        fi
+        if [[ -n "$max_graph_vertices" ]] && (( vertex_count > max_graph_vertices )); then
+            skipped_graph_count=$(( skipped_graph_count + 1 ))
+            continue
+        fi
+        echo "${vertex_count} ${n}" >> "$jobs_file"
+    done < <(list_hog_graph_sizes "$hog_graph_path")
+else
+    for (( n=n_start; n<=n_end; n++ )); do
+        if [[ -n "$max_graph_vertices" ]] && (( n > max_graph_vertices )); then
+            skipped_graph_count=$(( skipped_graph_count + 1 ))
+            continue
+        fi
+        echo "${n} ${n}" >> "$jobs_file"
+    done
+fi
+
+if (( skipped_graph_count > 0 )); then
+    echo "Graph-size filter skipped ${skipped_graph_count} graph(s) above max_graph_vertices=${max_graph_vertices}."
+fi
+
+if [[ ! -s "$jobs_file" ]]; then
+    rm -f "$jobs_file"
+    echo "No graphs remain after applying max_graph_vertices=${max_graph_vertices:-none}; nothing to run."
+    exit 0
+fi
 
 if [[ "$easiest_first" == "true" ]]; then
     sort -n "$jobs_file" -o "$jobs_file"
@@ -1370,6 +1420,7 @@ echo "${benchmark_config_dump}"
 echo ""
 echo "DSRI SDP/QAOA queue launcher settings:"
 echo "  warm_start: ${warm_start}"
+echo "  max_graph_vertices: ${max_graph_vertices:-none}"
 echo "  pending_sdp_initial: ${#pending_sdp_keys[@]}"
 echo "  pending_qaoa_initial: ${#pending_qaoa_keys[@]}"
 echo "  sdp_max_parallel: ${sdp_max_parallel}"

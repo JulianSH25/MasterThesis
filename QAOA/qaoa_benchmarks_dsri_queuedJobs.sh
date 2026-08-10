@@ -90,13 +90,20 @@ warm_start_mode=$(jq -r '.warm_start_mode // "standard"' "$config_file")
 lasserre_level=$(jq -r '.lasserre_level // "NA"' "$config_file")
 initial_solver_level_M=$(jq -r '.initial_solver_level_M // "NA"' "$config_file")
 configured_sdp_seed=$(jq -r '.sdp_seed // empty' "$config_file")
+configured_qaoa_seed=$(jq -r '.qaoa_seed // empty' "$config_file")
 
 graph_generation_type=$(jq -r '.graph_generation_type // empty' "$config_file")
 weighted=$(jq -r '.weighted // false' "$config_file")
 relative_graph_adjList_path=$(jq -r '.relative_graph_adjList_path // empty' "$config_file")
 n_start_raw=$(jq -r '.n_start // empty' "$config_file")
 n_end_raw=$(jq -r '.n_end // empty' "$config_file")
+max_graph_vertices=$(jq -r '.max_graph_vertices // empty' "$config_file")
 easiest_first=$(jq -r '.easiest_first // false' "$config_file")
+
+if [[ -n "$max_graph_vertices" && ! "$max_graph_vertices" =~ '^[1-9][0-9]*$' ]]; then
+    echo "Error: max_graph_vertices must be a positive integer or null."
+    exit 1
+fi
 
 sdp_max_parallel=$(jq -r '.sdp_max_parallel // 3' "$config_file")
 qaoa_max_parallel=$(jq -r '.qaoa_max_parallel // 8' "$config_file")
@@ -215,6 +222,23 @@ count_hog_graphs() {
         }
         END { print count }
     ' "$path"
+}
+
+list_hog_graph_sizes() {
+    local path="$1"
+    "$python_bin" - "$path" <<'PY'
+import sys
+from pathlib import Path
+
+content = Path(sys.argv[1]).read_text().strip()
+for graph_index, raw_graph in enumerate(content.split("\n\n")):
+    vertices = set()
+    for line in raw_graph.splitlines():
+        node, neighbours = line.split(":", 1)
+        vertices.add(int(node.strip()))
+        vertices.update(int(value) for value in neighbours.split())
+    print(graph_index, len(vertices))
+PY
 }
 
 hog_graph_hash_for_index() {
@@ -797,6 +821,7 @@ typeset -A qaoa_p
 typeset -A qaoa_iterations
 typeset -A qaoa_repeat
 typeset -A qaoa_seed
+typeset -A qaoa_parameter_seed
 typeset -A qaoa_cache
 typeset -A qaoa_role
 
@@ -996,7 +1021,7 @@ handle_sdp_memory_pressure() {
 
 enqueue_qaoa_for_sdp_key() {
     local key="$1"
-    local n repeat seed cache producer_p producer_iterations iterations p qkey
+    local n repeat seed cache producer_p producer_iterations iterations p qkey parameter_seed
 
     n="${sdp_n[$key]}"
     repeat="${sdp_repeat[$key]}"
@@ -1026,6 +1051,11 @@ enqueue_qaoa_for_sdp_key() {
             qaoa_iterations[$qkey]="$iterations"
             qaoa_repeat[$qkey]="$repeat"
             qaoa_seed[$qkey]="$seed"
+            parameter_seed=""
+            if [[ -n "$configured_qaoa_seed" && "$configured_qaoa_seed" != "null" ]]; then
+                parameter_seed=$(( configured_qaoa_seed + n * 100000 + (p - 1) * 100 + repeat - 1 ))
+            fi
+            qaoa_parameter_seed[$qkey]="$parameter_seed"
             qaoa_cache[$qkey]="$cache"
             qaoa_role[$qkey]="qaoa_cached"
             pending_qaoa_keys+=("$qkey")
@@ -1151,13 +1181,14 @@ launch_sdp_key() {
 
 launch_qaoa_key() {
     local key="$1"
-    local n p iterations repeat seed cache role seed_label log_file status_file cmd pid run_key completed_instance_key
+    local n p iterations repeat seed parameter_seed cache role seed_label log_file status_file cmd pid run_key completed_instance_key
 
     n="${qaoa_n[$key]}"
     p="${qaoa_p[$key]}"
     iterations="${qaoa_iterations[$key]}"
     repeat="${qaoa_repeat[$key]}"
     seed="${qaoa_seed[$key]}"
+    parameter_seed="${qaoa_parameter_seed[$key]}"
     cache="${qaoa_cache[$key]}"
     role="${qaoa_role[$key]}"
 
@@ -1190,7 +1221,7 @@ launch_qaoa_key() {
     log_file="${log_subdir}/${role}_${key}.log"
     status_file="${status_subdir}/${role}_${key}.status"
 
-    echo "Launching QAOA key=${key}, n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat}, seed=${seed:-none}, cache=${cache:-none}"
+    echo "Launching QAOA key=${key}, n=${n}, p=${p}, iterations=${iterations}, repeat=${repeat}, sdp_seed=${seed:-none}, qaoa_seed=${parameter_seed:-none}, cache=${cache:-none}"
 
     cmd="${python_bin} ${main_file} ${iterations} ${p} ${n} ${n} Results/logs/${optimiser}/qaoa_results_${optimiser}_${run_tag}"
 
@@ -1210,6 +1241,10 @@ launch_qaoa_key() {
 
         if [[ -n \"${seed}\" ]]; then
             export SDP_SEED_OVERRIDE=${seed}
+        fi
+
+        if [[ -n \"${parameter_seed}\" ]]; then
+            export QAOA_SEED_OVERRIDE=${parameter_seed}
         fi
 
         if [[ -n \"${cache}\" ]]; then
@@ -1242,6 +1277,7 @@ launch_qaoa_key() {
             echo \"iterations=${iterations}\"
             echo \"repeat_idx=${repeat}\"
             echo \"sdp_seed=${seed}\"
+            echo \"qaoa_seed=${parameter_seed}\"
             echo \"warm_start_cache_path=${cache}\"
             echo \"threads=${qaoa_threads}\"
         } > \"${status_file}\"
@@ -1267,10 +1303,37 @@ launch_qaoa_key() {
 # Build initial queues
 # -----------------------------
 jobs_file="$(mktemp)"
-for (( n=n_start; n<=n_end; n++ )); do
-    score=$(( n + 1 ))
-    echo "${score} ${n}" >> "$jobs_file"
-done
+skipped_graph_count=0
+if [[ "${graph_generation_type:l}" == "hog" ]]; then
+    while read -r n vertex_count; do
+        if (( n < n_start || n > n_end )); then
+            continue
+        fi
+        if [[ -n "$max_graph_vertices" ]] && (( vertex_count > max_graph_vertices )); then
+            skipped_graph_count=$(( skipped_graph_count + 1 ))
+            continue
+        fi
+        echo "${vertex_count} ${n}" >> "$jobs_file"
+    done < <(list_hog_graph_sizes "$hog_graph_path")
+else
+    for (( n=n_start; n<=n_end; n++ )); do
+        if [[ -n "$max_graph_vertices" ]] && (( n > max_graph_vertices )); then
+            skipped_graph_count=$(( skipped_graph_count + 1 ))
+            continue
+        fi
+        echo "${n} ${n}" >> "$jobs_file"
+    done
+fi
+
+if (( skipped_graph_count > 0 )); then
+    echo "Graph-size filter skipped ${skipped_graph_count} graph(s) above max_graph_vertices=${max_graph_vertices}."
+fi
+
+if [[ ! -s "$jobs_file" ]]; then
+    rm -f "$jobs_file"
+    echo "No graphs remain after applying max_graph_vertices=${max_graph_vertices:-none}; nothing to run."
+    exit 0
+fi
 
 if [[ "$easiest_first" == "true" ]]; then
     sort -n "$jobs_file" -o "$jobs_file"
@@ -1353,6 +1416,11 @@ while read -r score n; do
                     qaoa_iterations[$qkey]="$iterations"
                     qaoa_repeat[$qkey]="$repeat_idx"
                     qaoa_seed[$qkey]=""
+                    parameter_seed=""
+                    if [[ -n "$configured_qaoa_seed" && "$configured_qaoa_seed" != "null" ]]; then
+                        parameter_seed=$(( configured_qaoa_seed + n * 100000 + (p - 1) * 100 + repeat_idx - 1 ))
+                    fi
+                    qaoa_parameter_seed[$qkey]="$parameter_seed"
                     qaoa_cache[$qkey]=""
                     qaoa_role[$qkey]="qaoa_no_warmstart"
                     pending_qaoa_keys+=("$qkey")
@@ -1370,6 +1438,7 @@ echo "${benchmark_config_dump}"
 echo ""
 echo "DSRI SDP/QAOA queue launcher settings:"
 echo "  warm_start: ${warm_start}"
+echo "  max_graph_vertices: ${max_graph_vertices:-none}"
 echo "  pending_sdp_initial: ${#pending_sdp_keys[@]}"
 echo "  pending_qaoa_initial: ${#pending_qaoa_keys[@]}"
 echo "  sdp_max_parallel: ${sdp_max_parallel}"
