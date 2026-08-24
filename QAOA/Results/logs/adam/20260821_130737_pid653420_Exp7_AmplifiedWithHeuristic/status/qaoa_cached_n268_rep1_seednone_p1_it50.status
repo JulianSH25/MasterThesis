@@ -1,0 +1,14 @@
+finished_at=2026-08-21 14:49:58
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=qaoa_cached
+key=n268_rep1_seednone_p1_it50
+n=268
+p=1
+iterations=50
+repeat_idx=1
+sdp_seed=
+qaoa_seed=26800001
+warm_start_cache_path=Results/warm_start_cache/list_454_graphs_adjacency_listhog_v04-12_bipartite__filehash_0815e7e8/hog_idx000268_33061f27cb5c_noseed_L2_M2_amplified.npz
+threads=1
