@@ -10,9 +10,9 @@ from typing import Any
 import pandas as pd
 
 
-EXP5_RESULTS = Path(
+RESULTS_ROOT = Path(
     "/Users/julian/PycharmProjects/PythonProject/MasterThesis/"
-    "QAOA/Results/logs/ADAM/Exp5"
+    "QAOA/Results/logs/ADAM"
 )
 
 OVERWRITE = False
@@ -45,12 +45,6 @@ def parse_literal(value: Any, default=None):
         return ast.literal_eval(str(value))
     except Exception:
         return default
-
-
-def parse_bool(value: Any) -> bool:
-    if isinstance(value, bool):
-        return value
-    return str(value).strip().lower() in {"1", "true", "yes"}
 
 
 def adam_energy_history(row: pd.Series, csv_path: Path) -> list[float]:
@@ -144,13 +138,7 @@ def patch_exact_results(csv_path: Path, *, overwrite: bool = False) -> Path:
         clip_value = pd.NA
         clip_source = pd.NA
 
-        initial_qaoa_energy = pd.to_numeric(
-            row.get("initial_qaoa_input_energy_normalized"), errors="coerce"
-        )
-        if parse_bool(row.get("warm_start")) and pd.notna(initial_qaoa_energy):
-            clip_value = initial_qaoa_energy
-            clip_source = "initial_qaoa_input_energy_normalized"
-        elif pd.notna(lasserre_level) and int(lasserre_level) == 2:
+        if pd.notna(lasserre_level) and int(lasserre_level) == 2:
             algorithm17_actual_energy = pd.to_numeric(row.get("algorithm17_actual_energy"), errors="coerce")
             if pd.notna(algorithm17_actual_energy):
                 clip_value = algorithm17_actual_energy
@@ -202,7 +190,8 @@ def patch_exact_results(csv_path: Path, *, overwrite: bool = False) -> Path:
 def main() -> None:
     args = parse_args()
     name_addition = args.name_addition.strip().lstrip("_")
-    subexperiment_dir = EXP5_RESULTS / name_addition
+    experiment = name_addition.split("_", 1)[0]
+    subexperiment_dir = RESULTS_ROOT / experiment / name_addition
     if not subexperiment_dir.is_dir():
         raise FileNotFoundError(f"Subexperiment directory does not exist: {subexperiment_dir}")
 
