@@ -149,8 +149,7 @@ def get_benchmark_params() -> dict:
     This function loads benchmark parameters from the JSON config snapshot
     passed by the benchmark shell script via BENCHMARK_CONFIG_FILE.
 
-    :return: benchmark parameter dictionary exactly as stored in JSON,
-             except that sdp_seed may be overridden by SDP_SEED_OVERRIDE
+    :return: benchmark parameter dictionary with runtime seed defaults and overrides applied
     """
     config_path_env = os.environ.get("BENCHMARK_CONFIG_FILE")
 
@@ -167,6 +166,11 @@ def get_benchmark_params() -> dict:
 
     if "SDP_SEED_OVERRIDE" in os.environ:
         params["sdp_seed"] = int(os.environ["SDP_SEED_OVERRIDE"])
+
+    if params.get("qaoa_seed") is None:
+        params["qaoa_seed"] = 1
+    if "QAOA_SEED_OVERRIDE" in os.environ:
+        params["qaoa_seed"] = int(os.environ["QAOA_SEED_OVERRIDE"])
 
     return params
 

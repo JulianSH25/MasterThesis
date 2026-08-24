@@ -59,10 +59,11 @@ benchmark_repeat_idx = int(benchmark_repeat_idx) if benchmark_repeat_idx not in 
 sdp_seed_override = os.environ.get("SDP_SEED_OVERRIDE")
 sdp_seed_override = int(sdp_seed_override) if sdp_seed_override not in (None, "") else None
 
-qaoa_seed_override = os.environ.get("QAOA_SEED_OVERRIDE")
-if qaoa_seed_override in (None, ""):
-    qaoa_seed_override = benchmark_params.get("qaoa_seed")
-qaoa_seed_override = int(qaoa_seed_override) if qaoa_seed_override not in (None, "") else None
+qaoa_seed_used = os.environ.get("QAOA_SEED_OVERRIDE")
+if qaoa_seed_used in (None, ""):
+    qaoa_seed_used = benchmark_params.get("qaoa_seed", 1)
+qaoa_seed_used = int(qaoa_seed_used) if qaoa_seed_used not in (None, "") else 1
+benchmark_params["qaoa_seed"] = qaoa_seed_used
 
 optimiser = benchmark_params["optimiser"].lower()
 normalisation_factor = benchmark_params["lasserre_level"] if optimiser != "exact" and benchmark_params["warm_start"] else 1
@@ -590,7 +591,7 @@ if __name__ == "__main__":
     print(f"Benchmark run ID: {run_id}")
     print(f"Benchmark repeat index: {benchmark_repeat_idx}")
     print(f"SDP seed override: {sdp_seed_override}")
-    print(f"QAOA seed: {qaoa_seed_override}")
+    print(f"QAOA seed used: {qaoa_seed_used}")
     print(f"Processor: {processor_name}")
     print(f"Hostname: {hostname}")
     print(f"Total RAM (GB): {total_ram_gb}")
@@ -850,7 +851,7 @@ if __name__ == "__main__":
             'peak_ram_mb': peak_ram_mb,
             'benchmark_repeat_idx': benchmark_repeat_idx,
             'sdp_seed': sdp_seed_override,
-            'qaoa_seed_used': qaoa_seed_override,
+            'qaoa_seed_used': qaoa_seed_used,
             'hog_graph_index': n if graph_generation_type == "hog" else None,
             'Instance_is_triangle_free': is_triangle_free(edges),
             'Instance_is_3_regular': is_3_regular(edges),

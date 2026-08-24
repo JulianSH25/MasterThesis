@@ -90,7 +90,7 @@ warm_start_mode=$(jq -r '.warm_start_mode // "standard"' "$config_file")
 lasserre_level=$(jq -r '.lasserre_level // "NA"' "$config_file")
 initial_solver_level_M=$(jq -r '.initial_solver_level_M // "NA"' "$config_file")
 configured_sdp_seed=$(jq -r '.sdp_seed // empty' "$config_file")
-configured_qaoa_seed=$(jq -r '.qaoa_seed // empty' "$config_file")
+configured_qaoa_seed=$(jq -r '.qaoa_seed // 1' "$config_file")
 
 graph_generation_type=$(jq -r '.graph_generation_type // empty' "$config_file")
 weighted=$(jq -r '.weighted // false' "$config_file")
@@ -1053,7 +1053,7 @@ enqueue_qaoa_for_sdp_key() {
             qaoa_seed[$qkey]="$seed"
             parameter_seed=""
             if [[ -n "$configured_qaoa_seed" && "$configured_qaoa_seed" != "null" ]]; then
-                parameter_seed=$(( configured_qaoa_seed + n * 100000 + (p - 1) * 100 + repeat - 1 ))
+                parameter_seed=$(( configured_qaoa_seed + repeat - 1 ))
             fi
             qaoa_parameter_seed[$qkey]="$parameter_seed"
             qaoa_cache[$qkey]="$cache"
@@ -1418,7 +1418,7 @@ while read -r score n; do
                     qaoa_seed[$qkey]=""
                     parameter_seed=""
                     if [[ -n "$configured_qaoa_seed" && "$configured_qaoa_seed" != "null" ]]; then
-                        parameter_seed=$(( configured_qaoa_seed + n * 100000 + (p - 1) * 100 + repeat_idx - 1 ))
+                        parameter_seed=$(( configured_qaoa_seed + repeat_idx - 1 ))
                     fi
                     qaoa_parameter_seed[$qkey]="$parameter_seed"
                     qaoa_cache[$qkey]=""
