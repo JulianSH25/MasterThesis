@@ -382,6 +382,20 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
     warm_start_mode = str(benchmark_params.get("warm_start_mode") or "standard").lower()
     energy_audit = config_bool(benchmark_params, "debug")
 
+    if initial_state is not None and init_initial_state and warm_start_mode in {"standard", "amplified", "amplified_king"}:
+        initial_state_array = np.asarray(initial_state, dtype=complex)
+        if initial_state_array.shape != (2**n,):
+            raise ValueError(
+                f"Warm-start state has shape {initial_state_array.shape}, expected {(2**n,)}"
+            )
+        # SDP tensors place vertex 0 leftmost; Qiskit amplitude arrays place qubit 0 rightmost.
+        initial_state = (
+            initial_state_array
+            .reshape([2] * n)
+            .transpose(tuple(reversed(range(n))))
+            .reshape(-1)
+        )
+
     initial_energy_prodStates = None
     initial_sdp_statevector_energy = None
     sdp_objective_value = warm_start_result.get("sdp_objective_value") if warm_start_result is not None else None
