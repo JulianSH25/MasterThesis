@@ -531,12 +531,16 @@ class QAOACircuit(QuantumCircuit):
             else:
                 bounds = self.param_ranges
             LB, UB = bounds
+            range_width = UB - LB
+            if range_width <= 0:
+                raise ValueError(f"Invalid parameter range ({LB}, {UB}) for group {idx}")
 
             normalised_values: list[float] = []
             for value in parameter_values:
                 value = float(value)
-                if value < LB:
-                    value = UB - value  # Keep values in configured range for stable binding/logging
+                if not np.isfinite(value):
+                    raise ValueError(f"Non-finite parameter value {value} in group {idx}")
+                value = ((value - LB) % range_width) + LB
                 normalised_values.append(value)
 
             bind_map.update({parameter_vector[i]: normalised_values[i] for i in range(len(parameter_vector))})
