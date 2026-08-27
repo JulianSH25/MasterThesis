@@ -460,6 +460,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
 
     minimum_energy = None
     used_initial_point = None
+    adam_initial_point_energy = None
     adam_energy_history = None
     adam_updates_completed = None
     exact_mode = False
@@ -499,6 +500,17 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
         used_initial_point = getattr(returned_energy, "initial_point", None)
         adam_energy_history = getattr(returned_energy, "adam_energy_history", None)
         adam_updates_completed = getattr(returned_energy, "adam_updates_completed", None)
+        if adam_energy_history:
+            # Preserve the complete QAOA-circuit energy at the initial parameter point.
+            adam_initial_point_energy = float(adam_energy_history[0])
+
+            # Entry 0 represents the state entering the parameterised QAOA layers;
+            # entries 1,...,N remain the energies after Adam updates 1,...,N.
+            if initial_ws_energy is not None:
+                adam_energy_history = [
+                    float(initial_ws_energy),
+                    *adam_energy_history[1:],
+                ]
     elif optimiser == "gridsearch":
         minimum_energy = grid_search(QAOA, p, precision=precision)
     elif optimiser == "exact":
@@ -527,6 +539,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
             initial_energy_prodStates,
             initial_sdp_statevector_energy,
             warm_start_result,
+            adam_initial_point_energy,
             adam_energy_history,
             adam_updates_completed,
         )
@@ -600,7 +613,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_qaoa_input_energy_normalized', 'adam_energy_history_normalized_json', 'adam_updates_completed', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'duration_seconds_excluding_warm_start_cache_io', 'warm_start_cache_used', 'warm_start_compute_time_seconds', 'warm_start_load_time_seconds', 'warm_start_save_time_seconds', 'warm_start_effective_time_seconds', 'warm_start_cache_path', 'full duration_seconds', 'finished_at',
+                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_qaoa_input_energy_normalized', 'adam_initial_point_energy_normalized', 'adam_energy_history_normalized_json', 'adam_updates_completed', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'duration_seconds_excluding_warm_start_cache_io', 'warm_start_cache_used', 'warm_start_compute_time_seconds', 'warm_start_load_time_seconds', 'warm_start_save_time_seconds', 'warm_start_effective_time_seconds', 'warm_start_cache_path', 'full duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb', 'Instance_is_triangle_free', 'Instance_is_3_regular', 'Instance_is_bipartite', 'Instance_is_regular', 'Regular_degree', 'Instance_is_claw_free', 'Instance_is_twin_free', 'Instance_is_planar', 'Instance_is_eulerian']
 
@@ -663,6 +676,7 @@ if __name__ == "__main__":
                 initial_energy_prodStates,
                 initial_sdp_statevector_energy,
                 warm_start_result,
+                adam_initial_point_energy,
                 adam_energy_history,
                 adam_updates_completed,
             ) = main(
@@ -820,6 +834,7 @@ if __name__ == "__main__":
             'initial_ws_energy_prodStates_step2': initial_energy_prodStates / normalisation_factor if initial_energy_prodStates is not None else None,
             'initial_sdp_statevector_energy': initial_sdp_statevector_energy / normalisation_factor if initial_sdp_statevector_energy is not None else None,
             'initial_qaoa_input_energy_normalized': initial_ws_energy / normalisation_factor if initial_ws_energy is not None else None,
+            'adam_initial_point_energy_normalized': adam_initial_point_energy / normalisation_factor if adam_initial_point_energy is not None else None,
             'adam_energy_history_normalized_json': json.dumps([float(energy) / normalisation_factor for energy in adam_energy_history]) if adam_energy_history is not None else None,
             'adam_updates_completed': adam_updates_completed,
             'initial_sdp_statevec_ratio': (initial_sdp_statevector_energy / normalisation_factor) / _optimal if _optimal is not None and initial_sdp_statevector_energy is not None else None,
