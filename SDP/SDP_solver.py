@@ -275,9 +275,7 @@ class SDP_Solver_():
                 print(f"SDP solve time: {getattr(stats, 'solve_time', None)}")
                 print(f"SDP extra stats: {getattr(stats, 'extra_stats', None)}")
         except Exception as e:
-            print(f"Warning: MOSEK solver not available: {e};", flush=True)
-            #problem.solve(solver=cp.SCS, verbose=debug)
-            raise RuntimeError(f"MOSEK solver failed with error: {e}. Please ensure MOSEK is installed and licensed for optimal performance. Falling back to SCS, which may be slower and less accurate.") from e
+            raise RuntimeError(f"{sdp_solver_mode.upper()} solver failed with error: {e}") from e
 
         if problem.status not in (cp.OPTIMAL, "optimal"):
             raise RuntimeError(f"SDP did not solve to optimality. status={problem.status}")
@@ -289,7 +287,7 @@ class SDP_Solver_():
         """
         This method solves the SDP and returns the optimal moment matrix.
 
-        Uses the MOSEK solver when available, falling back to SCS otherwise.
+        Uses the solver selected by sdp_solver_mode in the benchmark configuration.
         Raises an exception if the SDP does not achieve optimal status.
 
         :param edges: edge list as tuples (i, j)
@@ -310,27 +308,59 @@ class SDP_Solver_():
         # Use the full 3n x 3n formulation with correct (i,k) indexing.
         problem, M, _ = self.SDP_setup(edges, weights, n_vertices, parameters=(a, b, c), debug=debug)
 
-        # Prefer MOSEK, but fall back to SCS if MOSEK is not available/licensed.
+        params_benchmark = get_benchmark_params()
+        sdp_solver_mode = str(params_benchmark.get("sdp_solver_mode") or "mosek").lower()
         start_solve = time.time()
-        solver_used = "MOSEK"
         print(
-            f"Starting SDP solve (solver preference: MOSEK, fallback: SCS) for n_vertices={n_vertices}, "
+            f"Starting {sdp_solver_mode.upper()} SDP solve for n_vertices={n_vertices}, "
             f"matrix_dim={3 * n_vertices}, edges={len(edges)}",
             flush=True,
         )
+
         try:
-            problem.solve(solver=cp.MOSEK, verbose=debug)
+            if sdp_solver_mode == "clarabel":
+                problem.solve(solver=cp.CLARABEL, verbose=debug)
+            elif sdp_solver_mode == "scs":
+                if "sdp_scs_eps" not in params_benchmark:
+                    raise ValueError("sdp_solver_mode='scs' requires config parameter 'sdp_scs_eps'.")
+                if "sdp_scs_max_iters" not in params_benchmark:
+                    raise ValueError("sdp_solver_mode='scs' requires config parameter 'sdp_scs_max_iters'.")
+
+                sdp_scs_eps = float(params_benchmark["sdp_scs_eps"])
+                sdp_scs_max_iters = int(params_benchmark["sdp_scs_max_iters"])
+                print(
+                    f"Using SCS solver for SDP with eps={sdp_scs_eps}, "
+                    f"max_iters={sdp_scs_max_iters}.",
+                    flush=True,
+                )
+                problem.solve(
+                    solver=cp.SCS,
+                    verbose=debug,
+                    eps=sdp_scs_eps,
+                    max_iters=sdp_scs_max_iters,
+                )
+            elif sdp_solver_mode == "mosek":
+                problem.solve(solver=cp.MOSEK, verbose=debug)
+            else:
+                raise ValueError(
+                    f"Unknown sdp_solver_mode={sdp_solver_mode!r}. "
+                    "Use 'mosek', 'clarabel', or 'scs'."
+                )
         except Exception as e:
-            solver_used = "SCS"
-            raise RuntimeError(f"MOSEK solver failed with error: {e}. Please ensure MOSEK is installed and licensed for optimal performance. Falling back to SCS, which may be slower and less accurate.") from e
-            #print(f"Warning: MOSEK solver not available: {e};", flush=True)
-            #problem.solve(solver=cp.SCS, verbose=debug)
+            raise RuntimeError(f"{sdp_solver_mode.upper()} solver failed with error: {e}") from e
 
         solve_elapsed = time.time() - start_solve
         print(
-            f"Finished SDP solve with {solver_used}. status={problem.status}. elapsed_seconds={solve_elapsed:.2f}",
+            f"Finished SDP solve with {sdp_solver_mode.upper()}. "
+            f"status={problem.status}. elapsed_seconds={solve_elapsed:.2f}",
             flush=True,
         )
+
+        stats = getattr(problem, "solver_stats", None)
+        if stats is not None:
+            print(f"SDP solver name: {getattr(stats, 'solver_name', None)}")
+            print(f"SDP solver iterations: {getattr(stats, 'num_iters', None)}")
+            print(f"SDP solve time: {getattr(stats, 'solve_time', None)}")
 
         if problem.status not in (cp.OPTIMAL, "optimal"): #(cp.OPTIMAL, cp.OPTIMAL_INACCURATE, "optimal", "optimal_inaccurate"):
             raise RuntimeError(

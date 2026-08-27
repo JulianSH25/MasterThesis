@@ -2,7 +2,7 @@
   "optimiser": "adam",
   "optimiser_use_heuristic": true,
   "heuristic_optimiser_iterations": 1,
-  "heuristic_optimiser_sampleSize": 20,
+  "heuristic_optimiser_sampleSize": 25,
   "circuit_type": "hamqaoa",
   "parameter_vector": [
     1,

@@ -58,6 +58,9 @@ benchmark_repeat_idx = int(benchmark_repeat_idx) if benchmark_repeat_idx not in 
 
 sdp_seed_override = os.environ.get("SDP_SEED_OVERRIDE")
 sdp_seed_override = int(sdp_seed_override) if sdp_seed_override not in (None, "") else None
+configured_sdp_seed = sdp_seed_override
+if configured_sdp_seed is None and benchmark_params.get("sdp_seed") is not None:
+    configured_sdp_seed = int(benchmark_params["sdp_seed"])
 
 qaoa_seed_used = os.environ.get("QAOA_SEED_OVERRIDE")
 if qaoa_seed_used in (None, ""):
@@ -105,14 +108,20 @@ def _graph_hash(edges: list[tuple[int, int]], weights: list[float]) -> str:
 def _expected_warm_start_metadata(edges: list[tuple[int, int]], weights: list[float], n_vertices: int) -> dict[str, Any]:
     warm_start_mode = str(benchmark_params.get("warm_start_mode") or "standard").lower()
     cache_warm_start_mode = "amplified" if warm_start_mode in {"amplified_king", "entangled_king"} else warm_start_mode
+    sdp_solver_mode = str(benchmark_params.get("sdp_solver_mode") or "mosek").lower()
     return {
+        "cache_format_version": 2,
         "graph_hash": _graph_hash(edges, weights),
         "n_vertices": int(n_vertices),
         "n_edges": int(len(edges)),
-        "sdp_seed": sdp_seed_override,
+        "sdp_seed": configured_sdp_seed,
         "lasserre_level": benchmark_params.get("lasserre_level"),
         "initial_solver_level_M": benchmark_params.get("initial_solver_level_M"),
         "warm_start_mode": cache_warm_start_mode,
+        "parameter_vector": list(benchmark_params.get("parameter_vector") or []),
+        "sdp_solver_mode": sdp_solver_mode,
+        "sdp_scs_eps": float(benchmark_params["sdp_scs_eps"]) if sdp_solver_mode == "scs" else None,
+        "sdp_scs_max_iters": int(benchmark_params["sdp_scs_max_iters"]) if sdp_solver_mode == "scs" else None,
     }
 
 
@@ -176,6 +185,8 @@ def _save_warm_start_cache(
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path = cache_path.with_name(cache_path.name + ".tmp")
     payload_metadata = dict(metadata)
+    if isinstance(warm_start_result, dict) and warm_start_result.get("sdp_seed_used") is not None:
+        payload_metadata["sdp_seed_used"] = int(warm_start_result["sdp_seed_used"])
     payload_metadata["warm_start_compute_time_seconds"] = float(compute_time_seconds)
     payload_metadata["created_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     has_moment_matrix = store_moment_matrix and moment_matrix is not None
@@ -367,7 +378,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
         if str(benchmark_params.get("circuit_type") or "").lower() == "hamqaoa":
             raise Warning("A custom initial state was provided for a HAMQAOA circuit. The classical cut from the SDP warm start will not be available for this run, and any benchmark results should be interpreted accordingly, especially when comparing against runs that do use the SDP warm start.")
 
-    warm_start_correlations = extract_correlations(moment_matrix, edges) if moment_matrix is not None else None
+    warm_start_correlations = extract_correlations(moment_matrix, edges, n) if moment_matrix is not None else None
     if warm_start_correlations is None and _warm_start_mode_needs_moment_matrix():
         raise RuntimeError(
             "Warm-start correlations are required for this configuration, but the cached warm start did not contain a moment matrix. "
@@ -603,7 +614,7 @@ if __name__ == "__main__":
     python_version = platform.python_version()
     print(f"Benchmark run ID: {run_id}")
     print(f"Benchmark repeat index: {benchmark_repeat_idx}")
-    print(f"SDP seed override: {sdp_seed_override}")
+    print(f"Configured SDP rounding seed: {configured_sdp_seed}")
     print(f"QAOA seed used: {qaoa_seed_used}")
     print(f"Processor: {processor_name}")
     print(f"Hostname: {hostname}")
@@ -613,7 +624,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_qaoa_input_energy_normalized', 'adam_initial_point_energy_normalized', 'adam_energy_history_normalized_json', 'adam_updates_completed', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'duration_seconds_excluding_warm_start_cache_io', 'warm_start_cache_used', 'warm_start_compute_time_seconds', 'warm_start_load_time_seconds', 'warm_start_save_time_seconds', 'warm_start_effective_time_seconds', 'warm_start_cache_path', 'full duration_seconds', 'finished_at',
+                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'algorithm17_analytic_F_value', 'algorithm17_F_bound_applicable', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_qaoa_input_energy_normalized', 'adam_initial_point_energy_normalized', 'adam_energy_history_normalized_json', 'adam_updates_completed', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'duration_seconds_excluding_warm_start_cache_io', 'warm_start_cache_used', 'warm_start_compute_time_seconds', 'warm_start_load_time_seconds', 'warm_start_save_time_seconds', 'warm_start_effective_time_seconds', 'warm_start_cache_path', 'full duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb', 'Instance_is_triangle_free', 'Instance_is_3_regular', 'Instance_is_bipartite', 'Instance_is_regular', 'Regular_degree', 'Instance_is_claw_free', 'Instance_is_twin_free', 'Instance_is_planar', 'Instance_is_eulerian']
 
@@ -629,7 +640,9 @@ if __name__ == "__main__":
     }
 
     # reproducibility columns (may be large) should be last
-    fieldnames.extend(['benchmark_repeat_idx', 'sdp_seed', 'qaoa_seed_used', 'hog_graph_index', 'edges', 'weights'])
+    for fieldname in ['benchmark_repeat_idx', 'sdp_seed', 'qaoa_seed_used', 'hog_graph_index', 'edges', 'weights']:
+        if fieldname not in fieldnames:
+            fieldnames.append(fieldname)
 
     # XXX TIME: log time taken for initialisation and parameter loading
     time_sections["initialisation"] = time.time() - time_section
@@ -716,6 +729,21 @@ if __name__ == "__main__":
             warm_start_result.get("lower_bound_energy")
             if warm_start_result is not None
             else None
+        )
+        algorithm17_analytic_F_value = (
+            warm_start_result.get("analytic_F_value")
+            if warm_start_result is not None
+            else None
+        )
+        algorithm17_F_bound_applicable = (
+            warm_start_result.get("analytic_F_bound_applicable")
+            if warm_start_result is not None
+            else None
+        )
+        sdp_seed_used_for_row = (
+            warm_start_result.get("sdp_seed_used", configured_sdp_seed)
+            if warm_start and warm_start_result is not None
+            else (configured_sdp_seed if warm_start else None)
         )
         # XXX Time
         time_sections[f"qaoa_optimisation_n_{n}"] = time.time() - time_section
@@ -831,6 +859,8 @@ if __name__ == "__main__":
             'sdp_objective_value_king_normalized_step1': sdp_objective_value_normalized / normalisation_factor if sdp_objective_value_normalized is not None else None,
             'algorithm17_actual_energy': algorithm17_actual_energy / normalisation_factor if lasserre_level == 2 and algorithm17_actual_energy is not None else None,
             'algorithm17_lower_bound_energy': algorithm17_lower_bound_energy / normalisation_factor if lasserre_level == 2 and algorithm17_lower_bound_energy is not None else None,
+            'algorithm17_analytic_F_value': algorithm17_analytic_F_value / normalisation_factor if lasserre_level == 2 and algorithm17_analytic_F_value is not None else None,
+            'algorithm17_F_bound_applicable': algorithm17_F_bound_applicable if lasserre_level == 2 else None,
             'initial_ws_energy_prodStates_step2': initial_energy_prodStates / normalisation_factor if initial_energy_prodStates is not None else None,
             'initial_sdp_statevector_energy': initial_sdp_statevector_energy / normalisation_factor if initial_sdp_statevector_energy is not None else None,
             'initial_qaoa_input_energy_normalized': initial_ws_energy / normalisation_factor if initial_ws_energy is not None else None,
@@ -865,7 +895,7 @@ if __name__ == "__main__":
             'python_version': python_version,
             'peak_ram_mb': peak_ram_mb,
             'benchmark_repeat_idx': benchmark_repeat_idx,
-            'sdp_seed': sdp_seed_override,
+            'sdp_seed': sdp_seed_used_for_row,
             'qaoa_seed_used': qaoa_seed_used,
             'hog_graph_index': n if graph_generation_type == "hog" else None,
             'Instance_is_triangle_free': is_triangle_free(edges),

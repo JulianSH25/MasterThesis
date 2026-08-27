@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+sbatch slurm_Exp7_rerun2408/sdp_cache/tf_176/exp7_rerun2408_sdp_cache_tf_176_L1M1.slurm
+sbatch slurm_Exp7_rerun2408/sdp_cache/tf_176/exp7_rerun2408_sdp_cache_tf_176_L2M2.slurm
 sbatch slurm_Exp7_rerun2408/sdp_cache/complete_2to12/exp7_rerun2408_sdp_cache_complete_2to12_L1M1.slurm
 sbatch slurm_Exp7_rerun2408/sdp_cache/complete_2to12/exp7_rerun2408_sdp_cache_complete_2to12_L2M2.slurm
 sbatch slurm_Exp7_rerun2408/sdp_cache/cycle_3to12/exp7_rerun2408_sdp_cache_cycle_3to12_L1M1.slurm

@@ -171,8 +171,15 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
             n_vertices=n_vertices,
         )
 
+    gp_rounding_seed = None if seed is None else int(seed)
+    algorithm17_seed = None if seed is None else int(seed) + 1
+
     print("Rounding...")
-    cuts, states, bloch_vectors = round_sdp_with_cholesky(M_for_rounding, parameters=params, seed=seed)
+    cuts, states, bloch_vectors = round_sdp_with_cholesky(
+        M_for_rounding,
+        parameters=params,
+        seed=gp_rounding_seed,
+    )
 
     print(cuts) if debug else None
 
@@ -198,8 +205,14 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
         rounder.pidx = pidx
         rounder.bloch_vectors = bloch_vectors
         rounder.beta_star = 0.390
-        sdp_result = rounder.QMC_rounding(seed=seed, max_vertices=16)
-        print(f"Algorithm 17 lower-bound energy: {sdp_result['lower_bound_energy']}")
+        sdp_result = rounder.QMC_rounding(seed=algorithm17_seed, max_vertices=16)
+        if sdp_result["analytic_F_bound_applicable"]:
+            print(f"Algorithm 17 lower-bound energy: {sdp_result['lower_bound_energy']}")
+        else:
+            print(
+                "Algorithm 17 analytical F-bound is not applicable because "
+                "the graph is not triangle-free."
+            )
         print(f"Algorithm 17 actual entangled-state energy: {sdp_result['actual_energy']}")
 
     if sdp_objective_value is not None or lasserre_level == 2:
@@ -213,6 +226,8 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
             sdp_result["sdp_objective_value_normalized"] = float(sdp_objective_value)
         sdp_result["initial_solver_level_M"] = initial_solver_level_M
         sdp_result["lasserre_level"] = lasserre_level
+        sdp_result["gp_rounding_seed"] = gp_rounding_seed
+        sdp_result["algorithm17_seed"] = algorithm17_seed if lasserre_level == 2 else None
         if sdp_objective_value is not None:
             print(f"SDP objective value: {sdp_objective_value}")
 

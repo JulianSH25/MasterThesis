@@ -160,6 +160,8 @@ class Level_2_Rounding:
         self.n_vectors: list = []
         self.P_matrices: list = []
         self.epsilon_dict: dict = {}
+        self.analytic_F_value: float | None = None
+        self.analytic_F_bound_applicable: bool = False
         self.output: dict | None = None
 
     def build_x_vars(self):
@@ -384,7 +386,8 @@ class Level_2_Rounding:
             prod_ij exp(i epsilon_ij theta_ij P_i ⊗ P_j) ⊗_k |v_k>
 
         and computes:
-            - lower_bound_energy = sum_ij w_ij F(beta_star; x_ij)
+            - analytic_F_value = sum_ij w_ij F(beta_star; x_ij)
+            - lower_bound_energy = analytic_F_value for triangle-free graphs
             - actual_energy = <psi|H|psi>
 
         This explicitly materialises a 2^n state vector, so it is only practical
@@ -471,11 +474,20 @@ class Level_2_Rounding:
 
             state = apply_two_qubit_gate(state, gate, i, j)
 
-        # Lower-bound / expected energy from Algorithm 17 analysis:
-        # sum_ij w_ij F(beta_star; x_ij)
-        lower_bound_energy = 0.0
+        # Theorem 3 in King applies this analytical bound to triangle-free graphs.
+        neighbours = [set() for _ in range(self.n_vertices)]
+        for i, j in self.edges:
+            neighbours[i].add(j)
+            neighbours[j].add(i)
+        graph_is_triangle_free = not any(
+            neighbours[i].intersection(neighbours[j])
+            for i, j in self.edges
+        )
+
+        analytic_F_value = 0.0
         for (i, j), w in zip(self.edges, self.weights):
-            lower_bound_energy += w * self.F(self.beta_star, self.x_dict[(i, j)])
+            analytic_F_value += w * self.F(self.beta_star, self.x_dict[(i, j)])
+        lower_bound_energy = analytic_F_value if graph_is_triangle_free else None
 
         # Actual QMC energy <psi|H|psi>
         I = np.eye(2, dtype=complex)
@@ -495,12 +507,16 @@ class Level_2_Rounding:
 
         self.product_state_vectors = product_state_vectors
         self.final_state_vector = state
-        self.lower_bound_energy = float(lower_bound_energy)
+        self.analytic_F_value = float(analytic_F_value)
+        self.analytic_F_bound_applicable = graph_is_triangle_free
+        self.lower_bound_energy = float(lower_bound_energy) if lower_bound_energy is not None else None
         self.actual_energy = float(actual_energy)
 
         return {
             "product_state_vectors": product_state_vectors,
             "final_state_vector": state,
+            "analytic_F_value": self.analytic_F_value,
+            "analytic_F_bound_applicable": self.analytic_F_bound_applicable,
             "lower_bound_energy": self.lower_bound_energy,
             "actual_energy": self.actual_energy,
             "x_dict": self.x_dict,

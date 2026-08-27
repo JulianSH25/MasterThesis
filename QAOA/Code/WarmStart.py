@@ -20,13 +20,29 @@ debug = get_benchmark_params().get("debug", False)
 def initial_state_rotation(product_state):
     pass
 
-def extract_correlations(M, edges):
+def extract_correlations(M, edges, n_vertices):
+    M = np.asarray(M)
+    level1_dim = 3 * int(n_vertices)
+
+    if M.shape == (level1_dim, level1_dim):
+        M_level1 = M
+    elif M.ndim == 2 and M.shape[0] == M.shape[1] and M.shape[0] > level1_dim:
+        # The full L2 basis is ordered as I, X_0, Y_0, Z_0, X_1, ... .
+        # Correlation gates require only its one-body 3n x 3n submatrix.
+        level1_indices = np.arange(1, level1_dim + 1)
+        M_level1 = M[np.ix_(level1_indices, level1_indices)]
+    else:
+        raise ValueError(
+            f"Cannot extract correlations for n_vertices={n_vertices} "
+            f"from moment matrix with shape {M.shape}."
+        )
+
     correlations = {}
 
     for i, j in edges:
-        corr = (float(np.real(M[idx(i, 0), idx(j, 0)]))
-                + float(np.real(M[idx(i, 1), idx(j, 1)]))
-                + float(np.real(M[idx(i, 2), idx(j, 2)]))
+        corr = (float(np.real(M_level1[idx(i, 0), idx(j, 0)]))
+                + float(np.real(M_level1[idx(i, 1), idx(j, 1)]))
+                + float(np.real(M_level1[idx(i, 2), idx(j, 2)]))
         )
         
         """print(f"idx 0: {M[idx(i, 0), idx(j, 0)]}")
@@ -87,6 +103,8 @@ def get_warm_start_state(instance, n_vertices):
         initial_solver_level_M=initial_solver_level_M,
         seed=sdp_seed,
     )
+    sdp_result = sdp_result or {}
+    sdp_result["sdp_seed_used"] = sdp_seed
     print(f"Warm-start: SDP solve + rounding finished in {time.time() - sdp_start:.2f} seconds", flush=True)
 
     build_start = time.time()
