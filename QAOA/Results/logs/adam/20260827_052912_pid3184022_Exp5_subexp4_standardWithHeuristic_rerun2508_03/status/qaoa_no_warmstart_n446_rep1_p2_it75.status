@@ -1,0 +1,14 @@
+finished_at=2026-08-27 09:21:54
+exit_code=1
+timed_out=0
+warm_start_failed=0
+role=qaoa_no_warmstart
+key=n446_rep1_p2_it75
+n=446
+p=2
+iterations=75
+repeat_idx=1
+sdp_seed=
+qaoa_seed=42
+warm_start_cache_path=
+threads=1
