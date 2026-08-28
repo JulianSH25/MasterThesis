@@ -67,6 +67,6 @@
   "max_graph_vertices": 10,
   "completed_result_csv_paths": [],
   "qaoa_seed": 42,
-  "initialise_standard_warm_start_with_zero_angles": false,
+  "initialise_standard_warm_start_with_zero_angles": true,
   "result_name_suffix": "_Exp6_KingAmplifiedNoHeuristicAllZeroInitial"
 }
