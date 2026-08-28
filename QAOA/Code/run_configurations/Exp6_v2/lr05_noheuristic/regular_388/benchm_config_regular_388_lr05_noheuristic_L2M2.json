@@ -28,7 +28,7 @@
   "warm_start_mode": "amplified_king",
   "lasserre_level": 2,
   "initial_solver_level_M": 2,
-  "sdp_seed": null,
+  "sdp_seed": 42,
   "sdp_solver_mode": "scs",
   "sdp_scs_eps": 1e-06,
   "sdp_scs_max_iters": 100000,
