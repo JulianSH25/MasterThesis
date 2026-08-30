@@ -1,0 +1,20 @@
+{
+  "cache_format_version": 2,
+  "graph_hash": "fd90ee034deaa45b",
+  "n_vertices": 6,
+  "n_edges": 15,
+  "sdp_seed": 42,
+  "lasserre_level": 1,
+  "initial_solver_level_M": 1,
+  "warm_start_mode": "amplified",
+  "parameter_vector": [
+    1,
+    1,
+    1
+  ],
+  "sdp_solver_mode": "scs",
+  "sdp_scs_eps": 1e-06,
+  "sdp_scs_max_iters": 100000,
+  "failed_at": "2026-08-29 01:53:19",
+  "error": "IndexError('Index 18 is out of bounds for axis 1 with size 18.')"
+}

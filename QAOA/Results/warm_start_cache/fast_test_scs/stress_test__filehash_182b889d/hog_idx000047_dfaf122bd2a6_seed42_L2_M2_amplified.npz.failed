@@ -1,0 +1,20 @@
+{
+  "cache_format_version": 2,
+  "graph_hash": "505a5432e5b88abd",
+  "n_vertices": 5,
+  "n_edges": 10,
+  "sdp_seed": 42,
+  "lasserre_level": 2,
+  "initial_solver_level_M": 2,
+  "warm_start_mode": "amplified",
+  "parameter_vector": [
+    1,
+    1,
+    1
+  ],
+  "sdp_solver_mode": "scs",
+  "sdp_scs_eps": 1e-06,
+  "sdp_scs_max_iters": 100000,
+  "failed_at": "2026-08-29 03:36:23",
+  "error": "KeyError(((5, 0),))"
+}
