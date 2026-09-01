@@ -1508,6 +1508,21 @@ echo "All queues drained."
 echo "Finished at: $(date +'%Y-%m-%d %H:%M:%S')"
 echo "Run tag: ${run_tag}"
 echo "Log directory: ${log_subdir}"
+
+sdp_cache_summary_csv=""
+if [[ "$warm_start_cache_producer_only" == "true" ]]; then
+    sdp_cache_summary_csv="${log_subdir}/sdp_cache_summary.csv"
+    if "$python_bin" Code/__summarize_warm_start_caches.py \
+        "$warm_start_cache_dir" \
+        --config "$config_file" \
+        --output "$sdp_cache_summary_csv"; then
+        echo "SDP cache summary CSV: ${sdp_cache_summary_csv}"
+    else
+        echo "Warning: failed to create SDP cache summary CSV." >&2
+        sdp_cache_summary_csv=""
+    fi
+fi
+
 echo "Resource requeue CSV: ${resource_requeue_csv}"
 echo "Failed warm-start CSV: ${failed_warm_start_csv}"
 echo "Failed warm-start adjacency-list file: ${failed_warm_start_adjlist}"
