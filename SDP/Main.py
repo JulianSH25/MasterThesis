@@ -101,7 +101,17 @@ def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm
 
     #visualize_cut(edges, cut, weights=weights, title="SDP rounded cut")
 
-def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False, initial_solver_level_M: int = 2, seed: int | None = None):
+def main(
+    instance,
+    n_vertices,
+    lasserre_level,
+    params: dict,
+    debug: bool = False,
+    initial_solver_level_M: int = 2,
+    seed: int | None = None,
+    algorithm17_num_seeds: int = 1,
+    algorithm17_seed_start: int | None = None,
+):
     """
     Run a single SDP solve and rounding flow.
 
@@ -124,7 +134,11 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
     :param params: SDP Hamiltonian coefficients as a, b, c bits
     :param initial_solver_level_M: SDP relaxation to solve (1 for the 3n level-1
         matrix, 2 for the full level-2 King matrix)
-    :param seed: optional seed for seeded rounding and Algorithm 17 sampling
+    :param seed: optional seed for seeded GP rounding
+    :param algorithm17_num_seeds: number of consecutive Algorithm 17 rotation
+        seeds to evaluate; the highest-energy state is retained
+    :param algorithm17_seed_start: first Algorithm 17 rotation seed; defaults
+        to seed + 1 when seed is provided
     :return: tuple (energy, M_optimal, states, cuts, sdp_result)
     """
     solver_sdp = SDP_Solver_(lasserre_level=lasserre_level)
@@ -172,7 +186,14 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
         )
 
     gp_rounding_seed = None if seed is None else int(seed)
-    algorithm17_seed = None if seed is None else int(seed) + 1
+    if algorithm17_num_seeds < 1:
+        raise ValueError(
+            "algorithm17_num_seeds must be at least 1, got "
+            f"{algorithm17_num_seeds}."
+        )
+
+    if algorithm17_seed_start is None and seed is not None:
+        algorithm17_seed_start = int(seed) + 1
 
     print("Rounding...")
     cuts, states, bloch_vectors = round_sdp_with_cholesky(
@@ -205,7 +226,42 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
         rounder.pidx = pidx
         rounder.bloch_vectors = bloch_vectors
         rounder.beta_star = 0.390
-        sdp_result = rounder.QMC_rounding(seed=algorithm17_seed, max_vertices=16)
+        if algorithm17_seed_start is None:
+            algorithm17_seeds = [None] * algorithm17_num_seeds
+        else:
+            algorithm17_seeds = [
+                int(algorithm17_seed_start) + offset
+                for offset in range(algorithm17_num_seeds)
+            ]
+
+        best_result = None
+        best_seed = None
+        candidate_energies = []
+        for algorithm17_seed in algorithm17_seeds:
+            candidate = rounder.QMC_rounding(
+                seed=algorithm17_seed,
+                max_vertices=16,
+            )
+            candidate_energy = float(candidate["actual_energy"])
+            candidate_energies.append(
+                {
+                    "seed": algorithm17_seed,
+                    "actual_energy": candidate_energy,
+                }
+            )
+            if (
+                best_result is None
+                or candidate_energy > float(best_result["actual_energy"])
+            ):
+                best_result = candidate
+                best_seed = algorithm17_seed
+
+        sdp_result = best_result
+        sdp_result["algorithm17_num_seeds"] = algorithm17_num_seeds
+        sdp_result["algorithm17_seed_start"] = algorithm17_seed_start
+        sdp_result["algorithm17_seeds_tried"] = algorithm17_seeds
+        sdp_result["algorithm17_candidate_energies"] = candidate_energies
+        sdp_result["algorithm17_seed"] = best_seed
         if sdp_result["analytic_F_bound_applicable"]:
             print(f"Algorithm 17 lower-bound energy: {sdp_result['lower_bound_energy']}")
         else:
@@ -227,7 +283,8 @@ def main(instance, n_vertices, lasserre_level, params: dict, debug: bool = False
         sdp_result["initial_solver_level_M"] = initial_solver_level_M
         sdp_result["lasserre_level"] = lasserre_level
         sdp_result["gp_rounding_seed"] = gp_rounding_seed
-        sdp_result["algorithm17_seed"] = algorithm17_seed if lasserre_level == 2 else None
+        if lasserre_level == 1:
+            sdp_result["algorithm17_seed"] = None
         if sdp_objective_value is not None:
             print(f"SDP objective value: {sdp_objective_value}")
 

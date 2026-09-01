@@ -94,6 +94,16 @@ def get_warm_start_state(instance, n_vertices):
         sdp_seed = int(sdp_seed)
         print(f"Warm-start: using configured sdp_seed={sdp_seed}", flush=True)
 
+    algorithm17_num_seeds = int(
+        benchmark_params.get("algorithm17_num_seeds", 1)
+    )
+    algorithm17_seed_start = benchmark_params.get(
+        "algorithm17_seed_start",
+        None,
+    )
+    if algorithm17_seed_start is not None:
+        algorithm17_seed_start = int(algorithm17_seed_start)
+
     energy, M_optimal, states, classical_cut, sdp_result = SDP_main(
         instance=instance,
         n_vertices=n_vertices,
@@ -102,6 +112,8 @@ def get_warm_start_state(instance, n_vertices):
         lasserre_level=lasserre_level,
         initial_solver_level_M=initial_solver_level_M,
         seed=sdp_seed,
+        algorithm17_num_seeds=algorithm17_num_seeds,
+        algorithm17_seed_start=algorithm17_seed_start,
     )
     sdp_result = sdp_result or {}
     sdp_result["sdp_seed_used"] = sdp_seed
