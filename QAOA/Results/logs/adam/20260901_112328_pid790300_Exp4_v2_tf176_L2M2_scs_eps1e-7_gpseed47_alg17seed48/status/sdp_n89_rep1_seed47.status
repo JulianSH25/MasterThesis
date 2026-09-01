@@ -1,0 +1,13 @@
+finished_at=2026-09-01 12:19:50
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=sdp_producer
+key=n89_rep1_seed47
+n=89
+p=1
+iterations=75
+repeat_idx=1
+sdp_seed=47
+warm_start_cache_path=Results/warm_start_cache_experiments/Exp4_v2_tf176_L2M2_scs_eps1e-7_gpseed47_alg17seed48/triangleFree_connected_4to8vertices_176instances_AdjacencyList__filehash_279b7452/hog_idx000089_a01c2c5199a5_seed47_L2_M2_amplified.npz
+threads=1
