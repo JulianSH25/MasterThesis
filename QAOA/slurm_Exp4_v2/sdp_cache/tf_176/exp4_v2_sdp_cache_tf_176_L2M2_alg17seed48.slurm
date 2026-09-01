@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=Exp4_v2_sdp_tf176_L2M2_alg17seed46
+#SBATCH --job-name=Exp4_v2_sdp_tf176_L2M2_alg17seed48
 #SBATCH --output=Results/slurm/stdout-%x-%j.out
 #SBATCH --error=Results/slurm/stderr-%x-%j.err
 #SBATCH --partition=research
@@ -35,4 +35,4 @@ export MKL_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1
 
-zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/Exp4_v2/sdp_cache/tf_176/benchm_config_tf_176_sdp_cache_L2M2_cp4.json
+zsh qaoa_benchmarks_dsri_queuedJobs.sh Code/run_configurations/Exp4_v2/sdp_cache/tf_176/benchm_config_tf_176_sdp_cache_L2M2_cp6.json
