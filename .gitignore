@@ -24,8 +24,6 @@ QAOA/benchmark_config.json
 *.lic
 *.csv
 !QAOA/Code/optimal_results/*
-!QAOA/Results/logs/adam/*
-!QAOA/Results/logs/[aA][dD][aA][mM]/**/sdp_cache_summary.csv
 
 # Distribution / packaging
 .Python
@@ -104,10 +102,6 @@ profile_default/
 ipython_config.py
 
 # Keep benchmark CSV and log files from the cluster's lowercase adam directory.
-!QAOA/Results/logs/adam/
-!QAOA/Results/logs/adam/**/
-!QAOA/Results/logs/adam/**/*.csv
-!QAOA/Results/logs/adam/**/*.log
 
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
@@ -232,3 +226,7 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Keep only compact outputs from the targeted Exp4 v2 SDP experiments.
+!QAOA/Results/logs/[aA][dD][aA][mM]/*_Exp4_v2_tf176_L2M2_scs_*/*.csv
+!QAOA/Results/logs/[aA][dD][aA][mM]/*_Exp4_v2_tf176_L2M2_scs_*/*.log
