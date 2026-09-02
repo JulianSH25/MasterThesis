@@ -1,0 +1,13 @@
+finished_at=2026-09-02 05:49:50
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=sdp_producer
+key=n461_rep1_seed42
+n=461
+p=1
+iterations=75
+repeat_idx=1
+sdp_seed=42
+warm_start_cache_path=Results/warm_start_cache_experiments/Exp4a_tf829_L2M2_gpseed42_alg17seed43/triangleFree_connected_4to15vertices_829instances_AdjacencyList__filehash_af0e2099/hog_idx000461_4e18a72bc6d3_seed42_L2_M2_amplified.npz
+threads=1
