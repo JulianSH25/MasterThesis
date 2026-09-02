@@ -1,0 +1,41 @@
+Starting QAOA benchmark with global start time: 1788338541.163356
+Benchmark parameters: {'optimiser': 'adam', 'optimiser_use_heuristic': None, 'heuristic_optimiser_iterations': None, 'heuristic_optimiser_sampleSize': None, 'circuit_type': 'hamqaoa', 'parameter_vector': [1, 1, 1], 'iterations_list': [75], 'learning_rate_adam': None, 'depth_list': [1], 'n_start': None, 'n_end': None, 'singlet_injection': False, 'start_index_singlet': None, 'warm_start': True, 'warm_start_mode': 'amplified', 'lasserre_level': 2, 'initial_solver_level_M': 2, 'sdp_seed': 42, 'algorithm17_num_seeds': 4, 'algorithm17_seed_start': 43, 'sdp_solver_mode': 'scs', 'sdp_scs_eps': 1e-07, 'sdp_scs_max_iters': 100000, 'warm_start_corr_strength': None, 'warm_start_corr_repeats': None, 'compare_with_010101': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': None, 'failed_instance_termination_thrsh': None, 'graph_generation_type': 'hog', 'weighted': False, 'easiest_first': False, 'cpu_util_threshold': None, 'debug': False, 'save_circuit_svg': False, 'rerun_exclude_finished_instances': True, 'warm_start_cache_producer_only': True, 'qaoa_only_from_existing_warm_start_cache': False, 'optimiser_debug_iterations': None, 'num_repeats': 1, 'relative_graph_adjList_path': 'HOG_graphs/triangleFree_connected_4to15vertices_829instances_AdjacencyList.txt', 'persistent_warm_start_cache': True, 'warm_start_cache_dir': 'Results/warm_start_cache_experiments/Exp4b_tf829_upto10_L2M2_kbest4_gpseed42_alg17start43', 'warm_start_cache_max_file_mb': 512, 'warm_start_cache_max_total_gb': 200, 'sdp_max_parallel': 32, 'qaoa_max_parallel': 0, 'sdp_threads': 1, 'qaoa_threads': 1, 'sdp_memory_limit_total_gb': 250, 'sdp_memory_limit_single_gb': 100, 'sdp_memory_poll_seconds': 5, 'sdp_max_retries': 3, 'queue_poll_interval_seconds': 5, 'max_graph_vertices': 10, 'completed_result_csv_paths': [], 'qaoa_seed': 1, 'initialise_standard_warm_start_with_zero_angles': False, 'result_name_suffix': '_Exp4b_tf829_upto10_L2M2_kbest4_gpseed42_alg17start43'}, Running QAOA with equal superposition
+Benchmark run ID: 4825acc3
+Benchmark repeat index: 1
+Configured SDP rounding seed: 42
+QAOA seed used: 1
+Processor: x86_64
+Hostname: dacsvm-cpunode01
+Total RAM (GB): None
+Physical cores: 32
+Logical cores: 32
+Python version: 3.11.15
+Initialisation time: 0.00 seconds; started at stardate {'initialisation': 0.00442814826965332} and finished at stardate1788338541.1677997
+Loaded HOG graph index 45 with 10 edges.
+Instance generation for n=45 took 0.09 seconds; started at stardate 1788338541.1678088 and finished at stardate 1788338541.2626214
+Running QAOA for n=10 nodes, m=10 edges...; Max iterations: 75
+Warm-start: starting SDP solve for n_vertices=10
+Warm-start: using configured sdp_seed=42
+Using SCS solver for SDP with eps=1e-07, max_iters=100000.
+SDP solver status: optimal
+SDP solver name: SCS
+SDP solver iterations: 2850
+SDP solve time: 156.92099401299998
+SDP extra stats: {'x': array([ 1.00000000e+00, -1.48531381e-13, -2.64732225e-13, ...,
+        1.00000000e+00,  5.87478316e-18,  1.00000000e+00], shape=(95266,)), 'y': array([2.26751314e-02, 9.39234967e-03, 9.39234967e-03, ...,
+       6.44133463e-03, 7.33545533e-15, 3.03300670e-02], shape=(265112,)), 's': array([ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00, ...,
+        9.99999999e-01, -2.29134688e-15,  9.99999998e-01], shape=(265112,)), 'info': {'status_val': 1, 'iter': 2850, 'scale_updates': 7, 'scale': 5.127689530263361, 'pobj': -8.736965386221819, 'dobj': -8.73696537189398, 'res_pri': 1.8825680237772072e-07, 'res_dual': 4.139903539937137e-08, 'gap': 1.4327838471217547e-08, 'res_infeas': nan, 'res_unbdd_a': 0.11445621629422817, 'res_unbdd_p': 0.0, 'comp_slack': 1.8351875574751375e-11, 'solve_time': 156920.994013, 'setup_time': 171.11467, 'lin_sys_time': 10874.308380999979, 'cone_time': 142138.37340000013, 'accel_time': 781.0443889999979, 'rejected_accel_steps': 20, 'accepted_accel_steps': 4, 'status': 'solved'}}
+Rounding...
+Setting seed to 42
+n_vertices: 10 for n = 30
+Using seed 42 to generate random matrix for x.
+Energy of rounded cut/product state: 7.218929531741454
+Algorithm 17 lower-bound energy: 8.101199492426568
+Algorithm 17 actual entangled-state energy: 7.92316379223064
+SDP objective value: 13.73696538622182
+7 in cut out of a total of 10 edges
+Warm-start: SDP solve + rounding finished in 4263.40 seconds
+Warm-start: using level-2 Algorithm 17 entangled statevector with shape (1024,)
+Warm-start cache: moment matrix before save shape=(436, 436), dtype=float64, entries=190096, bytes=1520768 (1.45 MiB)
+Warm-start cache: saved Results/warm_start_cache_experiments/Exp4b_tf829_upto10_L2M2_kbest4_gpseed42_alg17start43/triangleFree_connected_4to15vertices_829instances_AdjacencyList__filehash_af0e2099/hog_idx000045_3441f3a88df7_seed42_L2_M2_amplified.npz in 0.0115 seconds
+WARM_START_CACHE_PRODUCER_ONLY is set; warm-start cache has been produced/loaded. Exiting before QAOA optimisation.

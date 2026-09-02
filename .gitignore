@@ -230,3 +230,7 @@ __marimo__/
 # Keep only compact outputs from the targeted Exp4 v2 SDP experiments.
 !QAOA/Results/logs/[aA][dD][aA][mM]/*_Exp4_v2_tf176_L2M2_scs_*/*.csv
 !QAOA/Results/logs/[aA][dD][aA][mM]/*_Exp4_v2_tf176_L2M2_scs_*/*.log
+!QAOA/Results/logs/[aA][dD][aA][mM]/*_Exp4a_tf829_*/*.csv
+!QAOA/Results/logs/[aA][dD][aA][mM]/*_Exp4a_tf829_*/*.log
+!QAOA/Results/logs/[aA][dD][aA][mM]/*_Exp4b_tf829_*/*.csv
+!QAOA/Results/logs/[aA][dD][aA][mM]/*_Exp4b_tf829_*/*.log
