@@ -103,6 +103,9 @@ def get_warm_start_state(instance, n_vertices):
     )
     if algorithm17_seed_start is not None:
         algorithm17_seed_start = int(algorithm17_seed_start)
+    algorithm17_beta_mode = str(
+        benchmark_params.get("algorithm17_beta_mode", "fixed")
+    ).strip().lower()
 
     energy, M_optimal, states, classical_cut, sdp_result = SDP_main(
         instance=instance,
@@ -114,6 +117,7 @@ def get_warm_start_state(instance, n_vertices):
         seed=sdp_seed,
         algorithm17_num_seeds=algorithm17_num_seeds,
         algorithm17_seed_start=algorithm17_seed_start,
+        algorithm17_beta_mode=algorithm17_beta_mode,
     )
     sdp_result = sdp_result or {}
     sdp_result["sdp_seed_used"] = sdp_seed

@@ -69,6 +69,14 @@ def _read_cache(cache_path: Path) -> dict[str, Any]:
         "algorithm17_candidate_energies_json": json.dumps(
             result.get("algorithm17_candidate_energies", [])
         ),
+        "algorithm17_beta_mode": result.get(
+            "algorithm17_beta_mode",
+            metadata.get("algorithm17_beta_mode", "fixed"),
+        ),
+        "algorithm17_beta_star": result.get("algorithm17_beta_star"),
+        "algorithm17_beta_optimisation_time_seconds": result.get(
+            "algorithm17_beta_optimisation_time_seconds"
+        ),
         "sdp_objective_value": sdp_objective,
         "rounded_solution_energy": rounded_energy,
         "algorithm17_actual_energy": algorithm17_energy,
@@ -230,12 +238,19 @@ def _safe_dataset_name(relative_graph_path: str) -> str:
 
 
 def _matches_config(row: dict[str, Any], config: dict[str, Any]) -> bool:
+    lasserre_level = config.get("lasserre_level")
+    algorithm17_beta_mode = (
+        str(config.get("algorithm17_beta_mode") or "fixed").lower()
+        if lasserre_level == 2
+        else "fixed"
+    )
     expected_values = {
-        "lasserre_level": config.get("lasserre_level"),
+        "lasserre_level": lasserre_level,
         "initial_solver_level_M": config.get("initial_solver_level_M"),
         "sdp_solver_mode": str(config.get("sdp_solver_mode") or "mosek").lower(),
         "sdp_scs_eps": config.get("sdp_scs_eps"),
         "sdp_scs_max_iters": config.get("sdp_scs_max_iters"),
+        "algorithm17_beta_mode": algorithm17_beta_mode,
     }
     if any(row[key] != value for key, value in expected_values.items()):
         return False

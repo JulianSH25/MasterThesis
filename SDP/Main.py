@@ -111,6 +111,7 @@ def main(
     seed: int | None = None,
     algorithm17_num_seeds: int = 1,
     algorithm17_seed_start: int | None = None,
+    algorithm17_beta_mode: str = "fixed",
 ):
     """
     Run a single SDP solve and rounding flow.
@@ -139,6 +140,9 @@ def main(
         seeds to evaluate; the highest-energy state is retained
     :param algorithm17_seed_start: first Algorithm 17 rotation seed; defaults
         to seed + 1 when seed is provided
+    :param algorithm17_beta_mode: ``fixed`` uses King's universal beta=0.390;
+        ``analytic_instance`` maximises the analytical F objective separately
+        for each solved instance
     :return: tuple (energy, M_optimal, states, cuts, sdp_result)
     """
     solver_sdp = SDP_Solver_(lasserre_level=lasserre_level)
@@ -195,6 +199,14 @@ def main(
     if algorithm17_seed_start is None and seed is not None:
         algorithm17_seed_start = int(seed) + 1
 
+    algorithm17_beta_mode = str(algorithm17_beta_mode).strip().lower()
+    supported_beta_modes = {"fixed", "analytic_instance"}
+    if algorithm17_beta_mode not in supported_beta_modes:
+        raise ValueError(
+            "algorithm17_beta_mode must be one of "
+            f"{sorted(supported_beta_modes)}, got {algorithm17_beta_mode!r}."
+        )
+
     print("Rounding...")
     cuts, states, bloch_vectors = round_sdp_with_cholesky(
         M_for_rounding,
@@ -226,6 +238,14 @@ def main(
         rounder.pidx = pidx
         rounder.bloch_vectors = bloch_vectors
         rounder.beta_star = 0.390
+        rounder.build_x_vars()
+        if algorithm17_beta_mode == "analytic_instance":
+            rounder.optimise_beta_for_instance()
+        else:
+            print(
+                "Algorithm 17 beta mode=fixed; using beta_star=0.390.",
+                flush=True,
+            )
         if algorithm17_seed_start is None:
             algorithm17_seeds = [None] * algorithm17_num_seeds
         else:
@@ -262,6 +282,11 @@ def main(
         sdp_result["algorithm17_seeds_tried"] = algorithm17_seeds
         sdp_result["algorithm17_candidate_energies"] = candidate_energies
         sdp_result["algorithm17_seed"] = best_seed
+        sdp_result["algorithm17_beta_mode"] = algorithm17_beta_mode
+        sdp_result["algorithm17_beta_star"] = float(rounder.beta_star)
+        sdp_result["algorithm17_beta_optimisation_time_seconds"] = float(
+            rounder.beta_optimisation_time_seconds
+        )
         if sdp_result["analytic_F_bound_applicable"]:
             print(f"Algorithm 17 lower-bound energy: {sdp_result['lower_bound_energy']}")
         else:

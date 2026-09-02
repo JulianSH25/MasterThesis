@@ -1,4 +1,7 @@
 from itertools import combinations
+import time
+
+from scipy.optimize import minimize_scalar
 from scipy.special import hyp2f1
 from numpy import pi
 import numpy as np
@@ -160,6 +163,9 @@ class Level_2_Rounding:
         self.n_vectors: list = []
         self.P_matrices: list = []
         self.epsilon_dict: dict = {}
+        self.beta_star: float = 0.390
+        self.beta_optimisation_time_seconds: float = 0.0
+        self.beta_optimised_analytic_energy: float | None = None
         self.analytic_F_value: float | None = None
         self.analytic_F_bound_applicable: bool = False
         self.output: dict | None = None
@@ -221,7 +227,73 @@ class Level_2_Rounding:
         return float(f(x_ij=x) * second_term)
 
     # Step 5
-    beta_star = 0.390 # approximate optimal beta from paper
+    def optimise_beta_for_instance(
+        self,
+        grid_points: int = 201,
+        xatol: float = 1e-10,
+    ) -> float:
+        """
+        Choose beta in [0, 1] that maximises King's analytical
+        Algorithm 17 energy expression for this SDP solution.
+        """
+        optimisation_start = time.perf_counter()
+
+        if grid_points < 3:
+            raise ValueError("grid_points must be at least 3.")
+        if len(self.edges) != len(self.weights):
+            raise ValueError("edges and weights must have equal length.")
+        if not self.x_dict:
+            self.build_x_vars()
+
+        def analytic_energy(beta: float) -> float:
+            return float(sum(
+                float(weight) * self.F(beta, self.x_dict[(i, j)])
+                for (i, j), weight in zip(self.edges, self.weights)
+            ))
+
+        # Locate the best region first so the local refinement does not assume
+        # that the analytical instance objective is globally unimodal.
+        beta_grid = np.linspace(0.0, 1.0, grid_points)
+        grid_values = np.asarray(
+            [analytic_energy(float(beta)) for beta in beta_grid],
+            dtype=float,
+        )
+        if not np.all(np.isfinite(grid_values)):
+            raise ValueError("Non-finite value encountered while optimising beta.")
+
+        best_index = int(np.argmax(grid_values))
+        candidate_betas = [
+            0.390,  # Retain King's universal maximin value as a candidate.
+            0.0,
+            1.0,
+            float(beta_grid[best_index]),
+        ]
+
+        if 0 < best_index < grid_points - 1:
+            result = minimize_scalar(
+                lambda beta: -analytic_energy(float(beta)),
+                bounds=(
+                    float(beta_grid[best_index - 1]),
+                    float(beta_grid[best_index + 1]),
+                ),
+                method="bounded",
+                options={"xatol": xatol},
+            )
+            if result.success and np.isfinite(result.x):
+                candidate_betas.append(float(result.x))
+
+        self.beta_star = float(max(candidate_betas, key=analytic_energy))
+        self.beta_optimised_analytic_energy = analytic_energy(self.beta_star)
+        self.beta_optimisation_time_seconds = (
+            time.perf_counter() - optimisation_start
+        )
+        print(
+            "Algorithm 17 instance beta optimisation selected "
+            f"beta_star={self.beta_star:.12g} in "
+            f"{self.beta_optimisation_time_seconds:.6f} seconds.",
+            flush=True,
+        )
+        return self.beta_star
 
     # Step 6
         # Step 6
@@ -522,6 +594,10 @@ class Level_2_Rounding:
             "x_dict": self.x_dict,
             "theta_dict": self.theta_dict,
             "epsilon_dict": self.epsilon_dict,
+            "algorithm17_beta_star": float(self.beta_star),
+            "algorithm17_beta_optimisation_time_seconds": float(
+                self.beta_optimisation_time_seconds
+            ),
         }
     
     def QMC_rounding(self, seed=None, max_vertices: int = 16):

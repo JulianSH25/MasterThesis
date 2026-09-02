@@ -89,7 +89,16 @@ warm_start=$(jq -r '.warm_start // false' "$config_file")
 warm_start_mode=$(jq -r '.warm_start_mode // "standard"' "$config_file")
 lasserre_level=$(jq -r '.lasserre_level // "NA"' "$config_file")
 initial_solver_level_M=$(jq -r '.initial_solver_level_M // "NA"' "$config_file")
+algorithm17_beta_mode=$(jq -r '.algorithm17_beta_mode // "fixed"' "$config_file")
 configured_sdp_seed=$(jq -r '.sdp_seed // empty' "$config_file")
+
+case "${algorithm17_beta_mode:l}" in
+    fixed|analytic_instance) ;;
+    *)
+        echo "Error: algorithm17_beta_mode must be fixed or analytic_instance."
+        exit 1
+        ;;
+esac
 
 graph_generation_type=$(jq -r '.graph_generation_type // empty' "$config_file")
 weighted=$(jq -r '.weighted // false' "$config_file")
@@ -427,11 +436,16 @@ build_persistent_warm_start_cache_path() {
     local repeat_idx_value="$2"
     local sdp_seed_value="$3"
     local cache_mode="${4:-$warm_start_mode}"
-    local graph_hash graph_label seed_label cache_dataset_dir hog_file_base hog_file_safe hog_file_hash
+    local graph_hash graph_label seed_label beta_label cache_dataset_dir hog_file_base hog_file_safe hog_file_hash
 
     seed_label="noseed"
     if [[ -n "$sdp_seed_value" ]]; then
         seed_label="seed${sdp_seed_value}"
+    fi
+
+    beta_label=""
+    if [[ "$lasserre_level" == "2" && "${algorithm17_beta_mode:l}" != "fixed" ]]; then
+        beta_label="_beta$(safe_name "${algorithm17_beta_mode:l}")"
     fi
 
     if [[ "${graph_generation_type:l}" == "hog" ]]; then
@@ -452,7 +466,7 @@ build_persistent_warm_start_cache_path() {
         graph_label="${graph_generation_type}_n${n}_${graph_hash[1,12]}"
     fi
 
-    echo "${cache_dataset_dir}/${graph_label}_${seed_label}_L${lasserre_level}_M${initial_solver_level_M}_${cache_mode}.npz"
+    echo "${cache_dataset_dir}/${graph_label}_${seed_label}_L${lasserre_level}_M${initial_solver_level_M}${beta_label}_${cache_mode}.npz"
 }
 
 # -----------------------------

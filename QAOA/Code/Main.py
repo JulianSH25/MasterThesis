@@ -109,19 +109,26 @@ def _expected_warm_start_metadata(edges: list[tuple[int, int]], weights: list[fl
     warm_start_mode = str(benchmark_params.get("warm_start_mode") or "standard").lower()
     cache_warm_start_mode = "amplified" if warm_start_mode in {"amplified_king", "entangled_king"} else warm_start_mode
     sdp_solver_mode = str(benchmark_params.get("sdp_solver_mode") or "mosek").lower()
+    lasserre_level = benchmark_params.get("lasserre_level")
+    algorithm17_beta_mode = (
+        str(benchmark_params.get("algorithm17_beta_mode") or "fixed").strip().lower()
+        if lasserre_level == 2
+        else "fixed"
+    )
     return {
         "cache_format_version": 2,
         "graph_hash": _graph_hash(edges, weights),
         "n_vertices": int(n_vertices),
         "n_edges": int(len(edges)),
         "sdp_seed": configured_sdp_seed,
-        "lasserre_level": benchmark_params.get("lasserre_level"),
+        "lasserre_level": lasserre_level,
         "initial_solver_level_M": benchmark_params.get("initial_solver_level_M"),
         "warm_start_mode": cache_warm_start_mode,
         "parameter_vector": list(benchmark_params.get("parameter_vector") or []),
         "sdp_solver_mode": sdp_solver_mode,
         "sdp_scs_eps": float(benchmark_params["sdp_scs_eps"]) if sdp_solver_mode == "scs" else None,
         "sdp_scs_max_iters": int(benchmark_params["sdp_scs_max_iters"]) if sdp_solver_mode == "scs" else None,
+        "algorithm17_beta_mode": algorithm17_beta_mode,
     }
 
 
@@ -139,6 +146,13 @@ def _metadata_matches(found: dict[str, Any], expected: dict[str, Any]) -> bool:
                     and expected_mode in {"standard", "entangled", "amplified_king", "entangled_king"}
                 )
             ):
+                return False
+            continue
+
+        if key == "algorithm17_beta_mode":
+            found_mode = str(found_value or "fixed").strip().lower()
+            expected_mode = str(expected_value or "fixed").strip().lower()
+            if found_mode != expected_mode:
                 return False
             continue
 
@@ -624,7 +638,7 @@ if __name__ == "__main__":
     print(f"Python version: {python_version}")
 
     base_fieldnames = ['run_id', 'n', 'm', 'p', 'precision/iterations', 'singlet_injection', 'warm_start',
-                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'algorithm17_analytic_F_value', 'algorithm17_F_bound_applicable', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_qaoa_input_energy_normalized', 'adam_initial_point_energy_normalized', 'adam_energy_history_normalized_json', 'adam_updates_completed', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'duration_seconds_excluding_warm_start_cache_io', 'warm_start_cache_used', 'warm_start_compute_time_seconds', 'warm_start_load_time_seconds', 'warm_start_save_time_seconds', 'warm_start_effective_time_seconds', 'warm_start_cache_path', 'full duration_seconds', 'finished_at',
+                       'parameter_vector', 'optimal_result', 'sdp_objective_value_step1', 'sdp_objective_value_king_normalized_step1', 'algorithm17_actual_energy', 'algorithm17_lower_bound_energy', 'algorithm17_analytic_F_value', 'algorithm17_F_bound_applicable', 'algorithm17_beta_mode', 'algorithm17_beta_star', 'algorithm17_beta_optimisation_time_seconds', 'initial_ws_energy_prodStates_step2', 'initial_sdp_statevector_energy', 'initial_qaoa_input_energy_normalized', 'adam_initial_point_energy_normalized', 'adam_energy_history_normalized_json', 'adam_updates_completed', 'initial_sdp_statevec_ratio', 'initial_ws_energy_010101', 'QAOA_improvement_over_SDP_statevectorEnergy', 'QAOA_improvement_over_SDP_prodStatesEnergy', 'result', 'result_010101', 'approx_ratio', 'approx_ratio_010101', 'diff. approx. ratio', 'sdp ws greater', 'duration_seconds', 'duration_seconds_excluding_warm_start_cache_io', 'warm_start_cache_used', 'warm_start_compute_time_seconds', 'warm_start_load_time_seconds', 'warm_start_save_time_seconds', 'warm_start_effective_time_seconds', 'warm_start_cache_path', 'full duration_seconds', 'finished_at',
                        'processor', 'hostname', 'total_ram_gb', 'physical_cores', 'logical_cores',
                        'python_version', 'peak_ram_mb', 'Instance_is_triangle_free', 'Instance_is_3_regular', 'Instance_is_bipartite', 'Instance_is_regular', 'Regular_degree', 'Instance_is_claw_free', 'Instance_is_twin_free', 'Instance_is_planar', 'Instance_is_eulerian']
 
@@ -737,6 +751,21 @@ if __name__ == "__main__":
         )
         algorithm17_F_bound_applicable = (
             warm_start_result.get("analytic_F_bound_applicable")
+            if warm_start_result is not None
+            else None
+        )
+        algorithm17_beta_mode = (
+            warm_start_result.get("algorithm17_beta_mode")
+            if warm_start_result is not None
+            else None
+        )
+        algorithm17_beta_star = (
+            warm_start_result.get("algorithm17_beta_star")
+            if warm_start_result is not None
+            else None
+        )
+        algorithm17_beta_optimisation_time_seconds = (
+            warm_start_result.get("algorithm17_beta_optimisation_time_seconds")
             if warm_start_result is not None
             else None
         )
@@ -861,6 +890,9 @@ if __name__ == "__main__":
             'algorithm17_lower_bound_energy': algorithm17_lower_bound_energy / normalisation_factor if lasserre_level == 2 and algorithm17_lower_bound_energy is not None else None,
             'algorithm17_analytic_F_value': algorithm17_analytic_F_value / normalisation_factor if lasserre_level == 2 and algorithm17_analytic_F_value is not None else None,
             'algorithm17_F_bound_applicable': algorithm17_F_bound_applicable if lasserre_level == 2 else None,
+            'algorithm17_beta_mode': algorithm17_beta_mode if lasserre_level == 2 else None,
+            'algorithm17_beta_star': algorithm17_beta_star if lasserre_level == 2 else None,
+            'algorithm17_beta_optimisation_time_seconds': algorithm17_beta_optimisation_time_seconds if lasserre_level == 2 else None,
             'initial_ws_energy_prodStates_step2': initial_energy_prodStates / normalisation_factor if initial_energy_prodStates is not None else None,
             'initial_sdp_statevector_energy': initial_sdp_statevector_energy / normalisation_factor if initial_sdp_statevector_energy is not None else None,
             'initial_qaoa_input_energy_normalized': initial_ws_energy / normalisation_factor if initial_ws_energy is not None else None,

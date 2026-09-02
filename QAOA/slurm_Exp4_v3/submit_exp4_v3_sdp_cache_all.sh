@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+
+sbatch slurm_Exp4_v3/sdp_cache/tf_176/exp4_v3_sdp_cache_tf_176_L1M1.slurm
+sbatch slurm_Exp4_v3/sdp_cache/tf_176/exp4_v3_sdp_cache_tf_176_L2M2.slurm
+sbatch slurm_Exp4_v3/sdp_cache/reg3_74/exp4_v3_sdp_cache_reg3_74_L1M1.slurm
+sbatch slurm_Exp4_v3/sdp_cache/reg3_74/exp4_v3_sdp_cache_reg3_74_L2M2.slurm
+sbatch slurm_Exp4_v3/sdp_cache/rand_78/exp4_v3_sdp_cache_rand_78_L1M1.slurm
+sbatch slurm_Exp4_v3/sdp_cache/rand_78/exp4_v3_sdp_cache_rand_78_L2M2.slurm
+sbatch slurm_Exp4_v3/sdp_cache/stress/exp4_v3_sdp_cache_stress_L1M1.slurm
+sbatch slurm_Exp4_v3/sdp_cache/stress/exp4_v3_sdp_cache_stress_L2M2.slurm
