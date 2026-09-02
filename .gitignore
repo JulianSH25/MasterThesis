@@ -25,6 +25,7 @@ QAOA/benchmark_config.json
 *.csv
 !QAOA/Code/optimal_results/*
 !QAOA/Results/logs/adam/*
+!QAOA/Results/logs/[aA][dD][aA][mM]/**/sdp_cache_summary.csv
 
 # Distribution / packaging
 .Python
@@ -101,6 +102,12 @@ target/
 # IPython
 profile_default/
 ipython_config.py
+
+# Keep benchmark CSV and log files from the cluster's lowercase adam directory.
+!QAOA/Results/logs/adam/
+!QAOA/Results/logs/adam/**/
+!QAOA/Results/logs/adam/**/*.csv
+!QAOA/Results/logs/adam/**/*.log
 
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
