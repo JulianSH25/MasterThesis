@@ -5,6 +5,7 @@ import argparse
 import csv
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -105,9 +106,12 @@ def _load_exact_result_index(exact_results_path: Path) -> dict[tuple[int, int, s
                 key = (int(exact_row["n"]), int(exact_row["m"]), graph_hash)
                 energy = float(exact_row["energy"])
             except (TypeError, ValueError) as exc:
-                raise ValueError(
-                    f"Invalid exact result at {exact_results_path}:{line_number}"
-                ) from exc
+                print(
+                    f"Warning: skipping invalid exact result at "
+                    f"{exact_results_path}:{line_number}: {exc}",
+                    file=sys.stderr,
+                )
+                continue
 
             previous_energy = exact_results.get(key)
             if previous_energy is not None and not np.isclose(

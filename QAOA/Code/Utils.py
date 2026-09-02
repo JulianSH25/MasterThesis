@@ -10,6 +10,8 @@ import resource
 import random
 from collections import Counter
 import csv
+import fcntl
+from contextlib import contextmanager
 
 EXACT_RESULT_FIELDNAMES = ["energy", "n", "m", "edges", "weights", "graph_hash", "graph_type"]
 
@@ -268,38 +270,60 @@ def ensure_exact_results_misc_has_hashes(csv_path: Path) -> None:
         writer.writeheader()
         writer.writerows(rows)
 
+@contextmanager
+def _exact_results_write_lock(csv_path: Path):
+    """Serialize updates to the shared exact-results CSV across workers."""
+    lock_path = csv_path.with_suffix(csv_path.suffix + ".lock")
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with lock_path.open("a") as lock_file:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
 def log_exact_result(energy: float, n: int, m: int, edges: list, weights: list, graph_type: str) -> None:
     """Log exact solver result to optimal_results_misc.csv unless already present."""
     csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
     csv_path.parent.mkdir(parents=True, exist_ok=True)
 
-    ensure_exact_results_misc_has_hashes(csv_path)
+    with _exact_results_write_lock(csv_path):
+        ensure_exact_results_misc_has_hashes(csv_path)
 
-    existing_energy = get_exact_result_from_misc(edges, weights, n, m, raise_if_missing=False)
-    if existing_energy is not None:
-        print(f"Exact result already logged for this instance; skipping duplicate. Existing energy: {existing_energy}")
-        return
+        existing_energy = get_exact_result_from_misc(
+            edges,
+            weights,
+            n,
+            m,
+            raise_if_missing=False,
+        )
+        if existing_energy is not None:
+            print(
+                "Exact result already logged for this instance; skipping duplicate. "
+                f"Existing energy: {existing_energy}"
+            )
+            return
 
-    edges_str, weights_str = canonical_edge_weight_strings(edges, weights)
-    graph_hash = graph_instance_hash(edges, weights)
+        edges_str, weights_str = canonical_edge_weight_strings(edges, weights)
+        graph_hash = graph_instance_hash(edges, weights)
 
-    row = {
-        "energy": energy,
-        "n": n,
-        "m": m,
-        "edges": edges_str,
-        "weights": weights_str,
-        "graph_hash": graph_hash,
-        "graph_type": graph_type,
-    }
+        row = {
+            "energy": energy,
+            "n": n,
+            "m": m,
+            "edges": edges_str,
+            "weights": weights_str,
+            "graph_hash": graph_hash,
+            "graph_type": graph_type,
+        }
 
-    write_header = not csv_path.exists() or csv_path.stat().st_size == 0
+        write_header = not csv_path.exists() or csv_path.stat().st_size == 0
 
-    with csv_path.open("a", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=EXACT_RESULT_FIELDNAMES)
-        if write_header:
-            writer.writeheader()
-        writer.writerow(row)
+        with csv_path.open("a", newline="") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=EXACT_RESULT_FIELDNAMES)
+            if write_header:
+                writer.writeheader()
+            writer.writerow(row)
 
 def get_exact_result_from_misc(
     edges: list,
