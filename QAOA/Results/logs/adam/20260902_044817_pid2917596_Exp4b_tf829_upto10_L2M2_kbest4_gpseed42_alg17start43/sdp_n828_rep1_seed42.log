@@ -17,3 +17,25 @@ Running QAOA for n=10 nodes, m=15 edges...; Max iterations: 75
 Warm-start: starting SDP solve for n_vertices=10
 Warm-start: using configured sdp_seed=42
 Using SCS solver for SDP with eps=1e-07, max_iters=100000.
+SDP solver status: optimal
+SDP solver name: SCS
+SDP solver iterations: 2925
+SDP solve time: 148.644085013
+SDP extra stats: {'x': array([ 1.00000000e+00, -1.38779186e-12, -1.53713141e-12, ...,
+        1.00000000e+00,  2.32499883e-18,  1.00000000e+00], shape=(95266,)), 'y': array([3.55925458e-02, 1.47429169e-02, 1.47429169e-02, ...,
+       4.09219378e-04, 2.75259177e-13, 1.38333312e-01], shape=(265112,)), 's': array([ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00, ...,
+        1.00000000e+00, -2.81545967e-15,  1.00000001e+00], shape=(265112,)), 'info': {'status_val': 1, 'iter': 2925, 'scale_updates': 3, 'scale': 6.991280945281759, 'pobj': -11.439048224143676, 'dobj': -11.439048241724178, 'res_pri': 1.646070839766409e-07, 'res_dual': 1.4734074233513657e-07, 'gap': 1.7580502387204433e-08, 'res_infeas': nan, 'res_unbdd_a': 0.08741986049964645, 'res_unbdd_p': 0.0, 'comp_slack': 3.2346791911663786e-11, 'solve_time': 148644.085013, 'setup_time': 124.90783, 'lin_sys_time': 10303.76672300001, 'cone_time': 134922.23789699993, 'accel_time': 741.1023259999984, 'rejected_accel_steps': 23, 'accepted_accel_steps': 4, 'status': 'solved'}}
+Rounding...
+Setting seed to 42
+n_vertices: 10 for n = 30
+Using seed 42 to generate random matrix for x.
+Energy of rounded cut/product state: 12.10773493599578
+Algorithm 17 lower-bound energy: 11.130977897411718
+Algorithm 17 actual entangled-state energy: 12.98128847233549
+SDP objective value: 18.93904822414368
+11 in cut out of a total of 15 edges
+Warm-start: SDP solve + rounding finished in 4060.01 seconds
+Warm-start: using level-2 Algorithm 17 entangled statevector with shape (1024,)
+Warm-start cache: moment matrix before save shape=(436, 436), dtype=float64, entries=190096, bytes=1520768 (1.45 MiB)
+Warm-start cache: saved Results/warm_start_cache_experiments/Exp4b_tf829_upto10_L2M2_kbest4_gpseed42_alg17start43/triangleFree_connected_4to15vertices_829instances_AdjacencyList__filehash_af0e2099/hog_idx000828_bb33642d8ebb_seed42_L2_M2_amplified.npz in 0.0121 seconds
+WARM_START_CACHE_PRODUCER_ONLY is set; warm-start cache has been produced/loaded. Exiting before QAOA optimisation.
