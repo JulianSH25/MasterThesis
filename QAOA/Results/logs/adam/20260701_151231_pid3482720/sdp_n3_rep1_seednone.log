@@ -1,0 +1,39 @@
+Starting QAOA benchmark with global start time: 1782911555.9109244
+Benchmark parameters: {'optimiser': 'adam', 'optimiser_use_heuristic': True, 'heuristic_optimiser_iterations': 2, 'heuristic_optimiser_sampleSize': 1000, 'circuit_type': 'hamqaoa', 'parameter_vector': [1, 1, 1], 'iterations_list': [50], 'learning_rate_adam': 0.05, 'depth_list': [1, 3, 5], 'n_start': None, 'n_end': None, 'singlet_injection': False, 'start_index_singlet': None, 'warm_start': True, 'warm_start_mode': 'standard', 'lasserre_level': 2, 'initial_solver_level_M': 2, 'sdp_seed': None, 'sdp_solver_mode': 'scs', 'sdp_scs_eps': 1e-06, 'sdp_scs_max_iters': 100000, 'warm_start_corr_strength': None, 'warm_start_corr_repeats': None, 'compare_with_010101': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': None, 'failed_instance_termination_thrsh': None, 'graph_generation_type': 'hog', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': None, 'debug': False, 'save_circuit_svg': False, 'rerun_exclude_finished_instances': True, 'warm_start_cache_producer_only': True, 'qaoa_only_from_existing_warm_start_cache': False, 'optimiser_debug_iterations': None, 'num_repeats': 1, 'relative_graph_adjList_path': 'HOG_graphs/stress_test_sdp_under_1.000.txt', 'persistent_warm_start_cache': True, 'warm_start_cache_dir': 'Results/warm_start_cache/fast_test_scs_verificationSuspicious', 'warm_start_cache_max_file_mb': 512, 'warm_start_cache_max_total_gb': 60, 'sdp_max_parallel': 16, 'qaoa_max_parallel': 0, 'sdp_threads': 1, 'qaoa_threads': 1, 'sdp_memory_limit_total_gb': 250, 'sdp_memory_limit_single_gb': 250, 'sdp_memory_poll_seconds': 5, 'sdp_max_retries': 3, 'queue_poll_interval_seconds': 5}, Running QAOA with equal superposition
+Benchmark run ID: 16564367
+Benchmark repeat index: 1
+SDP seed override: None
+Processor: x86_64
+Hostname: dacsgpu0002
+Total RAM (GB): None
+Physical cores: 64
+Logical cores: 64
+Python version: 3.11.15
+Initialisation time: 0.00 seconds; started at stardate {'initialisation': 0.0026886463165283203} and finished at stardate1782911555.9136188
+Loaded HOG graph index 3 with 24 edges.
+Instance generation for n=3 took 0.00 seconds; started at stardate 1782911555.9136226 and finished at stardate 1782911555.9141197
+Running QAOA for n=8 nodes, m=24 edges...; Max iterations: 50
+Warm-start: starting SDP solve for n_vertices=8
+Warm-start: no sdp_seed in config, generated fallback seed 7737620781965548304
+Using SCS solver for SDP with eps=1e-06, max_iters=100000.
+SDP solver status: optimal
+SDP solver name: SCS
+SDP solver iterations: 225
+SDP solve time: 3.532352892
+SDP extra stats: {'x': array([ 1.00000000e+00,  7.60032720e-17, -1.32614427e-15, ...,
+        1.00000000e+00, -4.89219727e-19,  1.00000000e+00], shape=(38503,)), 'y': array([3.03597149e-02, 1.74616994e-02, 1.74616994e-02, ...,
+       4.28737257e-02, 1.39349672e-16, 8.66256154e-02], shape=(108050,)), 's': array([0.00000000e+00, 0.00000000e+00, 0.00000000e+00, ...,
+       9.99999786e-01, 1.58115018e-15, 9.99999135e-01], shape=(108050,)), 'info': {'status_val': 1, 'iter': 225, 'scale_updates': 2, 'scale': 1.702611345215191, 'pobj': -7.999993937936546, 'dobj': -7.999993238575713, 'res_pri': 1.27388692843669e-06, 'res_dual': 2.210594823187504e-07, 'gap': 6.993608332450663e-07, 'res_infeas': nan, 'res_unbdd_a': 0.1250000947251025, 'res_unbdd_p': 0.0, 'comp_slack': 1.8422821774499165e-11, 'solve_time': 3532.352892, 'setup_time': 59.163341, 'lin_sys_time': 353.8341789999999, 'cone_time': 3044.9602150000005, 'accel_time': 18.60715, 'rejected_accel_steps': 0, 'accepted_accel_steps': 0, 'status': 'solved'}}
+Rounding...
+Setting seed to 7737620781965548304
+n_vertices: 8 for n = 24
+Using seed 7737620781965548304 to generate random matrix for x.
+Energy of rounded cut/product state: 14.099547095486761
+Algorithm 17 lower-bound energy: 12.26113445189859
+Algorithm 17 actual entangled-state energy: 14.09954709548677
+SDP objective value: 19.999993937936548
+14 in cut out of a total of 24 edges
+Warm-start: SDP solve + rounding finished in 690.14 seconds
+Warm-start: using level-2 Algorithm 17 entangled statevector with shape (256,)
+Warm-start cache: saved Results/warm_start_cache/fast_test_scs_verificationSuspicious/stress_test_sdp_under_1.000__filehash_bfbd8d6e/hog_idx000003_e7d56ab95ba5_noseed_L2_M2_standard.npz in 0.0061 seconds
+WARM_START_CACHE_PRODUCER_ONLY is set; warm-start cache has been produced/loaded. Exiting before QAOA optimisation.
