@@ -229,7 +229,7 @@ class Level_2_Rounding:
     # Step 5
     def optimise_beta_for_instance(
         self,
-        grid_points: int = 201,
+        grid_points: int = 2001,
         xatol: float = 1e-10,
     ) -> float:
         """
