@@ -64,7 +64,7 @@
   "sdp_memory_poll_seconds": 5,
   "sdp_max_retries": 0,
   "queue_poll_interval_seconds": 5,
-  "max_graph_vertices": 10,
+  "max_graph_vertices": null,
   "completed_result_csv_paths": [],
   "qaoa_seed": 42,
   "initialise_standard_warm_start_with_zero_angles": true,
