@@ -17,3 +17,26 @@ Running QAOA for n=11 nodes, m=36 edges...; Max iterations: 75
 Warm-start: starting SDP solve for n_vertices=11
 Warm-start: using configured sdp_seed=42
 Using SCS solver for SDP with eps=1e-06, max_iters=100000.
+SDP solver status: optimal
+SDP solver name: SCS
+SDP solver iterations: 2100
+SDP solve time: 204.55170894800003
+SDP extra stats: {'x': array([ 1.00000000e+00, -6.63435198e-13,  1.12328833e-12, ...,
+        1.00000000e+00,  1.87351826e-16,  1.00000000e+00], shape=(140185,)), 'y': array([ 2.83182685e-02,  1.17298237e-02,  1.17298237e-02, ...,
+        5.15749129e-03, -1.04276929e-12,  1.28863345e-02], shape=(388841,)), 's': array([0.00000000e+00, 0.00000000e+00, 0.00000000e+00, ...,
+       9.99999995e-01, 5.87432576e-14, 9.99999959e-01], shape=(388841,)), 'info': {'status_val': 1, 'iter': 2100, 'scale_updates': 2, 'scale': 2.1024614560047494, 'pobj': -12.52701740456337, 'dobj': -12.527017263979422, 'res_pri': 1.3584223203813036e-06, 'res_dual': 1.0172886016789567e-06, 'gap': 1.4058394803839747e-07, 'res_infeas': nan, 'res_unbdd_a': 0.07982746153970717, 'res_unbdd_p': 0.0, 'comp_slack': 1.8295129185143934e-10, 'solve_time': 204551.708948, 'setup_time': 236.499183, 'lin_sys_time': 12649.37716999998, 'cone_time': 186957.9645229999, 'accel_time': 1045.8970770000042, 'rejected_accel_steps': 16, 'accepted_accel_steps': 3, 'status': 'solved'}}
+Rounding...
+Setting seed to 42
+n_vertices: 11 for n = 33
+Using seed 42 to generate random matrix for x.
+Energy of rounded cut/product state: 20.88168531526833
+Algorithm 17 instance beta optimisation selected beta_star=0 in 0.345906 seconds.
+Algorithm 17 analytical F-bound is not applicable because the graph is not triangle-free.
+Algorithm 17 actual entangled-state energy: 20.88168531526834
+SDP objective value: 30.527017404563374
+20 in cut out of a total of 36 edges
+Warm-start: SDP solve + rounding finished in 10717.01 seconds
+Warm-start: using level-2 Algorithm 17 entangled statevector with shape (2048,)
+Warm-start cache: moment matrix before save shape=(529, 529), dtype=float64, entries=279841, bytes=2238728 (2.14 MiB)
+Warm-start cache: saved Results/warm_start_cache/fast_test_scs/stress_test__filehash_182b889d/hog_idx000081_e11c5405fc1c_seed42_L2_M2_betaanalytic_instance_amplified.npz in 0.0200 seconds
+WARM_START_CACHE_PRODUCER_ONLY is set; warm-start cache has been produced/loaded. Exiting before QAOA optimisation.
