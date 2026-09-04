@@ -17,3 +17,26 @@ Running QAOA for n=10 nodes, m=20 edges...; Max iterations: 75
 Warm-start: starting SDP solve for n_vertices=10
 Warm-start: using configured sdp_seed=42
 Using SCS solver for SDP with eps=1e-06, max_iters=100000.
+SDP solver status: optimal
+SDP solver name: SCS
+SDP solver iterations: 1150
+SDP solve time: 97.12911514
+SDP extra stats: {'x': array([ 1.00000000e+00,  2.92941611e-15, -1.85695293e-16, ...,
+        1.00000000e+00, -1.45668425e-17,  1.00000000e+00], shape=(95266,)), 'y': array([ 3.72106614e-02,  1.54130926e-02,  1.54130926e-02, ...,
+        2.04178457e-02, -4.65835853e-13,  1.05796510e-01], shape=(265112,)), 's': array([ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00, ...,
+        9.99999999e-01, -1.93755246e-15,  1.00000000e+00], shape=(265112,)), 'info': {'status_val': 1, 'iter': 1150, 'scale_updates': 4, 'scale': 97.66825644864532, 'pobj': -14.663958804475453, 'dobj': -14.6639586071376, 'res_pri': 2.4644750290439756e-08, 'res_dual': 8.1664270419135e-07, 'gap': 1.9733785272535442e-07, 'res_infeas': nan, 'res_unbdd_a': 0.06819440870880714, 'res_unbdd_p': 0.0, 'comp_slack': 8.266275684787328e-12, 'solve_time': 97129.11514, 'setup_time': 271.044644, 'lin_sys_time': 7604.787625999996, 'cone_time': 86225.0670969999, 'accel_time': 625.6636269999997, 'rejected_accel_steps': 6, 'accepted_accel_steps': 2, 'status': 'solved'}}
+Rounding...
+Setting seed to 42
+n_vertices: 10 for n = 30
+Using seed 42 to generate random matrix for x.
+Energy of rounded cut/product state: 14.607387291490838
+Algorithm 17 instance beta optimisation selected beta_star=0.235931080811 in 0.344305 seconds.
+Algorithm 17 lower-bound energy: 14.51200971481658
+Algorithm 17 actual entangled-state energy: 15.011859353993204
+SDP objective value: 24.66395880447545
+16 in cut out of a total of 20 edges
+Warm-start: SDP solve + rounding finished in 8689.64 seconds
+Warm-start: using level-2 Algorithm 17 entangled statevector with shape (1024,)
+Warm-start cache: moment matrix before save shape=(436, 436), dtype=float64, entries=190096, bytes=1520768 (1.45 MiB)
+Warm-start cache: saved Results/warm_start_cache/list_454_graphs_adjacency_listhog_v04-12_bipartite__filehash_0815e7e8/hog_idx000170_5e963646d08b_seed42_L2_M2_betaanalytic_instance_amplified.npz in 0.0175 seconds
+WARM_START_CACHE_PRODUCER_ONLY is set; warm-start cache has been produced/loaded. Exiting before QAOA optimisation.
