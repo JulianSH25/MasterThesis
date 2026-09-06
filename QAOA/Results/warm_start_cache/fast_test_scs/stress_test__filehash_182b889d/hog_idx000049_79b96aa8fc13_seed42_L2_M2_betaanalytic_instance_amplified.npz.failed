@@ -16,6 +16,6 @@
   "sdp_scs_eps": 1e-06,
   "sdp_scs_max_iters": 100000,
   "algorithm17_beta_mode": "analytic_instance",
-  "failed_at": "2026-09-02 22:33:27",
+  "failed_at": "2026-09-04 11:16:26",
   "error": "KeyError(((7, 0),))"
 }
