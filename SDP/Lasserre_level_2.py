@@ -2,6 +2,7 @@ from itertools import combinations
 import time
 
 from scipy.optimize import minimize_scalar
+from scipy.optimize import shgo
 from scipy.special import hyp2f1
 from numpy import pi
 import numpy as np
@@ -227,15 +228,11 @@ class Level_2_Rounding:
         return float(f(x_ij=x) * second_term)
 
     # Step 5
-    def optimise_beta_for_instance(
+    """def optimise_beta_for_instance(
         self,
         grid_points: int = 2001,
         xatol: float = 1e-10,
     ) -> float:
-        """
-        Choose beta in [0, 1] that maximises King's analytical
-        Algorithm 17 energy expression for this SDP solution.
-        """
         optimisation_start = time.perf_counter()
 
         if grid_points < 3:
@@ -294,7 +291,65 @@ class Level_2_Rounding:
             flush=True,
         )
         return self.beta_star
+"""
+    #Step 5
 
+    def optimise_beta_for_instance(
+        self,
+    ) -> float:
+        """
+        Choose beta in [0, 1] that maximises King's analytical
+        Algorithm 17 energy expression for this SDP solution.
+        """
+        optimisation_start = time.perf_counter()
+
+        if len(self.edges) != len(self.weights):
+            raise ValueError("edges and weights must have equal length.")
+        if not self.x_dict:
+            self.build_x_vars()
+
+        def analytic_energy(beta: float) -> float:
+            return float(sum(
+                float(weight) * self.F(beta, self.x_dict[(i, j)])
+                for (i, j), weight in zip(self.edges, self.weights)
+            ))
+
+        def objective(x) -> float:
+            return -analytic_energy(float(x[0]))
+
+        result = shgo(
+            objective,
+            bounds=[(0.0, 1.0)],
+            sampling_method="sobol",
+        )
+
+        candidate_betas = [
+            0.390,  # King's universal maximin value
+            0.0,
+            1.0,
+        ]
+
+        if result.success and np.isfinite(result.x[0]):
+            candidate_betas.append(float(result.x[0]))
+
+        self.beta_star = float(
+            max(candidate_betas, key=analytic_energy)
+        )
+
+        self.beta_optimised_analytic_energy = analytic_energy(self.beta_star)
+        self.beta_optimisation_time_seconds = (
+            time.perf_counter() - optimisation_start
+        )
+
+        print(
+            "Algorithm 17 instance beta optimisation selected "
+            f"beta_star={self.beta_star:.12g} in "
+            f"{self.beta_optimisation_time_seconds:.6f} seconds.",
+            flush=True,
+        )
+
+        return self.beta_star
+    
     # Step 6
         # Step 6
     def build_theta_vars(self):
