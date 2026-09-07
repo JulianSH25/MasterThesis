@@ -160,7 +160,7 @@ class QAOACircuit(QuantumCircuit):
                     self.qc.rzz(-2 * gamma * w * c, j, k) """ # z_j z_k, i.e. z interaction term between qubtis j and k
                     # The factor 2 accomodates for qiskits default weighting of /2 for .rzz, .rxx, .ryy
 
-                if self.warm_start_mode == "amplified_king":
+                if self.warm_start_mode in {"amplified_king", "entangled_king"}:
                     self._apply_king_warm_start_layer(
                         strength=king_strength,
                         repeats=king_repeats,
@@ -178,7 +178,7 @@ class QAOACircuit(QuantumCircuit):
                 for (j, k), w in zip(self.edges, self.weights):
                     self.qc.rzz(2*a, j, k) # Gate 1 of HAMQAOA layer: ZZ interaction term with parameter a
 
-                if self.warm_start_mode == "amplified_king":
+                if self.warm_start_mode in {"amplified_king", "entangled_king"}:
                     self._apply_king_warm_start_layer(
                         strength=king_strength,
                         repeats=king_repeats,
@@ -384,9 +384,8 @@ class QAOACircuit(QuantumCircuit):
         ###
 
         if warm_mode == "entangled_king":
-            self._apply_king_product_state()
-            self._apply_king_warm_start_layer(strength=1.0, repeats=1)
-            print("Entangled King warm start: GP/GW product state + King rotations")
+            self.qc.h(range(self.n))
+            print("Entangled King warm start: equal superposition; King rotations applied in each QAOA layer")
             self._set_initial_ws_energy("entangled King warm start")
             return
         if warm_mode == "entangled": # In 'entangled' mode, we start from an equal superposition state and apply correlation-based gates to induce entanglement, without directly using the provided initial statevector as the initial state for the circuit

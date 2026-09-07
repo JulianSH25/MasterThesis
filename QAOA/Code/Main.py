@@ -506,12 +506,18 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
             zero_angle_warm_start_requested
             and init_initial_state
             and initial_state is not None
-            and warm_start_mode == "standard"
+            and warm_start_mode in {
+                "standard",
+                "amplified",
+                "entangled",
+                "amplified_king",
+                "entangled_king",
+            }
         )
         if zero_angle_warm_start_requested and not zero_angle_warm_start:
             print(
                 "Ignoring initialise_standard_warm_start_with_zero_angles because "
-                "this run has no active standard warm start; using the normal Adam initialization."
+                "this run has no active supported warm start; using the normal Adam initialization."
             )
         returned_energy = optimise_adam(
             QAOA=QAOA,
