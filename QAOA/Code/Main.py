@@ -509,9 +509,7 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
             and warm_start_mode in {
                 "standard",
                 "amplified",
-                "entangled",
                 "amplified_king",
-                "entangled_king",
             }
         )
         if zero_angle_warm_start_requested and not zero_angle_warm_start:

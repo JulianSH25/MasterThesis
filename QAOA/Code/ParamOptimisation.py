@@ -51,14 +51,22 @@ def optimise_adam(
     zero_angle_warm_start: bool = False,
 ):
     benchmark_params: dict = get_benchmark_params()
-    if zero_angle_warm_start and QAOA.warm_start_flag and QAOA.warm_start_mode == "standard":
+    zero_initial_point_modes = {"standard", "amplified", "amplified_king"}
+    if (
+        zero_angle_warm_start
+        and QAOA.warm_start_flag
+        and QAOA.warm_start_mode in zero_initial_point_modes
+    ):
         x0 = np.zeros(QAOA.p * QAOA.no_param_types, dtype=float)
-        print("Using an all-zero Adam initial point for the standard warm start.") if debug else None
+        print(
+            f"Using an all-zero Adam initial point for warm-start mode "
+            f"'{QAOA.warm_start_mode}'."
+        ) if debug else None
     else:
         if zero_angle_warm_start:
             print(
-                "Ignoring zero_angle_warm_start because no active standard warm start "
-                "is available; using the normal Adam initialization."
+                "Ignoring zero_angle_warm_start because the active warm-start mode "
+                "does not use zero initial parameters; using the normal Adam initialization."
             )
         if benchmark_params.get("optimiser_use_heuristic"):
             _, x0 = heuristic_optimiser(QAOA, no_layers, learning_rate=learning_rate)
