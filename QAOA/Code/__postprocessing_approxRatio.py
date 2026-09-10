@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+from datetime import datetime
 import json
 import sys
 from pathlib import Path
@@ -33,7 +34,22 @@ def parse_args() -> argparse.Namespace:
         "name_addition",
         help='Exact result_name_suffix to process, e.g. "_Exp5_subexp3_KingAmplified".',
     )
+    parser.add_argument(
+        "--since",
+        metavar="YYYYMMDD",
+        help="Only postprocess runs started on or after this date.",
+    )
     return parser.parse_args()
+
+
+def validated_date(value: str | None) -> str | None:
+    if value is None:
+        return None
+    try:
+        datetime.strptime(value, "%Y%m%d")
+    except ValueError as exc:
+        raise ValueError("--since must be a valid date in YYYYMMDD format.") from exc
+    return value
 
 
 def parse_literal(value: Any, default=None):
@@ -187,22 +203,53 @@ def patch_exact_results(csv_path: Path, *, overwrite: bool = False) -> Path:
     return output_path
 
 
+def benchmark_csv_paths(
+    subexperiment_dir: Path, since: str | None = None
+) -> list[Path]:
+    """Return only raw, organised QAOA result CSVs."""
+    prefix = "qaoa_results_adam_"
+    return sorted(
+        path
+        for path in subexperiment_dir.glob("*/*/qaoa_results_*.csv")
+        if not path.stem.endswith(OUTPUT_SUFFIX)
+        and not any(
+            part.startswith("_")
+            for part in path.relative_to(subexperiment_dir).parts[:2]
+        )
+        and (
+            since is None
+            or (
+                path.name.startswith(prefix)
+                and path.name[len(prefix) : len(prefix) + 8] >= since
+            )
+        )
+    )
+
+
 def main() -> None:
     args = parse_args()
+    since = validated_date(args.since)
     name_addition = args.name_addition.strip().lstrip("_")
     experiment = name_addition.split("_", 1)[0]
     subexperiment_dir = RESULTS_ROOT / experiment / name_addition
     if not subexperiment_dir.is_dir():
         raise FileNotFoundError(f"Subexperiment directory does not exist: {subexperiment_dir}")
 
-    csv_paths = sorted(
-        path
-        for path in subexperiment_dir.glob("*/*/*.csv")
-        if not path.stem.endswith("_clipped")
+    csv_paths = benchmark_csv_paths(subexperiment_dir, since)
+    print(
+        f"Postprocessing {len(csv_paths)} CSVs in {subexperiment_dir}"
+        f"{f' since {since}' if since else ''}."
     )
-    print(f"Postprocessing {len(csv_paths)} CSVs in {subexperiment_dir}.")
+    skipped_empty = 0
     for path in csv_paths:
-        patch_exact_results(path, overwrite=OVERWRITE)
+        try:
+            patch_exact_results(path, overwrite=OVERWRITE)
+        except pd.errors.EmptyDataError:
+            skipped_empty += 1
+            print(f"Skipping empty benchmark CSV: {path}")
+
+    if skipped_empty:
+        print(f"Skipped {skipped_empty} empty benchmark CSV(s).")
 
 
 if __name__ == "__main__":
