@@ -1,0 +1,14 @@
+finished_at=2026-09-10 10:58:18
+exit_code=0
+timed_out=0
+warm_start_failed=0
+role=qaoa_cached
+key=n13_rep1_seed42_p2_it75
+n=13
+p=2
+iterations=75
+repeat_idx=1
+sdp_seed=42
+qaoa_seed=42
+warm_start_cache_path=Results/warm_start_cache/list_193_graphs_adjacency_listhog_v04-12_planar_clawFree__filehash_62ae5075/hog_idx000013_4ebdf67954a2_seed42_L2_M1_betaanalytic_instance_amplified.npz
+threads=1
