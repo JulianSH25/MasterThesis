@@ -1,0 +1,35 @@
+/home/i6408800/MasterThesis/QAOA/Code/Circuit.py:182: UserWarning: No classical warm-start cut provided for HAMQAOA; using random cut values for fourth HAMQAOA gate. This may lead to suboptimal performance and may be unintentional if a classical warm start was intended.
+  warnings.warn(
+Starting QAOA benchmark with global start time: 1784687601.3464084
+Benchmark parameters: {'optimiser': 'adam', 'optimiser_use_heuristic': True, 'heuristic_optimiser_iterations': 2, 'heuristic_optimiser_sampleSize': 10, 'circuit_type': 'hamqaoa', 'parameter_vector': [1, 1, 1], 'iterations_list': [5, 10, 25, 50], 'learning_rate_adam': 0.01, 'depth_list': [1, 2], 'n_start': None, 'n_end': None, 'singlet_injection': False, 'start_index_singlet': None, 'warm_start': False, 'warm_start_mode': None, 'lasserre_level': None, 'initial_solver_level_M': None, 'sdp_seed': None, 'sdp_solver_mode': None, 'sdp_scs_eps': None, 'sdp_scs_max_iters': None, 'warm_start_corr_strength': None, 'warm_start_corr_repeats': None, 'compare_with_010101': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': None, 'time_limit': None, 'failed_instance_termination_thrsh': None, 'graph_generation_type': 'hog', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': None, 'debug': False, 'save_circuit_svg': False, 'rerun_exclude_finished_instances': False, 'warm_start_cache_producer_only': False, 'qaoa_only_from_existing_warm_start_cache': False, 'optimiser_debug_iterations': None, 'num_repeats': 1, 'relative_graph_adjList_path': 'HOG_graphs/3regular_connected_74instances.txt', 'persistent_warm_start_cache': False, 'warm_start_cache_dir': None, 'warm_start_cache_max_file_mb': None, 'warm_start_cache_max_total_gb': None, 'sdp_max_parallel': 0, 'qaoa_max_parallel': 32, 'sdp_threads': None, 'qaoa_threads': 1, 'sdp_memory_limit_total_gb': None, 'sdp_memory_limit_single_gb': None, 'sdp_memory_poll_seconds': None, 'sdp_max_retries': None, 'queue_poll_interval_seconds': 5}, Running QAOA with equal superposition
+Benchmark run ID: 54a48473
+Benchmark repeat index: 1
+SDP seed override: None
+Processor: x86_64
+Hostname: dacsgpu0002
+Total RAM (GB): None
+Physical cores: 64
+Logical cores: 64
+Python version: 3.11.15
+Initialisation time: 0.00 seconds; started at stardate {'initialisation': 0.002504587173461914} and finished at stardate1784687601.3489177
+Loaded HOG graph index 21 with 17 edges.
+Instance generation for n=21 took 0.00 seconds; started at stardate 1784687601.3489218 and finished at stardate 1784687601.3505518
+Running QAOA for n=7 nodes, m=17 edges...; Max iterations: 10
+Edges: [(0, 1), (2, 3), (1, 6), (0, 4), (2, 6), (3, 5), (4, 6), (5, 6), (0, 6), (3, 4), (1, 5), (4, 5), (2, 5), (0, 5), (1, 4), (3, 6), (2, 4)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6}, n: 7 nodes, p: 2 layers, N_bayes: 10 iterations
+Solving for uuid: b37fdfbe
+No warm start: Default initial state is equal superposition
+Running ADAM optimization with a single iteration (no debug loop)
+4.933132206113728
+QAOA optimisation for n=21 took 2.39 seconds; started at stardate 1784687601.3505554 and finished at stardate 1784687603.7385197
+Finished QAOA for n=7 nodes, m=17 edges at 2026-07-22 04:33:23 on x86_64. Time taken: 2.39 seconds. Hours: 0.00 hours. Peak RAM: 0.2 MB.
+Unknown graph type for approximation ratio calculation; checking misc CSV.
+Checking optimal_results_misc.csv for matching edges and weights...
+Found matching exact result in misc CSV: 7.5000000000000195
+CSV writing for n=21 took 0.00 seconds; started at stardate 1784687603.7385268 and finished at stardate 1784687603.74348
+results: {21: 4.933132206113728}
+durations: {7: 2.3879683017730713}
+Results saved to: Results/logs/adam/qaoa_results_adam_20260722_042637_pid1613865.csv
+Global end time: 1784687603.7434895
+Finalisation time: 0.00 seconds; started at stardate 1784687603.7434824 and finished at stardate 1784687603.7434933
+Sum of all section times: 2.40 seconds
+run_id: 54a48473

@@ -1,0 +1,35 @@
+/home/i6408800/MasterThesis/QAOA/Code/Circuit.py:182: UserWarning: No classical warm-start cut provided for HAMQAOA; using random cut values for fourth HAMQAOA gate. This may lead to suboptimal performance and may be unintentional if a classical warm start was intended.
+  warnings.warn(
+Starting QAOA benchmark with global start time: 1784870862.2617893
+Benchmark parameters: {'optimiser': 'adam', 'optimiser_use_heuristic': True, 'heuristic_optimiser_iterations': 1, 'heuristic_optimiser_sampleSize': 50, 'circuit_type': 'hamqaoa', 'parameter_vector': [1, 1, 1], 'iterations_list': [5, 10, 25, 50], 'learning_rate_adam': 0.001, 'depth_list': [1, 2], 'n_start': None, 'n_end': None, 'singlet_injection': False, 'start_index_singlet': None, 'warm_start': False, 'warm_start_mode': None, 'lasserre_level': None, 'initial_solver_level_M': None, 'sdp_seed': None, 'sdp_solver_mode': None, 'sdp_scs_eps': None, 'sdp_scs_max_iters': None, 'warm_start_corr_strength': None, 'warm_start_corr_repeats': None, 'compare_with_010101': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': None, 'time_limit': None, 'failed_instance_termination_thrsh': None, 'graph_generation_type': 'hog', 'weighted': False, 'easiest_first': True, 'cpu_util_threshold': None, 'debug': False, 'save_circuit_svg': False, 'rerun_exclude_finished_instances': False, 'warm_start_cache_producer_only': False, 'qaoa_only_from_existing_warm_start_cache': False, 'optimiser_debug_iterations': None, 'num_repeats': 1, 'relative_graph_adjList_path': 'HOG_graphs/stress_test.txt', 'persistent_warm_start_cache': False, 'warm_start_cache_dir': None, 'warm_start_cache_max_file_mb': None, 'warm_start_cache_max_total_gb': None, 'sdp_max_parallel': 0, 'qaoa_max_parallel': 32, 'sdp_threads': None, 'qaoa_threads': 1, 'sdp_memory_limit_total_gb': None, 'sdp_memory_limit_single_gb': None, 'sdp_memory_poll_seconds': None, 'sdp_max_retries': None, 'queue_poll_interval_seconds': 5}, Running QAOA with equal superposition
+Benchmark run ID: ab100d28
+Benchmark repeat index: 1
+SDP seed override: None
+Processor: x86_64
+Hostname: dacsgpu0002
+Total RAM (GB): None
+Physical cores: 64
+Logical cores: 64
+Python version: 3.11.15
+Initialisation time: 0.00 seconds; started at stardate {'initialisation': 0.002941608428955078} and finished at stardate1784870862.2647417
+Loaded HOG graph index 130 with 12 edges.
+Instance generation for n=130 took 0.00 seconds; started at stardate 1784870862.2647476 and finished at stardate 1784870862.2686217
+Running QAOA for n=7 nodes, m=12 edges...; Max iterations: 25
+Edges: [(1, 3), (2, 3), (1, 6), (0, 4), (2, 6), (0, 3), (0, 6), (1, 5), (2, 5), (0, 5), (1, 4), (2, 4)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6}, n: 7 nodes, p: 1 layers, N_bayes: 25 iterations
+Solving for uuid: e108fa89
+No warm start: Default initial state is equal superposition
+Running ADAM optimization with a single iteration (no debug loop)
+5.051367165610679
+QAOA optimisation for n=130 took 2.45 seconds; started at stardate 1784870862.2686248 and finished at stardate 1784870864.7157412
+Finished QAOA for n=7 nodes, m=12 edges at 2026-07-24 07:27:44 on x86_64. Time taken: 2.45 seconds. Hours: 0.00 hours. Peak RAM: 0.21 MB.
+Unknown graph type for approximation ratio calculation; checking misc CSV.
+Checking optimal_results_misc.csv for matching edges and weights...
+Found matching exact result in misc CSV: 7.500000000000011
+CSV writing for n=130 took 0.00 seconds; started at stardate 1784870864.7157507 and finished at stardate 1784870864.719584
+results: {130: 5.051367165610679}
+durations: {7: 2.4471213817596436}
+Results saved to: Results/logs/adam/qaoa_results_adam_20260724_064508_pid1594862.csv
+Global end time: 1784870864.7196035
+Finalisation time: 0.00 seconds; started at stardate 1784870864.7195907 and finished at stardate 1784870864.7196248
+Sum of all section times: 2.46 seconds
+run_id: ab100d28

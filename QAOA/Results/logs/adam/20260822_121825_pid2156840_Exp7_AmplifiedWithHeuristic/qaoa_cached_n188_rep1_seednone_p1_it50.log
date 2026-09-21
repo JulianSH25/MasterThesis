@@ -1,0 +1,37 @@
+Starting QAOA benchmark with global start time: 1787421708.5389793
+Benchmark parameters: {'optimiser': 'adam', 'optimiser_use_heuristic': True, 'heuristic_optimiser_iterations': 1, 'heuristic_optimiser_sampleSize': 10, 'circuit_type': 'hamqaoa', 'parameter_vector': [1, 1, 1], 'iterations_list': [50], 'learning_rate_adam': 0.001, 'depth_list': [1, 2, 3, 4, 5], 'n_start': None, 'n_end': None, 'singlet_injection': False, 'start_index_singlet': None, 'warm_start': True, 'warm_start_mode': 'amplified', 'lasserre_level': 2, 'initial_solver_level_M': 2, 'sdp_seed': None, 'sdp_solver_mode': 'scs', 'sdp_scs_eps': 1e-06, 'sdp_scs_max_iters': 100000, 'warm_start_corr_strength': None, 'warm_start_corr_repeats': None, 'compare_with_010101': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': None, 'failed_instance_termination_thrsh': None, 'graph_generation_type': 'hog', 'weighted': False, 'easiest_first': False, 'cpu_util_threshold': None, 'debug': False, 'save_circuit_svg': False, 'rerun_exclude_finished_instances': True, 'warm_start_cache_producer_only': False, 'qaoa_only_from_existing_warm_start_cache': True, 'optimiser_debug_iterations': None, 'num_repeats': 1, 'relative_graph_adjList_path': 'HOG_graphs/Exp5/list_388_graphs_adjacency_list_hog_v04-12_regular.txt', 'persistent_warm_start_cache': True, 'warm_start_cache_dir': 'Results/warm_start_cache', 'warm_start_cache_max_file_mb': 512, 'warm_start_cache_max_total_gb': 60, 'sdp_max_parallel': 0, 'qaoa_max_parallel': 16, 'sdp_threads': 1, 'qaoa_threads': 1, 'sdp_memory_limit_total_gb': 0, 'sdp_memory_limit_single_gb': 0, 'sdp_memory_poll_seconds': 5, 'sdp_max_retries': 0, 'queue_poll_interval_seconds': 5, 'max_graph_vertices': 11, 'completed_result_csv_paths': [], 'qaoa_seed': 1, 'initialise_standard_warm_start_with_zero_angles': False, 'result_name_suffix': '_Exp7_AmplifiedWithHeuristic'}, Running QAOA with equal superposition
+Benchmark run ID: c8034917
+Benchmark repeat index: 1
+SDP seed override: None
+QAOA seed: 18800001
+Processor: x86_64
+Hostname: dacsgpu0003
+Total RAM (GB): None
+Physical cores: 64
+Logical cores: 64
+Python version: 3.11.15
+Initialisation time: 0.00 seconds; started at stardate {'initialisation': 0.003640413284301758} and finished at stardate1787421708.5426276
+Loaded HOG graph index 188 with 22 edges.
+Instance generation for n=188 took 0.13 seconds; started at stardate 1787421708.5426333 and finished at stardate 1787421708.6684928
+Running QAOA for n=11 nodes, m=22 edges...; Max iterations: 50
+Warm-start cache: loading Results/warm_start_cache/list_388_graphs_adjacency_list_hog_v04-12_regular__filehash_5b7f8d46/hog_idx000188_acd712e37e62_noseed_L2_M2_amplified.npz
+Warm-start cache: loaded in 0.0097 seconds; effective compute time=11030.358749389648
+Edges: [(2, 9), (4, 6), (7, 8), (0, 2), (1, 10), (5, 10), (5, 7), (2, 8), (3, 7), (0, 1), (0, 4), (1, 9), (6, 8), (5, 6), (5, 9), (3, 6), (2, 10), (3, 9), (4, 10), (4, 7), (0, 3), (1, 8)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, n: 11 nodes, p: 1 layers, N_bayes: 50 iterations
+Solving for uuid: 53406682
+Initial state injected as warm start
+Warm start correlations applied in the form of weak entanglement
+Running ADAM optimization with a single iteration (no debug loop)
+11.3171537126131
+QAOA optimisation for n=188 took 1617.56 seconds; started at stardate 1787421708.668499 and finished at stardate 1787423326.2284477
+Finished QAOA for n=11 nodes, m=22 edges at 2026-08-22 20:28:46 on x86_64. Time taken: 1617.56 seconds. Hours: 0.45 hours. Peak RAM: 1.12 MB.
+Unknown graph type for approximation ratio calculation; checking misc CSV.
+Checking optimal_results_misc.csv for matching edges and weights...
+Found matching exact result in misc CSV: 12.487954274357085
+CSV writing for n=188 took 0.09 seconds; started at stardate 1787423326.2284582 and finished at stardate 1787423326.3147404
+results: {188: 11.3171537126131}
+durations: {11: 1617.5599558353424}
+Results saved to: Results/logs/adam/qaoa_results_adam_20260822_121825_pid2156840_Exp7_AmplifiedWithHeuristic.csv
+Global end time: 1787423326.314758
+Finalisation time: 0.00 seconds; started at stardate 1787423326.314747 and finished at stardate 1787423326.314763
+Sum of all section times: 1617.78 seconds
+run_id: c8034917

@@ -1,0 +1,35 @@
+Starting QAOA benchmark with global start time: 1788830565.5531943
+Benchmark parameters: {'optimiser': 'adam', 'optimiser_use_heuristic': False, 'heuristic_optimiser_iterations': None, 'heuristic_optimiser_sampleSize': None, 'circuit_type': 'hamqaoa', 'parameter_vector': [1, 1, 1], 'iterations_list': [75], 'learning_rate_adam': 0.05, 'depth_list': [1, 2, 3, 4, 5], 'n_start': None, 'n_end': None, 'singlet_injection': False, 'start_index_singlet': None, 'warm_start': True, 'warm_start_mode': 'amplified_king', 'lasserre_level': 2, 'initial_solver_level_M': 2, 'sdp_seed': 42, 'sdp_solver_mode': 'scs', 'sdp_scs_eps': 1e-06, 'sdp_scs_max_iters': 100000, 'warm_start_corr_strength': None, 'warm_start_corr_repeats': None, 'compare_with_010101': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': None, 'failed_instance_termination_thrsh': None, 'graph_generation_type': 'hog', 'weighted': False, 'easiest_first': False, 'cpu_util_threshold': None, 'debug': False, 'save_circuit_svg': False, 'rerun_exclude_finished_instances': False, 'warm_start_cache_producer_only': False, 'qaoa_only_from_existing_warm_start_cache': True, 'optimiser_debug_iterations': None, 'num_repeats': 1, 'relative_graph_adjList_path': 'HOG_graphs/Exp5/path_graphs_2to12vertices_11instances_AdjacencyList.txt', 'persistent_warm_start_cache': True, 'warm_start_cache_dir': 'Results/warm_start_cache', 'warm_start_cache_max_file_mb': 512, 'warm_start_cache_max_total_gb': 60, 'sdp_max_parallel': 0, 'qaoa_max_parallel': 16, 'sdp_threads': 1, 'qaoa_threads': 1, 'sdp_memory_limit_total_gb': 0, 'sdp_memory_limit_single_gb': 0, 'sdp_memory_poll_seconds': 5, 'sdp_max_retries': 0, 'queue_poll_interval_seconds': 5, 'max_graph_vertices': 10, 'completed_result_csv_paths': [], 'qaoa_seed': 42, 'initialise_standard_warm_start_with_zero_angles': True, 'result_name_suffix': '_FINAL_BENCHMARKS_KINGAMPLIFIED', 'algorithm17_beta_mode': 'analytic_instance'}, Running QAOA with equal superposition
+Benchmark run ID: 82c1a401
+Benchmark repeat index: 1
+Configured SDP rounding seed: 42
+QAOA seed used: 42
+Processor: x86_64
+Hostname: dacsgpu0002
+Total RAM (GB): None
+Physical cores: 64
+Logical cores: 64
+Python version: 3.11.15
+Initialisation time: 0.01 seconds; started at stardate {'initialisation': 0.013508081436157227} and finished at stardate1788830565.5667152
+Loaded HOG graph index 3 with 4 edges.
+Instance generation for n=3 took 0.00 seconds; started at stardate 1788830565.5667226 and finished at stardate 1788830565.567377
+Running QAOA for n=5 nodes, m=4 edges...; Max iterations: 75
+Warm-start cache: loading Results/warm_start_cache/path_graphs_2to12vertices_11instances_AdjacencyList__filehash_01292d61/hog_idx000003_3fe097836279_seed42_L2_M2_betaanalytic_instance_amplified.npz
+Warm-start cache: loaded in 0.0018 seconds; effective compute time=15.090807914733887
+Edges: [(1, 2), (3, 4), (0, 1), (2, 3)], weights: [1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4}, n: 5 nodes, p: 5 layers, N_bayes: 75 iterations
+Solving for uuid: d66f16f9
+Initial state injected as warm start
+Ignoring zero_angle_warm_start because no active standard warm start is available; using the normal Adam initialization.
+Running ADAM optimization with a single iteration (no debug loop)
+4.912149799434896
+QAOA optimisation for n=3 took 26.71 seconds; started at stardate 1788830565.567381 and finished at stardate 1788830592.2741854
+Finished QAOA for n=5 nodes, m=4 edges at 2026-09-08 03:23:12 on x86_64. Time taken: 26.71 seconds. Hours: 0.01 hours. Peak RAM: 0.25 MB.
+Computing line approximation ratio
+CSV writing for n=3 took 0.02 seconds; started at stardate 1788830592.2741952 and finished at stardate 1788830592.2900908
+results: {3: 4.912149799434896}
+durations: {5: 26.706809759140015}
+Results saved to: Results/logs/adam/qaoa_results_adam_20260908_032240_pid2093232_FINAL_BENCHMARKS_KINGAMPLIFIED.csv
+Global end time: 1788830592.2901053
+Finalisation time: 0.00 seconds; started at stardate 1788830592.2900963 and finished at stardate 1788830592.2901094
+Sum of all section times: 26.74 seconds
+run_id: 82c1a401

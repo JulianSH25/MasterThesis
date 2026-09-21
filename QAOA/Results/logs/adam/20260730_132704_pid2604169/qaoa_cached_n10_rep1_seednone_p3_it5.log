@@ -1,0 +1,35 @@
+Starting QAOA benchmark with global start time: 1785413853.988008
+Benchmark parameters: {'optimiser': 'adam', 'optimiser_use_heuristic': False, 'heuristic_optimiser_iterations': None, 'heuristic_optimiser_sampleSize': None, 'circuit_type': 'hamqaoa', 'parameter_vector': [1, 1, 1], 'iterations_list': [5, 10], 'learning_rate_adam': 0.05, 'depth_list': [1, 2, 3], 'n_start': None, 'n_end': None, 'singlet_injection': False, 'start_index_singlet': None, 'warm_start': True, 'warm_start_mode': 'standard', 'lasserre_level': 2, 'initial_solver_level_M': 1, 'sdp_seed': None, 'sdp_solver_mode': 'scs', 'sdp_scs_eps': 1e-06, 'sdp_scs_max_iters': 100000, 'warm_start_corr_strength': None, 'warm_start_corr_repeats': None, 'compare_with_010101': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': None, 'failed_instance_termination_thrsh': None, 'graph_generation_type': 'hog', 'weighted': False, 'easiest_first': False, 'cpu_util_threshold': None, 'debug': False, 'save_circuit_svg': False, 'rerun_exclude_finished_instances': True, 'warm_start_cache_producer_only': False, 'qaoa_only_from_existing_warm_start_cache': True, 'optimiser_debug_iterations': None, 'num_repeats': 1, 'relative_graph_adjList_path': 'HOG_graphs/Exp5/list_193_graphs_adjacency_listhog_v04-12_planar_clawFree.txt', 'persistent_warm_start_cache': True, 'warm_start_cache_dir': 'Results/warm_start_cache', 'warm_start_cache_max_file_mb': 512, 'warm_start_cache_max_total_gb': 60, 'sdp_max_parallel': 0, 'qaoa_max_parallel': 32, 'sdp_threads': 1, 'qaoa_threads': 1, 'sdp_memory_limit_total_gb': 0, 'sdp_memory_limit_single_gb': 0, 'sdp_memory_poll_seconds': 5, 'sdp_max_retries': 0, 'queue_poll_interval_seconds': 5, 'completed_result_csv_paths': []}, Running QAOA with equal superposition
+Benchmark run ID: 7ca06371
+Benchmark repeat index: 1
+SDP seed override: None
+Processor: x86_64
+Hostname: dacsgpu0002
+Total RAM (GB): None
+Physical cores: 64
+Logical cores: 64
+Python version: 3.11.15
+Initialisation time: 0.01 seconds; started at stardate {'initialisation': 0.006072282791137695} and finished at stardate1785413853.9940908
+Loaded HOG graph index 10 with 11 edges.
+Instance generation for n=10 took 0.00 seconds; started at stardate 1785413853.9940963 and finished at stardate 1785413853.9975374
+Running QAOA for n=9 nodes, m=11 edges...; Max iterations: 5
+Warm-start cache: loading Results/warm_start_cache/list_193_graphs_adjacency_listhog_v04-12_planar_clawFree__filehash_62ae5075/hog_idx000010_a83d07d8935e_noseed_L2_M1_amplified.npz
+Warm-start cache: loaded in 0.0021 seconds; effective compute time=0.1628110408782959
+Edges: [(0, 1), (2, 3), (4, 7), (2, 6), (5, 7), (6, 8), (4, 8), (1, 5), (7, 8), (0, 5), (3, 6)], weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3, 4, 5, 6, 7, 8}, n: 9 nodes, p: 3 layers, N_bayes: 5 iterations
+Solving for uuid: 49519769
+Initial state injected as warm start
+Running ADAM optimization with a single iteration (no debug loop)
+8.02971227241699
+QAOA optimisation for n=10 took 1.88 seconds; started at stardate 1785413853.9975412 and finished at stardate 1785413855.879168
+Finished QAOA for n=9 nodes, m=11 edges at 2026-07-30 14:17:35 on x86_64. Time taken: 1.88 seconds. Hours: 0.00 hours. Peak RAM: 0.38 MB.
+Unknown graph type for approximation ratio calculation; checking misc CSV.
+Checking optimal_results_misc.csv for matching edges and weights...
+Found matching exact result in misc CSV: 6.11803398874992
+CSV writing for n=10 took 0.01 seconds; started at stardate 1785413855.8791769 and finished at stardate 1785413855.888351
+results: {10: 8.02971227241699}
+durations: {9: 1.8816320896148682}
+Results saved to: Results/logs/adam/qaoa_results_adam_20260730_132704_pid2604169.csv
+Global end time: 1785413855.8883624
+Finalisation time: 0.00 seconds; started at stardate 1785413855.8883548 and finished at stardate 1785413855.888367
+Sum of all section times: 1.90 seconds
+run_id: 7ca06371
