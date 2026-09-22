@@ -215,7 +215,7 @@ class QAOACircuit(QuantumCircuit):
         return self.qc, self.qaoa_parameters
 
     def _apply_warm_start_correlations_with_strength(self, strength: float = 1.0, repeats: int = 1) -> None:
-        # NOTE Helper for apply_warm_start()
+        # Helper for apply_warm_start()
         """
         @param strength: scaling factor for the correlation-based gate angles, allowing for amplification or attenuation of the influence of the warm start correlations on the circuit; a strength > 1 amplifies the correlations, while a strength < 1 attenuates them.
         @param repeats: number of times to apply the correlation-based gates, allowing for iterative strengthening of the influence of the warm start correlations on the circuit; more repeats can enhance the effect of the correlations but may also increase circuit depth and noise sensitivity.
@@ -736,7 +736,9 @@ class QAOACircuit(QuantumCircuit):
             writer.writerow(row)
 
 
-# Example usage:
+
+
+# Example usage (deprecated, not for use; run QAOA > Code(i.e. this directory) > Main.py instead):
 if __name__ == "__main__":
     """QAOA circuit test execution (not SDP)"""
     use_measurements = False

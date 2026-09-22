@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime
 import json
 import shutil
 from pathlib import Path
@@ -31,7 +32,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--apply", action="store_true", help="Actually copy files. Default is dry-run.")
     parser.add_argument("--force", action="store_true", help="Overwrite files that already exist.")
     parser.add_argument("--no-logs", action="store_true", help="Do not copy the matching run log folder.")
+    parser.add_argument(
+        "--since",
+        metavar="YYYYMMDD",
+        help="Only organise runs started on or after this date.",
+    )
     return parser.parse_args()
+
+
+def validated_date(value: str | None) -> str | None:
+    if value is None:
+        return None
+    try:
+        datetime.strptime(value, "%Y%m%d")
+    except ValueError as exc:
+        raise ValueError("--since must be a valid date in YYYYMMDD format.") from exc
+    return value
 
 
 def run_tag(snapshot: Path) -> str:
@@ -108,6 +124,7 @@ def copy_log_dir(source: Path, target: Path, apply: bool, force: bool) -> str:
 
 def main() -> None:
     args = parse_args()
+    since = validated_date(args.since)
     name_addition = args.name_addition.strip()
     if not name_addition:
         raise ValueError("name_addition must not be empty.")
@@ -136,12 +153,14 @@ def main() -> None:
             and str(config.get("optimiser", "")).lower() == "adam"
             and not config.get("warm_start_cache_producer_only")
             and config.get("result_name_suffix") == name_addition
+            and (since is None or run_tag(snapshot)[:8] >= since)
         ):
             runs.append((snapshot, config))
 
     print(
         f"{'DRY-RUN ' if not args.apply else ''}Organising {len(runs)} {experiment} QAOA snapshots "
-        f"with result_name_suffix={name_addition!r}."
+        f"with result_name_suffix={name_addition!r}"
+        f"{f' since {since}' if since else ''}."
     )
     if invalid_snapshots:
         print(f"Skipped {invalid_snapshots} invalid config snapshot(s).")

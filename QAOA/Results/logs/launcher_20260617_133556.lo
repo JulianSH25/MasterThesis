@@ -1,6 +1,0 @@
-Launcher PID: 2706823
-Started at: 2026-06-17 13:35:56
-Host: vscode-7576bc9984-87rv2
-Working directory: /home/coder/project/MasterThesis/QAOA
-Error: jq is required but was not found in PATH.
-Install with: conda install -c conda-forge jq -y

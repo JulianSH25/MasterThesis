@@ -888,6 +888,35 @@ def with_all_instances(frame: pd.DataFrame) -> pd.DataFrame:
     return pd.concat([all_instances, frame], ignore_index=True)
 
 
+def annotate_win_rates(
+    ax: plt.Axes,
+    bars: object,
+    win_rates: pd.Series,
+) -> None:
+    for bar, rate in zip(bars, win_rates):
+        if pd.isna(rate):
+            continue
+        endpoint = float(bar.get_y() + bar.get_height())
+        if np.isclose(endpoint, 0.0):
+            offset = -7
+            vertical_alignment = "top"
+        elif endpoint < 0:
+            offset = 5
+            vertical_alignment = "bottom"
+        else:
+            offset = -5
+            vertical_alignment = "top"
+        ax.annotate(
+            f"{100 * rate:.0f}% wins",
+            (bar.get_x() + bar.get_width() / 2, endpoint),
+            xytext=(0, offset),
+            textcoords="offset points",
+            ha="center",
+            va=vertical_alignment,
+            fontsize=8,
+        )
+
+
 def plot_overview(
     state_by_dataset: pd.DataFrame,
     relaxation_by_dataset: pd.DataFrame,
@@ -895,7 +924,9 @@ def plot_overview(
     state_long: pd.DataFrame,
     relaxation_long: pd.DataFrame,
     paired: pd.DataFrame,
-    output_path: Path,
+    state_output_path: Path,
+    relaxation_output_path: Path,
+    paired_output_path: Path,
     include_l2m1: bool,
     summary: str,
     show: bool,
@@ -906,20 +937,31 @@ def plot_overview(
     if include_l2m1:
         method_order.extend(["L2M1 rounded", "L2M1 rotated"])
 
-    fig, axes = plt.subplots(2, 2, figsize=(18, 12))
     label = SUMMARY_LABEL[summary]
-    fig.suptitle(
-        f"Lasserre-1 and Lasserre-2 SDP comparison: {label.lower()}",
+    family_order = ["L1M1", "L2M2"] + (["L2M1"] if include_l2m1 else [])
+
+    state_fig, state_axes = plt.subplots(1, 2, figsize=(18, 6.7))
+    state_fig.suptitle(
+        f"Lasserre-1 and Lasserre-2 rounded-state comparison: {label.lower()}",
         fontsize=19,
     )
-    family_order = ["L1M1", "L2M2"] + (["L2M1"] if include_l2m1 else [])
+    relaxation_fig, relaxation_ax = plt.subplots(figsize=(11.5, 6.7))
+    relaxation_fig.suptitle(
+        f"Lasserre-1 and Lasserre-2 relaxation tightness: {label.lower()}",
+        fontsize=18,
+    )
+    paired_fig, paired_ax = plt.subplots(figsize=(11.5, 6.7))
+    paired_fig.suptitle(
+        f"Lasserre-2 rotated minus Lasserre-1 rounded: {label.lower()}",
+        fontsize=18,
+    )
 
     if summary == "boxplot":
         state_box = with_all_instances(state_long)
         relaxation_box = with_all_instances(relaxation_long)
         paired_box = with_all_instances(paired)
         grouped_boxplots(
-            axes[0, 0],
+            state_axes[0],
             state_box,
             "dataset",
             datasets,
@@ -932,7 +974,7 @@ def plot_overview(
             "Rounded and rotated state quality",
         )
         grouped_boxplots(
-            axes[0, 1],
+            state_axes[1],
             state_box,
             "dataset",
             datasets,
@@ -945,7 +987,7 @@ def plot_overview(
             "Fraction of the relaxation retained",
         )
         grouped_boxplots(
-            axes[1, 0],
+            relaxation_ax,
             relaxation_box,
             "dataset",
             datasets,
@@ -958,7 +1000,7 @@ def plot_overview(
             "Relaxation tightness (lower is tighter)",
         )
         grouped_boxplots(
-            axes[1, 1],
+            paired_ax,
             paired_box.assign(comparison="L2 rotated - L1 rounded"),
             "dataset",
             datasets,
@@ -972,7 +1014,7 @@ def plot_overview(
         )
     else:
         plot_aggregate_summary_bars(
-            axes[0, 0],
+            state_axes[0],
             summary,
             state_by_dataset,
             datasets,
@@ -985,7 +1027,7 @@ def plot_overview(
             "Rounded and rotated state quality",
         )
         plot_aggregate_summary_bars(
-            axes[0, 1],
+            state_axes[1],
             summary,
             state_by_dataset,
             datasets,
@@ -998,7 +1040,7 @@ def plot_overview(
             "Fraction of the relaxation retained",
         )
         plot_aggregate_summary_bars(
-            axes[1, 0],
+            relaxation_ax,
             summary,
             relaxation_by_dataset,
             datasets,
@@ -1023,7 +1065,7 @@ def plot_overview(
                 METHOD_COLORS["L2 rotated"],
                 METHOD_COLORS["L1 rounded"],
             )
-            bars = axes[1, 1].bar(x, gains, color=colors)
+            bars = paired_ax.bar(x, gains, color=colors)
         else:
             lower = paired_dataset[
                 f"{prefixes[0]}_l2_rotated_minus_l1_rounded_exact"
@@ -1037,7 +1079,7 @@ def plot_overview(
                 METHOD_COLORS["L2 rotated"],
                 METHOD_COLORS["L1 rounded"],
             )
-            bars = axes[1, 1].bar(
+            bars = paired_ax.bar(
                 x,
                 upper - lower,
                 bottom=lower,
@@ -1045,35 +1087,65 @@ def plot_overview(
                 alpha=0.5,
                 edgecolor=colors,
             )
-            axes[1, 1].scatter(x, lower, marker="_", s=100, color=colors, zorder=3)
-            axes[1, 1].scatter(x, upper, marker="_", s=100, color=colors, zorder=3)
+            paired_ax.scatter(x, lower, marker="_", s=100, color=colors, zorder=3)
+            paired_ax.scatter(x, upper, marker="_", s=100, color=colors, zorder=3)
 
-        style_group_axis(axes[1, 1], x, labels)
-        axes[1, 1].set_ylabel("L2 rotated minus L1 rounded")
-        axes[1, 1].set_title(f"{label} paired final-state difference")
+        style_group_axis(paired_ax, x, labels)
+        paired_ax.set_ylabel("L2 rotated minus L1 rounded")
+        paired_ax.set_title(f"{label} paired final-state difference")
         win_rates = paired_dataset["l2_rotated_win_rate"]
-        axes[1, 1].bar_label(
-            bars,
-            labels=[
-                "" if pd.isna(rate) else f"{100 * rate:.0f}% wins"
-                for rate in win_rates
-            ],
-            padding=4,
-            fontsize=8,
+        annotate_win_rates(paired_ax, bars, win_rates)
+
+    relaxation_ax.axhline(1.0, color="black", linewidth=1, linestyle=":")
+    paired_ax.axhline(0, color="black", linewidth=1)
+    paired_ax.yaxis.set_major_formatter(PercentFormatter(1.0))
+    paired_ax.grid(axis="y", alpha=0.25)
+    paired_ax.margins(y=0.12)
+
+    state_handles, state_legend_labels = state_axes[0].get_legend_handles_labels()
+    if state_handles:
+        state_fig.legend(
+            state_handles,
+            state_legend_labels,
+            loc="upper center",
+            ncol=min(5, len(state_handles)),
+            bbox_to_anchor=(0.5, 0.91),
         )
+    state_fig.tight_layout(rect=(0, 0, 1, 0.82), w_pad=2.0)
+    state_fig.savefig(state_output_path, dpi=200, bbox_inches="tight")
 
-    axes[1, 0].axhline(1.0, color="black", linewidth=1, linestyle=":")
-    axes[1, 1].axhline(0, color="black", linewidth=1)
-    axes[1, 1].yaxis.set_major_formatter(PercentFormatter(1.0))
-    axes[1, 1].grid(axis="y", alpha=0.25)
+    relaxation_handles, relaxation_labels = relaxation_ax.get_legend_handles_labels()
+    if relaxation_handles:
+        relaxation_fig.legend(
+            relaxation_handles,
+            relaxation_labels,
+            loc="upper center",
+            ncol=min(5, len(relaxation_handles)),
+            bbox_to_anchor=(0.5, 0.91),
+        )
+    relaxation_fig.tight_layout(rect=(0, 0, 1, 0.82))
+    relaxation_fig.savefig(relaxation_output_path, dpi=200, bbox_inches="tight")
 
-    handles, legend_labels = axes[0, 0].get_legend_handles_labels()
-    fig.legend(handles, legend_labels, loc="upper center", ncol=len(handles), bbox_to_anchor=(0.5, 0.95))
-    fig.tight_layout(rect=(0, 0, 1, 0.91), h_pad=3.0, w_pad=2.0)
-    fig.savefig(output_path, dpi=200, bbox_inches="tight")
+    paired_handles, paired_labels = paired_ax.get_legend_handles_labels()
+    if paired_handles:
+        paired_fig.legend(
+            paired_handles,
+            paired_labels,
+            loc="upper center",
+            ncol=min(4, len(paired_handles)),
+            bbox_to_anchor=(0.5, 0.91),
+        )
+        paired_rect_top = 0.82
+    else:
+        paired_rect_top = 0.90
+    paired_fig.tight_layout(rect=(0, 0, 1, paired_rect_top))
+    paired_fig.savefig(paired_output_path, dpi=200, bbox_inches="tight")
+
     if show:
         plt.show()
-    plt.close(fig)
+    plt.close(state_fig)
+    plt.close(relaxation_fig)
+    plt.close(paired_fig)
 
 
 def aggregate_by_x(
@@ -1671,11 +1743,13 @@ def main() -> None:
 
     dataset_figure_dir = output_dir / "by_graph_family"
     dataset_figure_dir.mkdir(parents=True, exist_ok=True)
-    overview_paths = []
+    comparison_paths = []
     runtime_paths = []
     for summary in SUMMARY_ORDER:
         suffix = SUMMARY_FILENAME_SUFFIX[summary]
-        overview_path = output_dir / f"sdp_quality_comparison{suffix}.png"
+        state_path = output_dir / f"sdp_quality_comparison{suffix}.png"
+        relaxation_path = output_dir / f"sdp_relaxation_tightness{suffix}.png"
+        paired_path = output_dir / f"sdp_paired_final_state_difference{suffix}.png"
         runtime_path = output_dir / f"sdp_runtime_comparison{suffix}.png"
         plot_overview(
             state_for_overview,
@@ -1684,7 +1758,9 @@ def main() -> None:
             state_long,
             relaxation_long,
             paired,
-            overview_path,
+            state_path,
+            relaxation_path,
+            paired_path,
             args.include_l2m1,
             summary,
             args.show,
@@ -1696,7 +1772,7 @@ def main() -> None:
             summary,
             args.show,
         )
-        overview_paths.append(overview_path)
+        comparison_paths.extend([state_path, relaxation_path, paired_path])
         runtime_paths.append(runtime_path)
 
         for dataset in ordered_datasets(paired["dataset"]):
@@ -1712,7 +1788,7 @@ def main() -> None:
     print(f"Matched L1M1/L2M2 graph instances: {len(paired)}")
     print_summary(state_overall, paired_summary)
     report_sanity_checks(paired)
-    print(f"\nSaved {len(overview_paths)} overview figures to: {output_dir}")
+    print(f"\nSaved {len(comparison_paths)} SDP comparison figures to: {output_dir}")
     print(f"Saved {len(runtime_paths)} runtime figures to: {output_dir}")
     print(f"Saved per-family figures to: {dataset_figure_dir}")
     print(f"Saved exact numerical report to: {report_path}")

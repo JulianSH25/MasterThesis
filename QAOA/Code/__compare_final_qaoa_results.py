@@ -53,6 +53,25 @@ WARM_START_COLORS = {
     "king_amplified": "#C43C39",
     "king_entangled": "#7A5195",
 }
+HEURISTIC_ORDER = ["noheuristic", "h1_s10", "h1_s25", "h1_s50"]
+HEURISTIC_LABELS = {
+    "noheuristic": "No heuristic",
+    "h1_s10": "Heuristic 10",
+    "h1_s25": "Heuristic 25",
+    "h1_s50": "Heuristic 50",
+}
+HEURISTIC_COLORS = {
+    "noheuristic": "#555555",
+    "h1_s10": "#2878B5",
+    "h1_s25": "#E28E2C",
+    "h1_s50": "#C43C39",
+}
+HEURISTIC_MARKERS = {
+    "noheuristic": "o",
+    "h1_s10": "s",
+    "h1_s25": "^",
+    "h1_s50": "D",
+}
 FAMILY_MARKERS = {
     "QAOA_only": "^",
     "L1M1": "o",
@@ -412,7 +431,18 @@ def assign_series_labels(results: pd.DataFrame) -> pd.DataFrame:
     results["warm_start_label"] = results["warm_start_type"].map(
         lambda value: WARM_START_LABELS.get(value, value.replace("_", " "))
     )
-    if experiment_count == 1 and setting_count == 1:
+    qaoa_only_comparison = family_count == 1 and results["family"].eq("QAOA_only").all()
+    if qaoa_only_comparison:
+        results["series"] = [
+            (
+                f"{HEURISTIC_LABELS.get(initialisation, format_initialisation_name(initialisation))}"
+                f" | lr={learning_rate:g}"
+            )
+            for initialisation, learning_rate in zip(
+                results["initialisation_setting"], results["learning_rate"]
+            )
+        ]
+    elif experiment_count == 1 and setting_count == 1:
         results["series"] = results["family"].map(FAMILY_LABELS)
     elif experiment_count == 1 and family_count == 1:
         results["series"] = results["setting"]
@@ -809,7 +839,16 @@ def series_order(results: pd.DataFrame) -> list[str]:
         mode: index for index, mode in enumerate(WARM_START_ORDER)
     }
     metadata = (
-        results[["series", "warm_start_type", "setting", "family"]]
+        results[
+            [
+                "series",
+                "warm_start_type",
+                "setting",
+                "family",
+                "initialisation_setting",
+                "learning_rate",
+            ]
+        ]
         .drop_duplicates()
         .assign(
             warm_start_rank=lambda frame: frame["warm_start_type"]
@@ -818,7 +857,16 @@ def series_order(results: pd.DataFrame) -> list[str]:
             family_rank=lambda frame: frame["family"].map(family_rank).fillna(99),
         )
     )
-    if results["experiment"].nunique() == 1:
+    if results["family"].nunique() == 1 and results["family"].eq("QAOA_only").all():
+        heuristic_rank = {
+            heuristic: index for index, heuristic in enumerate(HEURISTIC_ORDER)
+        }
+        metadata = metadata.assign(
+            heuristic_rank=lambda frame: frame["initialisation_setting"]
+            .map(heuristic_rank)
+            .fillna(99)
+        ).sort_values(["heuristic_rank", "learning_rate", "series"])
+    elif results["experiment"].nunique() == 1:
         metadata = metadata.sort_values(["family_rank", "setting", "series"])
     else:
         metadata = metadata.sort_values(
@@ -846,10 +894,58 @@ def shade_color(
 def build_styles(results: pd.DataFrame) -> dict[str, dict[str, object]]:
     order = series_order(results)
     metadata = (
-        results[["series", "warm_start_type", "setting", "family"]]
+        results[
+            [
+                "series",
+                "warm_start_type",
+                "setting",
+                "family",
+                "initialisation_setting",
+                "learning_rate",
+            ]
+        ]
         .drop_duplicates()
         .set_index("series")
     )
+    qaoa_only_comparison = (
+        results["family"].nunique() == 1 and results["family"].eq("QAOA_only").all()
+    )
+    if qaoa_only_comparison:
+        learning_rates = sorted(metadata["learning_rate"].dropna().unique())
+        learning_rate_styles = {
+            learning_rate: LINESTYLES[index % len(LINESTYLES)]
+            for index, learning_rate in enumerate(learning_rates)
+        }
+        series_colors: dict[str, tuple[float, float, float]] = {}
+        heuristics = list(
+            dict.fromkeys(metadata.loc[order, "initialisation_setting"].tolist())
+        )
+        palette = plt.get_cmap("tab20", max(len(heuristics), 1))
+        for heuristic_index, heuristic in enumerate(heuristics):
+            heuristic_series = [
+                series
+                for series in order
+                if metadata.loc[series, "initialisation_setting"] == heuristic
+            ]
+            base_color = HEURISTIC_COLORS.get(heuristic, palette(heuristic_index))
+            for shade_index, series in enumerate(heuristic_series):
+                series_colors[series] = shade_color(
+                    base_color, shade_index, len(heuristic_series)
+                )
+
+        styles: dict[str, dict[str, object]] = {}
+        for index, series in enumerate(order):
+            row = metadata.loc[series]
+            heuristic = row["initialisation_setting"]
+            styles[series] = {
+                "color": series_colors[series],
+                "marker": HEURISTIC_MARKERS.get(
+                    heuristic, MARKERS[index % len(MARKERS)]
+                ),
+                "linestyle": learning_rate_styles[row["learning_rate"]],
+            }
+        return styles
+
     setting_styles = {
         setting: LINESTYLES[index % len(LINESTYLES)]
         for index, setting in enumerate(sorted(metadata["setting"].unique()))

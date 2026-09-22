@@ -1,2 +1,0 @@
-/home/i6408800/MasterThesis/QAOA/Code/Circuit.py:192: UserWarning: No classical warm-start cut provided for HAMQAOA; using random cut values for fourth HAMQAOA gate. This may lead to suboptimal performance and may be unintentional if a classical warm start was intended.
-  warnings.warn(

@@ -2,6 +2,8 @@ import json
 import sys
 import hashlib
 
+"""Compute a unique run key based on the configuration and whitelist of parameters for benchmarking QAOA warm-starts; somewhat outdated, was mainly used for manual result mapping to check correctness of the benchmarking pipeline (easier lookup via key instead of full config)."""
+
 def normalize(v):
     if v is None:
         return ""

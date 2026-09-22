@@ -29,6 +29,18 @@ METHOD_COLORS = {
     "Heuristic 25": "#E28E2C",
     "Heuristic 50": "#C43C39",
 }
+METHOD_MARKERS = {
+    "No heuristic": "o",
+    "Heuristic 10": "s",
+    "Heuristic 25": "^",
+    "Heuristic 50": "D",
+}
+METHOD_LINESTYLES = {
+    "No heuristic": "-",
+    "Heuristic 10": (0, (5, 2)),
+    "Heuristic 25": (0, (5, 2, 1.5, 2)),
+    "Heuristic 50": (0, (1, 1.5)),
+}
 SUMMARY_ORDER = ("mean", "median", "range", "boxplot")
 SUMMARY_LABELS = {
     "mean": "Mean",
@@ -328,6 +340,14 @@ def method_series(
     return summary.loc[summary["method"].eq(method)].sort_values(x_column)
 
 
+def method_style(method: str) -> dict[str, object]:
+    return {
+        "color": METHOD_COLORS[method],
+        "marker": METHOD_MARKERS[method],
+        "linestyle": METHOD_LINESTYLES[method],
+    }
+
+
 def metric_summary_title(statistic: str, metric: str) -> str:
     if statistic == "boxplot":
         return f"{metric} distribution"
@@ -507,24 +527,23 @@ def plot_series_summary(
             axis.plot(
                 series[x_column],
                 series["min_approx_ratio"],
-                color=METHOD_COLORS[method],
                 linewidth=1.2,
+                **method_style(method),
             )
             axis.plot(
                 series[x_column],
                 series["max_approx_ratio"],
-                color=METHOD_COLORS[method],
                 linewidth=1.2,
                 label=method,
+                **method_style(method),
             )
         else:
             axis.plot(
                 series[x_column],
                 series[f"{statistic}_approx_ratio"],
-                marker="o",
                 linewidth=2,
                 label=method,
-                color=METHOD_COLORS[method],
+                **method_style(method),
             )
 
 
@@ -702,8 +721,12 @@ def plot_quality_comparison(
         handles,
         labels,
         loc="upper center",
-        ncol=min(6, len(handles)),
+        ncol=min(4, len(handles)),
         bbox_to_anchor=(0.5, 0.95),
+        fontsize=9,
+        handlelength=3.8,
+        handletextpad=0.6,
+        columnspacing=1.2,
     )
     fig.tight_layout(rect=(0, 0, 1, 0.90), h_pad=2.5, w_pad=2.0)
     fig.savefig(output_path, dpi=200, bbox_inches="tight")
@@ -757,6 +780,7 @@ def plot_runtime_tradeoff(
                 row[ratio_column],
                 s=90,
                 color=METHOD_COLORS[row["method"]],
+                marker=METHOD_MARKERS[row["method"]],
             )
             axes[1].annotate(
                 row["method"],
@@ -789,7 +813,17 @@ def plot_runtime_tradeoff(
 
     if statistic == "boxplot":
         handles, labels = axes[0].get_legend_handles_labels()
-        fig.legend(handles, labels, loc="upper center", ncol=2, bbox_to_anchor=(0.5, 0.90))
+        fig.legend(
+            handles,
+            labels,
+            loc="upper center",
+            ncol=2,
+            bbox_to_anchor=(0.5, 0.90),
+            fontsize=9,
+            handlelength=3.8,
+            handletextpad=0.6,
+            columnspacing=1.2,
+        )
 
     fig.tight_layout(rect=(0, 0, 1, 0.82 if statistic == "boxplot" else 0.90))
     fig.savefig(output_path, dpi=200, bbox_inches="tight")
