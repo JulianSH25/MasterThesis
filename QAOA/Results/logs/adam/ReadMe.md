@@ -1,0 +1,3 @@
+FINAL contains all benchmark results and analysis files along with the respective plots, that are partially used in the thesis, in a sorted by benchmark manner.
+
+raw_unorganised_logs_and_result_csvs_for_FINAL_BENCHMARK on the other hand contains all the same benchmark data (without any analysis files) and additionally the log files, but in an unsorted manner. Each csv and folder maps to the final subdirectories in ´´FINAL´´via the timestamp and pid number in the respective names; Originally these folders and csv files where written directly into the ´´adam´´ directory, but I sorted it to make it less cluttered.

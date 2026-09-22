@@ -1,0 +1,34 @@
+Starting QAOA benchmark with global start time: 1789063108.2067897
+Benchmark parameters: {'optimiser': 'adam', 'optimiser_use_heuristic': True, 'heuristic_optimiser_iterations': 1, 'heuristic_optimiser_sampleSize': 25, 'circuit_type': 'hamqaoa', 'parameter_vector': [1, 1, 1], 'iterations_list': [75], 'learning_rate_adam': 0.05, 'depth_list': [6, 7, 8, 9, 10], 'n_start': None, 'n_end': None, 'singlet_injection': False, 'start_index_singlet': None, 'warm_start': True, 'warm_start_mode': 'entangled_king', 'lasserre_level': 2, 'initial_solver_level_M': 2, 'sdp_seed': 42, 'sdp_solver_mode': 'scs', 'sdp_scs_eps': 1e-06, 'sdp_scs_max_iters': 100000, 'warm_start_corr_strength': None, 'warm_start_corr_repeats': None, 'compare_with_010101': False, 'init_QAOAparams_close_to_zero': False, 'use_correlations_as_initial_params': False, 'time_limit': None, 'failed_instance_termination_thrsh': None, 'graph_generation_type': 'hog', 'weighted': False, 'easiest_first': False, 'cpu_util_threshold': None, 'debug': False, 'save_circuit_svg': False, 'rerun_exclude_finished_instances': False, 'warm_start_cache_producer_only': False, 'qaoa_only_from_existing_warm_start_cache': True, 'optimiser_debug_iterations': None, 'num_repeats': 1, 'relative_graph_adjList_path': 'HOG_graphs/Exp5/list_193_graphs_adjacency_listhog_v04-12_planar_clawFree.txt', 'persistent_warm_start_cache': True, 'warm_start_cache_dir': 'Results/warm_start_cache', 'warm_start_cache_max_file_mb': 512, 'warm_start_cache_max_total_gb': 60, 'sdp_max_parallel': 0, 'qaoa_max_parallel': 16, 'sdp_threads': 1, 'qaoa_threads': 1, 'sdp_memory_limit_total_gb': 0, 'sdp_memory_limit_single_gb': 0, 'sdp_memory_poll_seconds': 5, 'sdp_max_retries': 0, 'queue_poll_interval_seconds': 5, 'max_graph_vertices': 10, 'completed_result_csv_paths': [], 'qaoa_seed': 42, 'initialise_standard_warm_start_with_zero_angles': False, 'result_name_suffix': '_FINAL_BENCHMARKS_KINGENTANGLED_BestPerformers', 'algorithm17_beta_mode': 'analytic_instance'}, Running QAOA with equal superposition
+Benchmark run ID: bcd7b038
+Benchmark repeat index: 1
+Configured SDP rounding seed: 42
+QAOA seed used: 42
+Processor: x86_64
+Hostname: dacsgpu0002
+Total RAM (GB): None
+Physical cores: 64
+Logical cores: 64
+Python version: 3.11.15
+Initialisation time: 0.01 seconds; started at stardate {'initialisation': 0.005296230316162109} and finished at stardate1789063108.2120917
+Loaded HOG graph index 41 with 4 edges.
+Instance generation for n=41 took 0.01 seconds; started at stardate 1789063108.2120962 and finished at stardate 1789063108.2197337
+Running QAOA for n=4 nodes, m=4 edges...; Max iterations: 75
+Warm-start cache: loading Results/warm_start_cache/list_193_graphs_adjacency_listhog_v04-12_planar_clawFree__filehash_62ae5075/hog_idx000041_cfa056765592_seed42_L2_M2_betaanalytic_instance_amplified.npz
+Warm-start cache: loaded in 0.0035 seconds; effective compute time=7.110702991485596
+Edges: [(1, 3), (0, 1), (0, 2), (2, 3)], weights: [1.0, 1.0, 1.0, 1.0], set of nodes: {0, 1, 2, 3}, n: 4 nodes, p: 7 layers, N_bayes: 75 iterations
+Solving for uuid: 2a64d96a
+Entangled King warm start: equal superposition; King rotations applied in each QAOA layer
+Running ADAM optimization with a single iteration (no debug loop)
+5.820658269681245
+QAOA optimisation for n=41 took 38.01 seconds; started at stardate 1789063108.2197385 and finished at stardate 1789063146.2319279
+Finished QAOA for n=4 nodes, m=4 edges at 2026-09-10 19:59:06 on x86_64. Time taken: 38.01 seconds. Hours: 0.01 hours. Peak RAM: 0.25 MB.
+Computing cycle approximation ratio
+CSV writing for n=41 took 0.01 seconds; started at stardate 1789063146.231936 and finished at stardate 1789063146.2411885
+results: {41: 5.820658269681245}
+durations: {4: 38.01219415664673}
+Results saved to: Results/logs/adam/qaoa_results_adam_20260910_151550_pid360968_FINAL_BENCHMARKS_KINGENTANGLED_BestPerformers.csv
+Global end time: 1789063146.2412
+Finalisation time: 0.00 seconds; started at stardate 1789063146.2411933 and finished at stardate 1789063146.2412033
+Sum of all section times: 38.03 seconds
+run_id: bcd7b038
