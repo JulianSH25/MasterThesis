@@ -55,6 +55,42 @@ sbatch slurm_FINAL_BENCHMARKS_<MODE>/<setting>/<data-set>/<job-file>.slurm
 
 The final benchmark Slurm files are intentionally concrete rather than generic templates. For a new experiment, first create the JSON configuration, then create or copy a matching Slurm file that points to it.
 
+Otherwhise the main entry point is QAOA/Code/Main.py:
+
+### Running a Single Warm-Started Configuration
+
+`QAOA/Code/Main.py` can be called directly for a small warm-started run. These examples solve the required SDP relaxation for the complete graph with two vertices and then run one depth-1 QAOA optimisation step.
+
+**L1M1**
+
+```bash
+cd QAOA
+
+BENCHMARK_CONFIG_FILE="$PWD/Code/run_configurations/FINAL_BENCHMARKS_STANDARD/lr05_noheuristic/complete_2to12/benchm_config_complete_2to12_lr05_noheuristic_L1M1.json" \
+QAOA_JOBLIB_N_JOBS=1 \
+conda run -n MasterThesis python Code/Main.py 1 1 2 2 Results/logs/adam/example_l1m1
+```
+
+**L2M2**
+
+```bash
+cd QAOA
+
+BENCHMARK_CONFIG_FILE="$PWD/Code/run_configurations/FINAL_BENCHMARKS_STANDARD/lr05_noheuristic/complete_2to12/benchm_config_complete_2to12_lr05_noheuristic_L2M2.json" \
+QAOA_JOBLIB_N_JOBS=1 \
+conda run -n MasterThesis python Code/Main.py 1 1 2 2 Results/logs/adam/example_l2m2
+```
+
+The arguments following `Code/Main.py` are:
+
+1. `1`: Number of Adam optimiser updates.
+2. `1`: QAOA circuit depth \(p\).
+3. `2`: First graph size to process. For the complete-graph configuration, this selects \(K_2\).
+4. `2`: Last graph size to process. Using the same value processes only \(K_2\).
+5. `Results/logs/adam/example_l1m1`: Output-file prefix. The program appends `.csv`.
+
+`BENCHMARK_CONFIG_FILE` selects the JSON configuration and therefore the graph family, SDP level, warm-start mode, learning rate, and other benchmark settings. `QAOA_JOBLIB_N_JOBS=1` limits local parallelism to one worker, which is useful for a small test run. The L2M2 example becomes substantially more expensive for larger graphs because it solves the Level-2 SDP relaxation.
+
 ## Processing results
 
 The scripts beginning with `__` in `QAOA/Code/` process the stored result CSVs and warm-start-cache summaries. The main scripts used for the thesis figures are:
