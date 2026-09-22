@@ -234,3 +234,5 @@ __marimo__/
 !QAOA/Results/logs/[aA][dD][aA][mM]/*_Exp4a_tf829_*/*.log
 !QAOA/Results/logs/[aA][dD][aA][mM]/*_Exp4b_tf829_*/*.csv
 !QAOA/Results/logs/[aA][dD][aA][mM]/*_Exp4b_tf829_*/*.log
+
+/QAOA/Results/logs/adam/raw_unorganised_logs_and_result_csvs_for_FINAL_BENCHMARK.zip
