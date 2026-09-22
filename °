@@ -1,0 +1,15 @@
+deleted old files; edited readme
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Committer: Julian Klitzke <julian@julians-macbook-air-2.fritz.box.wired.unimaas.local>
+#
+# On branch main
+# Your branch is up to date with 'origin/main'.
+#
+# Changes to be committed:
+#	deleted:    QAOA/benchmark_analytics.ipynb
+#	deleted:    QAOA/environment_dsri.yml
+#	deleted:    QAOA/environment_history.yml
+#	modified:   README.md
+#
