@@ -1,3 +1,9 @@
+"""Prepare specialised initial states used by optional QAOA experiments.
+
+The main QAOA pipeline normally starts from an equal superposition or an SDP
+warm-start state.  This module holds the separate line-graph singlet initialiser.
+"""
+
 from numpy.f2py.auxfuncs import throw_error
 from qiskit import QuantumCircuit
 
@@ -16,8 +22,17 @@ def prepare_line_singlet_circuit(
       - start_index=0 -> (0,1), (2,3), (4,5), ...
       - start_index=1 -> (1,2), (3,4), (5,6), ...
 
-    Leftover qubits (not part of a singlet) are initialized according to leftover_mode:
-    The default is the superposition |+>
+    Leftover qubits are initialised according to ``leftover_mode``.  The
+    currently supported choice is the equal-superposition state ``|+>``.
+
+    Args:
+        qc: Circuit modified in place.
+        n: Number of graph vertices and qubits.
+        start_index: Matching offset, selecting either even or odd line edges.
+        leftover_mode: Initialisation applied to unmatched qubits.
+
+    Raises:
+        ValueError: If the offset or leftover-state mode is unsupported.
     """
     if start_index not in (0, 1):
         raise ValueError("start_index must be 0 or 1")

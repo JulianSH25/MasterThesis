@@ -1,3 +1,10 @@
+"""Construct and solve the Level-1 and Level-2 QMC SDP relaxations.
+
+``SDP.Main`` delegates the numerical relaxation to :class:`SDP_Solver_` before
+the GP/GW and optional Algorithm 17 rounding stages.  The selected CVXPY backend
+and its tolerances are read from the active benchmark configuration.
+"""
+
 import cvxpy as cp
 import numpy as np
 from typing import Literal, TypedDict
@@ -25,17 +32,44 @@ else:
 Bit = Literal[0, 1]
 
 class ABCParams(TypedDict):
+    """Binary selectors for the active ``XX``, ``YY``, and ``ZZ`` QMC terms."""
     a: Bit
     b: Bit
     c: Bit
 
 class SDP_Solver_():
+    """Set up and solve QMC Lasserre moment-matrix relaxations.
+
+    Args:
+        lasserre_level: Downstream convention controlling the objective
+            normalisation.  Level 2 uses King's ``1/2`` QMC convention.
+    """
 
     def __init__(self, lasserre_level):
+        """Store the active normalisation convention and debug setting.
+
+        Args:
+            lasserre_level: Rounding/normalisation level associated with this
+                solver instance.
+        """
         self.lasserre_level = lasserre_level
         self.debug = get_benchmark_params().get("debug", False)
 
     def SDP_setup_level_2(self, edges, weights, n_vertices, parameters: tuple, debug: bool = False):
+        """Build the full Level-2 Pauli-string moment SDP without solving it.
+
+        Args:
+            edges: Undirected graph edges.
+            weights: Edge weights aligned with ``edges``.
+            n_vertices: Number of graph vertices.
+            parameters: Binary ``(a, b, c)`` selectors for ``XX``, ``YY``, and
+                ``ZZ`` objective terms.
+            debug: Print matrix and constraint statistics.
+
+        Returns:
+            CVXPY problem, moment variable, constraint list, Pauli basis, and
+            basis-index mapping.
+        """
 
         a, b, c = parameters
         assert all(x in (0, 1) for x in parameters)
@@ -123,18 +157,17 @@ class SDP_Solver_():
    
     def SDP_setup(self, edges, weights, n_vertices, parameters: tuple, debug: bool = False):
         """
-        This method sets up an SDP for Max-Cut with Pauli-block structure.
+        Build the ``3n x 3n`` Level-1 Pauli-block SDP without solving it.
 
-        Pipeline:
-        1. Declare moment matrix M as a 3n x 3n symmetric variable.
-        2. Build objective function: maximise sum of weighted edge terms.
-        3. Define constraints: M PSD, diagonal entries normalised, anti-commutation.
+        Args:
+            edges: Undirected graph edges.
+            weights: Edge weights aligned with ``edges``.
+            n_vertices: Number of graph vertices.
+            parameters: Binary ``(a, b, c)`` selectors for the Pauli terms.
+            debug: Print matrix and constraint statistics.
 
-        :param edges: edge list as tuples (i, j)
-        :param weights: edge weights
-        :param n_vertices: number of vertices
-        :param parameters: tuple (a, b, c) with binary flags for Pauli operators
-        :return: tuple (problem, M, constraints)
+        Returns:
+            CVXPY problem, moment variable, and constraints.
         """
         # Step 1: Declaring M as a variable
         M = cp.Variable((n_vertices * 3, n_vertices * 3), symmetric=True)
@@ -206,6 +239,21 @@ class SDP_Solver_():
         return problem, M, constraints
     
     def QMC_SDP_solver_antiFerro_level_2(self, edges, weights, n_vertices, params, debug=False):
+        """Solve the full Level-2 QMC SDP with the configured CVXPY backend.
+
+        Args:
+            edges: Undirected graph edges.
+            weights: Edge weights aligned with ``edges``.
+            n_vertices: Number of graph vertices.
+            params: Mapping or three-element sequence of binary Pauli selectors.
+            debug: Forward verbose output to the selected solver.
+
+        Returns:
+            Optimal moment matrix, Level-2 Pauli basis, and basis-index mapping.
+
+        Raises:
+            RuntimeError: If the configured solver fails or is not optimal.
+        """
         try:
             a, b, c = params.get("a"), params.get("b"), params.get("c")
         except AttributeError:
@@ -285,16 +333,20 @@ class SDP_Solver_():
 
     def QMC_SDP_solver_antiFerro(self, edges, weights, n_vertices, params: ABCParams, debug: bool = False):
         """
-        This method solves the SDP and returns the optimal moment matrix.
+        Solve the Level-1 QMC SDP with the configured CVXPY backend.
 
-        Uses the solver selected by sdp_solver_mode in the benchmark configuration.
-        Raises an exception if the SDP does not achieve optimal status.
+        Args:
+            edges: Undirected graph edges.
+            weights: Edge weights aligned with ``edges``.
+            n_vertices: Number of graph vertices.
+            params: Binary Pauli selectors as a mapping or sequence.
+            debug: Forward verbose output to the selected solver.
 
-        :param edges: edge list as tuples (i, j)
-        :param weights: edge weights
-        :param n_vertices: number of vertices
-        :param params: SDP Hamiltonian parameters as {"a": Bit, "b": Bit, "c": Bit}
-        :return: optimal moment matrix M as a numpy array
+        Returns:
+            Optimal ``3n x 3n`` moment matrix.
+
+        Raises:
+            RuntimeError: If the configured solver fails or is not optimal.
         """
         try:
             a, b, c = params.get("a"), params.get("b"), params.get("c")
@@ -388,16 +440,16 @@ class SDP_Solver_():
 """
     def compute_energy(self, product_states, edges, weights=None, params=None):
         """
-        This method computes the Hamiltonian energy from local single-qubit states.
+        Evaluate the QMC Hamiltonian on rounded local product states.
 
-        Given a list of single-qubit density matrices (one per vertex), computes the
-        bilinear energy trace for all edges under the weighted Hamiltonian.
+        Args:
+            product_states: One ``2 x 2`` density matrix per vertex.
+            edges: Undirected graph edges.
+            weights: Optional aligned edge weights, defaulting to one.
+            params: Binary selectors for ``XX``, ``YY``, and ``ZZ`` terms.
 
-        :param product_states: list of 2x2 density matrices rho_i, one per vertex
-        :param edges: edge list as tuples (i, j)
-        :param weights: optional edge weights; defaults to 1 per edge
-        :param params: binary parameter tuple (a, b, c) controlling Pauli operators
-        :return: real energy value of the product state
+        Returns:
+            Real weighted QMC energy of the product state.
         """
         weights = weights if weights is not None else np.ones(len(edges))
         if params is None:

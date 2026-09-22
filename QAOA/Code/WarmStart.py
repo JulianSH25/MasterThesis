@@ -1,3 +1,11 @@
+"""Bridge the SDP pipeline and QAOA circuit preparation.
+
+This module solves the configured SDP relaxation, performs its rounding, and
+returns the statevector plus optional correlation data consumed by the QAOA
+warm-start modes.  Persistent caching is intentionally handled one layer above
+in :mod:`WarmStart_Helpers`.
+"""
+
 from Utils import get_benchmark_params, build_qaoa_warm_start_state
 import numpy as np
 import sys
@@ -15,12 +23,37 @@ from SDP.Utilities import idx
 
 debug = get_benchmark_params().get("debug", False)
 
-"""This is the interface between QAOA and the SDP solver in order to obtain the SDP warm start solution and pass it on to the QAOA circuit preparation"""
-
 def initial_state_rotation(product_state):
+    """Reserve the legacy product-state rotation hook.
+
+    Args:
+        product_state: Rounded local product-state representation that a future
+            implementation may transform before circuit preparation.
+
+    Returns:
+        ``None``.  The hook is currently unused and deliberately has no effect.
+    """
     pass
 
 def extract_correlations(M, edges, n_vertices):
+    """Extract the summed ``XX``, ``YY``, and ``ZZ`` correlation for each edge.
+
+    A full Level-2 moment matrix is first reduced to its one-body Level-1
+    submatrix.  The resulting values are used only by correlation-based warm
+    start modes.
+
+    Args:
+        M: Either a ``3n x 3n`` Level-1 matrix or the full Level-2 moment
+            matrix in the basis ordering used by the SDP solver.
+        edges: Graph edges for which correlations should be returned.
+        n_vertices: Number of graph vertices ``n``.
+
+    Returns:
+        A dictionary mapping each edge to its real Pauli-correlation sum.
+
+    Raises:
+        ValueError: If ``M`` is incompatible with the requested graph size.
+    """
     M = np.asarray(M)
     level1_dim = 3 * int(n_vertices)
 
@@ -61,12 +94,23 @@ def extract_correlations(M, edges, n_vertices):
     return correlations
 
 def get_warm_start_state(instance, n_vertices):
-    """
-    This method computes a QAOA warm-start state from an SDP solution, to be optionally provided to QAOA.
+    """Solve, round, and package the configured SDP warm start for QAOA.
 
-    :param instance: tuple containing graph edges and edge weights, i.e. instance = (edges, weights)
-    :param n_vertices: number of graph vertices in the instance
-    :return: warm-start statevector prepared from the SDP states
+    Level-1 uses the GP/GW-rounded local states to construct a product-state
+    vector.  Level-2 returns the Algorithm 17 entangled statevector and retains
+    the full moment matrix only when the selected QAOA mode requires it.
+
+    Args:
+        instance: Pair ``(edges, weights)`` describing the QMC instance.
+        n_vertices: Number of graph vertices and circuit qubits.
+
+    Returns:
+        A triple ``((statevector, local_states, cut), moment_matrix,
+        sdp_result)`` for the QAOA entry point.
+
+    Raises:
+        ValueError: If the configured Lasserre levels are invalid.
+        RuntimeError: If a Level-2 solve does not return its entangled state.
     """
 
     #params = {"a": 1, "b": 1, "c": 1}

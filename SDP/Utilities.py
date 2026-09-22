@@ -1,3 +1,10 @@
+"""Provide configuration, indexing, graph, and persistence helpers for SDP runs.
+
+The SDP solver and standalone benchmark pipeline share this module to preserve
+the Pauli-block index convention and obtain consistent benchmark configuration
+and graph representations.
+"""
+
 import random
 from datetime import datetime
 import csv
@@ -16,8 +23,11 @@ def get_benchmark_params() -> dict:
     This function loads benchmark parameters from the JSON config snapshot
     passed by the benchmark shell script via BENCHMARK_CONFIG_FILE.
 
-    :return: benchmark parameter dictionary exactly as stored in JSON,
-             except that sdp_seed may be overridden by SDP_SEED_OVERRIDE
+    Returns:
+        Benchmark parameters with an optional runtime SDP seed override.
+
+    Raises:
+        RuntimeError: If the launcher did not define ``BENCHMARK_CONFIG_FILE``.
     """
     config_path_env = os.environ.get("BENCHMARK_CONFIG_FILE")
 
@@ -39,14 +49,14 @@ def get_benchmark_params() -> dict:
 
 def idx(i: int, k: int) -> int:
     """
-    This function maps a vertex index and Pauli operator to a linear index.
+    Map a vertex and Pauli direction to a Level-1 moment-matrix index.
 
-    Used to ensure consistent indexing in the 3n x 3n moment matrix.
-    Mapping: k=0->X, k=1->Y, k=2->Z.
+    Args:
+        i: Zero-based vertex index.
+        k: Pauli index ``0 -> X``, ``1 -> Y``, or ``2 -> Z``.
 
-    :param i: vertex index
-    :param k: Pauli operator index (0, 1, or 2)
-    :return: linear index 3*i + k for position in flattened structure
+    Returns:
+        Linear index ``3 * i + k`` in the ``3n x 3n`` ordering.
     """
     # k: 0->X, 1->Y, 2->Z
     return 3 * i + k
@@ -54,10 +64,15 @@ def idx(i: int, k: int) -> int:
 
 def extract_level1_submatrix_from_level2(M_level2, pidx, n_vertices):
     """
-    Extract the 3n x 3n level-1 Pauli submatrix from a level-2 Lasserre moment matrix.
+    Extract the Level-1 Pauli block used by GP/GW rounding.
 
-    The output ordering matches idx(i, k) = 3*i + k:
-        X_0, Y_0, Z_0, X_1, Y_1, Z_1, ...
+    Args:
+        M_level2: Full Level-2 moment matrix.
+        pidx: Mapping from Pauli strings to Level-2 matrix indices.
+        n_vertices: Number of graph vertices.
+
+    Returns:
+        ``3n x 3n`` matrix ordered as ``X_0, Y_0, Z_0, X_1, ...``.
     """
     level1_indices = []
 
@@ -76,10 +91,13 @@ def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
     Guarantees connectivity via a random spanning tree, then adds additional
     edges stochastically based on sparsity. Sparse graphs use denser edge thresholds.
 
-    :param nodes: number of vertices
-    :param weights_static: if True, all edges have weight 1.0; otherwise random [1e-10, 1.0]
-    :param sparse: if True, use high edge threshold (0.8-0.99); otherwise random threshold
-    :return: tuple (edges, weights, nodes) describing the graph
+    Args:
+        nodes: Number of vertices.
+        weights_static: Use weight one for every edge when true.
+        sparse: Use the sparse graph-generation regime when true.
+
+    Returns:
+        ``(edges, weights, nodes)`` for a connected random graph.
     """
     if nodes <= 0:
         return [], [], nodes
@@ -95,6 +113,12 @@ def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
     threshold = random.random() if not sparse else random.uniform(0.8, 0.99)
 
     def add_edge(u: int, v: int):
+        """Add an unseen non-self-loop edge and its associated weight.
+
+        Args:
+            u: First candidate endpoint.
+            v: Second candidate endpoint.
+        """
         a, b = (u, v) if u < v else (v, u)
         if a == b:
             return
@@ -124,14 +148,15 @@ def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
 
 def line_instance_generator(nodes: int, weights_static: bool, _ = None):
     """
-    This function generates a path graph (line graph) instance.
+    Create one weighted or unweighted path graph.
 
-    Creates edges (i, i+1) for each consecutive pair of nodes.
+    Args:
+        nodes: Number of vertices.
+        weights_static: Use weight one for every edge when true.
+        _: Unused compatibility placeholder.
 
-    :param nodes: number of vertices
-    :param weights_static: if True, all edges have weight 1.0; otherwise random [1e-10, 1.0]
-    :param _: placeholder argument (unused)
-    :return: tuple (edges, weights, nodes) describing the line graph
+    Returns:
+        ``(edges, weights, nodes)`` for the path graph.
     """
     edges = []
     weights = []
@@ -144,14 +169,14 @@ def line_instance_generator(nodes: int, weights_static: bool, _ = None):
 
 def get_edges_in_cut(cut, edges):
     """
-    This function identifies edges whose endpoints are in different cut parts.
+    Identify the edges crossing a binary cut.
 
-    Given a vertex cut assignment and an edge list, counts edges that cross
-    the cut (one endpoint in each part).
+    Args:
+        cut: Vertex assignments indexed by vertex number.
+        edges: Undirected graph edges.
 
-    :param cut: vertex assignment mapping, indexed by vertex number
-    :param edges: list of edges as tuples (i, j)
-    :return: tuple (edge_count, edges_in_cut) with the count and list of crossing edges
+    Returns:
+        Number and list of crossing edges.
     """
     edge_count = 0
     edges_in_cut = []
@@ -166,15 +191,12 @@ def get_edges_in_cut(cut, edges):
 
 def save_benchmark_csv(sol_sdp, sol_grb, name_addition = ""):
     """
-    This function saves benchmark results to a CSV file.
+    Append combined SDP and Gurobi fields to a dated benchmark CSV.
 
-    Creates a new file with headers if it does not exist, otherwise appends
-    a row. Filenames are timestamped by date.
-
-    :param sol_sdp: dictionary of SDP solution fields
-    :param sol_grb: dictionary of Gurobi solution fields
-    :param name_addition: optional suffix for the filename
-    :return: None
+    Args:
+        sol_sdp: SDP benchmark fields.
+        sol_grb: Exact-solver benchmark fields.
+        name_addition: Optional filename suffix.
     """
     now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     date = datetime.now().strftime("%Y-%m-%d")

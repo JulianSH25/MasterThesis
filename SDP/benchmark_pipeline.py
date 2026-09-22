@@ -1,9 +1,8 @@
-"""Tiny benchmark runner.
+"""Run the legacy classical-cut SDP benchmark loop.
 
-This is intentionally minimal: it just calls `Main.main_benchmark`.
-
-Examples:
-    python benchmark_pipeline.py
+This script is separate from the QAOA warm-start pipeline.  It generates
+instances, runs the SDP plus GP/GW rounding, compares classical cuts to Gurobi,
+and writes historical benchmark CSV rows.
 """
 
 from __future__ import annotations
@@ -47,12 +46,15 @@ all_approx_ratios = []
 
 def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bool:
     """
-    This function runs one SDP+rounding benchmark instance and validates it against Gurobi.
+    Run one generated SDP benchmark and validate its classical cut with Gurobi.
 
-    :param n_vertices: number of vertices for the generated random graph instance
-    :param params: SDP objective coefficients as a, b, c bits
-    :param sparse: whether to generate a sparse random graph instance
-    :return: True if Gurobi reaches optimal status and results are saved, otherwise False
+    Args:
+        n_vertices: Number of vertices in the generated graph.
+        params: Binary SDP objective selectors.
+        sparse: Whether to sample from the sparse graph regime.
+
+    Returns:
+        ``True`` if Gurobi found an optimum and rows were saved.
     """
 
     if any(v not in (0, 1) for v in params.values()) or sum(params.values()) == 0:
@@ -130,12 +132,15 @@ def run_single_benchmark(n_vertices: int, params: ABCParams, sparse: bool) -> bo
 
 def adaptive_vertex_search(start_n: int, params: ABCParams, sparse: bool) -> tuple[list[tuple[int, bool]], int | None]:
     """
-    This function adaptively searches for feasible benchmark sizes under a time budget.
+    Explore feasible instance sizes until the configured time limit expires.
 
-    :param start_n: initial number of vertices to test
-    :param params: SDP objective coefficients as a, b, c bits
-    :param sparse: whether to generate sparse random graph instances
-    :return: tuple containing iteration history and the largest successful vertex count
+    Args:
+        start_n: Initial vertex count to try.
+        params: Binary SDP objective selectors.
+        sparse: Whether to sample sparse random instances.
+
+    Returns:
+        Attempt history and the largest successful vertex count.
     """
     if MIN_RANDOM_VERTICES > MAX_VERTICES:
         raise ValueError("MIN_RANDOM_VERTICES cannot exceed MAX_VERTICES")

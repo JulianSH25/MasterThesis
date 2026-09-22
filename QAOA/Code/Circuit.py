@@ -1,3 +1,11 @@
+"""Build and evaluate the parameterised QAOA circuits used by benchmarks.
+
+``Main.py`` instantiates :class:`QAOACircuit` after any SDP preprocessing. The
+class owns circuit construction for standard QAOA and HamQAOA, applies the
+chosen warm-start mode, and exposes exact statevector-energy evaluation to the
+classical optimiser.
+"""
+
 from typing import Any
 
 from qiskit import QuantumCircuit, transpile
@@ -19,7 +27,18 @@ from collections import defaultdict
 use_measurements = False
 
 class QAOACircuit(QuantumCircuit):
-    """
+    """QAOA circuit plus the metadata needed to bind and evaluate it.
+
+    Args:
+        n: Number of graph vertices and circuit qubits.
+        p: QAOA circuit depth.
+        edges: Undirected graph edges indexed by their qubits.
+        weights: Edge weights aligned with ``edges``.
+
+    The construction respects the current benchmark configuration, including
+    the circuit ansatz and optional SDP-derived state, correlations, or
+    King-inspired rotation data.
+
     README:
     This class is responsible for Circuit building, execution, and result processing/evaluation. The main functionality is stretched over 2 marked 'sections':
     1) Circuit Building: This section includes methods for constructing the QAOA circuit based on the provided graph instance, parameters, and warm start configuration. It handles the creation of the quantum circuit with the appropriate gates and parameterization according to the specified QAOA variant (e.g., standard, HAMQAOA) and warm start mode.
@@ -29,12 +48,13 @@ class QAOACircuit(QuantumCircuit):
     """
     def __init__(self, n, p, edges, weights):
         """
-        Initialises QAOA circuit metadata and backend configuration.
+        Initialise QAOA circuit metadata and backend configuration.
 
-        :param n: number of nodes (qubits)
-        :param p: circuit depth (number of alternating layers)
-        :param edges: list of graph edges as qubit index pairs
-        :param weights: edge weights aligned with edges
+        Args:
+            n: Number of nodes and qubits.
+            p: Circuit depth.
+            edges: Graph edges as qubit-index pairs.
+            weights: Edge weights aligned with ``edges``.
         """
         self.uid = str(uuid.uuid4())[:8]
         self.n = n # number of nodes
@@ -99,18 +119,20 @@ class QAOACircuit(QuantumCircuit):
 
     """SECTION 1: Circuit Building"""
     def build_qaoa_maxcut_circuit(self, add_measurements=True):
-        """
-        # made class variable: :param n: the size of the circuit
-        # made class variable: :param edges: the list of edges
-        # made class variable: :param num_layers: the number of iterations p (i.e. rounds of alternating application of Cost and Mixer Unitaries); directly relates to gate complexity, being (n + #edges)*num_layers
-        # made class variable: :param weights: list of weights for each edge. If not provided we assume unweighted, i.e. equal weights of 1.0 for all edges
-        :param add_measurements: Per default measurements are added to the circuit at the end of the circuit. This can be overridden by providing a boolean "False" for this parameter
-        :return: returns the quantum circuit and the used paramter vectors TODO consider adding parameters as another argument
-        """
-        """
-        Sources:
-        Farhi et al. QAOA for MaxCut
-        Qiskit Documentation (https://quantum.cloud.ibm.com/docs/de/api/qiskit/qiskit.circuit.library.RXGate)
+        """Construct the configured parameterised QAOA circuit.
+
+        The method prepares the selected circuit input, adds ``p`` ansatz layers,
+        optionally appends measurements, and saves an unbound copy for later
+        parameter binding.
+
+        Args:
+            add_measurements: Append computational-basis measurements when true.
+
+        Returns:
+            The built Qiskit circuit and its parameter-vector groups.
+
+        Raises:
+            ValueError: If the ansatz or number of parameter groups is invalid.
         """
         assert self.edges is not None and self.n is not None and self.p is not None and self.params is not None
         assert self.n == len({i for k in self.edges for i in k})
@@ -241,6 +263,14 @@ class QAOACircuit(QuantumCircuit):
 
     @staticmethod
     def _restore_json_complex(value):
+        """Recursively restore complex values encoded in cached JSON data.
+
+        Args:
+            value: JSON-safe cache value.
+
+        Returns:
+            Equivalent nested data with complex numbers restored.
+        """
         if isinstance(value, dict) and set(value.keys()) == {"real", "imag"}:
             return complex(value["real"], value["imag"])
         if isinstance(value, list):
@@ -249,6 +279,19 @@ class QAOACircuit(QuantumCircuit):
 
     @staticmethod
     def _edge_dict_value(mapping: dict, edge: tuple[int, int], name: str):
+        """Read edge data while accepting either orientation and cache key format.
+
+        Args:
+            mapping: Cached edge-keyed data.
+            edge: Undirected edge to retrieve.
+            name: Field name included in error messages.
+
+        Returns:
+            Stored data for ``edge``.
+
+        Raises:
+            RuntimeError: If no equivalent edge key is present.
+        """
         i, j = edge
         for key in (edge, (j, i), str(edge), str((j, i)), f"{i},{j}", f"{j},{i}"):
             if key in mapping:
@@ -256,6 +299,11 @@ class QAOACircuit(QuantumCircuit):
         raise RuntimeError(f"Missing King {name} for edge {edge}")
 
     def _apply_king_product_state(self) -> None:
+        """Initialise each qubit from cached Level-2 product-state vectors.
+
+        Raises:
+            RuntimeError: If required King data is absent or malformed.
+        """
         if self.warm_start_king_data is None:
             raise RuntimeError("King warm start requires warm_start_king_data")
 
@@ -277,6 +325,15 @@ class QAOACircuit(QuantumCircuit):
             self.qc.initialize(state / norm, [qubit])
 
     def _apply_king_warm_start_layer(self, strength: float = 1.0, repeats: int = 1) -> None:
+        """Append the fixed Level-2 King-inspired two-qubit rotation layer.
+
+        Args:
+            strength: Multiplier applied to each cached edge rotation angle.
+            repeats: Number of times to repeat the full edge layer.
+
+        Raises:
+            RuntimeError: If cached rotation data is incomplete or invalid.
+        """
         if self.warm_start_king_data is None:
             raise RuntimeError("King warm-start rotations require warm_start_king_data")
 
@@ -366,8 +423,17 @@ class QAOACircuit(QuantumCircuit):
                 self.qc.unitary(gate, [i, j], label="King")
 
     def apply_warm_start(self) -> None:
-        """This method applies the warm start to the quantum circuit based on the provided initial state and correlations, following the specified warm start mode.
-        It handles different scenarios for initializing the circuit and applying correlation-based gates, allowing for flexible warm start configurations."""
+        """Prepare the circuit input according to the selected warm-start mode.
+
+        Statevector-only modes initialise the SDP state directly. Correlation
+        modes may add an entangling layer, while King Entangled begins from the
+        equal-superposition state and inserts its fixed rotations inside each
+        QAOA layer.
+
+        Raises:
+            RuntimeError: If the selected mode lacks required cached data.
+            ValueError: If incompatible initialisation modes are combined.
+        """
         warm_mode = self._resolve_warm_start_mode() # Validate and resolve the warm start mode to determine how to apply the warm start to the circuit
         # 'standard' mode uses the initial state directly, 'amplified' mode applies correlation-based gates on top of the initial state, and 'entangled' mode starts from an equal superposition and applies correlation-based gates to induce entanglement.
         corr_strength, corr_repeats = self._resolve_correlation_settings(warm_mode) # Determine the strength and number of repetitions for applying correlation-based gates based on the warm start mode and configuration parameters
@@ -432,12 +498,12 @@ class QAOACircuit(QuantumCircuit):
             raise RuntimeError("No valid warm start configuration found; cannot apply warm start to circuit. Check and confirm parameter settings. Warm start flag: {self.warm_start_flag}, warm start mode: {warm_mode}, initial state provided: {self.initial_state}, self_init_linegraph: {self.self_init_linegraph}")
 
     def build_cost_operator(self) -> None:
-        # NOTE for standard/naive QAOA; not used for HAMQAOA since the cost operator is not a simple sum of ZZ, XX, YY terms in that case
         """
-        Precomputes the weighted QAOA cost Hamiltonian as a SparsePauliOp.
+        Precompute the weighted QMC Hamiltonian as a ``SparsePauliOp``.
 
         This operator is reused across all objective evaluations and avoids
-        repeated per-edge density-matrix/partial-trace work.
+        repeated per-edge density-matrix/partial-trace work. It also records
+        the active Level-1 or Level-2 normalisation convention.
         """
         if self.params is None:
             self.params = [1, 1, 1]
@@ -471,8 +537,17 @@ class QAOACircuit(QuantumCircuit):
             seed: int | None = None,
             return_statevector: bool = False
     ):
-        # TODO rewrite for clean code; seperate classical result return from quantum result return (currently via param :return_statevector)
-        """Runs the circuit on the specified backend and returns the results. A quantum circuit needs to be passed. All other parameters are optional."""
+        """Execute the currently bound circuit by exact or sampled simulation.
+
+        Args:
+            shots: Number of samples for measurement-based simulation.
+            seed: Optional simulator seed for sampled execution.
+            return_statevector: Return an exact statevector instead of sampled
+                counts and their estimated energy.
+
+        Returns:
+            An exact statevector, or ``(counts, energy)`` in sampled mode.
+        """
         assert self.qc is not None
         assert self.qaoa_parameters is not None and len(self.qaoa_parameters) > 0
         self.debug_run_counter += 1
@@ -502,10 +577,14 @@ class QAOACircuit(QuantumCircuit):
 
     def bind_circuit_parameters(self,parameters: list[np.ndarray]) -> None:
         """
-        This method binds numeric values to a parameterized QAOA circuit.
+        Bind numeric values to the parameterised QAOA circuit.
 
-        :param parameters: list of parameter groups matching self.qaoa_parameters, e.g. [gamma_values, beta_values]
-        :return: Qiskit QuantumCircuit object (i.e. parameterized version of the passed QAOA circuit (:param qc), to be used in place of the passed circuit)
+        Args:
+            parameters: One numerical vector per circuit parameter group, with
+                exactly ``p`` values in each group.
+
+        Raises:
+            ValueError: If parameter groups have wrong dimensions or values.
         """
         assert self.qaoa_parameters is not None and len(self.qaoa_parameters) > 0
 
@@ -558,13 +637,17 @@ class QAOACircuit(QuantumCircuit):
     @staticmethod
     def qaoa_compute_energy(product_states, edges, weights=None, params = None, lasserre_level: int | None = None) -> float | Any:
         """
-        This method computes the Hamiltonian expectation from two-qubit edge marginals.
+        Evaluate the QMC Hamiltonian from one two-qubit marginal per edge.
 
-        :param product_states: mapping of edge tuples (i, j) to 4x4 reduced density matrices
-        :param edges: edge list used to evaluate the Hamiltonian
-        :param weights: optional edge weights; if None, weights default to 1 per edge
-        :param params: tuple (a, b, c) with coefficients for XX, YY, and ZZ terms
-        :return: complex energy expectation value for the full edge Hamiltonian
+        Args:
+            product_states: Mapping from edges to ``4 x 4`` density matrices.
+            edges: Graph edges used for the Hamiltonian.
+            weights: Optional edge weights, defaulting to one.
+            params: ``(a, b, c)`` selectors for ``XX``, ``YY``, and ``ZZ``.
+            lasserre_level: Normalisation convention used by the comparison.
+
+        Returns:
+            Complex expectation value of the full edge Hamiltonian.
         """
         # H_map = np.zeros((len(edges), len(edges)), dtype=complex)
         if params is None:
@@ -596,8 +679,13 @@ class QAOACircuit(QuantumCircuit):
     
     # 2nd option to compute energy directly from statevector
     def compute_energy_from_statevector(self, statevec: Statevector) -> float:
-        """
-        Compute cost expectation in a single operator expectation call.
+        """Evaluate the cached QMC operator on an exact statevector.
+
+        Args:
+            statevec: Exact Qiskit statevector to evaluate.
+
+        Returns:
+            Real QMC energy expectation.
         """
         if self.cost_operator is None:
             self.build_cost_operator()
@@ -607,13 +695,16 @@ class QAOACircuit(QuantumCircuit):
     @staticmethod
     def two_qubit_marginal(psi, n, i, j):
         """
-        This method returns the reduced density matrix of qubits i and j.
+        Return the reduced density matrix on a selected qubit pair.
 
-        :param psi: state representation accepted by DensityMatrix
-        :param n: total number of qubits
-        :param i: first qubit index
-        :param j: second qubit index
-        :return: 4x4 numpy array of the two-qubit reduced density matrix
+        Args:
+            psi: State representation accepted by ``DensityMatrix``.
+            n: Total number of qubits.
+            i: First retained qubit index.
+            j: Second retained qubit index.
+
+        Returns:
+            ``4 x 4`` two-qubit reduced density matrix.
         """
         rho = DensityMatrix(psi)
         trace_out = [q for q in range(n) if q not in (i, j)]
@@ -622,14 +713,17 @@ class QAOACircuit(QuantumCircuit):
     @staticmethod
     def _pauli_label_for_edge(i: int, j: int, pauli: str, n: int) -> str:
         """
-        Builds a full-length Pauli label for a 2-local term on qubits i and j.
-        :param i: first qubit index
-        :param j: second qubit index
-        :param pauli: single-character Pauli label ("X", "Y", or "Z")
-        :param n: total number of qubits in the system
+        Build a Qiskit big-endian Pauli label for one two-qubit term.
 
-        Qiskit Pauli labels are big-endian strings where the right-most
-        character corresponds to qubit 0.
+        Args:
+            i: First qubit index.
+            j: Second qubit index.
+            pauli: Single-qubit label ``X``, ``Y``, or ``Z``.
+            n: Total number of qubits.
+
+        Returns:
+            Length-``n`` big-endian Pauli label, where its rightmost character
+            corresponds to qubit zero.
         """
         label = ["I"] * n
         label[n - 1 - i] = pauli
@@ -638,6 +732,11 @@ class QAOACircuit(QuantumCircuit):
     
     """Utility methods with class access:"""
     def _set_initial_ws_energy(self, label: str) -> None:
+        """Evaluate and retain the energy immediately after warm-state preparation.
+
+        Args:
+            label: Human-readable preparation label used in diagnostics.
+        """
         # NOTE Helper method 
         # Compute and store the initial energy of the warm-start statevector for later comparison [applicable only in modes 'standard' and 'amplified' where this vector is used as initial qc state]
         statevec = Statevector.from_instruction(self.qc)
@@ -645,6 +744,14 @@ class QAOACircuit(QuantumCircuit):
         print(f"Initial state energy for {label}: {self.initial_ws_energy}") if self.debug else None
 
     def _resolve_warm_start_mode(self) -> str:
+        """Validate the configured warm-start mode.
+
+        Returns:
+            Canonical warm-start mode name.
+
+        Raises:
+            ValueError: If the configuration selects an unknown mode.
+        """
         # NOTE Helper method [getter] with validation
         warm_mode = self.warm_start_mode
         """
@@ -659,6 +766,14 @@ class QAOACircuit(QuantumCircuit):
         return warm_mode
 
     def _resolve_correlation_settings(self, warm_mode: str) -> tuple[float, int]:
+        """Select correlation-layer strength and repetition count for a mode.
+
+        Args:
+            warm_mode: Already validated warm-start mode.
+
+        Returns:
+            ``(strength, repeats)`` for the requested correlation layer.
+        """
         strength = self.warm_start_corr_strength # This parameter controls how strongly the warm start correlations influence the initial state. A value of 0 means no influence (i.e., no correlation-based gates applied), while a value of 1 means full influence (i.e., gates applied with angles directly derived from the correlations). Values greater than 1 can be used to amplify the effect of the correlations, while values between 0 and 1 can be used to attenuate it, allowing for fine-tuning of the warm start's impact on the optimization landscape.
         repeats = max(1, self.warm_start_corr_repeats) # This parameter determines how many times the correlation-based gates are applied. Repeating the application of these gates can amplify their effect on the initial state, potentially helping to escape local minima and providing a stronger initial signal for the optimization.
         if warm_mode == "amplified" and strength == 1.0 and repeats == 1:
@@ -666,6 +781,13 @@ class QAOACircuit(QuantumCircuit):
         return strength, repeats
     
     def _print_circuit(self, circuit = None, name_addition = "", print_to_log = False) -> None:
+        """Render a circuit for debug output and optionally append it to a log.
+
+        Args:
+            circuit: Qiskit circuit to render; defaults to the active circuit.
+            name_addition: Unique suffix for the debug artefact filename.
+            print_to_log: Whether to print the text rendering to stdout.
+        """
         # TODO move and rename
         # NOTE This method is used for logging and debugging purposes to visualize the quantum circuit. It can print the circuit to the console and/or save it as an SVG file depending on the configuration 
         assert self.debug
@@ -686,6 +808,11 @@ class QAOACircuit(QuantumCircuit):
             pass
     
     def _append_parameter_log_row(self, parameters: list[list[float]]) -> None:
+        """Append the current normalised parameter groups to the debug CSV.
+
+        Args:
+            parameters: Bound QAOA parameter values grouped by gate type.
+        """
         # This method appends a row of parameter values to a CSV log file for debugging purposes. It includes the current parameter values, the run counter, the previous result, and a timestamp. The log file is created in the specified debug path and is named based on the circuit configuration and a unique identifier.
         if not self.debug:
             return
@@ -753,11 +880,20 @@ if __name__ == "__main__":
 
     counts_higher_energy, counts_lower_energy = 0, 0
     def benchmark():
+        """Run the deprecated interactive circuit benchmark example."""
         gamma_values, beta_values = set_random_params(p, range=(0, 2*np.pi)), set_random_params(p, range=(0, np.pi))
         print(gamma_values, beta_values)
 
 
         def test(qc):
+            """Evaluate the deprecated example circuit at sampled angles.
+
+            Args:
+                qc: Retained legacy argument; the closure evaluates ``QAOA``.
+
+            Returns:
+                Energy in statevector mode, otherwise ``None``.
+            """
             QAOA.bind_circuit_parameters(parameters=[gamma_values, beta_values])
             assert QAOA.qc.num_parameters == 0
             results, _ = QAOA.run_circuit(shots=1024, return_statevector=not use_measurements)

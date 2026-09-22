@@ -1,3 +1,10 @@
+"""Perform the GP/GW-style random projection rounding for QMC SDPs.
+
+``SDP.Main`` applies this module to a Level-1 moment matrix, or to the
+extracted Level-1 block of a Level-2 solution.  It turns moment-vector geometry
+into unit Bloch vectors, local pure states, and a derived classical cut.
+"""
+
 import numpy as np
 if __package__ in (None, ""):
     from Utilities import idx, save_benchmark_csv

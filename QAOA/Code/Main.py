@@ -1,3 +1,11 @@
+"""Run one configured QAOA optimisation and record its benchmark result.
+
+This is the QAOA pipeline entry point called by the Slurm launcher.  It chooses
+or receives a graph instance, obtains any required SDP warm start, builds the
+circuit, invokes the configured classical optimiser, and writes the benchmark
+fields consumed later by the result-processing scripts.
+"""
+
 import time
 import csv
 import os
@@ -65,27 +73,52 @@ normalisation_factor = benchmark_params["lasserre_level"] if optimiser != "exact
 
 
 def _optimal_results_path(filename: str) -> Path:
+    """Resolve a file in the local exact-QAOA-results directory.
+
+    Args:
+        filename: Exact-results CSV filename.
+
+    Returns:
+        Absolute path to the requested local results file.
+    """
     return Path(__file__).resolve().parent / "optimal_results" / filename
 
 #NOTE moved auxiliary methods to new WarmStart_Helpers.py file to reduce clutter in Main.py prior to submission
 
 def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_init_linegraph=False, edges=None,
     weights=None, __initial_state__=None, fixed_initial_point=None, return_initial_point=False, graph_generation_type: str = "unknown") -> tuple[Any, ...]:
-    global last_sdp_objective_value
-    """
-    This method builds and optimises a QAOA instance on a line graph.
+    """Build and optimise QAOA for one graph instance.
 
-    :param p: number of QAOA layers
-    :param N_bayes: number of optimisation iterations
-    :param m: number of edges for the generated line graph;
-    :param init_initial_state: whether to inject an SDP-derived warm-start state
-    :param self_init_linegraph: whether to use line-graph singlet state preparation
-    :param edges: optional edge list to override instance generation; if None, instance will be generated according to benchmark parameters
-    :param weights: optional weight list to override instance generation; if None, instance will be generated according to benchmark parameters
-    :param __initial_state__: optional custom initial statevector to override both the SDP warm start and the line-graph singlet state preparation; if provided, this statevector will be used as the initial state for QAOA instead of any warm-start state;
-    :param fixed_initial_point: optional initial parameter point for COBYLA or Adam optimisers; if None, optimiser will use its default initialisation strategy
-    :param return_initial_point: whether to return the initial parameter point used by the optimiser (relevant for COBYLA and Adam optimisers when fixed_initial_point is None, as they will use a default initialisation strategy in that case)
+    The module-level benchmark configuration selects the ansatz, optimiser, and
+    warm-start mode.  Explicit arguments here identify the instance and allow
+    focused tests to provide a fixed circuit input or optimiser point.
+
+    Args:
+        p: QAOA circuit depth.
+        N_bayes: Optimiser iteration budget; retained name for compatibility
+            with the earlier Bayesian optimiser.
+        m: Edge count for an implicitly constructed line graph.
+        init_initial_state: Whether to request an SDP-derived warm start.
+        self_init_linegraph: Whether to prepare the optional singlet line state.
+        edges: Explicit graph edge list.  Overrides implicit line construction.
+        weights: Edge weights aligned with ``edges``.
+        __initial_state__: Explicit statevector overriding automated initial-state
+            preparation.
+        fixed_initial_point: Optional optimiser parameter vector.
+        return_initial_point: Whether to return optimiser diagnostics in addition
+            to the normal result tuple.
+        graph_generation_type: Label passed to exact optimisation when selected.
+
+    Returns:
+        QAOA energy plus warm-start audit values.  With
+        ``return_initial_point=True``, additionally returns Adam/optimiser
+        initial-point and trajectory data.
+
+    Raises:
+        RuntimeError: If a requested warm start cannot be created or reused.
+        ValueError: If a supplied statevector has an incompatible dimension.
     """
+    global last_sdp_objective_value
     assert m is not None or edges is not None # XXX sanity check
     edges = edges if edges is not None else [(i, i + 1) for i in range(m)] # Optionally replace by desired edge list, if a linegraph is not desired
     weights = weights if weights is not None else [1.0] * len(edges)
@@ -302,16 +335,40 @@ def main(p: int, N_bayes: int | float, m = None, init_initial_state=False, self_
     return minimum_energy, initial_ws_energy, initial_energy_prodStates, initial_sdp_statevector_energy, warm_start_result
 
 def return_optimal_line(n):
+    """Read the stored exact result for the path graph of size ``n``.
+
+    Args:
+        n: Number of path-graph vertices.
+
+    Returns:
+        The stored exact objective value.
+    """
     df = pan.read_csv(_optimal_results_path("optimal_results_qaoa.csv"), skipinitialspace=True)
     val = df.loc[df["n"] == n, "result"].item()
     return val
 
 def return_optimal_cycle(n):
+    """Read the stored exact result for the cycle graph of size ``n``.
+
+    Args:
+        n: Number of cycle-graph vertices.
+
+    Returns:
+        The stored exact objective value.
+    """
     df = pan.read_csv(_optimal_results_path("optimal_results_qaoa_circle.csv"), skipinitialspace=True)
     val = df.loc[df["n"] == n, "result"].item()
     return val
 
 def return_optimal_fully_connected(n):
+    """Read the stored exact result for the complete graph of size ``n``.
+
+    Args:
+        n: Number of complete-graph vertices.
+
+    Returns:
+        The stored exact objective value.
+    """
     df = pan.read_csv(_optimal_results_path("optimal_results_qaoa_complete.csv"), skipinitialspace=True)
     val = df.loc[df["n"] == n, "result"].item()
     return val

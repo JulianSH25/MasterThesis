@@ -1,3 +1,10 @@
+"""Provide shared QAOA configuration, instance, exact-result, and host helpers.
+
+These utilities support the QAOA entry point and benchmark workers.  They keep
+configuration loading, graph identity, exact-result persistence, and resource
+reporting consistent across independently running Slurm jobs.
+"""
+
 import json
 import ast
 import hashlib
@@ -23,14 +30,18 @@ def set_random_params(
     rng: np.random.Generator | None = None,
 ):
     """
-    This function samples random QAOA angle parameters for a given circuit depth p.
+    Sample one QAOA angle vector for a given circuit depth.
 
-    :param p: number of QAOA layers
-    :param range: the range (min, max) for the random sampling
-    :param seed: optional random seed for reproducible sampling
-    :param init_close_to_zero: if True, initialise parameters close to zero
-    :param rng: optional shared generator; use this to draw several reproducible, distinct points
-    :return: tuple (gamma_values, beta_values) as numpy arrays
+    Args:
+        p: Number of QAOA layers and sampled angles.
+        range: Inclusive numerical sampling range ``(lower, upper)``.
+        seed: Optional seed used when no generator is supplied.
+        init_close_to_zero: Restrict samples to a small positive neighbourhood
+            of zero.
+        rng: Shared NumPy generator for reproducible distinct candidate points.
+
+    Returns:
+        A length-``p`` NumPy array of initial angle values.
     """
     if rng is None:
         rng = np.random.default_rng(seed)
@@ -46,10 +57,13 @@ def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
     Guarantees connectivity via a random spanning tree, then adds additional
     edges stochastically based on sparsity. Sparse graphs use denser edge thresholds.
 
-    :param nodes: number of vertices
-    :param weights_static: if True, all edges have weight 1.0; otherwise random [1e-10, 1.0]
-    :param sparse: if True, use high edge threshold (0.8-0.99); otherwise random threshold
-    :return: tuple (edges, weights, nodes) describing the graph
+    Args:
+        nodes: Number of vertices.
+        weights_static: Use weight ``1.0`` for every edge when true.
+        sparse: Choose a high edge-inclusion threshold when true.
+
+    Returns:
+        ``(edges, weights, nodes)`` for a connected nontrivial random graph.
     """
     if nodes <= 0:
         return [], [], nodes
@@ -65,6 +79,12 @@ def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
     threshold = random.random() if not sparse else random.uniform(0.8, 0.99)
 
     def add_edge(u: int, v: int):
+        """Append one unseen non-self-loop edge and its aligned weight.
+
+        Args:
+            u: First candidate endpoint.
+            v: Second candidate endpoint.
+        """
         a, b = (u, v) if u < v else (v, u)
         if a == b:
             return
@@ -96,12 +116,14 @@ def random_instance_generator(nodes: int, weights_static: bool, sparse: bool):
     return edges, weights, nodes
 
 def sample_initial_qaoa_params(n: int, p: int) -> list[tuple[list[float], list[float]]]:
-    """
-    This function samples initial QAOA parameter tuples for Bayesian optimisation. I realise it is basically a duplicate of the above function I already used before in a different place.
+    """Sample vanilla-QAOA candidate points for the Bayesian optimiser.
 
-    :param n: number of parameter points to sample
-    :param p: number of QAOA layers per parameter vector
-    :return: list of tuples (gamma_values, beta_values)
+    Args:
+        n: Number of candidate parameter points.
+        p: Number of QAOA layers per candidate.
+
+    Returns:
+        ``n`` pairs of gamma and beta lists, each of length ``p``.
     """
     return [
         (
@@ -112,11 +134,16 @@ def sample_initial_qaoa_params(n: int, p: int) -> list[tuple[list[float], list[f
     ]
 
 def build_qaoa_warm_start_state(states: list[np.ndarray]):
-    """
-    This function builds a global warm-start statevector from local density matrices.
+    """Build a global product-state vector from rounded local density matrices.
 
-    :param states: list of local density matrices as returned from the SDP solver, one for each edge in the graph; each state is a 2x2 numpy array, representing the respective vertex
-    :return: normalised global warm-start statevector
+    Args:
+        states: One pure ``2 x 2`` local density matrix per graph vertex.
+
+    Returns:
+        Normalised tensor product of the dominant local eigenvectors.
+
+    Raises:
+        ValueError: If a local density matrix is not sufficiently pure.
     """
     statevec = np.array([1.0 + 0.0j])
     if debug := get_benchmark_params().get("debug", False): #XXX
@@ -151,7 +178,11 @@ def get_benchmark_params() -> dict:
     This function loads benchmark parameters from the JSON config snapshot
     passed by the benchmark shell script via BENCHMARK_CONFIG_FILE.
 
-    :return: benchmark parameter dictionary with runtime seed defaults and overrides applied
+    Returns:
+        Benchmark parameters with runtime seed overrides applied.
+
+    Raises:
+        RuntimeError: If the launcher did not define ``BENCHMARK_CONFIG_FILE``.
     """
     config_path_env = os.environ.get("BENCHMARK_CONFIG_FILE")
 
@@ -177,6 +208,14 @@ def get_benchmark_params() -> dict:
     return params
 
 def classify_graph(edges):
+    """Classify an edge list as a simple named graph family when possible.
+
+    Args:
+        edges: Undirected graph edges.
+
+    Returns:
+        ``complete``, ``cycle``, ``line``, or ``None`` for other graphs.
+    """
     verts = {u for e in edges for u in e}
     n = len(verts)
     m = len(edges)
@@ -197,6 +236,18 @@ def classify_graph(edges):
     return None
 
 def normalise_edge_weights(edges: list, weights: list | str | None = None) -> list[float]:
+    """Return one numeric weight per edge, accepting legacy CSV values.
+
+    Args:
+        edges: Graph edges that determine the required weight count.
+        weights: Numeric list, serialized list, or omitted legacy weight field.
+
+    Returns:
+        Floating-point weights aligned with ``edges``.
+
+    Raises:
+        ValueError: If a non-empty weight sequence has the wrong length.
+    """
     if weights is None:
         return [1.0] * len(edges)
     if isinstance(weights, str):
@@ -213,9 +264,14 @@ def normalise_edge_weights(edges: list, weights: list | str | None = None) -> li
 
 def canonical_edge_weight_items(edges: list, weights: list | str | None = None) -> list[tuple[tuple[int, int], float]]:
     """
-    Canonical representation of an undirected weighted graph.
-    Makes matching independent of edge order and endpoint orientation.
-    Example: (0, 1) and (1, 0) become identical.
+    Canonicalise an undirected weighted graph for comparison and hashing.
+
+    Args:
+        edges: Graph edges in either endpoint order.
+        weights: Edge weights or a legacy serialized representation.
+
+    Returns:
+        Sorted canonical ``((u, v), weight)`` pairs.
     """
 
     weights = normalise_edge_weights(edges, weights)
@@ -226,13 +282,30 @@ def canonical_edge_weight_items(edges: list, weights: list | str | None = None) 
     )
 
 def canonical_edge_weight_strings(edges: list, weights: list | str | None = None) -> tuple[str, str]:
+    """Serialise canonical graph edges and weights for CSV comparison.
+
+    Args:
+        edges: Undirected graph edges.
+        weights: Optional aligned edge weights.
+
+    Returns:
+        String representations of canonical edges and weights.
+    """
     canonical_items = canonical_edge_weight_items(edges, weights)
     canonical_edges = [edge for edge, _ in canonical_items]
     canonical_weights = [weight for _, weight in canonical_items]
     return str(canonical_edges), str(canonical_weights)
 
 def graph_instance_hash(edges: list, weights: list | str | None = None) -> str:
-    """Stable hash for a canonical undirected weighted graph instance."""
+    """Hash an undirected weighted graph independently of edge ordering.
+
+    Args:
+        edges: Undirected graph edges.
+        weights: Optional aligned edge weights.
+
+    Returns:
+        SHA-256 hash of the canonical graph representation.
+    """
     payload = [
         {"edge": [u, v], "weight": weight}
         for (u, v), weight in canonical_edge_weight_items(edges, weights)
@@ -241,6 +314,14 @@ def graph_instance_hash(edges: list, weights: list | str | None = None) -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 def _row_with_graph_hash(row: dict) -> dict:
+    """Upgrade one legacy exact-result CSV row to canonical graph fields.
+
+    Args:
+        row: Existing exact-result CSV row.
+
+    Returns:
+        Canonical row containing a stable graph hash.
+    """
     parsed_edges = ast.literal_eval(row["edges"])
     parsed_weights = normalise_edge_weights(parsed_edges, row.get("weights"))
     edges_str, weights_str = canonical_edge_weight_strings(parsed_edges, parsed_weights)
@@ -255,7 +336,11 @@ def _row_with_graph_hash(row: dict) -> dict:
     }
 
 def ensure_exact_results_misc_has_hashes(csv_path: Path) -> None:
-    """Backfill graph_hash for existing exact-result CSVs before appending new rows."""
+    """Backfill graph hashes before appending to a legacy exact-results CSV.
+
+    Args:
+        csv_path: Shared exact-results CSV to inspect and, if needed, rewrite.
+    """
     if not csv_path.exists() or csv_path.stat().st_size == 0:
         return
 
@@ -272,7 +357,14 @@ def ensure_exact_results_misc_has_hashes(csv_path: Path) -> None:
 
 @contextmanager
 def _exact_results_write_lock(csv_path: Path):
-    """Serialize updates to the shared exact-results CSV across workers."""
+    """Lock the shared exact-results CSV for a single worker update.
+
+    Args:
+        csv_path: CSV whose adjacent lock file should be acquired.
+
+    Yields:
+        Control while the exclusive file lock is held.
+    """
     lock_path = csv_path.with_suffix(csv_path.suffix + ".lock")
     lock_path.parent.mkdir(parents=True, exist_ok=True)
     with lock_path.open("a") as lock_file:
@@ -283,7 +375,16 @@ def _exact_results_write_lock(csv_path: Path):
             fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
 def log_exact_result(energy: float, n: int, m: int, edges: list, weights: list, graph_type: str) -> None:
-    """Log exact solver result to optimal_results_misc.csv unless already present."""
+    """Append one unseen exact result to the shared canonical CSV.
+
+    Args:
+        energy: Exact objective value.
+        n: Number of vertices.
+        m: Number of edges.
+        edges: Undirected graph edges.
+        weights: Edge weights aligned with ``edges``.
+        graph_type: Source or structural graph label.
+    """
     csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
     csv_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -332,7 +433,18 @@ def get_exact_result_from_misc(
     m: int,
     raise_if_missing: bool = True
 ) -> float | None:
-    """Look up exact result from optimal_results_misc.csv by n, m, and graph hash."""
+    """Retrieve a cached exact result for a graph instance.
+
+    Args:
+        edges: Undirected graph edges.
+        weights: Edge weights aligned with ``edges``.
+        n: Number of vertices.
+        m: Number of edges.
+        raise_if_missing: Raise when the result file itself is absent.
+
+    Returns:
+        The stored exact energy, or ``None`` when this instance is not cached.
+    """
     csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
 
     if not csv_path.exists():
@@ -384,8 +496,8 @@ def deduplicate_exact_results_misc() -> None:
     """
     Remove duplicate graph entries from optimal_results_misc.csv in place.
 
-    Keeps the first occurrence of each canonical (edges, weights) pair.
-    Rewrites legacy edge/weight rows into canonical form.
+    Keeps the first occurrence of each canonical ``(edges, weights)`` pair and
+    rewrites legacy rows into canonical form.
     """
     csv_path = Path(__file__).resolve().parent / "optimal_results" / "optimal_results_misc.csv"
 
@@ -437,7 +549,15 @@ def deduplicate_exact_results_misc() -> None:
     print(f"Deduplicated {csv_path}: kept {len(unique_rows)} rows, removed {removed_count} duplicates.")
 
 def read_graphs_as_edge_lists(path: str | None = None) -> list[list[tuple[int, int]]]:
-    # Used to decompose "House of Graphs" adjacency lists and format into edge lists
+    """Parse House of Graphs adjacency-list data into zero-based edge lists.
+
+    Args:
+        path: Optional file path.  The benchmark configuration supplies the
+            default relative path.
+
+    Returns:
+        One normalised undirected edge list per graph in the source file.
+    """
     graphs = []
     if path is None:
         path = get_benchmark_params()["relative_graph_adjList_path"]
@@ -478,8 +598,12 @@ def read_graphs_as_edge_lists(path: str | None = None) -> list[list[tuple[int, i
     
     return graphs
 
-"""Methods to retrieve benchmarking metrics"""
 def get_processor_name():
+    """Return the host processor name used in benchmark metadata.
+
+    Returns:
+        Best available processor or chip name for the current host.
+    """
     try:
         chip_name = subprocess.check_output(
             ["system_profiler", "SPHardwareDataType"], text=True
@@ -492,6 +616,11 @@ def get_processor_name():
     return platform.processor() or platform.machine()
 
 def get_total_ram_gb():
+    """Return installed host memory in GiB when it can be queried.
+
+    Returns:
+        Total memory in GiB, or ``None`` if the query fails.
+    """
     try:
         total_bytes = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"], text=True).strip())
         return round(total_bytes / (1024 ** 3), 2)
@@ -499,18 +628,33 @@ def get_total_ram_gb():
         return None
 
 def get_physical_cores():
+    """Return physical CPU-core count when the host exposes it.
+
+    Returns:
+        Physical core count, falling back to the logical count if needed.
+    """
     try:
         return int(subprocess.check_output(["sysctl", "-n", "hw.physicalcpu"], text=True).strip())
     except Exception:
         return os.cpu_count()
 
 def get_logical_cores():
+    """Return logical CPU-core count for benchmark metadata.
+
+    Returns:
+        Logical core count, or the Python fallback value.
+    """
     try:
         return int(subprocess.check_output(["sysctl", "-n", "hw.logicalcpu"], text=True).strip())
     except Exception:
         return os.cpu_count()
 
 def get_peak_ram_mb():
+    """Return the current process peak resident memory in MiB.
+
+    Returns:
+        Peak resident memory in MiB, or ``None`` when unavailable.
+    """
     try:
         peak_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         return round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 ** 2), 2)
@@ -518,14 +662,16 @@ def get_peak_ram_mb():
         return None
 
 
-"""The below graph type verification methods are intended for logging purposes only, to assure that the benchmarking instance was indeed of a desired type)"""
 def is_triangle_free(edge_list: list[tuple[int, int]]) -> bool:
     """
-    Return True iff the undirected graph described by edge_list is triangle-free.
+    Check whether an edge list represents a simple triangle-free graph.
 
-    Self-loops are treated as invalid and therefore return False.
-    Parallel edges are ignored for the triangle check, since they do not create
-    triangles in a simple-graph sense.
+    Args:
+        edge_list: Undirected vertex pairs to validate.
+
+    Returns:
+        ``True`` if no triangle is present.  Self-loops are invalid and parallel
+        edges are ignored for the triangle check.
     """
     adjacency: dict[int, set[int]] = {}
 
@@ -547,10 +693,14 @@ def is_triangle_free(edge_list: list[tuple[int, int]]) -> bool:
 
 def is_3_regular(edge_list: list[tuple[int, int]]) -> bool:
     """
-    Return True iff the undirected graph described by edge_list is 3-regular.
+    Check whether an edge list represents a simple 3-regular graph.
 
-    The graph is interpreted as a simple undirected graph. Self-loops and
-    parallel edges are treated as invalid and therefore return False.
+    Args:
+        edge_list: Undirected vertex pairs to validate.
+
+    Returns:
+        ``True`` when every vertex has degree three.  Self-loops and parallel
+        edges make the graph invalid.
     """
     adjacency: dict[int, set[int]] = {}
     seen_edges: set[tuple[int, int]] = set()

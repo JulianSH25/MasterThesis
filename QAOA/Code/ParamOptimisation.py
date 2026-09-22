@@ -1,3 +1,10 @@
+"""Optimise QAOA circuit parameters and compute exact comparison energies.
+
+``Main.py`` selects one of these optimisers after circuit construction.  Adam
+is the benchmark default; the heuristic, Bayesian, COBYLA, grid-search, and
+exact-eigensolver paths remain available for controlled comparisons and tests.
+"""
+
 import os
 
 import numpy as np
@@ -50,6 +57,21 @@ def optimise_adam(
     x0: np.ndarray | None = None,
     zero_angle_warm_start: bool = False,
 ):
+    """Run Adam with either a supplied point, a heuristic point, or random angles.
+
+    Args:
+        QAOA: Built parameterised QAOA circuit to optimise.
+        no_layers: QAOA depth used for compatibility with optimiser callers.
+        steps: Maximum Adam updates.
+        learning_rate: Adam learning rate.
+        x0: Optional flattened initial parameter point.
+        zero_angle_warm_start: Use the all-zero point for supported
+            statevector-based warm-start modes.
+
+    Returns:
+        Qiskit's optimiser result, augmented with initial-point and trajectory
+        data by ``_adam_optimiser``.
+    """
     benchmark_params: dict = get_benchmark_params()
     zero_initial_point_modes = {"standard", "amplified", "amplified_king"}
     if (
@@ -80,6 +102,16 @@ def heuristic_optimiser(
     no_layers: int,
     learning_rate: float = 0.05,
     ):
+    """Choose an Adam initial point through short preliminary optimisations.
+
+    Args:
+        QAOA: Built parameterised QAOA circuit.
+        no_layers: QAOA depth used by the preliminary optimiser runs.
+        learning_rate: Adam learning rate for those runs.
+
+    Returns:
+        The best short-run optimiser result and its flattened initial point.
+    """
     benchmark_params: dict = get_benchmark_params()
     best_result_obj = None
     steps = benchmark_params.get("heuristic_optimiser_iterations")
@@ -119,6 +151,22 @@ def _adam_optimiser(
     learning_rate: float = 0.05,
     x0: np.ndarray | None = None,
 ):
+    """Execute one Adam optimisation and record one base energy per update.
+
+    Args:
+        QAOA: Built parameterised QAOA circuit.
+        no_layers: QAOA depth used by legacy caller interfaces.
+        steps: Maximum number of Adam updates.
+        learning_rate: Adam learning rate.
+        x0: Optional flattened initial point; random values are sampled otherwise.
+
+    Returns:
+        The optimiser result and the initial flattened parameter point.
+
+    The finite-difference gradient performs extra perturbation evaluations.
+    Only the base-point energy of each update is retained in the stored Adam
+    trajectory, so history indices retain their intended interpretation.
+    """
     assert isinstance(QAOA, QAOACircuit)
     optimiser = ADAM(maxiter=steps, lr=learning_rate)
     print(f"ADAM optimizer configured with maxiter={steps} and learning_rate={learning_rate}") if debug else None
@@ -158,6 +206,14 @@ def _adam_optimiser(
     dimension = QAOA.p * QAOA.no_param_types
 
     def objective_single(x0: np.ndarray) -> float:
+        """Evaluate the negative QAOA energy at one flattened parameter point.
+
+        Args:
+            x0: Flattened vector containing one group of angles per gate type.
+
+        Returns:
+            Negative QAOA energy for minimisation by Adam.
+        """
         # Split flat array into grouped parameters matching circuit structure
         x0_grouped = []
         offset = 0
@@ -170,6 +226,14 @@ def _adam_optimiser(
         return -value
 
     def objective(theta: np.ndarray) -> float:
+        """Evaluate one or several Adam objective points, sharing circuit state.
+
+        Args:
+            theta: One flattened point or concatenated fixed-size point batch.
+
+        Returns:
+            Negative energy scalar or an array of negative energies.
+        """
         # This is the main objective function passed to the ADAM optimiser, which handles both single and grouped evaluations based on the input size. It also manages parallel evaluation for grouped inputs.
         start = time.time() # XXX Time
         theta = np.asarray(theta, dtype=float)
@@ -215,10 +279,24 @@ def _adam_optimiser(
     def adam_gradient(theta: np.ndarray) -> np.ndarray:
         """Compute Adam's usual finite-difference gradient while recording
         only the energy at the base Adam point, not its perturbations.
+
+        Args:
+            theta: Flattened current Adam parameter vector.
+
+        Returns:
+            Numerical gradient of the minimised negative-energy objective.
         """
         base_evaluation_recorded = False
 
         def traced_objective(point: np.ndarray):
+            """Evaluate one finite-difference point and trace its base energy once.
+
+            Args:
+                point: Adam base point or a finite-difference perturbation.
+
+            Returns:
+                Objective value passed back to the numerical gradient routine.
+            """
             nonlocal base_evaluation_recorded
             value = objective(point)
 
@@ -266,7 +344,15 @@ def _adam_optimiser(
 
 def eval_QAOA_circuit(point: list[np.ndarray], QAOA: QAOACircuit) -> float:
     # Step 2
-    """This function receives a set of points, i.e. QAOA parameters, and evaluates the actual QAOA circuit on those parameters, returns the QAOA value found"""
+    """Bind one grouped QAOA parameter point and return its exact energy.
+
+    Args:
+        point: One angle array per QAOA parameter group.
+        QAOA: Built circuit to bind and evaluate.
+
+    Returns:
+        Exact QMC energy of the resulting statevector.
+    """
 
     QAOA.bind_circuit_parameters(parameters=point)
     statevec = QAOA.run_circuit(return_statevector=True)
@@ -284,6 +370,14 @@ def optimise_exact(QAOA: QAOACircuit, graph_generation_type: str = "unknown") ->
     """
     Compute the exact maximum eigenvalue of the QAOA cost Hamiltonian.
     Also logs results to optimal_results_misc.csv with metadata.
+
+    Args:
+        QAOA: Circuit whose cached QMC cost operator is diagonalised.
+        graph_generation_type: Graph-source label written to the exact-results
+            cache.
+
+    Returns:
+        Largest eigenvalue of the Hermitian cost Hamiltonian.
     """
     if QAOA.cost_operator is None:
         QAOA.build_cost_operator()
@@ -330,15 +424,19 @@ def optimise_exact(QAOA: QAOACircuit, graph_generation_type: str = "unknown") ->
 
 
 class BayesianOptimiser:
+    """Legacy Gaussian-process optimiser for the vanilla-QAOA parameterisation."""
     @staticmethod
     def compute_bayesian_params(dataset: tuple, prior):
         # Step 4
         """
-        This method fits the prior on observed data and extracts kernel hyperparameters.
+        Fit the Gaussian-process prior and extract its amplitude and length scale.
 
-        :param dataset: tuple (points, y) with sampled points and observed energies
-        :param prior: Gaussian process regressor to fit on the dataset
-        :return: tuple (sigma, l) with amplitude and length-scale hyperparameters (in the current implementation, also returning nothing would be fine)
+        Args:
+            dataset: ``(points, y)`` with sampled parameter points and energies.
+            prior: Gaussian-process regressor to fit.
+
+        Returns:
+            Kernel amplitude and length scale.
         """
         points, y = dataset
         X = np.array([np.concatenate([np.asarray(point[0]), np.asarray(point[1])]) for point in points], dtype=float)
@@ -350,12 +448,15 @@ class BayesianOptimiser:
 
     def expected_improvement(self, prior, X_candidates: np.ndarray, f_min: float):
         """
-        This method computes expected-improvement values for candidate points.
+        Compute expected-improvement scores for candidate parameter points.
 
-        :param prior: fitted Gaussian process regressor
-        :param X_candidates: candidate points in flattened parameter space
-        :param f_min: current best objective value (i.e. energy)
-        :return: expected-improvement score for each candidate point
+        Args:
+            prior: Fitted Gaussian-process regressor.
+            X_candidates: Flattened candidate points.
+            f_min: Current best observed objective value.
+
+        Returns:
+            Expected-improvement score for each candidate.
         """
         mean, std = prior.predict(X_candidates, return_std=True)
         covariance = np.maximum(std**2, 1e-12) # NOTE It seems that the more standard way outside of the scope of this paper is to use std and not std ** 2
@@ -369,12 +470,15 @@ class BayesianOptimiser:
     def compute_acquisition_function(self, prior, f_min, candidate_points=None):
         # Step 6.2/6.3
         """
-        This method selects the candidate with the maximum expected improvement.
+        Select the candidate with the largest expected-improvement score.
 
-        :param prior: fitted Gaussian process regressor
-        :param f_min: current best objective value
-        :param candidate_points: list of candidate QAOA parameter tuples (gamma, beta)
-        :return: candidate point that maximises the acquisition function
+        Args:
+            prior: Fitted Gaussian-process regressor.
+            f_min: Current best observed objective value.
+            candidate_points: Candidate QAOA parameter-group tuples.
+
+        Returns:
+            Candidate point selected by the acquisition function.
         """
         assert candidate_points is not None
         X = np.array([np.concatenate([np.asarray(point[0]), np.asarray(point[1])]) for point in candidate_points], dtype=float)
@@ -385,9 +489,10 @@ class BayesianOptimiser:
 
     def build_gp_prior(self):
         """
-        This method builds the Gaussian-process prior used for Bayesian optimisation.
+        Build the configured Gaussian-process prior.
 
-        :return: configured GaussianProcessRegressor with Constant*Matern+White kernel
+        Returns:
+            Regressor with constant, Matern, and white-noise kernel components.
         """
         kernel = ConstantKernel(
             1.0,
@@ -400,14 +505,16 @@ class BayesianOptimiser:
     def bayesian_optimisation(self, QAOA: QAOACircuit, N_bayes: float, no_layers: int, points: list[tuple] = None):
         # points: list of parameters Θ = (𝛄, β) needed for the QAOA
         """
-        NOTE: MAIN OPTIMISATION FUNCTION; this one is the entry point for the Bayesian optimisation per the paper [provide citation]
-        This function optimises the QAOA parameters Θ = (𝛄, β) using Bayesian optimization.
+        Optimise vanilla-QAOA parameters with sequential Bayesian optimisation.
 
-        :param QAOA: configured QAOA circuit instance
-        :param N_bayes: number of Bayesian optimisation iterations
-        :param no_layers: number of QAOA layers p
-        :param points: optional initial list of QAOA parameter tuples (gamma, beta); if not provided, random initial points will be sampled
-        :return: best energy value found during optimisation
+        Args:
+            QAOA: Configured QAOA circuit instance.
+            N_bayes: Number of acquisition iterations after initial fitting.
+            no_layers: QAOA circuit depth.
+            points: Optional initial ``(gamma, beta)`` sample set.
+
+        Returns:
+            Best energy observed during the optimisation.
         """
         if not isinstance(QAOA, QAOACircuit):
             raise TypeError("QAOA must be a class instance of QAOACircuit")
@@ -455,10 +562,17 @@ def optimise_cobyla( # TODO update & refactor method; currently this one is outd
     x0: np.ndarray | None = None,
 ):
     """
-    NOTE: ALTERNATIVE OPTIMISATION FUNCTION; this one is standalone, in the sense that all the other methods in this file are only for the Bayesian optimisation, but this one is a separate method that can be used to optimise QAOA parameters using COBYLA instead of Bayesian optimisation.
-    :param no_layers: number of QAOA layers
-    :param max_iter: maximum number of COBYLA iterations
-    :return: scipy optimisation result object
+    Optimise QAOA angles with COBYLA for legacy comparison experiments.
+
+    Args:
+        QAOA: Built parameterised QAOA circuit.
+        no_layers: QAOA depth.
+        max_iter: Maximum COBYLA iterations.
+        correlations: Optional SDP correlations for experimental initialisation.
+        x0: Optional flattened initial parameter point.
+
+    Returns:
+        SciPy optimisation result augmented with its initial point.
     """
     assert isinstance(QAOA, QAOACircuit)
     init_close_to_zero = get_benchmark_params()["init_QAOAparams_close_to_zero"]
@@ -500,6 +614,14 @@ def optimise_cobyla( # TODO update & refactor method; currently this one is outd
         print(f"Using provided initial parameters x0 with shape {x0.shape}")
 
     def objective(x0: np.ndarray) -> float:
+        """Return negative QAOA energy for one COBYLA parameter vector.
+
+        Args:
+            x0: Flattened QAOA parameter vector.
+
+        Returns:
+            Negative circuit energy.
+        """
         start = time.time() # XXX Time
         gamma_vals = x0[:no_layers]
         beta_vals = x0[no_layers:]
@@ -520,6 +642,20 @@ def optimise_cobyla( # TODO update & refactor method; currently this one is outd
 
 
 def grid_search(QAOA: QAOACircuit, no_layers: int, precision: float, shuffle: bool = False):
+    """Evaluate a Cartesian grid of angle values for small controlled tests.
+
+    Args:
+        QAOA: Built circuit exposing parameter groups and ranges.
+        no_layers: Expected circuit depth; the circuit's actual groups prevail.
+        precision: Angular distance between adjacent grid values.
+        shuffle: Reserved compatibility flag; currently does not alter ordering.
+
+    Returns:
+        Largest energy observed over the complete parameter grid.
+
+    Raises:
+        ValueError: If parameter groups or grid precision are invalid.
+    """
     group_lengths = [len(parameter_group) for parameter_group in QAOA.qaoa_parameters]
     if not group_lengths:
         raise ValueError("QAOA.qaoa_parameters must be populated before grid search")
@@ -549,6 +685,11 @@ def grid_search(QAOA: QAOACircuit, no_layers: int, precision: float, shuffle: bo
     parameter_axes = [value_spaces[group_index] for group_index, length in enumerate(group_lengths) for _ in range(length)]
 
     def parameter_stream():
+        """Yield grouped parameter vectors from the Cartesian grid.
+
+        Yields:
+            One tuple of angle arrays per circuit parameter group.
+        """
         for params in itertools.product(*parameter_axes):
             offset = 0
             grouped_params = []

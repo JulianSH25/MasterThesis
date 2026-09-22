@@ -1,3 +1,10 @@
+"""Coordinate one QMC SDP solve with GP/GW and optional Algorithm 17 rounding.
+
+This module is the SDP-side entry point used by ``QAOA.Code.WarmStart``.  It
+chooses the requested Lasserre relaxation, rounds its Level-1 information, and
+for Level 2 constructs King's additional entangled state and cache-ready data.
+"""
+
 if __package__ in (None, ""):
     from Lasserre_level_2 import Level_2_Rounding
     from SDP_solver import ABCParams, SDP_Solver_
@@ -22,15 +29,19 @@ debug = get_benchmark_params().get("debug", False)
 
 def main_benchmark(n_vertices, params: ABCParams, instance, sparse: bool, benchm_filename = None, uuid__ = None):
     """
-    This function solves and rounds one SDP instance, optionally persisting benchmark rows.
+    Solve and round a legacy classical-cut SDP benchmark, optionally persisting it.
 
-    :param n_vertices: number of vertices in the graph instance
-    :param params: SDP Hamiltonian coefficients as a, b, c bits
-    :param instance: tuple (edges, weights) describing the graph
-    :param sparse: whether the benchmark configuration uses sparse graph generation
-    :param benchm_filename: optional benchmark filename prefix override
-    :param uuid__: optional run identifier for benchmark row tracking
-    :return: tuple (edge_count, edges_in_cut, cuts, M_optimal, cut_variations)
+    Args:
+        n_vertices: Number of graph vertices.
+        params: Binary ``a``, ``b``, ``c`` Hamiltonian selectors.
+        instance: Pair ``(edges, weights)`` describing the graph.
+        sparse: Graph-generation flag retained in the benchmark interface.
+        benchm_filename: Optional output filename prefix.
+        uuid__: Optional benchmark-row identifier.
+
+    Returns:
+        Cut-edge count, cut edges, assignment, moment matrix, and observed
+        cut-count variations.
     """
     solver_sdp = SDP_Solver_()
 
@@ -114,7 +125,7 @@ def main(
     algorithm17_beta_mode: str = "fixed",
 ):
     """
-    Run a single SDP solve and rounding flow.
+    Run one quantum SDP solve and its configured rounding flow.
 
     The two level arguments have separate responsibilities:
         - initial_solver_level_M selects the SDP relaxation that is solved.
@@ -129,21 +140,24 @@ def main(
 
     This function runs the SDP solve and rounding flow without benchmark persistence.
 
-    :param instance: tuple (edges, weights) describing the graph
-    :param n_vertices: number of vertices in the graph instance
-    :param lasserre_level: downstream rounding level (1 for GP, 2 for Algorithm 17)
-    :param params: SDP Hamiltonian coefficients as a, b, c bits
-    :param initial_solver_level_M: SDP relaxation to solve (1 for the 3n level-1
-        matrix, 2 for the full level-2 King matrix)
-    :param seed: optional seed for seeded GP rounding
-    :param algorithm17_num_seeds: number of consecutive Algorithm 17 rotation
-        seeds to evaluate; the highest-energy state is retained
-    :param algorithm17_seed_start: first Algorithm 17 rotation seed; defaults
-        to seed + 1 when seed is provided
-    :param algorithm17_beta_mode: ``fixed`` uses King's universal beta=0.390;
-        ``analytic_instance`` maximises the analytical F objective separately
-        for each solved instance
-    :return: tuple (energy, M_optimal, states, cuts, sdp_result)
+    Args:
+        instance: Pair ``(edges, weights)`` describing the graph.
+        n_vertices: Number of graph vertices.
+        lasserre_level: Downstream rounding level, one or two.
+        params: Binary ``a``, ``b``, ``c`` Hamiltonian selectors.
+        debug: Print additional solver and rounding diagnostics.
+        initial_solver_level_M: SDP relaxation to solve, one or two.
+        seed: Optional seed for reproducible GP/GW rounding.
+        algorithm17_num_seeds: Number of consecutive Algorithm 17 axis seeds;
+            the highest actual energy is retained.
+        algorithm17_seed_start: First Algorithm 17 axis seed; defaults to
+            ``seed + 1`` if an SDP seed is supplied.
+        algorithm17_beta_mode: ``fixed`` uses King's universal beta, whereas
+            ``analytic_instance`` optimises the analytical objective per graph.
+
+    Returns:
+        Rounded product energy, optimal moment matrix, local states, classical
+        cut, and optional Level-2 postprocessing details.
     """
     solver_sdp = SDP_Solver_(lasserre_level=lasserre_level)
     edges, weights = instance

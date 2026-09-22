@@ -1,3 +1,10 @@
+"""Solve classical Max-Cut instances exactly for legacy SDP benchmarks.
+
+The current thesis uses quantum exact energies elsewhere, but the standalone
+SDP benchmark pipeline still uses this Gurobi model to validate its classical
+cut-rounding experiments.
+"""
+
 import os
 #os.environ['GRB_LICENSE_FILE'] = '/Users/julian_dev/Projects/University/MasterThesis/gurobi.lic'#'/Users/julian/PycharmProjects/PythonProject/MasterThesis/gurobi.lic'
 #os.environ['GRB_LICENSE_FILE'] = '/Users/julian/PycharmProjects/PythonProject/MasterThesis/gurobi.lic'
@@ -6,15 +13,18 @@ from gurobipy import Model, GRB, quicksum
 
 def gurobi_maxcut(n, edges, weights, time_limit=None, mip_gap=None, verbose=True):
     """
-    This function solves a weighted Max-Cut instance with Gurobi.
+    Solve a weighted classical Max-Cut instance with Gurobi.
 
-    :param n: number of vertices
-    :param edges: list of edges as tuples (i, j)
-    :param weights: list of edge weights aligned with edges
-    :param time_limit: optional solver time limit in seconds
-    :param mip_gap: optional MIP optimality gap target
-    :param verbose: whether Gurobi solver output is printed
-    :return: tuple (objective, y_solution, z_solution, status)
+    Args:
+        n: Number of vertices.
+        edges: Undirected graph edges.
+        weights: Edge weights aligned with ``edges``.
+        time_limit: Optional solver time limit in seconds.
+        mip_gap: Optional target relative MIP gap.
+        verbose: Enable Gurobi's own log output.
+
+    Returns:
+        Objective, vertex assignment, edge-cut indicators, and solver status.
     """
 
     model = Model("maxcut")

@@ -1,3 +1,11 @@
+"""Represent the Level-2 Pauli basis and implement King's Algorithm 17.
+
+``SDP_solver.py`` constructs the Level-2 moment matrix.  This module then
+extracts the correlations needed by the Algorithm 17 postprocessing, generates
+the entangling rotations, and materialises the resulting statevector for the
+small instances that can be simulated exactly.
+"""
+
 from itertools import combinations
 import time
 
@@ -17,23 +25,44 @@ def canonical_pauli_string(items):
     """
     Canonical representation of a Pauli string.
 
-    items: iterable of (vertex, pauli)
-    returns: sorted tuple ((i, k), ...)
+    Args:
+        items: Iterable of ``(vertex, Pauli-index)`` pairs.
+
+    Returns:
+        Sorted tuple ``((i, k), ...)``.
     """
     return tuple(sorted(items, key=lambda x: x[0]))
 
 
 def P(i: int, k: int):
     """
-    One-body Pauli string P_i.
+    Create a one-body Pauli string.
+
+    Args:
+        i: Vertex on which the Pauli acts.
+        k: Encoded Pauli direction, ``0 -> X``, ``1 -> Y``, ``2 -> Z``.
+
+    Returns:
+        Canonical one-body Pauli-string tuple.
     """
     return ((i, k),)
 
 
 def PP(i: int, k: int, j: int, l: int):
     """
-    Two-body Pauli string P_i Q_j.
-    Assumes i != j.
+    Create a canonical two-body Pauli string.
+
+    Args:
+        i: First vertex.
+        k: Pauli direction on ``i``.
+        j: Second vertex, distinct from ``i``.
+        l: Pauli direction on ``j``.
+
+    Returns:
+        Canonical two-body Pauli-string tuple.
+
+    Raises:
+        ValueError: If both Paulis act on the same vertex.
     """
     if i == j:
         raise ValueError("Use Pauli multiplication for same-vertex products.")
@@ -42,7 +71,14 @@ def PP(i: int, k: int, j: int, l: int):
 
 def build_pauli_basis_level_2(n_vertices: int):
     """
-    Build P_n^(2): identity, all one-body Paulis, all two-body Paulis.
+    Build the Level-2 Pauli basis and its lookup table.
+
+    Args:
+        n_vertices: Number of graph vertices.
+
+    Returns:
+        Ordered basis containing identity, one-body, and two-body strings plus
+        its Pauli-string-to-index mapping.
     """
     basis = [()]  # identity
 
@@ -63,7 +99,11 @@ def build_pauli_basis_level_2(n_vertices: int):
 
 def single_pauli_multiply(a: int, b: int):
     """
-    Multiply single-qubit Paulis.
+    Multiply two encoded single-qubit Pauli operators.
+
+    Args:
+        a: Left Pauli index.
+        b: Right Pauli index.
 
     Pauli encoding:
         0 -> X
@@ -101,7 +141,11 @@ def single_pauli_multiply(a: int, b: int):
 
 def multiply_pauli_strings(A, B):
     """
-    Multiply two Pauli strings A * B.
+    Multiply two canonical Pauli strings.
+
+    Args:
+        A: Left canonical Pauli string.
+        B: Right canonical Pauli string.
 
     A, B are tuples like:
         ()
@@ -150,8 +194,16 @@ def multiply_pauli_strings(A, B):
     return phase, C
 
 class Level_2_Rounding:
+    """Hold one Level-2 SDP solution and its Algorithm 17 rounding data.
+
+    The caller assigns the graph, moment matrix, basis indices, and GP/GW
+    Bloch vectors before invoking :meth:`QMC_rounding`.  Intermediate values
+    such as ``x_dict``, rotation angles, axes, and signs are retained for both
+    state construction and warm-start caching.
+    """
 
     def __init__(self):
+        """Initialise empty graph, SDP, and Algorithm 17 state containers."""
         self.edges: list[tuple[int, int]] = []
         self.weights: list[float] = []
         self.n_vertices: int = 0
@@ -172,6 +224,15 @@ class Level_2_Rounding:
         self.output: dict | None = None
 
     def build_x_vars(self):
+        """Compute Algorithm 17 edge values from Level-2 Pauli correlations.
+
+        Returns:
+            The populated edge-to-``x_ij`` dictionary.
+
+        Raises:
+            ValueError: If reduced-matrix mode receives a non-``3n x 3n``
+                moment matrix.
+        """
         I = ()
 
         use_reduced_matrix = self.pidx is None
@@ -205,12 +266,26 @@ class Level_2_Rounding:
     @staticmethod
     def F(beta, x):
         """
-        Function F(beta; x) from Algorithm 17, paper by Robbie King.
-        F(beta; x) = f(x) * (0.5 + 0.5(1 - beta^2(1-x)^2) + (2/pi) beta x (sqrt(1-beta^2) + (1-sqrt(1-beta^2)) x))
+        Evaluate King's analytical per-edge energy expression ``F(beta; x)``.
+
+        Args:
+            beta: Rotation parameter in the interval ``[0, 1]``.
+            x: Algorithm 17 edge value derived from the moment matrix.
+
+        Returns:
+            Analytical edge-energy contribution used in the guarantee analysis.
         """
         x = float(np.clip(np.real(x), -1.0, 1.0))
 
         def f(x_ij):
+            """Evaluate the product-state factor in King's edge formula.
+
+            Args:
+                x_ij: Algorithm 17 edge value.
+
+            Returns:
+                Hypergeometric product-state contribution.
+            """
             t = -(1.0 + 2.0 * x_ij) / 3.0
             return 0.5 - (4.0 / (3.0 * pi)) * t * hyp2f1(
                 0.5, 0.5, 2.5, t**2
@@ -298,8 +373,14 @@ class Level_2_Rounding:
         self,
     ) -> float:
         """
-        Choose beta in [0, 1] that maximises King's analytical
-        Algorithm 17 energy expression for this SDP solution.
+        Choose an instance-specific beta maximising the analytical energy.
+
+        Returns:
+            Selected value ``beta_star`` in ``[0, 1]``.
+
+        The global SHGO search is compared explicitly with King's universal
+        value and both boundaries, so this objective cannot select a worse
+        analytical candidate than the fixed choice.
         """
         optimisation_start = time.perf_counter()
 
@@ -309,12 +390,28 @@ class Level_2_Rounding:
             self.build_x_vars()
 
         def analytic_energy(beta: float) -> float:
+            """Sum the weighted analytical edge contributions at ``beta``.
+
+            Args:
+                beta: Candidate Algorithm 17 rotation parameter.
+
+            Returns:
+                Weighted instance-level analytical energy.
+            """
             return float(sum(
                 float(weight) * self.F(beta, self.x_dict[(i, j)])
                 for (i, j), weight in zip(self.edges, self.weights)
             ))
 
         def objective(x) -> float:
+            """Negate analytical energy for SHGO minimisation.
+
+            Args:
+                x: One-element optimisation vector containing ``beta``.
+
+            Returns:
+                Negative analytical energy.
+            """
             return -analytic_energy(float(x[0]))
 
         result = shgo(
@@ -354,10 +451,10 @@ class Level_2_Rounding:
         # Step 6
     def build_theta_vars(self):
         """
-        Step 6 of Algorithm 17.
+        Compute Algorithm 17 edge rotation angles.
 
-        theta_ij = 1/2 * arcsin(beta_star * x_ij) if x_ij >= 0
-                 = 0 otherwise
+        Returns:
+            Edge-to-angle dictionary with zero angles for negative ``x_ij``.
         """
         if not self.x_dict:
             self.build_x_vars()
@@ -377,6 +474,11 @@ class Level_2_Rounding:
     
     @staticmethod
     def pauli_matrices():
+        """Return the standard single-qubit Pauli matrices ``X``, ``Y``, and ``Z``.
+
+        Returns:
+            Three ``2 x 2`` complex NumPy arrays in ``(X, Y, Z)`` order.
+        """
         X = np.array([[0, 1], [1, 0]], dtype=complex)
         Y = np.array([[0, -1j], [1j, 0]], dtype=complex)
         Z = np.array([[1, 0], [0, -1]], dtype=complex)
@@ -385,13 +487,16 @@ class Level_2_Rounding:
     # Step 7
     def sample_orthogonal_n_vectors(self, seed=None):
         """
-        Step 7 of Algorithm 17.
+        Sample one unit rotation axis orthogonal to each rounded Bloch vector.
 
-        For each vertex k, sample a random unit vector n_k satisfying
+        Args:
+            seed: Optional random seed for reproducible axis sampling.
 
-            n_k · v_k = 0
+        Returns:
+            List of unit axes ``n_k`` satisfying ``n_k . v_k = 0``.
 
-        where v_k is the Bloch vector of the GP-rounded product state.
+        Raises:
+            ValueError: If a supplied Bloch vector has near-zero norm.
         """
         rng = np.random.default_rng(seed)
         self.n_vectors = []
@@ -424,9 +529,10 @@ class Level_2_Rounding:
     # Step 8
     def build_P_matrices(self):
         """
-        Step 8 of Algorithm 17.
+        Build the local Pauli generators ``P_k = n_k . sigma_k``.
 
-        P_k = n_k · sigma_k
+        Returns:
+            One Hermitian ``2 x 2`` generator per vertex.
         """
         if not hasattr(self, "n_vectors") or not self.n_vectors:
             self.sample_orthogonal_n_vectors()
@@ -443,10 +549,14 @@ class Level_2_Rounding:
     @staticmethod
     def pure_state_from_bloch(v):
         """
-        Convert a unit Bloch vector into one compatible pure state vector.
+        Convert a Bloch vector to a compatible normalised pure statevector.
 
-        v = (x, y, z)
-        |v> = cos(theta/2)|0> + exp(i phi) sin(theta/2)|1>
+        Args:
+            v: Nonzero three-dimensional Bloch vector.
+
+        Returns:
+            Two-component complex statevector with the corresponding Bloch
+            direction.
         """
         v = np.asarray(v, dtype=float)
         v = v / np.linalg.norm(v)
@@ -467,14 +577,10 @@ class Level_2_Rounding:
     # Step 9
     def build_epsilon_signs(self):
         """
-        Step 9 of Algorithm 17.
+        Determine the Algorithm 17 sign for every edge rotation.
 
-        Choose epsilon_ij based on the phase of
-
-            <v_i|P_j|v_j> <v_j|P_i|v_i>
-
-        If arg is in [0, pi), epsilon = +1.
-        If arg is in [-pi, 0), epsilon = -1.
+        Returns:
+            Edge-to-sign dictionary containing values ``+1`` or ``-1``.
         """
         if not hasattr(self, "P_matrices") or not self.P_matrices:
             self.build_P_matrices()
@@ -506,9 +612,9 @@ class Level_2_Rounding:
     # Step 10
     def build_final_state(self, max_vertices: int = 16):
         """
-        Step 10 of Algorithm 17.
+        Materialise the Algorithm 17 entangled statevector and its energies.
 
-        Builds the final entangled state vector
+        The method builds
 
             prod_ij exp(i epsilon_ij theta_ij P_i ⊗ P_j) ⊗_k |v_k>
 
@@ -517,8 +623,15 @@ class Level_2_Rounding:
             - lower_bound_energy = analytic_F_value for triangle-free graphs
             - actual_energy = <psi|H|psi>
 
-        This explicitly materialises a 2^n state vector, so it is only practical
-        for small n.
+        Args:
+            max_vertices: Protective limit for explicit ``2**n`` simulation.
+
+        Returns:
+            Statevector, retained rounding data, analytical value, and actual
+            QMC energy in a cache-ready dictionary.
+
+        Raises:
+            ValueError: If explicit statevector construction exceeds the limit.
         """
         if self.n_vertices > max_vertices:
             raise ValueError(
@@ -542,12 +655,31 @@ class Level_2_Rounding:
         # (removed local pure_state_from_bloch)
 
         def kron_all(vectors):
+            """Take an ordered tensor product of local statevectors.
+
+            Args:
+                vectors: Local statevectors in vertex order.
+
+            Returns:
+                Their global tensor-product statevector.
+            """
             result = vectors[0]
             for vec in vectors[1:]:
                 result = np.kron(result, vec)
             return result
 
         def apply_two_qubit_gate(state, gate, i, j):
+            """Apply a two-qubit matrix to statevector axes ``i`` and ``j``.
+
+            Args:
+                state: Global ``2**n`` statevector.
+                gate: ``4 x 4`` matrix acting on the selected qubits.
+                i: First vertex/qubit index.
+                j: Second vertex/qubit index.
+
+            Returns:
+                Updated global statevector.
+            """
             if i == j:
                 raise ValueError("Cannot apply two-qubit gate to same qubit.")
 
@@ -567,6 +699,17 @@ class Level_2_Rounding:
             return psi.reshape(-1)
 
         def two_qubit_expectation(state, operator, i, j):
+            """Evaluate a two-qubit operator without building its full embedding.
+
+            Args:
+                state: Global statevector.
+                operator: ``4 x 4`` operator acting on ``i`` and ``j``.
+                i: First vertex/qubit index.
+                j: Second vertex/qubit index.
+
+            Returns:
+                Real expectation value of ``operator``.
+            """
             psi = state.reshape([2] * self.n_vertices)
 
             axes = [i, j] + [q for q in range(self.n_vertices) if q not in (i, j)]
