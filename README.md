@@ -65,3 +65,8 @@ The scripts beginning with `__` in `QAOA/Code/` process the stored result CSVs a
 - `__summarize_warm_start_caches.py` for creating a CSV summary of the cached SDP results.
 
 The output directories used by these scripts are chosen through their command-line arguments. This keeps the raw benchmark CSVs separate from the generated figures and numerical summaries.
+
+## Runtime
+
+A conda environment yaml has been added to the repo: current_environment_backup/MasterThesis.yml
+Additionally I have included a requirements.txt file with all versions used throughout the final benchmark. All final benchmarks were conducted on the DACS HPC cluster and I recommend doing so if needed. Especially for Lasserre 2 warm start based runs, RAM is a major bottleneck.
